@@ -1,0 +1,370 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --color-navy: hsl(var(--navy));
+  --color-navy-hover: hsl(var(--navy-hover));
+  --color-gold: hsl(var(--gold));
+  --color-teal: hsl(var(--teal));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-error: hsl(var(--error));
+
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --font-display: 'Poppins', sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+
+  /* ─── Dynamic School Theme (overridable) ─── */
+  --color-primary: #6C63FF;
+  --color-accent: #FF6584;
+  --color-primary-light: rgba(108, 99, 255, 0.12);
+  --color-primary-dark: #4B44CC;
+  --color-accent-light: rgba(255, 101, 132, 0.12);
+  --gradient-main: linear-gradient(135deg, #6C63FF, #A78BFA);
+  --gradient-hero: linear-gradient(135deg, #FF6584, #6C63FF);
+  --font-primary: 'Plus Jakarta Sans', sans-serif;
+  --radius-base: 16px;
+
+  /* ─── Design System: Brand Colors ─── */
+  --color-brand-purple: var(--color-primary, #6C63FF);
+  --color-brand-pink: var(--color-accent, #FF6584);
+  --color-brand-mint: #43D9A2;
+  --color-brand-amber: #FFB347;
+  --color-brand-red: #FF5C5C;
+  --color-brand-sky: #4DC9F6;
+  --color-brand-lavender: #A78BFA;
+  --color-brand-emerald: #34D399;
+  --color-brand-orange: #FB923C;
+
+  /* ─── Design System: Role Colors ─── */
+  --color-role-student: #6C63FF;
+  --color-role-parent: #FF6584;
+  --color-role-teacher: #43D9A2;
+  --color-role-admin: #4DC9F6;
+  --color-role-finance: #FFB347;
+  --color-role-hr: #A78BFA;
+  --color-role-accounting: #34D399;
+  --color-role-warehouse: #FB923C;
+
+  /* ─── Design System: Surface ─── */
+  --color-surface-bg: #F8F7FF;
+  --color-surface-card: #FFFFFF;
+  --color-surface-border: #E5E3FF;
+
+  /* ─── Design System: Ink ─── */
+  --color-ink-dark: #1E1B4B;
+  --color-ink-muted: #6B7280;
+  --color-ink-light: #A0A3BD;
+
+  /* ─── Design System: Shadows ─── */
+  --shadow-card: 0 4px 24px color-mix(in srgb, var(--color-primary, #6C63FF) 8%, transparent);
+  --shadow-hover: 0 8px 32px color-mix(in srgb, var(--color-primary, #6C63FF) 16%, transparent);
+  --shadow-glow: 0 0 24px color-mix(in srgb, var(--color-primary, #6C63FF) 30%, transparent);
+}
+
+/* ─── ACADEMIC PRESTIGE THEME — Light Mode ─── */
+:root {
+  --button-outline: rgba(0, 0, 0, .10);
+  --badge-outline: rgba(0, 0, 0, .05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(22, 58, 99, .04);
+  --elevate-2: rgba(22, 58, 99, .08);
+
+  /* Page: Ivory Mist */
+  --background: 43 30% 95%;
+  --foreground: 214 28% 17%;
+
+  /* Borders: Soft Stone */
+  --border: 216 20% 87%;
+  --input: 216 20% 87%;
+  --ring: 213 64% 24%;
+
+  /* Cards: Pure White */
+  --card: 0 0% 100%;
+  --card-foreground: 214 28% 17%;
+  --card-border: 216 20% 87%;
+
+  /* Popovers: Pure White */
+  --popover: 0 0% 100%;
+  --popover-foreground: 214 28% 17%;
+  --popover-border: 216 20% 87%;
+
+  /* Primary: Deep Academic Navy */
+  --primary: 213 64% 24%;
+  --primary-foreground: 43 30% 97%;
+  --primary-border: 213 59% 32%;
+
+  /* Secondary: Light navy tint */
+  --secondary: 213 30% 93%;
+  --secondary-foreground: 213 64% 24%;
+  --secondary-border: 213 20% 82%;
+
+  /* Muted: Warm neutral */
+  --muted: 43 10% 94%;
+  --muted-foreground: 220 9% 46%;
+  --muted-border: 216 15% 88%;
+
+  /* Accent: Heritage Gold */
+  --accent: 41 75% 47%;
+  --accent-foreground: 213 60% 10%;
+  --accent-border: 41 65% 38%;
+
+  /* Destructive: Cranberry */
+  --destructive: 0 51% 46%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-border: 0 45% 36%;
+
+  /* Sidebar: Midnight Blue */
+  --sidebar: 210 61% 16%;
+  --sidebar-foreground: 43 20% 92%;
+  --sidebar-border: 213 40% 25%;
+  --sidebar-primary: 41 75% 47%;
+  --sidebar-primary-foreground: 210 61% 10%;
+  --sidebar-primary-border: 41 65% 38%;
+  --sidebar-accent: 213 59% 32%;
+  --sidebar-accent-foreground: 43 30% 95%;
+  --sidebar-accent-border: 213 50% 40%;
+  --sidebar-ring: 180 52% 36%;
+
+  /* Charts */
+  --chart-1: 213 64% 24%;
+  --chart-2: 180 52% 36%;
+  --chart-3: 41 75% 47%;
+  --chart-4: 0 51% 46%;
+  --chart-5: 220 9% 46%;
+
+  /* Theme-specific tokens */
+  --navy: 213 64% 24%;
+  --navy-hover: 213 59% 32%;
+  --gold: 41 75% 47%;
+  --teal: 180 52% 36%;
+  --success: 144 46% 34%;
+  --warning: 35 74% 48%;
+  --error: 0 51% 46%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: 'Merriweather', Georgia, serif;
+  --app-font-mono: Menlo, monospace;
+  --radius: .75rem;
+}
+
+:root:lang(ar) {
+  --font-sans: 'Cairo', 'Inter', sans-serif;
+  --app-font-sans: 'Cairo', 'Inter', sans-serif;
+}
+
+
+/* ─── ACADEMIC PRESTIGE THEME — Dark Mode ─── */
+.dark {
+  --button-outline: rgba(255, 255, 255, .10);
+  --badge-outline: rgba(255, 255, 255, .05);
+
+  --opaque-button-border-intensity: 9;
+
+  --elevate-1: rgba(255, 255, 255, .04);
+  --elevate-2: rgba(255, 255, 255, .09);
+
+  --background: 213 50% 6%;
+  --foreground: 43 20% 92%;
+
+  --border: 213 30% 18%;
+  --input: 213 30% 18%;
+  --ring: 180 52% 36%;
+
+  --card: 213 40% 10%;
+  --card-foreground: 43 20% 92%;
+  --card-border: 213 30% 18%;
+
+  --popover: 213 40% 10%;
+  --popover-foreground: 43 20% 92%;
+  --popover-border: 213 30% 18%;
+
+  --primary: 213 59% 50%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 213 50% 40%;
+
+  --secondary: 213 40% 18%;
+  --secondary-foreground: 213 50% 80%;
+  --secondary-border: 213 30% 28%;
+
+  --muted: 213 20% 14%;
+  --muted-foreground: 213 10% 55%;
+  --muted-border: 213 20% 22%;
+
+  --accent: 41 75% 55%;
+  --accent-foreground: 213 60% 8%;
+  --accent-border: 41 65% 45%;
+
+  --destructive: 0 51% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-border: 0 45% 42%;
+
+  --sidebar: 213 60% 8%;
+  --sidebar-foreground: 43 20% 90%;
+  --sidebar-border: 213 30% 15%;
+  --sidebar-primary: 41 75% 55%;
+  --sidebar-primary-foreground: 213 60% 6%;
+  --sidebar-primary-border: 41 65% 45%;
+  --sidebar-accent: 213 40% 18%;
+  --sidebar-accent-foreground: 213 50% 80%;
+  --sidebar-accent-border: 213 30% 28%;
+  --sidebar-ring: 180 52% 40%;
+
+  --chart-1: 213 59% 50%;
+  --chart-2: 180 52% 45%;
+  --chart-3: 41 75% 55%;
+  --chart-4: 0 51% 55%;
+  --chart-5: 43 10% 55%;
+
+  --navy: 213 59% 50%;
+  --navy-hover: 213 50% 60%;
+  --gold: 41 75% 55%;
+  --teal: 180 52% 40%;
+  --success: 144 46% 44%;
+  --warning: 35 74% 55%;
+  --error: 0 51% 55%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* ─── Academic Prestige: Utility Classes ─── */
+
+@layer components {
+
+  /* Serif headings for brand moments: login, welcome, school profile */
+  .heading-serif {
+    font-family: var(--app-font-serif);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Status chips — colored badges for attendance, payment, behavior, approval */
+  .chip-present,
+  .chip-paid,
+  .chip-approved {
+    @apply inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold;
+    background: hsl(var(--success) / .12);
+    color: hsl(var(--success));
+    border: 1px solid hsl(var(--success) / .25);
+  }
+
+  .chip-pending,
+  .chip-review {
+    @apply inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold;
+    background: hsl(var(--warning) / .12);
+    color: hsl(var(--warning));
+    border: 1px solid hsl(var(--warning) / .25);
+  }
+
+  .chip-late,
+  .chip-warning {
+    @apply inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold;
+    background: hsl(var(--gold) / .12);
+    color: hsl(var(--gold));
+    border: 1px solid hsl(var(--gold) / .25);
+  }
+
+  .chip-absent,
+  .chip-overdue,
+  .chip-rejected {
+    @apply inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold;
+    background: hsl(var(--error) / .12);
+    color: hsl(var(--error));
+    border: 1px solid hsl(var(--error) / .25);
+  }
+
+  /* Soft academic shadow for cards */
+  .shadow-academic {
+    box-shadow: 0 1px 3px rgba(22, 58, 99, .06), 0 1px 2px rgba(22, 58, 99, .04);
+  }
+
+  .shadow-academic-md {
+    box-shadow: 0 4px 6px rgba(22, 58, 99, .06), 0 2px 4px rgba(22, 58, 99, .04);
+  }
+
+  /* Navy focus ring for form inputs */
+  .focus-ring-navy {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1;
+  }
+
+  /* Gold accent divider for prestige sections */
+  .divider-gold {
+    border-top: 2px solid hsl(var(--gold) / .4);
+  }
+
+  /* Stat number styling for dashboard cards */
+  .stat-number {
+    @apply text-2xl font-bold tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+}

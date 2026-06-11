@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Bacteriology Guide</title>
+    <!-- Import Professional Web Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for Consistent Theming */
+        :root {
+            --primary-blue: #0284c7;
+            --primary-dark: #0a192f;
+            --accent-cyan: #0ea5e9;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --border-light: #e2e8f0;
+        }
+
+        /* Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Hero Header Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #026ca0 100%);
+            color: #ffffff;
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 6px solid var(--accent-cyan);
+        }
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+        .hero h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            color: #bae6fd;
+            font-weight: 400;
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+        }
+        .meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            font-size: 1rem;
+        }
+        .meta-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content Container */
+        .container {
+            max-width: 1400px;
+            margin: -40px auto 40px auto; /* Overlaps the header slightly */
+            padding: 0 20px;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* Responsive Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        /* Interactive Scientific Cards */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        /* Staggered animation delays for cards */
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-blue), #38bdf8);
+        }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6rem;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-light);
+            font-weight: 700;
+        }
+        
+        /* Typography Details */
+        p, li {
+            font-size: 1.05rem;
+            margin-bottom: 16px;
+        }
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        strong {
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        /* Responsive Tables */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px var(--border-light);
+        }
+        .flow-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+        .flow-table th {
+            background-color: var(--primary-dark);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 16px;
+            text-align: left;
+        }
+        .flow-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.95rem;
+        }
+        .flow-table tr:last-child td {
+            border-bottom: none;
+        }
+        .flow-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        .flow-table tr:hover td {
+            background-color: #f1f5f9;
+        }
+        
+        /* High Contrast Badges */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            color: #fff;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-purple { background-color: #6366f1; }
+        .badge-pink { background-color: #f43f5e; }
+        .badge-blue { background-color: #0ea5e9; }
+        .badge-red { background-color: #ef4444; }
+
+        /* Footer */
+        .site-footer {
+            background-color: #ffffff;
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid var(--border-light);
+            color: #64748b;
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 60px 20px 80px 20px;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero">
+        <div class="hero-container">
+            <h1>Practical General Bacteriology</h1>
+            <h2>A Comprehensive Pharmaceutical Guide for Isolation, Cultivation, and Biochemical Characterization of Pathogens</h2>
+            <div class="meta-tags">
+                <span class="meta-tag"><strong>Faculty of Pharmacy</strong></span>
+                <span class="meta-tag">Course: General Bacteriology</span>
+                <span class="meta-tag">Interactive Digital Guide</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="grid">
+            
+            <!-- Section 1 -->
+            <article class="card">
+                <h3 class="card-title">1. Culture Media Classification</h3>
+                <p>Media are formulated based on physical consistency and functional parameters to support distinct microbial nutritional requirements:</p>
+                
+                <div class="table-responsive">
+                    <table class="flow-table">
+                        <thead>
+                            <tr>
+                                <th>Media Type</th>
+                                <th>Agar %</th>
+                                <th>Practical Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Liquid (Broth)</strong></td>
+                                <td>0%</td>
+                                <td>Rapid biomass increase (e.g., Nutrient Broth)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Semisolid</strong></td>
+                                <td>1%</td>
+                                <td>Flagellar motility testing (MIO Agar)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Solid</strong></td>
+                                <td>1.5% - 2%</td>
+                                <td>Isolate pure clones & study morphology</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p><strong>Functional Categories:</strong></p>
+                <ul>
+                    <li><strong>Simple Medium:</strong> Supports non-fastidious organisms (Nutrient Agar).</li>
+                    <li><strong>Enriched Medium:</strong> Added whole blood/serum for fastidious pathogens (Blood Agar).</li>
+                    <li><strong>Differential Medium:</strong> Distinguishes species via metabolic traits (MacConkey differentiates lactose status).</li>
+                    <li><strong>Selective Medium:</strong> Inhibits specific groups while allowing targets to grow (SS Agar for Salmonella/Shigella).</li>
+                </ul>
+            </article>
+
+            <!-- Section 2 -->
+            <article class="card">
+                <h3 class="card-title">2. Gram Stain Workflow</h3>
+                <p>The definitive primary classification test based on bacterial cell wall integrity and biochemistry:</p>
+                
+                <ol>
+                    <li><strong>Primary Stain:</strong> Crystal Violet (1 min) - Stains all cells blue/purple.</li>
+                    <li><strong>Mordant:</strong> Iodine (1 min) - Forms CV-I complex inside cells.</li>
+                    <li><strong>Decolorizer:</strong> Alcohol (15 sec) - Extracts outer lipids in Gram-negative walls.</li>
+                    <li><strong>Counterstain:</strong> Safranin (1 min) - Stains decolorized structures.</li>
+                </ol>
+
+                <div class="table-responsive">
+                    <table class="flow-table">
+                        <thead>
+                            <tr>
+                                <th>Reaction</th>
+                                <th>Microscopic Color</th>
+                                <th>Structural Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-purple">Gram-Positive (G+)</span></td>
+                                <td>Purple / Blue</td>
+                                <td>Thick peptidoglycan layer retains CV-I complex.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-pink">Gram-Negative (G-)</span></td>
+                                <td>Pink / Red</td>
+                                <td>Thin peptidoglycan + lipid-rich outer membrane washed by alcohol.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <!-- Section 3 -->
+            <article class="card">
+                <h3 class="card-title">3. Gram-Positive Cocci Identification</h3>
+                <p>The identification tree begins by distinguishing catalase production across spherical bacteria.</p>
+                
+                <p><strong>Catalase Test:</strong> Application of Hydrogen Peroxide (H<sub>2</sub>O<sub>2</sub>) onto fresh isolated colonies:</p>
+                <ul>
+                    <li><span class="badge badge-blue">Positive (+)</span> Vigorous effervescence / oxygen gas bubbles &rarr; <strong>Staphylococcus</strong> (clusters).</li>
+                    <li><span class="badge badge-red">Negative (-)</span> Absence of bubbling &rarr; <strong>Streptococcus</strong> (chains).</li>
+                </ul>
+
+                <div class="table-responsive">
+                    <table class="flow-table">
+                        <thead>
+                            <tr>
+                                <th colspan="3">Staphylococcus Genus Flow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Primary Test</strong></td>
+                                <td><strong>Result / Profile</strong></td>
+                                <td><strong>Bacterial Diagnosis</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Coagulase</strong><br><span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">(Plasma Clotting)</span></td>
+                                <td><span class="badge badge-red">Positive (+)</span></td>
+                                <td><strong style="color:#ef4444;">Staph. aureus</strong><br><span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">(Mannitol +, turns MSA yellow)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Coagulase</strong></td>
+                                <td><span class="badge badge-blue">Negative (-)</span></td>
+                                <td>Coagulase-Negative Staphylococci (CoNS)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 Faculty of Pharmacy - General Bacteriology Department | Interactive Learning Portal</p>
+    </footer>
+
+</body>
+</html

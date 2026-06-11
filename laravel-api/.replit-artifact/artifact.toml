@@ -1,0 +1,21 @@
+kind = "web"
+previewPath = "/"
+title = "School Management API"
+version = "1.0.0"
+id = "artifacts/laravel-api"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20141
+
+[services.development]
+run = "php -S 0.0.0.0:20141 -t public public/index.php"
+
+[services.env]
+APP_URL = "http://localhost:20141"

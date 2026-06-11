@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Glass Card ─── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-primary-light, rgba(108, 99, 255, 0.12));
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-primary, #6C63FF) 8%, transparent);
+}
+
+/* ─── Gradients ─── */
+.gradient-purple {
+  background: var(--gradient-main, linear-gradient(135deg, #6C63FF 0%, #A78BFA 100%));
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #FF6584 0%, #FFB347 100%);
+}
+
+.gradient-mint {
+  background: linear-gradient(135deg, #43D9A2 0%, #4DC9F6 100%);
+}
+
+.gradient-sunset {
+  background: var(--gradient-hero, linear-gradient(135deg, #FF6584 0%, #6C63FF 100%));
+}
+
+.gradient-ocean {
+  background: linear-gradient(135deg, #4DC9F6 0%, #6C63FF 100%);
+}
+
+/* ─── Animations ─── */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}

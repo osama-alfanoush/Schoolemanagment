@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/school-web/"
+title = "School Management Web Portal"
+version = "1.0.0"
+id = "artifacts/school-web"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/school-web/" ]
+localPort = 18985
+
+[services.development]
+run = "npm -w @workspace/school-web run dev"
+
+[services.production]
+build = [ "npm", "-w", "@workspace/school-web", "run", "build" ]
+publicDir = "artifacts/school-web/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18985"
+BASE_PATH = "/school-web/"
