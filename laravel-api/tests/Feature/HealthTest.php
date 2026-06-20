@@ -60,7 +60,5 @@ class HealthTest extends TestCase
             $response = $this->getJson('/api/healthz');
             $response->assertOk();
         }
-
-        $this->expectNotToPerformAssertions();
     }
 }
