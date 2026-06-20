@@ -43,7 +43,7 @@ describe('TeacherDashboard', () => {
     await waitFor(() => {
       expect(getByText('2')).toBeInTheDocument();
     });
-    expect(getByText('teacherDashboard.myClasses')).toBeInTheDocument();
+    expect(getByText(/my classes/i)).toBeInTheDocument();
   });
 
   it('shows loading state while classes load', async () => {
@@ -61,7 +61,7 @@ describe('TeacherDashboard', () => {
     const { getByText } = renderDashboard();
 
     await waitFor(() => {
-      expect(getByText('teacherDashboard.upcomingClasses')).toBeInTheDocument();
+      expect(getByText(/upcoming classes/i)).toBeInTheDocument();
     });
   });
 

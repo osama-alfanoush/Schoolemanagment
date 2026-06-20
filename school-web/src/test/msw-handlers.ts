@@ -41,6 +41,8 @@ const authHandlers = [
       refresh_token: 'fake-refresh-456',
     })
   ),
+  // ThemeProvider polls this when a token is present; return an empty theme.
+  http.get(`${BASE}/school-settings`, () => HttpResponse.json({ data: {} })),
 ];
 
 const studentHandlers = [

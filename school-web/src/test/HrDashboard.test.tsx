@@ -42,8 +42,8 @@ describe('HrDashboard', () => {
       expect(getByText('3')).toBeInTheDocument();
       expect(getByText('2')).toBeInTheDocument();
     });
-    expect(getByText('Total Staff')).toBeInTheDocument();
-    expect(getByText('Pending Leave')).toBeInTheDocument();
+    expect(getByText(/total staff/i)).toBeInTheDocument();
+    expect(getByText(/pending leave/i)).toBeInTheDocument();
   });
 
   it('shows loading state', async () => {

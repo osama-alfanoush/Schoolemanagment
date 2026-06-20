@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, cleanup } from '@testing-library/react';
 import AppLayout from '@/components/layout/AppLayout';
 import { useAuth } from '@/lib/auth';
+import { renderWithProviders } from './RenderProvider';
 
 vi.mock('@/lib/auth', () => ({
   useAuth: vi.fn(),
@@ -16,7 +17,7 @@ function renderLayout(title = 'Dashboard', children = <div data-testid="content"
     refreshUser: vi.fn(),
   });
 
-  return render(<AppLayout title={title}>{children}</AppLayout>);
+  return renderWithProviders(<AppLayout title={title}>{children}</AppLayout>);
 }
 
 describe('AppLayout', () => {

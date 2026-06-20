@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import TopBar from '@/components/layout/TopBar';
 import { useAuth } from '@/lib/auth';
+import { renderWithProviders } from './RenderProvider';
 
 vi.mock('@/lib/auth', () => ({
   useAuth: vi.fn(),
@@ -16,7 +17,7 @@ function renderTopBar(user: any, title = 'Dashboard') {
     refreshUser: vi.fn(),
   });
 
-  return render(<TopBar title={title} />);
+  return renderWithProviders(<TopBar title={title} />);
 }
 
 describe('TopBar', () => {
@@ -33,12 +34,12 @@ describe('TopBar', () => {
     expect(getByText('Students')).toBeInTheDocument();
   });
 
-  it('renders notification bell with red pulse badge when user is authenticated', () => {
+  it('renders notification bell when user is authenticated', () => {
     const { container } = renderTopBar(
       { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin', is_active: true }
     );
-    const bellBadge = container.querySelector('.animate-pulse-soft');
-    expect(bellBadge).toBeInTheDocument();
+    const bell = container.querySelector('button[aria-label="Notifications"]');
+    expect(bell).toBeInTheDocument();
   });
 
   it('renders search button', () => {

@@ -3,6 +3,7 @@ import { render, cleanup } from '@testing-library/react';
 import Sidebar from '@/components/layout/Sidebar';
 import { useAuth } from '@/lib/auth';
 import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from './RenderProvider';
 
 vi.mock('@/lib/auth', () => ({
   useAuth: vi.fn(),
@@ -17,7 +18,7 @@ function renderSidebar(user: any, onToggle = vi.fn()) {
     refreshUser: vi.fn(),
   });
 
-  return render(<Sidebar collapsed={false} onToggle={onToggle} />);
+  return renderWithProviders(<Sidebar collapsed={false} onToggle={onToggle} />);
 }
 
 describe('Sidebar Navigation', () => {
@@ -39,7 +40,7 @@ describe('Sidebar Navigation', () => {
     const teacherUser = { id: 2, name: 'Teacher', email: 'teacher@test.com', role: 'teacher', is_active: true };
     const { getByText } = renderSidebar(teacherUser);
 
-    expect(getByText('My Classes')).toBeInTheDocument();
+    expect(getByText(/my classes/i)).toBeInTheDocument();
     expect(getByText('Grades')).toBeInTheDocument();
     expect(getByText('Attendance')).toBeInTheDocument();
   });
