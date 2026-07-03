@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class WarehouseItem extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'sku', 'name', 'description', 'category_id', 'unit',
         'current_qty', 'min_stock_qty', 'location', 'is_active',

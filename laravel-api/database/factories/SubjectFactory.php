@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Subject;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Subject>
+ * @extends Factory<Subject>
  */
 class SubjectFactory extends Factory
 {
@@ -16,9 +17,10 @@ class SubjectFactory extends Factory
             'History', 'Geography', 'Computer Science', 'Art', 'Music',
             'Physical Education', 'Swahili', 'French', 'Arabic', 'Agriculture',
         ]);
+
         return [
             'name' => $name,
-            'code' => strtoupper(substr($name, 0, 3)) . $this->faker->numberBetween(10, 99),
+            'code' => strtoupper(substr($name, 0, 3)).$this->faker->numberBetween(10, 99),
         ];
     }
 }

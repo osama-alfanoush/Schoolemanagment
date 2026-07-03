@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 
 class HrController extends Controller
 {
-    private const REQUESTER_ROLES = ['teacher', 'admin', 'finance', 'hr', 'accounting', 'warehouse'];
+    private const REQUESTER_ROLES = ['teacher', 'admin', 'finance', 'hr', 'warehouse'];
 
     public function myRequests(Request $request)
     {
@@ -30,7 +30,7 @@ class HrController extends Controller
 
     public function submitRequest(Request $request)
     {
-        if (!in_array($request->user()->role, self::REQUESTER_ROLES, true)) {
+        if (! in_array($request->user()->role, self::REQUESTER_ROLES, true)) {
             return response()->json(['message' => 'Only staff can submit HR requests.'], 403);
         }
 
@@ -50,7 +50,7 @@ class HrController extends Controller
         ]);
 
         User::where('role', 'hr')->where('is_active', true)->pluck('id')->each(
-            fn(int $hrUserId) => Notifier::send(
+            fn (int $hrUserId) => Notifier::send(
                 $hrUserId,
                 'hr_request_pending',
                 'New HR request',
@@ -70,8 +70,13 @@ class HrController extends Controller
     public function staff(Request $request)
     {
         $q = User::whereIn('role', self::REQUESTER_ROLES)->with('staffProfile');
-        if ($r = $request->query('role')) $q->where('role', $r);
-        if ($s = $request->query('q')) $q->where('name', 'ilike', "%$s%");
+        if ($r = $request->query('role')) {
+            $q->where('role', $r);
+        }
+        if ($s = $request->query('q')) {
+            $q->where('name', 'ilike', "%$s%");
+        }
+
         return response()->json($q->orderBy('name')->paginate(50));
     }
 
@@ -96,6 +101,7 @@ class HrController extends Controller
             $user->staffProfile()->create($data);
         }
         AuditLogger::log($request, 'update_staff_profile', 'user', $user->id, $data);
+
         return response()->json($user->fresh('staffProfile'));
     }
 
@@ -103,15 +109,23 @@ class HrController extends Controller
     {
         $q = HrRequest::whereIn('type', ['leave_sick', 'leave_annual', 'leave_emergency'])
             ->with(['requester:id,name,role', 'teacher:id,name,role', 'reviewer:id,name,role']);
-        if ($s = $request->query('status')) $q->where('status', $s);
+        if ($s = $request->query('status')) {
+            $q->where('status', $s);
+        }
+
         return response()->json($q->latest()->paginate(50));
     }
 
     public function requests(Request $request)
     {
         $q = HrRequest::with(['requester:id,name,role', 'teacher:id,name,role', 'reviewer:id,name,role']);
-        if ($s = $request->query('status')) $q->where('status', $s);
-        if ($type = $request->query('type')) $q->where('type', $type);
+        if ($s = $request->query('status')) {
+            $q->where('status', $s);
+        }
+        if ($type = $request->query('type')) {
+            $q->where('type', $type);
+        }
+
         return response()->json($q->orderByRaw("case when status = 'pending' then 0 else 1 end")->latest()->paginate(50));
     }
 
@@ -138,8 +152,8 @@ class HrController extends Controller
 
         Notifier::send(
             $hrRequest->teacher_user_id,
-            'hr_request_' . $data['status'],
-            'HR request ' . $data['status'],
+            'hr_request_'.$data['status'],
+            'HR request '.$data['status'],
             $hrRequest->subject,
             ['request_id' => $hrRequest->id]
         );
@@ -174,12 +188,14 @@ class HrController extends Controller
                 );
             }
             AuditLogger::log($request, 'mark_staff_attendance', 'staff_attendance', null, ['records' => count($data['records'])]);
+
             return response()->json(['message' => 'Saved']);
         }
         $month = (int) $request->query('month', now()->month);
         $year = (int) $request->query('year', now()->year);
         $records = StaffAttendance::whereMonth('date', $month)->whereYear('date', $year)
             ->with('staff:id,name,role')->get();
+
         return response()->json($records);
     }
 
@@ -190,6 +206,7 @@ class HrController extends Controller
         $rows = StaffAttendance::whereMonth('date', $month)->whereYear('date', $year)
             ->selectRaw('staff_user_id, status, count(*) as count')
             ->groupBy('staff_user_id', 'status')->with('staff:id,name')->get();
+
         return response()->json($rows);
     }
 

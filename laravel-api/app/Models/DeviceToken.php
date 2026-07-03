@@ -12,7 +12,7 @@ class DeviceToken extends Model
 
     protected $fillable = [
         'user_id', 'token', 'platform', 'device_name', 'app_version',
-        'last_used_at', 'verified_at'
+        'last_used_at', 'verified_at',
     ];
 
     protected $casts = [
@@ -21,7 +21,9 @@ class DeviceToken extends Model
     ];
 
     public const PLATFORM_IOS = 'ios';
+
     public const PLATFORM_ANDROID = 'android';
+
     public const PLATFORM_WEB = 'web';
 
     public function user(): BelongsTo

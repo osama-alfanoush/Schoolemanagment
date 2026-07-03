@@ -25,7 +25,7 @@ export default function WarehouseReports() {
   const consumptionRows = toArray<ConsumptionRow>(consumptionData);
 
   const handleDownload = (apiCall: Promise<unknown>, filename: string) => {
-    downloadBlob(apiCall, filename, (e: unknown) => {
+    void downloadBlob(apiCall, filename, (e: unknown) => {
       toast({ variant: "destructive", title: "Download failed", description: (e as Error)?.message });
     });
   };
@@ -40,14 +40,14 @@ export default function WarehouseReports() {
       <PageHeader icon="WR" title="Warehouse Reports" subtitle="Inventory and consumption analysis" />
 
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <label className="text-sm text-muted-foreground">Month:</label>
-        <select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-border text-sm">
+        <label htmlFor="warehouse-report-month" className="text-sm text-muted-foreground">Month:</label>
+        <select id="warehouse-report-month" value={month} onChange={(e) => setMonth(Number(e.target.value))} className="px-3 py-1.5 rounded-lg border border-border text-sm">
           {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
             <option key={m} value={m}>{m}</option>
           ))}
         </select>
-        <label className="text-sm text-muted-foreground">Year:</label>
-        <input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-24 px-3 py-1.5 rounded-lg border border-border text-sm" />
+        <label htmlFor="warehouse-report-year" className="text-sm text-muted-foreground">Year:</label>
+        <input id="warehouse-report-year" type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-24 px-3 py-1.5 rounded-lg border border-border text-sm" />
         <BrandButton variant="secondary" size="sm" onClick={setCurrentMonth}>Current Month</BrandButton>
       </div>
 

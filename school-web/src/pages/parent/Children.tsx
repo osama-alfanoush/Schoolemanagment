@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Parent, ParentChild } from "@/lib/api";
+import { Parent } from "@/lib/api";
 import { renderUser, renderProgress } from "@/lib/tableHelpers";
 import { useLocation } from "wouter";
 import PageHeader from "@/components/ui/PageHeader";

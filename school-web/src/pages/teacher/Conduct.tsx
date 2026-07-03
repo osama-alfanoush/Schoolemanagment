@@ -47,7 +47,7 @@ export default function TeacherConduct() {
       });
       setStudentId("");
       setDescription("");
-      qc.invalidateQueries({ queryKey: ["teacher", "class-students"] });
+      void qc.invalidateQueries({ queryKey: ["teacher", "class-students"] });
     },
     onError: () =>
       toast({
@@ -62,7 +62,7 @@ export default function TeacherConduct() {
     if (!classId || !studentId || !description.trim()) return;
 
     mutation.mutate({
-      student_user_id: studentId as number,
+      student_user_id: studentId,
       category,
       title: `${severity[0].toUpperCase()}${severity.slice(1)} ${category} conduct`,
       note: description.trim(),
@@ -77,8 +77,9 @@ export default function TeacherConduct() {
         <h2 className="text-lg font-semibold">Log Conduct Incident</h2>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Class</label>
+          <label htmlFor="conduct-class" className="text-sm font-medium">Class</label>
           <select
+            id="conduct-class"
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={classId}
             onChange={(e) => {
@@ -98,8 +99,9 @@ export default function TeacherConduct() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Student</label>
+          <label htmlFor="conduct-student" className="text-sm font-medium">Student</label>
           <select
+            id="conduct-student"
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={studentId}
             onChange={(e) => setStudentId(Number(e.target.value) || "")}
@@ -116,8 +118,9 @@ export default function TeacherConduct() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Category</label>
+            <label htmlFor="conduct-category" className="text-sm font-medium">Category</label>
             <select
+              id="conduct-category"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               value={category}
               onChange={(e) => setCategory(e.target.value as ConductCategory)}
@@ -128,8 +131,9 @@ export default function TeacherConduct() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Severity</label>
+            <label htmlFor="conduct-severity" className="text-sm font-medium">Severity</label>
             <select
+              id="conduct-severity"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               value={severity}
               onChange={(e) => setSeverity(e.target.value as Severity)}
@@ -142,8 +146,9 @@ export default function TeacherConduct() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Description</label>
+          <label htmlFor="conduct-description" className="text-sm font-medium">Description</label>
           <textarea
+            id="conduct-description"
             className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[100px]"
             value={description}
             onChange={(e) => setDescription(e.target.value)}

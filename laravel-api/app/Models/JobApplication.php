@@ -12,7 +12,7 @@ class JobApplication extends Model
 
     protected $fillable = [
         'job_posting_id', 'applicant_name', 'applicant_email', 'applicant_phone',
-        'cover_letter', 'cv_path', 'status', 'notes', 'interview_date', 'reviewed_by'
+        'cover_letter', 'cv_path', 'status', 'notes', 'interview_date', 'reviewed_by',
     ];
 
     protected $casts = [
@@ -20,9 +20,13 @@ class JobApplication extends Model
     ];
 
     public const STATUS_NEW = 'new';
+
     public const STATUS_REVIEWING = 'reviewing';
+
     public const STATUS_INTERVIEWED = 'interviewed';
+
     public const STATUS_ACCEPTED = 'accepted';
+
     public const STATUS_REJECTED = 'rejected';
 
     public function jobPosting(): BelongsTo

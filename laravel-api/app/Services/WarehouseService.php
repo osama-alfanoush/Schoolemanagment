@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\InventoryCount;
-use App\Models\PurchaseRequest;
 use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\WarehouseItem;
@@ -28,15 +26,15 @@ class WarehouseService
             $qtyAfter = $qtyBefore + $delta;
 
             if ($qtyAfter < 0) {
-                throw new \Exception('Insufficient stock. Available: ' . $qtyBefore);
+                throw new \Exception('Insufficient stock. Available: '.$qtyBefore);
             }
 
             $movement = StockMovement::create([
                 ...$data,
-                'item_id'       => $item->id,
-                'qty_before'    => $qtyBefore,
-                'qty_after'     => $qtyAfter,
-                'performed_by'  => $actor->id,
+                'item_id' => $item->id,
+                'qty_before' => $qtyBefore,
+                'qty_after' => $qtyAfter,
+                'performed_by' => $actor->id,
                 'movement_date' => now(),
             ]);
 
@@ -60,18 +58,19 @@ class WarehouseService
             ->toArray();
 
         NotificationService::sendToMany($recipientIds, 'low_stock_alert', [
-            'item_name'   => $item->name,
-            'sku'         => $item->sku,
+            'item_name' => $item->name,
+            'sku' => $item->sku,
             'current_qty' => $item->current_qty,
-            'min_qty'     => $item->min_stock_qty,
-            'unit'        => $item->unit,
+            'min_qty' => $item->min_stock_qty,
+            'unit' => $item->unit,
         ]);
     }
 
     public function generateRef(string $prefix, string $modelClass): string
     {
-        $year  = date('Y');
+        $year = date('Y');
         $count = $modelClass::whereYear('created_at', $year)->count() + 1;
-        return $prefix . '-' . $year . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+
+        return $prefix.'-'.$year.'-'.str_pad($count, 4, '0', STR_PAD_LEFT);
     }
 }

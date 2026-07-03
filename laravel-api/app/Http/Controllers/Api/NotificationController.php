@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
 use App\Models\NotificationTemplate;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
@@ -68,7 +69,7 @@ class NotificationController extends Controller
     {
         $success = NotificationService::markAsRead($id, $request->user()->id);
 
-        if (!$success) {
+        if (! $success) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 
@@ -97,7 +98,7 @@ class NotificationController extends Controller
             ->where('user_id', $request->user()->id)
             ->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 
@@ -195,6 +196,7 @@ class NotificationController extends Controller
     public function getTemplates(Request $request)
     {
         $templates = NotificationTemplate::all();
+
         return response()->json($templates);
     }
 
@@ -247,7 +249,7 @@ class NotificationController extends Controller
             $data['template_data'] ?? []
         );
 
-        if (!$notification) {
+        if (! $notification) {
             return response()->json(['message' => 'Failed to send notification'], 400);
         }
 
@@ -283,16 +285,16 @@ class NotificationController extends Controller
         ]);
 
         // Determine target users
-        if (!empty($data['target']['user_ids'])) {
+        if (! empty($data['target']['user_ids'])) {
             $userIds = $data['target']['user_ids'];
-        } elseif (!empty($data['target']['role'])) {
-            $userIds = \App\Models\User::where('role', $data['target']['role'])
+        } elseif (! empty($data['target']['role'])) {
+            $userIds = User::where('role', $data['target']['role'])
                 ->where('is_active', true)
                 ->pluck('id')
                 ->toArray();
-        } elseif (!empty($data['target']['class_room_id'])) {
-            $userIds = \App\Models\User::where('role', 'student')
-                ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $data['target']['class_room_id']))
+        } elseif (! empty($data['target']['class_room_id'])) {
+            $userIds = User::where('role', 'student')
+                ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $data['target']['class_room_id']))
                 ->pluck('id')
                 ->toArray();
         } else {

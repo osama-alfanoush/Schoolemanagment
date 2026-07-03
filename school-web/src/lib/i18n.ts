@@ -147,7 +147,7 @@ const en: Translations = {
     parent: "Parent",
     teacher: "Teacher",
     admin: "Administrator",
-    finance: "Finance",
+    finance: "Finance & Accounting",
     hr: "HR",
     accounting: "Accounting",
     warehouse: "Warehouse",
@@ -422,7 +422,7 @@ const ar: Translations = {
     parent: "ولي أمر",
     teacher: "معلم",
     admin: "مدير",
-    finance: "المالية",
+    finance: "المالية والمحاسبة",
     hr: "الموارد البشرية",
     accounting: "المحاسبة",
     warehouse: "المستودع",
@@ -561,7 +561,7 @@ const resources = {
 const STORAGE_KEY = "sm_locale";
 const savedLocale = localStorage.getItem(STORAGE_KEY) === "ar" ? "ar" : "en";
 
-i18n.use(initReactI18next).init({
+void i18n.use(initReactI18next).init({
   resources,
   lng: savedLocale,
   fallbackLng: "en",
@@ -570,7 +570,7 @@ i18n.use(initReactI18next).init({
 
 export function setLocale(locale: "en" | "ar") {
   localStorage.setItem(STORAGE_KEY, locale);
-  i18n.changeLanguage(locale);
+  void i18n.changeLanguage(locale);
   document.documentElement.lang = locale;
   document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
 }

@@ -31,7 +31,7 @@ class Notifier
     protected static function dispatchPush(int $userId, string $title, string $body, array $data): void
     {
         $serverKey = config('services.fcm.server_key');
-        if (!$serverKey) {
+        if (! $serverKey) {
             return;
         }
 
@@ -42,7 +42,7 @@ class Notifier
 
         try {
             Http::withHeaders([
-                'Authorization' => 'key=' . $serverKey,
+                'Authorization' => 'key='.$serverKey,
                 'Content-Type' => 'application/json',
             ])->timeout(5)->post('https://fcm.googleapis.com/fcm/send', [
                 'registration_ids' => $tokens,
@@ -50,7 +50,7 @@ class Notifier
                 'data' => array_map('strval', $data),
             ]);
         } catch (\Throwable $e) {
-            Log::warning('FCM push failed: ' . $e->getMessage(), ['user_id' => $userId]);
+            Log::warning('FCM push failed: '.$e->getMessage(), ['user_id' => $userId]);
         }
     }
 }

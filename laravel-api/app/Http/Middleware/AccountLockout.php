@@ -51,7 +51,9 @@ class AccountLockout
     public static function recordFailure(string $email): void
     {
         $user = User::where('email', $email)->first();
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $attempts = $user->login_attempts + 1;
         $update = ['login_attempts' => $attempts];

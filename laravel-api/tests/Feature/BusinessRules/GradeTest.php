@@ -7,12 +7,11 @@ namespace Tests\Feature\BusinessRules;
 use App\Models\ClassRoom;
 use App\Models\Grade;
 use App\Models\GradeComponent;
-use App\Models\GradeService;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GradeTest extends TestCase
@@ -20,9 +19,13 @@ class GradeTest extends TestCase
     use RefreshDatabase;
 
     private User $teacher;
+
     private User $student;
+
     private ClassRoom $classRoom;
+
     private Subject $subject;
+
     private GradeComponent $component;
 
     protected function setUp(): void

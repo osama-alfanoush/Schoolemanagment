@@ -18,13 +18,13 @@ class AuthenticationTest extends TestCase
             'email' => 'student@school.test',
             'password' => bcrypt('password'),
             'role' => 'student',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->postJson('/api/auth/login', [
             'email' => 'student@school.test',
             'password' => 'password',
-            'device_name' => 'Test Device'
+            'device_name' => 'Test Device',
         ]);
 
         $response->assertStatus(200)
@@ -34,7 +34,7 @@ class AuthenticationTest extends TestCase
                 'refresh_token',
                 'token_type',
                 'expires_in',
-                'user' => ['id', 'name', 'email', 'role']
+                'user' => ['id', 'name', 'email', 'role'],
             ]);
     }
 
@@ -43,12 +43,12 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create([
             'email' => 'student@school.test',
             'password' => bcrypt('password'),
-            'role' => 'student'
+            'role' => 'student',
         ]);
 
         $response = $this->postJson('/api/auth/login', [
             'email' => 'student@school.test',
-            'password' => 'wrongpassword'
+            'password' => 'wrongpassword',
         ]);
 
         $response->assertStatus(422)
@@ -59,7 +59,7 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => 'nonexistent@school.test',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $response->assertStatus(422)
@@ -69,7 +69,7 @@ class AuthenticationTest extends TestCase
     public function test_login_validation_requires_password()
     {
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'test@school.test'
+            'email' => 'test@school.test',
         ]);
 
         $response->assertStatus(422)
@@ -109,13 +109,13 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'role' => 'student',
-            'name' => 'Old Name'
+            'name' => 'Old Name',
         ]);
 
         $response = $this->actingAs($user)
             ->patchJson('/api/auth/profile', [
                 'name' => 'New Name',
-                'phone' => '+1234567890'
+                'phone' => '+1234567890',
             ]);
 
         $response->assertStatus(200)
@@ -127,14 +127,14 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => bcrypt('oldpassword'),
-            'role' => 'student'
+            'role' => 'student',
         ]);
 
         $response = $this->actingAs($user)
             ->postJson('/api/auth/change-password', [
                 'current_password' => 'oldpassword',
-                'new_password' => 'newpassword123',
-                'new_password_confirmation' => 'newpassword123'
+                'new_password' => 'NewPassword123',
+                'new_password_confirmation' => 'NewPassword123',
             ]);
 
         $response->assertStatus(200)
@@ -145,14 +145,14 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => bcrypt('correctpassword'),
-            'role' => 'student'
+            'role' => 'student',
         ]);
 
         $response = $this->actingAs($user)
             ->postJson('/api/auth/change-password', [
                 'current_password' => 'wrongpassword',
-                'new_password' => 'newpassword123',
-                'new_password_confirmation' => 'newpassword123'
+                'new_password' => 'NewPassword123',
+                'new_password_confirmation' => 'NewPassword123',
             ]);
 
         $response->assertStatus(422)

@@ -1,9 +1,16 @@
 <?php
 
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\SecurityHeaders;
+use App\Providers\AuthServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,12 +20,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
+        // Stateless Bearer-token API: clients send Sanctum personal access tokens
+        // in the Authorization header, not session cookies. statefulApi() is
+        // intentionally NOT enabled — it would treat same-origin SPA requests as
+        // "stateful" and apply session + CSRF validation that the token client
+        // never satisfies, causing 419s on POST/PATCH/DELETE in production.
 
         $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
-            'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            'role' => RoleMiddleware::class,
+            'security.headers' => SecurityHeaders::class,
+            'throttle' => ThrottleRequests::class,
         ]);
 
         // Trusted proxies for HTTPS awareness behind load balancers
@@ -31,18 +42,18 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Apply security headers to all API routes
         $middleware->api(prepend: [
-            \App\Http\Middleware\SecurityHeaders::class,
+            SecurityHeaders::class,
         ]);
     })
     ->withProviders([
-        App\Providers\AuthServiceProvider::class,
+        AuthServiceProvider::class,
     ])
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(function (Request $request) {
             return $request->is('api/*') || $request->expectsJson();
         });
 
-        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, Request $request) {
+        $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
                     'message' => 'Validation failed',
@@ -51,7 +62,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, Request $request) {
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
                     'message' => 'Resource not found',
@@ -59,7 +70,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, Request $request) {
+        $exceptions->render(function (HttpException $e, Request $request) {
             if ($e->getStatusCode() === 403 && ($request->is('api/*') || $request->expectsJson())) {
                 return response()->json([
                     'message' => 'Forbidden',

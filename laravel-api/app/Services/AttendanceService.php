@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\AttendanceRecord;
 use App\Models\StudentProfile;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceService
@@ -43,7 +44,7 @@ class AttendanceService
                         'note' => $r['note'] ?? null,
                     ]
                 );
-                if ($r['status'] === 'absent' && !$wasAbsent) {
+                if ($r['status'] === 'absent' && ! $wasAbsent) {
                     Notifier::send($r['student_user_id'], 'absence', 'You were marked absent', "Date: {$data['date']}", ['date' => $data['date']]);
                     $parentIds = DB::table('parent_student')->where('student_user_id', $r['student_user_id'])->pluck('parent_user_id');
                     foreach ($parentIds as $pid) {
@@ -58,6 +59,7 @@ class AttendanceService
     {
         $record = AttendanceRecord::findOrFail($recordId);
         $record->update(array_merge($data, ['marked_by' => $teacherId]));
+
         return $record->fresh();
     }
 
@@ -75,20 +77,20 @@ class AttendanceService
         ];
     }
 
-    public function attendanceReport(int $classRoomId, array $filters = []): \Illuminate\Database\Eloquent\Builder
+    public function attendanceReport(int $classRoomId, array $filters = []): Builder
     {
         $query = AttendanceRecord::where('class_room_id', $classRoomId);
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('date', '>=', $filters['date_from']);
         }
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('date', '<=', $filters['date_to']);
         }
-        if (!empty($filters['subject_id'])) {
+        if (! empty($filters['subject_id'])) {
             $query->where('subject_id', $filters['subject_id']);
         }
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 

@@ -29,7 +29,7 @@ export default function TeacherAnnouncements() {
       setBody("");
       setClassRoomId("");
       setShowForm(false);
-      qc.invalidateQueries({ queryKey: ["teacher-announcements"] });
+      void qc.invalidateQueries({ queryKey: ["teacher-announcements"] });
     },
     onError: () => toast({ title: "Error", description: "Failed to post announcement.", variant: "destructive" }),
   });
@@ -37,7 +37,7 @@ export default function TeacherAnnouncements() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!classRoomId || !title.trim() || !body.trim()) return;
-    mutation.mutate({ class_room_id: classRoomId as number, title: title.trim(), body: body.trim() });
+    mutation.mutate({ class_room_id: classRoomId, title: title.trim(), body: body.trim() });
   };
 
   const classes = toArray(classesData);
@@ -60,8 +60,9 @@ export default function TeacherAnnouncements() {
           <h2 className="text-lg font-semibold">Create Announcement</h2>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Class</label>
+            <label htmlFor="announcement-class" className="text-sm font-medium">Class</label>
             <select
+              id="announcement-class"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               value={classRoomId}
               onChange={(e) => setClassRoomId(Number(e.target.value) || "")}
@@ -74,8 +75,9 @@ export default function TeacherAnnouncements() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
+            <label htmlFor="announcement-title" className="text-sm font-medium">Title</label>
             <input
+              id="announcement-title"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -84,8 +86,9 @@ export default function TeacherAnnouncements() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Body</label>
+            <label htmlFor="announcement-body" className="text-sm font-medium">Body</label>
             <textarea
+              id="announcement-body"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[100px]"
               value={body}
               onChange={(e) => setBody(e.target.value)}

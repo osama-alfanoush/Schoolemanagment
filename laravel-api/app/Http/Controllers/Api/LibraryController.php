@@ -41,6 +41,95 @@ class LibraryController extends Controller
         ]);
     }
 
+    /**
+     * Self-service borrow for the authenticated student.
+     * Enforces availability, a per-student concurrent limit, and no duplicate
+     * active loan of the same title. Due date defaults to 14 days out.
+     */
+    public function selfBorrow(Request $request, int $id)
+    {
+        $student = $request->user();
+        $book = LibraryBook::findOrFail($id);
+
+        if (! $book->isAvailable()) {
+            return response()->json(['message' => 'This book is not available right now.'], 400);
+        }
+
+        $alreadyHas = LibraryBorrowing::where('book_id', $book->id)
+            ->where('student_user_id', $student->id)
+            ->where('is_returned', false)
+            ->exists();
+        if ($alreadyHas) {
+            return response()->json(['message' => 'You already have this book borrowed.'], 400);
+        }
+
+        $activeCount = LibraryBorrowing::where('student_user_id', $student->id)
+            ->where('is_returned', false)
+            ->count();
+        if ($activeCount >= 5) {
+            return response()->json(['message' => 'You have reached the borrowing limit of 5 books.'], 400);
+        }
+
+        $borrowing = DB::transaction(function () use ($book, $student) {
+            $book->decrement('available_copies');
+
+            $borrowing = LibraryBorrowing::create([
+                'book_id' => $book->id,
+                'student_user_id' => $student->id,
+                'borrowed_date' => now(),
+                'due_date' => now()->addDays(14),
+                'issued_by' => $student->id,
+            ]);
+
+            try {
+                NotificationService::sendWithTemplate(
+                    $student->id,
+                    'book_borrowed',
+                    [
+                        'book_title' => $book->title,
+                        'due_date' => $borrowing->due_date->toDateString(),
+                        'borrowing_id' => $borrowing->id,
+                    ]
+                );
+            } catch (\Throwable $e) {
+                // Notification is best-effort; never block the loan on it.
+            }
+
+            return $borrowing;
+        });
+
+        return response()->json($borrowing->load('book'), 201);
+    }
+
+    /**
+     * Self-service return for the authenticated student's own loan.
+     */
+    public function selfReturn(Request $request, int $borrowingId)
+    {
+        $borrowing = LibraryBorrowing::where('id', $borrowingId)
+            ->where('student_user_id', $request->user()->id)
+            ->firstOrFail();
+
+        if ($borrowing->is_returned) {
+            return response()->json(['message' => 'This book has already been returned.'], 400);
+        }
+
+        DB::transaction(function () use ($borrowing) {
+            $borrowing->book->increment('available_copies');
+            $borrowing->update([
+                'is_returned' => true,
+                'returned_date' => now(),
+                'returned_to' => $borrowing->student_user_id,
+                'fine_amount' => $borrowing->calculateFine(),
+            ]);
+        });
+
+        return response()->json([
+            'message' => 'Book returned successfully.',
+            'fine_amount' => $borrowing->fine_amount,
+        ]);
+    }
+
     // Admin routes
     public function books(Request $request)
     {

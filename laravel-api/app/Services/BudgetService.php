@@ -94,9 +94,9 @@ class BudgetService
         }
 
         $overrunPlans = BudgetPlan::where('fiscal_year', $year)->get()
-            ->filter(fn($p) => $p->usage_percent >= $threshold);
+            ->filter(fn ($p) => $p->usage_percent >= $threshold);
 
-        $recipientIds = User::whereIn('role', ['accounting', 'admin'])
+        $recipientIds = User::whereIn('role', ['finance', 'admin'])
             ->where('is_active', true)->pluck('id')->toArray();
 
         foreach ($overrunPlans as $overrun) {

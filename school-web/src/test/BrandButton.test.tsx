@@ -23,7 +23,7 @@ describe('BrandButton', () => {
     expect(container.querySelector('button')).toBeInTheDocument();
   });
 
-  it('calls onClick handler when clicked', async () => {
+  it('calls onClick handler when clicked', () => {
     const handleClick = vi.fn();
     const { getByText } = render(<BrandButton onClick={handleClick}>Click Me</BrandButton>);
 

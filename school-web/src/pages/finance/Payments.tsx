@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Finance, Invoice } from "@/lib/api";
+import { Finance } from "@/lib/api";
 import { renderUser, renderCurrency, renderDate, renderStatus } from "@/lib/tableHelpers";
-import { EyeIcon, DownloadIcon } from "@/lib/icons";
+import { DownloadIcon } from "@/lib/icons";
 import PageHeader from "@/components/ui/PageHeader";
 import BrandCard from "@/components/ui/BrandCard";
 import DataTable from "@/components/ui/DataTable";
@@ -73,8 +73,7 @@ const invoices = Array.isArray(invoicesData) ? invoicesData : invoicesData?.data
             { key: "status", label: "Status", render: (v: any) => renderStatus(v) },
           ]}
           rowActions={[
-            { icon: <EyeIcon />, label: "View", onClick: () => {} },
-            { icon: <DownloadIcon />, label: "Download Receipt", show: (row: any) => row.status === "paid", onClick: () => {} },
+            { icon: <DownloadIcon />, label: "Download Receipt", show: (row: any) => row.status === "paid" || row.status === "partial", onClick: (row: any) => { void Finance.receiptPdf(row.id, row.invoice_no ?? `INV-${row.id}`); } },
           ]}
           toolbar={
             <SearchAndFilter

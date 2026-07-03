@@ -50,7 +50,7 @@ export default function ParentNotifications() {
   const markAllRead = useMutation({
     mutationFn: () => Messaging.markAllRead(),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["notifications"] });
+      void qc.invalidateQueries({ queryKey: ["notifications"] });
       toast({ title: "All marked as read" });
     },
     onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.message }),

@@ -21,7 +21,7 @@ export default function TeacherAssignments() {
     toast
   } = useToast();
   const qc = useQueryClient();
-  const [createFor, setCreateFor] = useState<null | any>(null);
+  const [createFor, setCreateFor] = useState<any>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -40,7 +40,7 @@ export default function TeacherAssignments() {
   const create = useMutation({
     mutationFn: (fd: FormData) => Teacher.createAssignment(fd),
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["teacher"]
       });
       toast({

@@ -12,6 +12,7 @@ use App\Models\WarehouseItem;
 use App\Services\AuditLogger;
 use App\Services\NotificationService;
 use App\Services\WarehouseService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class WarehouseController extends Controller
@@ -35,6 +36,7 @@ class WarehouseController extends Controller
         ]);
         $category = WarehouseCategory::create($data);
         AuditLogger::log($request, 'create_warehouse_category', 'warehouse_category', $category->id, $data);
+
         return response()->json(['data' => $category], 201);
     }
 
@@ -55,7 +57,7 @@ class WarehouseController extends Controller
             $safe = str_replace(['%', '_'], ['\\%', '\\_'], substr($search, 0, 100));
             $q->where(function ($query) use ($safe) {
                 $query->where('name', 'like', "%{$safe}%")
-                      ->orWhere('sku', 'like', "%{$safe}%");
+                    ->orWhere('sku', 'like', "%{$safe}%");
             });
         }
 
@@ -82,7 +84,7 @@ class WarehouseController extends Controller
             $year = date('Y');
             $count = WarehouseItem::where('category_id', $data['category_id'])
                 ->whereYear('created_at', $year)->count() + 1;
-            $data['sku'] = $prefix . '-' . $year . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+            $data['sku'] = $prefix.'-'.$year.'-'.str_pad($count, 4, '0', STR_PAD_LEFT);
         }
 
         $data['current_qty'] = 0;
@@ -90,6 +92,7 @@ class WarehouseController extends Controller
 
         $item = WarehouseItem::create($data);
         AuditLogger::log($request, 'create_warehouse_item', 'warehouse_item', $item->id, $data);
+
         return response()->json(['data' => $item], 201);
     }
 
@@ -97,10 +100,10 @@ class WarehouseController extends Controller
     {
         $item = WarehouseItem::with([
             'category',
-            'movements' => fn($q) => $q->orderBy('movement_date', 'desc')->limit(10),
-        ])->withCount(['purchaseRequests' => fn($q) => $q->where('status', 'pending')])->find($id);
+            'movements' => fn ($q) => $q->orderBy('movement_date', 'desc')->limit(10),
+        ])->withCount(['purchaseRequests' => fn ($q) => $q->where('status', 'pending')])->find($id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['message' => 'Not found'], 404);
         }
 
@@ -122,6 +125,7 @@ class WarehouseController extends Controller
         ]);
         $item->update($data);
         AuditLogger::log($request, 'update_warehouse_item', 'warehouse_item', $item->id, $data);
+
         return response()->json(['data' => $item]);
     }
 
@@ -132,10 +136,18 @@ class WarehouseController extends Controller
         $q = StockMovement::with(['item', 'performedBy:id,name']);
         $perPage = min((int) $request->query('per_page', 20), 100);
 
-        if ($itemId = $request->query('item_id')) $q->where('item_id', (int) $itemId);
-        if ($type = $request->query('movement_type')) $q->where('movement_type', $type);
-        if ($from = $request->query('date_from')) $q->where('movement_date', '>=', $from);
-        if ($to = $request->query('date_to')) $q->where('movement_date', '<=', $to);
+        if ($itemId = $request->query('item_id')) {
+            $q->where('item_id', (int) $itemId);
+        }
+        if ($type = $request->query('movement_type')) {
+            $q->where('movement_type', $type);
+        }
+        if ($from = $request->query('date_from')) {
+            $q->where('movement_date', '>=', $from);
+        }
+        if ($to = $request->query('date_to')) {
+            $q->where('movement_date', '<=', $to);
+        }
 
         return response()->json(
             $q->orderByDesc('movement_date')->paginate($perPage)
@@ -173,7 +185,9 @@ class WarehouseController extends Controller
         $q = PurchaseRequest::with(['item', 'requestedBy:id,name', 'reviewedBy:id,name']);
         $perPage = min((int) $request->query('per_page', 20), 100);
 
-        if ($status = $request->query('status')) $q->where('status', $status);
+        if ($status = $request->query('status')) {
+            $q->where('status', $status);
+        }
 
         return response()->json(
             $q->orderByDesc('created_at')->paginate($perPage)
@@ -206,6 +220,7 @@ class WarehouseController extends Controller
         ]);
 
         AuditLogger::log($request, 'create_purchase_request', 'purchase_request', $pr->id, $data);
+
         return response()->json(['data' => $pr->load('item', 'requestedBy:id,name')], 201);
     }
 
@@ -237,6 +252,7 @@ class WarehouseController extends Controller
         );
 
         AuditLogger::log($request, 'review_purchase_request', 'purchase_request', $pr->id, $data);
+
         return response()->json(['data' => $pr->load('item', 'requestedBy:id,name', 'reviewedBy:id,name')]);
     }
 
@@ -247,9 +263,15 @@ class WarehouseController extends Controller
         $q = InventoryCount::with(['item', 'countedBy:id,name']);
         $perPage = min((int) $request->query('per_page', 20), 100);
 
-        if ($type = $request->query('count_type')) $q->where('count_type', $type);
-        if ($from = $request->query('date_from')) $q->where('count_date', '>=', $from);
-        if ($to = $request->query('date_to')) $q->where('count_date', '<=', $to);
+        if ($type = $request->query('count_type')) {
+            $q->where('count_type', $type);
+        }
+        if ($from = $request->query('date_from')) {
+            $q->where('count_date', '>=', $from);
+        }
+        if ($to = $request->query('date_to')) {
+            $q->where('count_date', '<=', $to);
+        }
 
         return response()->json(
             $q->orderByDesc('count_date')->paginate($perPage)
@@ -283,6 +305,7 @@ class WarehouseController extends Controller
         }
 
         AuditLogger::log($request, 'create_inventory_counts', 'inventory_count', null, ['count' => count($created)]);
+
         return response()->json(['data' => $created], 201);
     }
 
@@ -313,6 +336,7 @@ class WarehouseController extends Controller
             ->get()
             ->map(function ($row) {
                 $item = WarehouseItem::find($row->item_id);
+
                 return [
                     'item_name' => $item?->name,
                     'sku' => $item?->sku,
@@ -349,15 +373,15 @@ class WarehouseController extends Controller
             ->whereYear('movement_date', $data['year'])
             ->whereMonth('movement_date', $data['month']);
 
-        if (!empty($data['category_id'])) {
-            $q->whereHas('item', fn($iq) => $iq->where('category_id', $data['category_id']));
+        if (! empty($data['category_id'])) {
+            $q->whereHas('item', fn ($iq) => $iq->where('category_id', $data['category_id']));
         }
 
         $rows = $q->select('item_id', 'department')
             ->selectRaw('sum(quantity) as total_quantity')
             ->groupBy('item_id', 'department')
             ->get()
-            ->map(fn($r) => [
+            ->map(fn ($r) => [
                 'item_name' => $r->item?->name,
                 'sku' => $r->item?->sku,
                 'department' => $r->department,
@@ -380,8 +404,8 @@ class WarehouseController extends Controller
             ->whereYear('movement_date', $data['year'])
             ->whereMonth('movement_date', $data['month']);
 
-        if (!empty($data['category_id'])) {
-            $q->whereHas('item', fn($iq) => $iq->where('category_id', $data['category_id']));
+        if (! empty($data['category_id'])) {
+            $q->whereHas('item', fn ($iq) => $iq->where('category_id', $data['category_id']));
         }
 
         $rows = $q->select('item_id', 'department')
@@ -389,9 +413,10 @@ class WarehouseController extends Controller
             ->groupBy('item_id', 'department')
             ->get();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.warehouse-consumption', [
+        $pdf = Pdf::loadView('reports.warehouse-consumption', [
             'rows' => $rows, 'month' => $data['month'], 'year' => $data['year'],
         ]);
+
         return $pdf->download("consumption-{$data['year']}-{$data['month']}.pdf");
     }
 
@@ -403,7 +428,7 @@ class WarehouseController extends Controller
             $q->where('category_id', $categoryId);
         }
 
-        $items = $q->get()->map(fn($item) => [
+        $items = $q->get()->map(fn ($item) => [
             'id' => $item->id,
             'name' => $item->name,
             'sku' => $item->sku,
@@ -428,9 +453,10 @@ class WarehouseController extends Controller
         $items = $q->get();
         $date = now()->format('Y-m-d');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.warehouse-inventory', [
+        $pdf = Pdf::loadView('reports.warehouse-inventory', [
             'items' => $items, 'date' => $date,
         ]);
+
         return $pdf->download("inventory-{$date}.pdf");
     }
 }

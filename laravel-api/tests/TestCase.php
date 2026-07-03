@@ -12,6 +12,7 @@ abstract class TestCase extends BaseTestCase
     {
         $user = User::factory()->{$role}()->create();
         Sanctum::actingAs($user, ['*']);
+
         return $user;
     }
 

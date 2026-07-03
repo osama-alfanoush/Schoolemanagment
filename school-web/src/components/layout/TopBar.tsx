@@ -1,8 +1,8 @@
 import { useAuth } from "@/lib/auth";
-import { mediaUrl, Role } from "@/lib/api";
+import { mediaUrl } from "@/lib/api";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { Search, LogOut, User, KeyRound } from "lucide-react";
+import { LogOut, User, KeyRound, Menu } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,9 +16,10 @@ import NotificationBell from "@/components/layout/NotificationBell";
 
 interface TopBarProps {
   title: string;
+  onMenuClick?: () => void;
 }
 
-export default function TopBar({ title }: TopBarProps) {
+export default function TopBar({ title, onMenuClick }: TopBarProps) {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
@@ -26,20 +27,26 @@ export default function TopBar({ title }: TopBarProps) {
   if (!user) return null;
 
   return (
-    <header className="h-16 bg-card border-b border-surface-border shadow-sm flex items-center justify-between px-6 shrink-0">
-      <h1 className="font-display text-xl font-bold text-ink-dark">{title}</h1>
-
-      <div className="flex items-center gap-2">
-        <button className="w-9 h-9 rounded-xl flex items-center justify-center text-ink-muted hover:bg-surface-bg hover:text-brand-purple transition-colors">
-          <Search className="h-5 w-5" />
+    <header className="h-16 bg-card/90 backdrop-blur-md border-b border-surface-border shadow-academic flex items-center justify-between gap-3 px-4 sm:px-6 shrink-0 z-20">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label={t("common.menu", "Menu")}
+          className="md:hidden -ms-1 inline-flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary)] transition-colors"
+        >
+          <Menu className="h-5 w-5" />
         </button>
+        <h1 className="font-display text-lg sm:text-xl font-bold text-ink-dark truncate">{title}</h1>
+      </div>
 
-        <NotificationBell role={user.role as Role} className="rounded-xl text-ink-muted hover:bg-surface-bg hover:text-brand-purple" />
+      <div className="flex items-center gap-1.5">
+        <NotificationBell role={user.role} className="rounded-xl text-muted-foreground hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary)]" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-purple/30">
-              <BrandAvatar src={mediaUrl(user.photo_path)} name={user.name} role={user.role} size="sm" />
+            <button className="ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30">
+              <BrandAvatar src={mediaUrl(user.photo_path)} name={user.name} variant={user.role} size="sm" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -51,19 +58,29 @@ export default function TopBar({ title }: TopBarProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <a href={`/${user.role}/profile`} className="cursor-pointer flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLocation(`/${user.role}/profile`)}
+                className="w-full cursor-pointer flex items-center gap-2"
+              >
                 <User className="h-4 w-4" />
                 {t("common.profile")}
-              </a>
+              </button>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-              <KeyRound className="h-4 w-4" />
-              {t("common.changePassword")}
+            <DropdownMenuItem asChild>
+              <button
+                type="button"
+                onClick={() => setLocation(`/${user.role}/profile`)}
+                className="w-full cursor-pointer flex items-center gap-2"
+              >
+                <KeyRound className="h-4 w-4" />
+                {t("common.changePassword")}
+              </button>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                logout();
+                void logout();
                 setLocation("/login");
               }}
               className="cursor-pointer flex items-center gap-2 text-brand-red focus:text-brand-red"

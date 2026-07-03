@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Admin } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLibrary() {
-  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -41,7 +39,7 @@ export default function AdminLibrary() {
       toast({ title: "Success", description: "Book added to library." });
       setShowForm(false);
       setTitle(""); setAuthor(""); setIsbn(""); setCopies(1); setCategory("");
-      qc.invalidateQueries({ queryKey: ["admin-library-books"] });
+      void qc.invalidateQueries({ queryKey: ["admin-library-books"] });
     },
     onError: () => toast({ title: "Error", description: "Failed to add book.", variant: "destructive" }),
   });

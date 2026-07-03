@@ -18,7 +18,7 @@ export default function AdminHrRequests() {
     toast
   } = useToast();
   const qc = useQueryClient();
-  const [open, setOpen] = useState<null | any>(null);
+  const [open, setOpen] = useState<any>(null);
   const [response, setResponse] = useState("");
   const {
     data,
@@ -27,7 +27,7 @@ export default function AdminHrRequests() {
     queryKey: ["admin", "hr-requests"],
     queryFn: Admin.hrRequests
   }) as any;
-  const requests = Array.isArray(data) ? data : (data as any)?.data || [];
+  const requests = Array.isArray(data) ? data : data?.data || [];
   const review = useMutation({
     mutationFn: ({
       id,
@@ -37,7 +37,7 @@ export default function AdminHrRequests() {
       status: "approved" | "rejected";
     }) => Admin.reviewHrRequest(id, status, response),
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["admin", "hr-requests"]
       });
       toast({

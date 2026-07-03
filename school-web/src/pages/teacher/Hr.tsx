@@ -48,10 +48,10 @@ export default function TeacherHr() {
       reason: form.reason?.trim(),
       start_date: form.start_date || undefined,
       end_date: form.end_date || undefined,
-      amount: form.amount || undefined,
+      amount: form.amount !== undefined ? Number(form.amount) : undefined,
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["teacher", "hr"] });
+      void queryClient.invalidateQueries({ queryKey: ["teacher", "hr"] });
       toast({ title: "Request sent to HR" });
       setOpen(false);
       setForm(emptyForm);
@@ -124,6 +124,15 @@ export default function TeacherHr() {
             className="space-y-4"
             onSubmit={(event) => {
               event.preventDefault();
+              if (!form.subject.trim() || !form.reason?.trim()) return;
+              if (form.start_date && form.end_date && form.start_date > form.end_date) {
+                toast({
+                  title: "Invalid dates",
+                  description: "End date must be on or after the start date.",
+                  variant: "destructive",
+                });
+                return;
+              }
               submit.mutate();
             }}
           >
@@ -147,6 +156,7 @@ export default function TeacherHr() {
                 id="subject"
                 value={form.subject}
                 onChange={(event) => setForm((prev) => ({ ...prev, subject: event.target.value }))}
+                maxLength={255}
                 required
               />
             </div>
@@ -166,6 +176,7 @@ export default function TeacherHr() {
                 <Input
                   id="end-date"
                   type="date"
+                  min={form.start_date || ""}
                   value={form.end_date || ""}
                   onChange={(event) => setForm((prev) => ({ ...prev, end_date: event.target.value }))}
                 />

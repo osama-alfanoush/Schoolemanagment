@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react"
 import { useTheme } from "@/lib/ThemeContext"
+import { useTheme as useColorScheme } from "next-themes"
 import { DEFAULT_THEME, buildTheme } from "@/lib/theme"
 import { Admin, ApiError, mediaUrl } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
@@ -18,18 +19,19 @@ import { cn } from "@/lib/utils"
 import PageHeader from "@/components/ui/PageHeader"
 import BrandCard from "@/components/ui/BrandCard"
 import BrandButton from "@/components/ui/BrandButton"
-import { useTranslation } from "react-i18next"
-import { setLocale } from "@/lib/i18n"
+
 
 const PRIMARY_PRESETS = [
   "#6C63FF", "#3B82F6", "#10B981", "#F59E0B",
   "#EF4444", "#8B5CF6", "#EC4899", "#0EA5E9",
 ]
 
+
 const ACCENT_PRESETS = [
   "#FF6584", "#F97316", "#14B8A6", "#EAB308",
   "#F43F5E", "#A855F7", "#06B6D4", "#84CC16",
 ]
+
 
 const FONT_FAMILIES: Record<FontStyle, string> = {
   modern: "'Plus Jakarta Sans', sans-serif",
@@ -37,11 +39,13 @@ const FONT_FAMILIES: Record<FontStyle, string> = {
   friendly: "'Nunito', sans-serif",
 }
 
+
 const SIDEBAR_PREVIEW: Record<SidebarStyle, string> = {
   gradient: "bg-[var(--gradient-main)]",
   white: "bg-white border-r border-gray-200",
   dark: "bg-gray-900",
 }
+
 
 const HEX_RE = /^#[0-9A-Fa-f]{6}$/
 const DEFAULT_ACADEMIC_YEAR = "2025-2026"
@@ -49,9 +53,11 @@ const SIDEBAR_STYLES = ["white", "gradient", "dark"] as const
 const BORDER_RADII = ["sharp", "medium", "rounded"] as const
 const FONT_STYLES = ["modern", "classic", "friendly"] as const
 
+
 type SidebarStyle = (typeof SIDEBAR_STYLES)[number]
 type BorderRadius = (typeof BORDER_RADII)[number]
 type FontStyle = (typeof FONT_STYLES)[number]
+
 
 interface SchoolSettingsResponse {
   school_name?: string | null
@@ -68,11 +74,13 @@ interface SchoolSettingsResponse {
   data?: SchoolSettingsResponse
 }
 
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
+
 
 function validationMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -83,25 +91,30 @@ function validationMessage(error: unknown): string {
   return "Something went wrong. Please try again."
 }
 
+
 function isSidebarStyle(value: unknown): value is SidebarStyle {
   return SIDEBAR_STYLES.includes(value as SidebarStyle)
 }
+
 
 function isBorderRadius(value: unknown): value is BorderRadius {
   return BORDER_RADII.includes(value as BorderRadius)
 }
 
+
 function isFontStyle(value: unknown): value is FontStyle {
   return FONT_STYLES.includes(value as FontStyle)
 }
+
 
 function unwrapSettings(data: SchoolSettingsResponse): SchoolSettingsResponse {
   return data.data ?? data
 }
 
+
 export default function SchoolSettings() {
   const { theme, setTheme, updatePrimaryColor, updateAccentColor, applyThemeToCss, resetToDefault } = useTheme()
-  const { i18n } = useTranslation()
+
 
   const [schoolName, setSchoolName] = useState(DEFAULT_THEME.school_name)
   const [motto, setMotto] = useState("")
@@ -119,11 +132,17 @@ export default function SchoolSettings() {
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState("")
+  // Light/dark is owned by next-themes (the single source of truth, shared with
+  // the top-bar toggle). We just read/drive it here — no manual class/localStorage.
+  const { theme: colorScheme, setTheme: setColorScheme } = useColorScheme()
+  const uiMode: "light" | "dark" = colorScheme === "dark" ? "dark" : "light"
+
 
   const primaryInputRef = useRef<HTMLInputElement>(null)
   const accentInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const logoObjectUrlRef = useRef("")
+
 
   const revokeLogoObjectUrl = useCallback(() => {
     if (logoObjectUrlRef.current) {
@@ -132,11 +151,13 @@ export default function SchoolSettings() {
     }
   }, [])
 
+
   const loadSettings = useCallback(async () => {
     setIsLoading(true)
     setLoadError("")
     try {
       const settings = unwrapSettings((await Admin.schoolSettings()) as SchoolSettingsResponse)
+
 
       const loadedPrimary = settings.primary_color && HEX_RE.test(settings.primary_color)
         ? settings.primary_color
@@ -145,6 +166,7 @@ export default function SchoolSettings() {
         ? settings.accent_color
         : DEFAULT_THEME.accent
       const logoUrl = mediaUrl(settings.school_logo || settings.logo_url)
+
 
       setSchoolName(settings.school_name || DEFAULT_THEME.school_name)
       setMotto(settings.school_motto || "")
@@ -168,13 +190,16 @@ export default function SchoolSettings() {
     }
   }, [updateAccentColor, updatePrimaryColor])
 
+
   useEffect(() => {
-    loadSettings()
+    void loadSettings()
   }, [loadSettings])
+
 
   useEffect(() => {
     return () => revokeLogoObjectUrl()
   }, [revokeLogoObjectUrl])
+
 
   useEffect(() => {
     const fonts: Record<FontStyle, string> = {
@@ -192,17 +217,27 @@ export default function SchoolSettings() {
     applyThemeToCss({ ...theme, font_style: fontStyle })
   }, [applyThemeToCss, fontStyle, theme])
 
+
   const handlePrimaryChange = useCallback((hex: string) => {
     if (!HEX_RE.test(hex)) return
     setPrimaryColor(hex)
     updatePrimaryColor(hex)
   }, [updatePrimaryColor])
 
+
   const handleAccentChange = useCallback((hex: string) => {
     if (!HEX_RE.test(hex)) return
     setAccentColor(hex)
     updateAccentColor(hex)
   }, [updateAccentColor])
+
+
+  const handleUiModeChange = (mode: "light" | "dark") => {
+    // next-themes persists this (storageKey "ui-mode") and applies the .dark
+    // class app-wide and across refreshes.
+    setColorScheme(mode)
+  }
+
 
   const handleLogoFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -218,6 +253,7 @@ export default function SchoolSettings() {
       return
     }
 
+
     revokeLogoObjectUrl()
     const previewUrl = URL.createObjectURL(file)
     logoObjectUrlRef.current = previewUrl
@@ -226,6 +262,7 @@ export default function SchoolSettings() {
     setLogoWasRemoved(false)
   }
 
+
   const handleRemoveLogo = () => {
     revokeLogoObjectUrl()
     setLogoFile(null)
@@ -233,6 +270,7 @@ export default function SchoolSettings() {
     setLogoWasRemoved(Boolean(existingLogoUrl))
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
+
 
   const handleReset = () => {
     revokeLogoObjectUrl()
@@ -252,7 +290,9 @@ export default function SchoolSettings() {
     toast({ title: "Reset to default theme" })
   }
 
+
   const canSave = schoolName.trim().length > 0 && HEX_RE.test(primaryColor) && HEX_RE.test(accentColor)
+
 
   const handleSave = async () => {
     if (!canSave) {
@@ -263,6 +303,7 @@ export default function SchoolSettings() {
       })
       return
     }
+
 
     setIsSaving(true)
     try {
@@ -282,6 +323,7 @@ export default function SchoolSettings() {
         fd.append("remove_school_logo", "1")
       }
 
+
       const settings = unwrapSettings((await Admin.updateSchoolSettings(fd)) as SchoolSettingsResponse)
       const nextLogo = mediaUrl(settings.school_logo || (logoWasRemoved ? "" : existingLogoUrl))
       const nextTheme = buildTheme(primaryColor, accentColor, {
@@ -292,6 +334,7 @@ export default function SchoolSettings() {
         border_radius: isBorderRadius(settings.border_radius) ? settings.border_radius : borderRadius,
         font_style: isFontStyle(settings.font_style) ? settings.font_style : fontStyle,
       })
+
 
       setTheme(nextTheme)
       setSchoolName(nextTheme.school_name)
@@ -305,6 +348,7 @@ export default function SchoolSettings() {
       revokeLogoObjectUrl()
       if (fileInputRef.current) fileInputRef.current.value = ""
 
+
       toast({ title: "School settings saved" })
     } catch (error) {
       toast({ title: "Failed to save settings", description: validationMessage(error), variant: "destructive" })
@@ -313,6 +357,7 @@ export default function SchoolSettings() {
     }
   }
 
+
   if (isLoading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -320,6 +365,7 @@ export default function SchoolSettings() {
       </div>
     )
   }
+
 
   if (loadError) {
     return (
@@ -335,7 +381,12 @@ export default function SchoolSettings() {
               <h2 className="font-semibold text-foreground">Settings could not load</h2>
               <p className="mt-1 text-sm text-muted-foreground">{loadError}</p>
             </div>
-            <BrandButton variant="outline" onClick={loadSettings}>
+                <BrandButton
+                  variant="outline"
+                  onClick={() => {
+                    void loadSettings()
+                  }}
+                >
               Try Again
             </BrandButton>
           </div>
@@ -343,6 +394,7 @@ export default function SchoolSettings() {
       </div>
     )
   }
+
 
   return (
     <div>
@@ -352,10 +404,12 @@ export default function SchoolSettings() {
         subtitle="Customize your school's identity and brand theme"
       />
 
+
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <BrandCard>
             <SectionTitle icon={<School className="h-5 w-5" />} title="School Identity" />
+
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Field label="School Name" required error={!schoolName.trim() ? "School name is required." : ""}>
@@ -366,6 +420,7 @@ export default function SchoolSettings() {
                 />
               </Field>
 
+
               <Field label="Academic Year">
                 <input
                   value={academicYear}
@@ -374,6 +429,7 @@ export default function SchoolSettings() {
                   className={inputClass()}
                 />
               </Field>
+
 
               <Field label="School Motto" className="md:col-span-2">
                 <input
@@ -384,6 +440,7 @@ export default function SchoolSettings() {
                 />
               </Field>
 
+
               <Field label="School Address" className="md:col-span-2">
                 <textarea
                   value={address}
@@ -393,10 +450,18 @@ export default function SchoolSettings() {
                 />
               </Field>
 
+
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-foreground mb-1.5">School Logo</label>
+                <label htmlFor="school-logo-file" className="block text-sm font-medium text-foreground mb-1.5">School Logo</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " ") return
+                    event.preventDefault()
+                    fileInputRef.current?.click()
+                  }}
+                  role="button"
+                  tabIndex={0}
                   className={cn(
                     "rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 border-2",
                     logoPreview
@@ -409,7 +474,7 @@ export default function SchoolSettings() {
                       <img
                         src={logoPreview}
                         alt="Logo preview"
-                        className="h-16 w-16 rounded-xl border border-border bg-card object-contain shadow-sm"
+                        className="h-16 w-16 rounded-xl border border-gray-100 bg-white object-contain shadow-sm"
                       />
                       <div className="min-w-0 flex-1 text-left">
                         <p className="truncate text-sm font-medium text-foreground">
@@ -425,7 +490,7 @@ export default function SchoolSettings() {
                           e.stopPropagation()
                           handleRemoveLogo()
                         }}
-                        className="rounded-full p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                        className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/50"
                         aria-label="Remove logo"
                       >
                         <X className="h-4 w-4" />
@@ -433,13 +498,14 @@ export default function SchoolSettings() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center">
-                      <UploadCloud className="mb-2 h-8 w-8 text-gray-400" />
+                      <UploadCloud className="mb-2 h-8 w-8 text-muted-foreground/60" />
                       <p className="text-sm text-muted-foreground">Drop your logo here or click to upload</p>
-                      <p className="mt-1 text-xs text-muted-foreground/70">PNG, JPG, WebP - max 2MB</p>
+                      <p className="mt-1 text-xs text-muted-foreground/60">PNG, JPG, WebP - max 2MB</p>
                     </div>
                   )}
                 </div>
                 <input
+                  id="school-logo-file"
                   ref={fileInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
@@ -449,6 +515,7 @@ export default function SchoolSettings() {
               </div>
             </div>
           </BrandCard>
+
 
           <BrandCard>
             <SectionTitle icon={<Palette className="h-5 w-5" />} title="Brand Colors" />
@@ -461,7 +528,7 @@ export default function SchoolSettings() {
               onChange={handlePrimaryChange}
               onDraft={setPrimaryColor}
             />
-            <div className="my-5 border-t border-border/60" />
+            <div className="my-5 border-t border-border" />
             <ColorEditor
               label="Accent Color"
               description="Hero banners, highlights, secondary elements"
@@ -471,6 +538,7 @@ export default function SchoolSettings() {
               onChange={handleAccentChange}
               onDraft={setAccentColor}
             />
+
 
             <div className="mt-5 grid grid-cols-3 gap-3">
               {[
@@ -486,8 +554,10 @@ export default function SchoolSettings() {
             </div>
           </BrandCard>
 
+
           <BrandCard>
             <SectionTitle icon={<Sparkles className="h-5 w-5" />} title="UI Style Preferences" />
+
 
             <OptionGrid<BorderRadius>
               title="Corner Style"
@@ -497,7 +567,7 @@ export default function SchoolSettings() {
               renderPreview={(opt) => (
                 <div
                   className={cn(
-                    "mx-auto mb-2 h-12 w-12 bg-muted",
+                    "mx-auto mb-2 h-12 w-12 bg-gray-100",
                     opt === "sharp" && "rounded-none",
                     opt === "medium" && "rounded-lg",
                     opt === "rounded" && "rounded-2xl",
@@ -505,6 +575,7 @@ export default function SchoolSettings() {
                 />
               )}
             />
+
 
             <OptionGrid<SidebarStyle>
               title="Sidebar Style"
@@ -527,6 +598,7 @@ export default function SchoolSettings() {
               )}
             />
 
+
             <OptionGrid<FontStyle>
               title="Typography"
               options={FONT_STYLES}
@@ -539,7 +611,44 @@ export default function SchoolSettings() {
                 </p>
               )}
             />
+
+
+            <div className="mt-5">
+              <p className="mb-3 text-sm font-semibold text-foreground">Interface Mode</p>
+              <div className="grid grid-cols-2 gap-3">
+                {(["light", "dark"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => handleUiModeChange(mode)}
+                    className={cn(
+                      "rounded-xl border-2 p-4 text-center transition-all duration-200",
+                      uiMode === mode
+                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]/8"
+                        : "border-border/50 hover:border-border"
+                    )}
+                  >
+                    <div className={cn(
+                      "mx-auto mb-2 h-12 w-full rounded-lg flex items-center justify-center gap-2 text-xs font-medium",
+                      mode === "light"
+                        ? "bg-[#F8F7FF] border border-gray-200 text-gray-700"
+                        : "bg-[#0D1B2E] border border-gray-700 text-gray-200"
+                    )}>
+                      <span>{mode === "light" ? "☀️" : "🌙"}</span>
+                      <span>{mode === "light" ? "Light" : "Dark"}</span>
+                    </div>
+                    <p className="mt-2 text-xs font-medium capitalize text-muted-foreground">{mode}</p>
+                    {uiMode === mode && (
+                      <span className="mt-1 inline-flex items-center text-xs text-[var(--color-primary)] font-semibold">
+                        ✓ Active
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
           </BrandCard>
+
 
           <BrandCard className="!p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -555,7 +664,9 @@ export default function SchoolSettings() {
                 </BrandButton>
                 <BrandButton
                   variant="primary"
-                  onClick={handleSave}
+              onClick={() => {
+                void handleSave()
+              }}
                   isLoading={isSaving}
                   disabled={!canSave}
                   leftIcon={<Save className="h-4 w-4" />}
@@ -567,13 +678,15 @@ export default function SchoolSettings() {
           </BrandCard>
         </div>
 
+
         <aside className="w-full xl:sticky xl:top-6 xl:w-80">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-semibold text-foreground">Live Preview</p>
             <p className="text-xs text-muted-foreground">Updates instantly</p>
           </div>
 
-          <div className="relative h-[520px] overflow-hidden rounded-2xl border border-border bg-muted/40">
+
+          <div className="relative h-[520px] overflow-hidden border border-border bg-muted/30" style={{ borderRadius: "var(--radius-base, 1rem)" }}>
             <div style={{ transform: "scale(0.6)", transformOrigin: "top left", width: "166.67%", height: "166.67%" }}>
               <PreviewApp
                 schoolName={schoolName}
@@ -585,7 +698,8 @@ export default function SchoolSettings() {
             </div>
           </div>
 
-          <div className="mt-3 rounded-xl border border-border bg-card p-3">
+
+          <div className="mt-3 border border-border bg-card p-3" style={{ borderRadius: "var(--radius-base, 0.75rem)" }}>
             <ColorSummary label="Primary" value={primaryColor} />
             <ColorSummary label="Accent" value={accentColor} className="mt-2" />
           </div>
@@ -595,6 +709,7 @@ export default function SchoolSettings() {
   )
 }
 
+
 function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="mb-5 flex items-center gap-2 text-foreground">
@@ -603,6 +718,7 @@ function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
     </div>
   )
 }
+
 
 function Field({
   children,
@@ -629,12 +745,14 @@ function Field({
   )
 }
 
+
 function inputClass(hasError = false) {
   return cn(
-    "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 dark:bg-card",
-    hasError ? "border-destructive/40 bg-destructive/5" : "border-border",
+    "w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all duration-200 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20",
+    hasError ? "border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/30" : "border-border",
   )
 }
+
 
 function ColorEditor({
   description,
@@ -654,6 +772,7 @@ function ColorEditor({
   value: string
 }) {
   const hasError = !HEX_RE.test(value)
+
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -686,8 +805,8 @@ function ColorEditor({
             }}
             maxLength={7}
             className={cn(
-              "w-24 rounded-xl border px-3 py-2 font-mono text-sm uppercase text-foreground bg-background outline-none",
-              hasError ? "border-destructive/40 bg-destructive/5" : "border-border",
+              "w-24 rounded-xl border px-3 py-2 font-mono text-sm uppercase text-foreground outline-none",
+              hasError ? "border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/30" : "border-border",
             )}
           />
         </div>
@@ -713,6 +832,7 @@ function ColorEditor({
     </div>
   )
 }
+
 
 function OptionGrid<T extends string>({
   className,
@@ -742,7 +862,7 @@ function OptionGrid<T extends string>({
               "rounded-xl border-2 p-4 text-center transition-all duration-200",
               value === opt
                 ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5"
-                : "border-border/50 hover:border-border",
+                : "border-border hover:border-muted-foreground/40",
             )}
           >
             {renderPreview(opt)}
@@ -754,17 +874,19 @@ function OptionGrid<T extends string>({
   )
 }
 
+
 function ColorSummary({ className, label, value }: { className?: string; label: string; value: string }) {
   return (
     <div className={cn("flex items-center justify-between", className)}>
       <span className="text-xs text-muted-foreground">{label}</span>
       <div className="flex items-center gap-2">
         <div className="h-4 w-4 rounded-full" style={{ backgroundColor: HEX_RE.test(value) ? value : "#ffffff" }} />
-        <span className="font-mono text-xs text-foreground/80">{value}</span>
+        <span className="font-mono text-xs text-muted-foreground">{value}</span>
       </div>
     </div>
   )
 }
+
 
 function PreviewApp({
   accentColor,
@@ -808,6 +930,7 @@ function PreviewApp({
           </span>
         </div>
 
+
         <div className="flex flex-col gap-1 p-3">
           {["Dashboard", "Students", "Classes", "Grades", "Finance", "Settings"].map((label, i) => {
             const isActive = i === 0
@@ -833,6 +956,7 @@ function PreviewApp({
         </div>
       </div>
 
+
       <div className="flex flex-1 flex-col">
         <div className="flex h-10 items-center justify-between border-b border-gray-100 bg-white px-4">
           <span className="text-xs font-semibold text-gray-700">Dashboard</span>
@@ -843,8 +967,10 @@ function PreviewApp({
           </div>
         </div>
 
+
         <div className="flex-1 overflow-hidden bg-gray-50 p-4">
           <p className="mb-3 text-sm font-bold text-gray-800">{schoolName || "Welcome to School Suite"}</p>
+
 
           <div className="mb-3 grid grid-cols-2 gap-2">
             {[
@@ -859,6 +985,7 @@ function PreviewApp({
               </div>
             ))}
           </div>
+
 
           <div className="overflow-hidden rounded-xl bg-white">
             <div className="flex bg-gray-50 px-3 py-2">
@@ -884,4 +1011,3 @@ function PreviewApp({
     </div>
   )
 }
-

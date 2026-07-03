@@ -132,8 +132,14 @@ export interface WarehouseStats {
 
 export interface InventoryCount {
   id: number;
+  count_ref?: string;
   count_type: string;
   count_date: string;
+  item_id?: number;
+  item?: { id: number; name: string; sku?: string } | null;
+  system_qty?: number;
+  physical_qty?: number;
+  notes?: string;
 }
 
 export interface ConsumptionRow {
@@ -184,7 +190,7 @@ export interface PaginatedChartData {
 // ─── Enums / Unions ───────────────────────────────────────────────
 export type UserRole =
   | 'admin' | 'teacher' | 'student' | 'parent'
-  | 'finance' | 'hr' | 'accounting' | 'warehouse';
+  | 'finance' | 'hr' | 'warehouse';
 
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
 export type InvoiceStatus = 'pending' | 'partial' | 'paid' | 'overdue';
@@ -342,13 +348,15 @@ export interface Payment {
   recorded_by: number;
 }
 
+export type BillingCycle = "monthly" | "semester" | "yearly" | "one-time";
+
 export interface FeeStructure {
   id: number;
   name: string;
+  grade?: string | number | null;
+  billing_cycle: BillingCycle;
   amount: number;
-  academic_year: string;
-  due_date: string;
-  description?: string;
+  is_active: boolean;
 }
 
 export interface Invoice {
@@ -429,11 +437,18 @@ export interface WarehouseCategory {
   items_count?: number;
 }
 
+export interface UserRef {
+  id: number;
+  name: string;
+  role?: string;
+}
+
 export interface WarehouseItem {
   id: number;
   name: string;
   sku?: string;
   category_id: number;
+  category?: { id: number; name: string } | null;
   unit: string;
   current_qty: number;
   min_stock_qty: number;
@@ -445,6 +460,7 @@ export interface WarehouseItem {
 export interface StockMovement {
   id: number;
   item_id: number;
+  item?: WarehouseItem | null;
   movement_type: MovementType;
   quantity: number;
   reference_no?: string;
@@ -452,7 +468,10 @@ export interface StockMovement {
   department?: string;
   recipient_name?: string;
   reason?: string;
+  notes?: string;
+  category_name?: string;
   performed_by: number;
+  performedBy?: UserRef | null;
   movement_date: string;
 }
 
@@ -460,14 +479,19 @@ export interface PurchaseRequest {
   id: number;
   request_no: string;
   item_id: number;
+  item?: WarehouseItem | null;
   quantity_requested: number;
   unit: string;
   estimated_cost?: number;
   justification?: string;
+  department?: string;
   status: PurchaseRequestStatus;
   requested_by: number;
+  requestedBy?: UserRef | null;
   reviewed_by?: number;
+  reviewedBy?: UserRef | null;
   reviewed_at?: string;
+  created_at?: string;
   admin_notes?: string;
 }
 
@@ -994,18 +1018,18 @@ export interface SendMessageRequest {
 // Finance fee structure
 export interface CreateFeeStructureRequest {
   name: string;
+  grade?: string | number | null;
+  billing_cycle: BillingCycle;
   amount: number;
-  academic_year: string;
-  due_date: string;
-  description?: string;
+  is_active?: boolean;
 }
 
 export interface UpdateFeeStructureRequest {
   name?: string;
+  grade?: string | number | null;
+  billing_cycle?: BillingCycle;
   amount?: number;
-  academic_year?: string;
-  due_date?: string;
-  description?: string;
+  is_active?: boolean;
 }
 
 // Generic query params

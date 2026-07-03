@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route } from "wouter";
 import { AppShell } from "@/components/layout/AppShell";
 import { RoleGuard } from "@/components/layout/RoleGuard";
 

@@ -13,7 +13,7 @@ class JobPosting extends Model
 
     protected $fillable = [
         'title', 'description', 'requirements', 'department',
-        'position_type', 'posting_date', 'closing_date', 'status', 'posted_by'
+        'position_type', 'posting_date', 'closing_date', 'status', 'posted_by',
     ];
 
     protected $casts = [
@@ -22,7 +22,9 @@ class JobPosting extends Model
     ];
 
     public const STATUS_OPEN = 'open';
+
     public const STATUS_CLOSED = 'closed';
+
     public const STATUS_FILLED = 'filled';
 
     public function poster(): BelongsTo

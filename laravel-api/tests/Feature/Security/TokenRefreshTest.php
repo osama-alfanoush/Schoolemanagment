@@ -39,7 +39,7 @@ class TokenRefreshTest extends TestCase
         $refreshToken = $login->json('refresh_token');
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $refreshToken,
+            'Authorization' => 'Bearer '.$refreshToken,
         ])->postJson('/api/auth/refresh');
 
         $response->assertOk()
@@ -64,7 +64,7 @@ class TokenRefreshTest extends TestCase
         $firstRefresh = $login->json('refresh_token');
 
         $refresh = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $firstRefresh,
+            'Authorization' => 'Bearer '.$firstRefresh,
         ])->postJson('/api/auth/refresh');
 
         $refresh->assertOk();

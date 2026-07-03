@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Parent, ParentChild, Invoice } from "@/lib/api";
+import { Parent } from "@/lib/api";
 import { renderUser, renderCurrency, renderDate, renderStatus } from "@/lib/tableHelpers";
 import { EyeIcon, DownloadIcon } from "@/lib/icons";
 import PageHeader from "@/components/ui/PageHeader";
@@ -10,6 +11,7 @@ import SearchAndFilter from "@/components/ui/SearchAndFilter";
 import BrandEmptyState from "@/components/ui/BrandEmptyState";
 
 export default function ParentInvoices() {
+  const [, setLocation] = useLocation();
   const [selectedChild, setSelectedChild] = useState<number | "all">("all");
   const [search, setSearch] = useState("");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
@@ -24,12 +26,15 @@ export default function ParentInvoices() {
     queryKey: ["parent-invoices", selectedChild],
     queryFn: () => {
       const id = selectedChild === "all" ? children[0]?.id : selectedChild;
-      if (!id) return Promise.resolve([]);
+      if (!id) return Promise.resolve({ invoices: [], outstanding_total: 0 });
       return Parent.childInvoices(id);
     },
     enabled: children.length > 0,
   }) as any;
-const invoices = Array.isArray(invoicesData) ? invoicesData : invoicesData?.data ?? [];
+// The API returns { invoices, outstanding_total }; tolerate legacy array/{data} shapes too.
+const invoices = Array.isArray(invoicesData)
+  ? invoicesData
+  : invoicesData?.invoices ?? invoicesData?.data ?? [];
 
   const totalPaid = invoices
     .filter((i: any) => i.status === "paid")
@@ -44,6 +49,7 @@ const invoices = Array.isArray(invoicesData) ? invoicesData : invoicesData?.data
     .sort((a: any, b: any) => new Date(a.due_date ?? a.issue_date).getTime() - new Date(b.due_date ?? b.issue_date).getTime())[0];
 
   const showStudentColumn = children.length > 1 && selectedChild === "all";
+  const activeChildId = selectedChild === "all" ? children[0]?.id : selectedChild;
 
   return (
     <div className="space-y-6">
@@ -111,8 +117,19 @@ const invoices = Array.isArray(invoicesData) ? invoicesData : invoicesData?.data
             { key: "status", label: "Status", render: (v: any) => renderStatus(v) },
           ]}
           rowActions={[
-            { icon: <EyeIcon />, label: "View", onClick: () => {} },
-            { icon: <DownloadIcon />, label: "Download", show: (row: any) => row.status === "paid", onClick: (row: any) => {} },
+            {
+              icon: <EyeIcon />,
+              label: "View child",
+              onClick: () => { if (activeChildId) setLocation(`/parent/children/${activeChildId}`); },
+            },
+            {
+              icon: <DownloadIcon />,
+              label: "Download receipt",
+              show: (row: any) => row.status === "paid",
+              onClick: (row: any) => {
+                if (activeChildId) void Parent.childInvoiceReceipt(activeChildId, row.id, row.invoice_no);
+              },
+            },
           ]}
           toolbar={
             <SearchAndFilter

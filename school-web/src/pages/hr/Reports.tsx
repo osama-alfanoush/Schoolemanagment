@@ -26,16 +26,16 @@ export default function HrReports() {
       {/* Filters */}
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Year</label>
-          <select className="rounded-md border bg-background px-3 py-2 text-sm" value={year} onChange={(e) => setYear(Number(e.target.value))}>
+          <label htmlFor="hr-report-year" className="text-sm font-medium">Year</label>
+          <select id="hr-report-year" className="rounded-md border bg-background px-3 py-2 text-sm" value={year} onChange={(e) => setYear(Number(e.target.value))}>
             {[now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1].map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Month</label>
-          <select className="rounded-md border bg-background px-3 py-2 text-sm" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+          <label htmlFor="hr-report-month" className="text-sm font-medium">Month</label>
+          <select id="hr-report-month" className="rounded-md border bg-background px-3 py-2 text-sm" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
             {months.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
             ))}

@@ -59,32 +59,38 @@ export default function BrandModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-ink-dark/40 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className={cn(
-          "bg-card rounded-3xl shadow-hover w-full flex flex-col max-h-[90vh] transition-all duration-200 ease-out",
+          "bg-card flex flex-col max-h-[90vh] transition-all duration-200 ease-out shadow-[var(--shadow-hover)] w-full",
           sizeMap[size],
           animIn ? "scale-100 opacity-100" : "scale-95 opacity-0"
         )}
+        style={{ borderRadius: "var(--radius-base, 1.5rem)" }}
         onClick={(e) => e.stopPropagation()}
+        role="presentation"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-surface-border">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
             {icon && (
-              <div className="w-10 h-10 gradient-purple rounded-xl flex items-center justify-center text-xl">
+              <div
+                className="w-10 h-10 bg-[var(--color-primary)] text-[var(--color-primary-fg)] flex items-center justify-center text-xl"
+                style={{ borderRadius: "var(--radius-base, 0.75rem)" }}
+              >
                 {icon}
               </div>
             )}
-            <h2 className="font-display font-bold text-ink-dark text-lg">{title}</h2>
+            <h2 className="font-display font-bold text-foreground text-lg">{title}</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-surface-bg transition-colors flex items-center justify-center"
+            className="w-8 h-8 rounded-full hover:bg-muted/60 transition-colors flex items-center justify-center"
           >
-            <X className="h-4 w-4 text-ink-muted" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -93,7 +99,7 @@ export default function BrandModal({
 
         {/* Footer */}
         {footer && (
-          <div className="p-6 border-t border-surface-border flex items-center justify-end gap-3">
+          <div className="p-6 border-t border-border flex items-center justify-end gap-3">
             {footer}
           </div>
         )}

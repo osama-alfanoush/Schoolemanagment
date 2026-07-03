@@ -21,7 +21,7 @@ export default function StudentAssignments() {
     toast
   } = useToast();
   const qc = useQueryClient();
-  const [open, setOpen] = useState<null | any>(null);
+  const [open, setOpen] = useState<any>(null);
   const [body, setBody] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const {
@@ -31,7 +31,7 @@ export default function StudentAssignments() {
     queryKey: ["student", "assignments"],
     queryFn: Student.assignments
   }) as any;
-  const list = Array.isArray(assignments) ? assignments : (assignments as any)?.data || [];
+  const list = Array.isArray(assignments) ? assignments : assignments?.data || [];
   const submit = useMutation({
     mutationFn: ({
       id,
@@ -43,7 +43,7 @@ export default function StudentAssignments() {
       file: File | null;
     }) => Student.submitAssignment(id, contentText, file ?? undefined),
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["student", "assignments"]
       });
       toast({
@@ -69,12 +69,16 @@ export default function StudentAssignments() {
       {isLoading ? <div className="p-8 text-center">{t("common.loading")}</div> : list.length === 0 ? <div className="p-8 text-center border rounded-md text-muted-foreground">
           {t("common.empty")}
         </div> : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {list.map((a: any) => <BrandCard key={a.id} className="flex flex-col">
+          {list.map((a: any) => {
+            const submission = a.submission ?? a.submissions?.[0] ?? null;
+            const status = submission?.status ?? "pending";
+            const isSubmitted = status === "submitted" || status === "late" || status === "graded";
+            return <BrandCard key={a.id} className="flex flex-col">
               <CardHeader>
                 <div className="flex justify-between items-start mb-2">
                   <Badge variant="outline">{a.subject?.name}</Badge>
-                  <Badge variant={a.status === "submitted" ? "default" : "secondary"}>
-                    {a.status || t("common.pending")}
+                  <Badge variant={status === "graded" ? "default" : status === "late" ? "destructive" : isSubmitted ? "default" : "secondary"}>
+                    {status === "pending" ? t("common.pending") : status}
                   </Badge>
                 </div>
                 <CardTitle className="text-xl">{a.title}</CardTitle>
@@ -83,6 +87,13 @@ export default function StudentAssignments() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="mt-auto pt-4 border-t bg-muted/20">
+                {status === "graded" && submission?.score != null && (
+                  <div className="mb-3 text-sm">
+                    <span className="text-muted-foreground block text-xs">Score</span>
+                    <span className="font-semibold">{submission.score}{a.max_score ? ` / ${a.max_score}` : ""}</span>
+                    {submission.feedback && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{submission.feedback}</p>}
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
                   <div className="text-sm">
                     <span className="text-muted-foreground block text-xs">
@@ -92,13 +103,14 @@ export default function StudentAssignments() {
                       {a.due_at ? format(new Date(a.due_at), "MMM d, yyyy") : a.due_date ? format(new Date(a.due_date), "MMM d, yyyy") : "No Date"}
                     </span>
                   </div>
-                  <BrandButton size="sm" variant={a.status === "submitted" ? "outline" : "primary"} onClick={() => setOpen(a)}>
+                  <BrandButton size="sm" variant={isSubmitted ? "outline" : "primary"} disabled={status === "graded"} onClick={() => setOpen(a)}>
                     <Upload className="me-2 h-4 w-4" />
-                    {a.status === "submitted" ? "Resubmit" : "Submit"}
+                    {status === "graded" ? "Graded" : isSubmitted ? "Resubmit" : "Submit"}
                   </BrandButton>
                 </div>
               </CardContent>
-            </BrandCard>)}
+            </BrandCard>;
+          })}
         </div>}
 
       <Dialog open={!!open} onOpenChange={o => !o && setOpen(null)}>

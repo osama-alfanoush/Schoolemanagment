@@ -32,7 +32,7 @@ export default function FinanceDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${reports?.total_revenue || 0}</div>
+            <div className="text-2xl font-bold">${Number(reports?.total_collected ?? 0).toFixed(2)}</div>
           </CardContent>
         </BrandCard>
         
@@ -42,7 +42,7 @@ export default function FinanceDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reports?.total_invoices || 0}</div>
+            <div className="text-2xl font-bold">{reports?.invoices_issued || 0}</div>
           </CardContent>
         </BrandCard>
         

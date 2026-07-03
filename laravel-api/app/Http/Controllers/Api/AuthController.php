@@ -11,8 +11,10 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -26,7 +28,12 @@ class AuthController extends Controller
 
         $user = User::where('email', $data['email'])->first();
 
-        if (!$user || !Hash::check($data['password'], $user->password) || !$user->is_active) {
+        // Always perform a hash check, even when the user doesn't exist, so the
+        // response time doesn't reveal whether an email is registered.
+        $hash = $user->password ?? Hash::make(Str::random(40));
+        $passwordValid = Hash::check($data['password'], $hash);
+
+        if (! $user || ! $passwordValid || ! $user->is_active) {
             // Record failed attempt for account lockout
             if ($user) {
                 AccountLockout::recordFailure($data['email']);
@@ -66,7 +73,7 @@ class AuthController extends Controller
     public function refresh(Request $request)
     {
         $token = $request->user()?->currentAccessToken();
-        if (!$token || !in_array('refresh', $token->abilities ?? [], true)) {
+        if (! $token || ! in_array('refresh', $token->abilities ?? [], true)) {
             return response()->json(['message' => 'Invalid refresh token'], 401);
         }
         $user = $request->user();
@@ -94,16 +101,20 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // Revoke only the current access token (and its matching refresh token by name prefix).
+        // When authenticated via a stateful session, currentAccessToken() is a
+        // TransientToken with no `name`/delete() — guard against it so logout
+        // never 500s and only real personal access tokens are revoked by name.
         $current = $request->user()->currentAccessToken();
-        if ($current) {
-            $deviceName = \Illuminate\Support\Str::after($current->name, ':') ?: 'web';
+        if ($current instanceof PersonalAccessToken) {
+            $deviceName = Str::after($current->name, ':') ?: 'web';
             // Delete both the access and refresh tokens for this device
             $request->user()->tokens()
                 ->where(function ($q) use ($deviceName) {
                     $q->where('name', "access:$deviceName")
-                      ->orWhere('name', "refresh:$deviceName");
+                        ->orWhere('name', "refresh:$deviceName");
                 })->delete();
         }
+
         return response()->json(['message' => 'Logged out']);
     }
 
@@ -115,6 +126,7 @@ class AuthController extends Controller
             'locale' => 'sometimes|in:en,ar',
         ]);
         $request->user()->update($data);
+
         return response()->json(['user' => $request->user()->fresh()]);
     }
 
@@ -130,14 +142,15 @@ class AuthController extends Controller
         $user = $request->user();
         // Remove previous file when present
         if ($user->photo_path) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo_path);
+            Storage::disk('public')->delete($user->photo_path);
         }
         $path = $request->file('photo')->store("profile-photos/{$user->id}", 'public');
         $user->update(['photo_path' => $path]);
+
         return response()->json([
             'message' => 'Photo updated',
             'photo_path' => $path,
-            'photo_url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+            'photo_url' => Storage::disk('public')->url($path),
             'user' => $user->fresh(),
         ]);
     }
@@ -149,13 +162,14 @@ class AuthController extends Controller
             'new_password' => 'required|min:8|regex:/[A-Z]/|regex:/[0-9]/|confirmed',
         ]);
         $user = $request->user();
-        if (!Hash::check($data['current_password'], $user->password)) {
+        if (! Hash::check($data['current_password'], $user->password)) {
             throw ValidationException::withMessages(['current_password' => ['Incorrect password.']]);
         }
         $user->update([
             'password' => Hash::make($data['new_password']),
             'must_change_password' => false,
         ]);
+
         return response()->json(['message' => 'Password updated']);
     }
 
@@ -167,6 +181,7 @@ class AuthController extends Controller
     {
         $data = $request->validate(['email' => 'required|email']);
         $status = Password::sendResetLink($data);
+
         return response()->json([
             'message' => __($status),
             'status' => $status,
@@ -191,6 +206,7 @@ class AuthController extends Controller
             $user->tokens()->delete();
             event(new PasswordReset($user));
         });
+
         return response()->json([
             'message' => __($status),
             'status' => $status,
@@ -207,6 +223,7 @@ class AuthController extends Controller
             ['user_id' => $request->user()->id, 'token' => $data['token']],
             ['platform' => $data['platform']]
         );
+
         return response()->json(['message' => 'Token registered']);
     }
 }

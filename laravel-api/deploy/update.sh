@@ -1,37 +1,44 @@
 #!/bin/bash
 # Run on server to apply updates
-set -e
+set -euo pipefail
+cd "$(dirname "$0")/.."
 
 echo "=== School Suite — Update Deploy ==="
 
-echo "🔧 Maintenance mode ON..."
-docker compose -f docker-compose.prod.yml exec api1 php artisan down --retry=60
+bash deploy/preflight.sh
 
-echo "🔨 Rebuilding API image..."
-docker compose -f docker-compose.prod.yml build api1 api2 horizon scheduler
+# Always source .env.prod for compose interpolation, not the shell/root .env.
+COMPOSE="docker compose --env-file .env.prod -f docker-compose.prod.yml"
+
+echo "🔧 Maintenance mode ON..."
+$COMPOSE exec api1 php artisan down --retry=60
+
+echo "🔨 Rebuilding images..."
+$COMPOSE build api1 api2 queue scheduler
 
 echo "🗃️  Running migrations..."
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan migrate --force
+$COMPOSE run --rm api1 php artisan migrate --force
 
 echo "⚡ Rebuilding caches..."
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan optimize:clear
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan optimize
+$COMPOSE run --rm api1 php artisan optimize:clear
+$COMPOSE run --rm api1 php artisan optimize
 
 echo "♻️  Restarting services..."
-docker compose -f docker-compose.prod.yml up -d --force-recreate api1 api2 horizon scheduler
+$COMPOSE up -d --force-recreate api1 api2 queue scheduler
 
-docker compose -f docker-compose.prod.yml exec horizon php artisan horizon:terminate 2>/dev/null || true
+echo "🧹 Signalling queue workers to reload code..."
+$COMPOSE exec api1 php artisan queue:restart 2>/dev/null || true
 sleep 5
 
-if [ -d "../school-web/dist" ]; then
+if [ -d "../school-web/dist/public" ]; then
   echo "🌐 Updating frontend..."
   bash deploy/copy-frontend.sh
-  docker compose -f docker-compose.prod.yml restart nginx
+  $COMPOSE restart nginx
 fi
 
 echo "✅ Maintenance mode OFF..."
-docker compose -f docker-compose.prod.yml exec api1 php artisan up
+$COMPOSE exec api1 php artisan up
 
 echo ""
 echo "=== Update complete ==="
-docker compose -f docker-compose.prod.yml ps
+$COMPOSE ps

@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 class CheckContractRenewals extends Command
 {
     protected $signature = 'hr:check-contracts';
+
     protected $description = 'Send push alerts for contracts expiring within 30 days';
 
     public function handle(): int

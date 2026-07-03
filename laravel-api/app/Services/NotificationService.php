@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
+use App\Events\NotificationReceived;
+use App\Mail\NotificationEmail;
 use App\Models\DeviceToken;
 use App\Models\Notification;
 use App\Models\NotificationDelivery;
 use App\Models\NotificationPreference;
 use App\Models\NotificationTemplate;
 use App\Models\User;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Broadcast;
 
 class NotificationService
 {
@@ -25,8 +27,9 @@ class NotificationService
     ): ?Notification {
         $template = NotificationTemplate::getByKey($templateKey);
 
-        if (!$template) {
+        if (! $template) {
             Log::error("Notification template not found: {$templateKey}");
+
             return null;
         }
 
@@ -77,6 +80,7 @@ class NotificationService
         array $options = []
     ): array {
         $userIds = User::where('role', $role)->where('is_active', true)->pluck('id')->toArray();
+
         return self::sendToMany($userIds, $templateKey, $templateData, $options);
     }
 
@@ -107,7 +111,7 @@ class NotificationService
         array $options = []
     ): array {
         $studentIds = User::where('role', 'student')
-            ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $classRoomId))
+            ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $classRoomId))
             ->pluck('id')
             ->toArray();
 
@@ -201,14 +205,15 @@ class NotificationService
         try {
             $serverKey = config('services.fcm.server_key');
 
-            if (!$serverKey) {
+            if (! $serverKey) {
                 $delivery->markAsFailed('FCM server key not configured');
+
                 return;
             }
 
             // Send to all device tokens
             $response = Http::withHeaders([
-                'Authorization' => 'key=' . $serverKey,
+                'Authorization' => 'key='.$serverKey,
                 'Content-Type' => 'application/json',
             ])->timeout(10)->post('https://fcm.googleapis.com/fcm/send', [
                 'registration_ids' => $tokens,
@@ -258,7 +263,7 @@ class NotificationService
                     }
                 }
             } else {
-                $delivery->markAsFailed('FCM request failed: ' . $response->body());
+                $delivery->markAsFailed('FCM request failed: '.$response->body());
             }
         } catch (\Exception $e) {
             $delivery->markAsFailed($e->getMessage());
@@ -283,13 +288,14 @@ class NotificationService
         try {
             $user = User::find($notification->user_id);
 
-            if (!$user || !$user->email) {
+            if (! $user || ! $user->email) {
                 $delivery->markAsFailed('User email not found');
+
                 return;
             }
 
             // Queue email for sending
-            \Mail::to($user->email)->queue(new \App\Mail\NotificationEmail($notification));
+            \Mail::to($user->email)->queue(new NotificationEmail($notification));
 
             $delivery->markAsSent();
         } catch (\Exception $e) {
@@ -303,7 +309,7 @@ class NotificationService
     protected static function broadcast(Notification $notification): void
     {
         try {
-            broadcast(new \App\Events\NotificationReceived($notification))->toOthers();
+            broadcast(new NotificationReceived($notification))->toOthers();
         } catch (\Exception $e) {
             Log::warning('WebSocket broadcast failed', ['error' => $e->getMessage()]);
         }
@@ -314,7 +320,7 @@ class NotificationService
      */
     protected static function getIconForType(string $type): string
     {
-        return match($type) {
+        return match ($type) {
             'assignment_created', 'assignment_due_soon' => 'assignment',
             'submission_graded', 'grade_posted' => 'grade',
             'absence_alert', 'attendance_marked' => 'attendance',
@@ -339,7 +345,7 @@ class NotificationService
             ->where('user_id', $userId)
             ->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return false;
         }
 
@@ -403,7 +409,7 @@ class NotificationService
     ): Notification {
         $template = NotificationTemplate::getByKey($templateKey);
 
-        if (!$template) {
+        if (! $template) {
             throw new \InvalidArgumentException("Template not found: {$templateKey}");
         }
 
@@ -477,7 +483,7 @@ class NotificationService
                 ->groupBy('channel', 'status')
                 ->get()
                 ->groupBy('channel')
-                ->map(fn($items) => [
+                ->map(fn ($items) => [
                     'total' => $items->sum('count'),
                     'success' => $items->whereIn('status', [NotificationDelivery::STATUS_SENT, NotificationDelivery::STATUS_DELIVERED])->sum('count'),
                 ])

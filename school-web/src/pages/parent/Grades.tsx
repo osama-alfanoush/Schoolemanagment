@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Parent, ParentChild } from "@/lib/api";
+import { Parent } from "@/lib/api";
 import { renderUser, renderGrade, renderDate, renderStatus } from "@/lib/tableHelpers";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";

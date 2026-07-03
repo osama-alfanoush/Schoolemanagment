@@ -31,7 +31,7 @@ export default function HrLeave() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState<any | null>(null);
+  const [open, setOpen] = useState<any>(null);
   const [response, setResponse] = useState("");
 
   const { data, isLoading } = useQuery({
@@ -43,7 +43,7 @@ export default function HrLeave() {
     mutationFn: ({ id, status }: { id: number; status: "approved" | "rejected" }) =>
       Hr.reviewRequest(id, status, response.trim() || undefined),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["hr", "leave-requests"] });
+      void queryClient.invalidateQueries({ queryKey: ["hr", "leave-requests"] });
       toast({ title: "HR request reviewed" });
       setOpen(null);
       setResponse("");

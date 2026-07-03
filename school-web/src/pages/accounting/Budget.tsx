@@ -22,7 +22,7 @@ export default function Budget() {
   const syncMutation = useMutation({
     mutationFn: () => Accounting.syncBudgetActuals({ fiscal_year: selectedYear }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["budgets", selectedYear] });
+      void qc.invalidateQueries({ queryKey: ["budgets", selectedYear] });
       toast({ title: "Budget actuals synced successfully" });
     },
     onError: (e: unknown) => toast({ variant: "destructive", title: "Sync failed", description: (e as Error)?.message }),
@@ -47,8 +47,9 @@ export default function Budget() {
       />
 
       <div className="flex items-center gap-2 mb-4">
-        <label className="text-sm font-medium text-muted-foreground">Year:</label>
+        <label htmlFor="budget-year" className="text-sm font-medium text-muted-foreground">Year:</label>
         <select
+          id="budget-year"
           value={selectedYear}
           onChange={(e) => setSelectedYear(Number(e.target.value))}
           className="px-3 py-1.5 rounded-lg border border-border text-sm"

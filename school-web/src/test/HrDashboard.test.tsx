@@ -46,7 +46,7 @@ describe('HrDashboard', () => {
     expect(getByText(/pending leave/i)).toBeInTheDocument();
   });
 
-  it('shows loading state', async () => {
+  it('shows loading state', () => {
     server.use(
       http.get('/api/hr/staff', () =>
         new Promise((resolve) => setTimeout(() => resolve(HttpResponse.json({ data: [], meta: { total: 0 } })), 150))

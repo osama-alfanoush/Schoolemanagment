@@ -30,7 +30,7 @@ describe('LoginPage', () => {
   });
 
   it('renders email and password inputs', () => {
-    const {} = setup();
+    setup();
     const inputs = document.querySelectorAll('input[type=text], input[type=email], input[type=password]');
     expect(inputs.length).toBeGreaterThanOrEqual(2);
   });
@@ -47,7 +47,7 @@ describe('LoginPage', () => {
 
     await user.click(getByRole('button', { name: /sign in/i }));
 
-    expect((inputs[0] as HTMLInputElement).validity.valid).toBe(false);
+    expect(inputs[0].validity.valid).toBe(false);
   });
 
   it('shows error for invalid email format', async () => {
@@ -55,10 +55,10 @@ describe('LoginPage', () => {
     const { getByRole } = setup();
     const inputs = document.querySelectorAll('input');
 
-    await user.type(inputs[0] as HTMLInputElement, 'not-an-email');
+    await user.type(inputs[0], 'not-an-email');
     await user.click(getByRole('button', { name: /sign in/i }));
 
-    expect((inputs[0] as HTMLInputElement).validity.valid).toBe(false);
+    expect(inputs[0].validity.valid).toBe(false);
   });
 
   it('submits form with valid credentials', async () => {
@@ -68,8 +68,8 @@ describe('LoginPage', () => {
     const { getByRole } = setup();
     const inputs = document.querySelectorAll('input');
 
-    await user.type(inputs[0] as HTMLInputElement, 'admin@school.test');
-    await user.type(inputs[1] as HTMLInputElement, 'password123');
+    await user.type(inputs[0], 'admin@school.test');
+    await user.type(inputs[1], 'password123');
     await user.click(getByRole('button', { name: /sign in/i }));
 
     expect(mockLogin).toHaveBeenCalledWith('admin@school.test', 'password123');
@@ -82,8 +82,8 @@ describe('LoginPage', () => {
     const { getByRole, getByText } = setup();
     const inputs = document.querySelectorAll('input');
 
-    await user.type(inputs[0] as HTMLInputElement, 'admin@school.test');
-    await user.type(inputs[1] as HTMLInputElement, 'wrongpassword');
+    await user.type(inputs[0], 'admin@school.test');
+    await user.type(inputs[1], 'wrongpassword');
     await user.click(getByRole('button', { name: /sign in/i }));
 
     await vi.waitFor(() => {
@@ -101,12 +101,12 @@ describe('LoginPage', () => {
     const inputs = document.querySelectorAll('input');
     const buttons = document.querySelectorAll('button[type=submit]');
 
-    await userEvent.type(inputs[0] as HTMLInputElement, 'admin@school.test');
-    await userEvent.type(inputs[1] as HTMLInputElement, 'password');
+    await userEvent.type(inputs[0], 'admin@school.test');
+    await userEvent.type(inputs[1], 'password');
 
     // userEvent.click triggers React state update; wrap in act to satisfy React 19
     await act(async () => {
-      await userEvent.click(buttons[0] as HTMLButtonElement);
+      await userEvent.click(buttons[0]);
     });
 
     // React has updated the button disabled state; this is the intended behavior

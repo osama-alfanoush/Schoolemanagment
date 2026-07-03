@@ -12,17 +12,19 @@ const roleGradientMap: Record<string, string> = {
   parent: "gradient-pink",
   teacher: "gradient-mint",
   admin: "gradient-ocean",
+  finance: "gradient-sunset",
+  hr: "gradient-purple",
+  warehouse: "gradient-pink",
 };
 
 const roleRingMap: Record<string, string> = {
-  student: "ring-brand-purple",
-  parent: "ring-brand-pink",
-  teacher: "ring-brand-mint",
-  admin: "ring-brand-sky",
-  finance: "ring-brand-amber",
-  hr: "ring-brand-lavender",
-  accounting: "ring-brand-emerald",
-  warehouse: "ring-brand-orange",
+  student: "ring-[var(--color-primary)]",
+  parent: "ring-[var(--color-accent)]",
+  teacher: "ring-emerald-400",
+  admin: "ring-sky-400",
+  finance: "ring-amber-400",
+  hr: "ring-violet-400",
+  warehouse: "ring-orange-400",
 };
 
 function getInitials(name: string): string {
@@ -35,6 +37,7 @@ interface BrandAvatarProps {
   src?: string;
   name: string;
   role?: string;
+  variant?: string;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
@@ -43,12 +46,14 @@ export default function BrandAvatar({
   src,
   name,
   role,
+  variant,
   size = "md",
   className,
 }: BrandAvatarProps) {
   const initials = getInitials(name);
-  const gradientClass = role ? roleGradientMap[role] ?? "" : "";
-  const ringClass = role ? roleRingMap[role] ?? "" : "";
+  const visualRole = variant ?? role;
+  const gradientClass = visualRole ? roleGradientMap[visualRole] ?? "" : "";
+  const ringClass = visualRole ? roleRingMap[visualRole] ?? "" : "";
 
   if (src) {
     return (
@@ -68,9 +73,9 @@ export default function BrandAvatar({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full font-semibold text-white",
+        "flex items-center justify-center rounded-full font-semibold text-[var(--color-primary-fg)]",
         sizeMap[size],
-        gradientClass || "bg-brand-purple",
+        gradientClass || "bg-[var(--color-primary)]",
         className
       )}
     >

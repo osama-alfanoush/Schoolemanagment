@@ -39,6 +39,7 @@ class TransportRoute extends Model
     public function availableSeats(): int
     {
         $assigned = $this->assignments()->where('is_active', true)->count();
+
         return $this->capacity - $assigned;
     }
 }

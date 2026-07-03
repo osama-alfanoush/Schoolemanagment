@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\ClassRoom;
-use App\Models\FeeStructure;
 use App\Models\GradeComponent;
 use App\Models\StudentProfile;
 use App\Models\Subject;

@@ -46,7 +46,7 @@ describe('TeacherDashboard', () => {
     expect(getByText(/my classes/i)).toBeInTheDocument();
   });
 
-  it('shows loading state while classes load', async () => {
+  it('shows loading state while classes load', () => {
     server.use(
       http.get('*/api/teacher/classes', () =>
         new Promise((resolve) => setTimeout(() => resolve(HttpResponse.json([])), 150))

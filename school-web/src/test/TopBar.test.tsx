@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import TopBar from '@/components/layout/TopBar';
 import { useAuth } from '@/lib/auth';
 import { renderWithProviders } from './RenderProvider';
@@ -50,7 +50,7 @@ describe('TopBar', () => {
     expect(buttons.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('renders avatar button that can be clicked to show dropdown', async () => {
+  it('renders avatar button that can be clicked to show dropdown', () => {
     const user = { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin', is_active: true };
     const { container } = renderTopBar(user);
     const avatarBtn = container.querySelector('button[aria-haspopup="menu"]');

@@ -83,9 +83,22 @@ export default function AdminReports() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {typeof value === "object" && value !== null ? <pre className="text-xs whitespace-pre-wrap text-muted-foreground overflow-auto max-h-72 bg-muted p-3 rounded">
-                    {JSON.stringify(value, null, 2)}
-                  </pre> : <div className="text-2xl font-semibold">{String(value)}</div>}
+                {typeof value === "object" && value !== null ? (
+                  Object.keys(value).length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No data for this period.</p>
+                  ) : (
+                    <dl className="space-y-2">
+                      {Object.entries(value as Record<string, unknown>).map(([k, v]) => (
+                        <div key={k} className="flex items-center justify-between gap-4 text-sm border-b border-surface-border/60 pb-1.5 last:border-0">
+                          <dt className="text-muted-foreground capitalize">{k.replace(/_/g, " ")}</dt>
+                          <dd className="font-semibold tabular-nums">{typeof v === "number" ? v.toLocaleString() : String(v)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )
+                ) : (
+                  <div className="text-2xl font-semibold tabular-nums">{typeof value === "number" ? value.toLocaleString() : String(value)}</div>
+                )}
               </CardContent>
             </BrandCard>)}
         </div>}

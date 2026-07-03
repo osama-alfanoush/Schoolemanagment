@@ -12,7 +12,7 @@ class NotificationDelivery extends Model
 
     protected $fillable = [
         'notification_id', 'channel', 'status', 'error_message',
-        'sent_at', 'delivered_at', 'failed_at', 'external_id'
+        'sent_at', 'delivered_at', 'failed_at', 'external_id',
     ];
 
     protected $casts = [
@@ -23,15 +23,22 @@ class NotificationDelivery extends Model
 
     // Channels
     public const CHANNEL_PUSH = 'push';
+
     public const CHANNEL_EMAIL = 'email';
+
     public const CHANNEL_IN_APP = 'in_app';
+
     public const CHANNEL_WEBSOCKET = 'websocket';
 
     // Statuses
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_DELIVERED = 'delivered';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_READ = 'read';
 
     public function notification(): BelongsTo
@@ -39,7 +46,7 @@ class NotificationDelivery extends Model
         return $this->belongsTo(Notification::class);
     }
 
-    public function markAsSent(string $externalId = null): void
+    public function markAsSent(?string $externalId = null): void
     {
         $this->update([
             'status' => self::STATUS_SENT,

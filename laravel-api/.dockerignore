@@ -1,0 +1,47 @@
+# Secrets & local environment — never bake into image layers.
+.env
+.env.*
+!.env.example
+!.env.prod.example
+
+# Dependencies — reinstalled inside the image via `composer install`.
+vendor/
+node_modules/
+
+# Version control & CI metadata
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Tests & dev-only tooling (image is built with --no-dev)
+tests/
+phpunit.xml
+.phpunit.cache/
+.phpunit.result.cache
+pint.json
+
+# Local caches / runtime state (regenerated; storage is a runtime volume)
+bootstrap/cache/*.php
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/public/*
+storage/*.key
+
+# Build/deploy artifacts not needed at runtime
+deploy/
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Archives, docs and editor noise
+*.zip
+*.tar
+*.tar.gz
+*.log
+*.md
+.DS_Store
+.idea/
+.vscode/

@@ -3,39 +3,51 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
   -webkit-font-smoothing: antialiased;
 }
 
 /* ─── Glass Card ─── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--color-primary-light, rgba(108, 99, 255, 0.12));
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 24px color-mix(in srgb, var(--color-primary, #6C63FF) 8%, transparent);
+  background: color-mix(in srgb, hsl(var(--card)) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid color-mix(in srgb, var(--color-primary, #163964) 14%, transparent);
+  border-radius: var(--radius-base, 1.5rem);
+  box-shadow: var(--shadow-card);
 }
 
-/* ─── Gradients ─── */
+/* ─── Dynamic Gradients (follow user theme) ─── */
 .gradient-purple {
-  background: var(--gradient-main, linear-gradient(135deg, #6C63FF 0%, #A78BFA 100%));
+  background: var(--gradient-main, linear-gradient(135deg, #163964 0%, #2A5C91 100%));
 }
 
 .gradient-pink {
-  background: linear-gradient(135deg, #FF6584 0%, #FFB347 100%);
+  background: linear-gradient(135deg, var(--color-accent, #C79A2E) 0%, var(--color-accent-hover, #D8AC45) 100%);
 }
 
 .gradient-mint {
-  background: linear-gradient(135deg, #43D9A2 0%, #4DC9F6 100%);
+  background: linear-gradient(135deg, #2E7D6B 0%, #3FA08A 100%);
 }
 
 .gradient-sunset {
-  background: var(--gradient-hero, linear-gradient(135deg, #FF6584 0%, #6C63FF 100%));
+  background: var(--gradient-hero, linear-gradient(135deg, #163964 0%, #C79A2E 135%));
 }
 
 .gradient-ocean {
-  background: linear-gradient(135deg, #4DC9F6 0%, #6C63FF 100%);
+  background: linear-gradient(135deg, #2A5C91 0%, var(--color-primary, #163964) 100%);
 }
+
+/* ─── Dynamic theme utility classes ─── */
+.bg-dyn-primary { background-color: var(--color-primary); }
+.bg-dyn-primary-light { background-color: var(--color-primary-light); }
+.bg-dyn-primary-subtle { background-color: var(--color-primary-subtle); }
+.bg-dyn-primary-medium { background-color: var(--color-primary-medium); }
+.bg-dyn-accent { background-color: var(--color-accent); }
+.bg-dyn-accent-light { background-color: var(--color-accent-light); }
+.text-dyn-primary { color: var(--color-primary); }
+.text-dyn-accent { color: var(--color-accent); }
+.text-dyn-primary-fg { color: var(--color-primary-fg); }
+.border-dyn-primary { border-color: var(--color-primary); }
 
 /* ─── Animations ─── */
 .animate-float {
@@ -43,15 +55,8 @@ body {
 }
 
 @keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-8px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
 }
 
 .animate-pulse-soft {
@@ -59,13 +64,114 @@ body {
 }
 
 @keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
 
-  0%,
-  100% {
-    opacity: 1;
-  }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
-  50% {
-    opacity: 0.7;
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-subtle) 25%,
+    var(--color-primary-light) 50%,
+    var(--color-primary-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease-out forwards;
+}
+
+/* ─── Smooth focus ring using dynamic primary ─── */
+.focus-ring-dynamic:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light), 0 0 0 4px var(--color-primary);
+}
+
+/* ─── Cross-cutting polish ─────────────────────────────────────────── */
+
+/* Render text crisper everywhere */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display font for headings → consistent typographic hierarchy */
+h1, h2, h3, .font-display {
+  letter-spacing: -0.015em;
+}
+
+/* Themed text selection */
+::selection {
+  background: color-mix(in srgb, var(--color-primary, #163964) 22%, transparent);
+  color: hsl(var(--foreground));
+}
+
+/* Slim, themed scrollbars (Chromium + Firefox) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-primary, #163964) 28%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-primary, #163964) 26%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-primary, #163964) 45%, transparent);
+}
+
+/* Hidden scrollbar utility (used by horizontal chip rows) */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Consistent, accessible keyboard focus for interactive elements that
+   don't already define their own focus-visible treatment. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary, #163964) 60%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--radius-base, 0.75rem);
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

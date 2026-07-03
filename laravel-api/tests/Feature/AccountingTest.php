@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\BudgetPlan;
 use App\Models\FinancialClosing;
+use App\Models\Invoice;
 use App\Models\JournalEntry;
-use App\Models\Notification;
 use App\Models\NotificationTemplate;
 use App\Models\Payment;
 use App\Models\User;
@@ -25,7 +25,7 @@ class AccountingTest extends TestCase
     private function loginAccounting(): array
     {
         $user = User::factory()->create([
-            'role' => 'accounting',
+            'role' => 'finance',
             'password' => bcrypt('password'),
             'is_active' => true,
         ]);
@@ -42,7 +42,7 @@ class AccountingTest extends TestCase
     {
         $auth = $this->loginAccounting();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/accounting/journal-entries', [
                 'entry_date' => now()->toDateString(),
                 'description' => 'Test entry',
@@ -74,7 +74,7 @@ class AccountingTest extends TestCase
             'closed_at' => now(),
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/accounting/journal-entries', [
                 'entry_date' => now()->toDateString(),
                 'description' => 'Should fail',
@@ -101,7 +101,7 @@ class AccountingTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $login->json('access_token'))
+        $response = $this->withHeader('Authorization', 'Bearer '.$login->json('access_token'))
             ->getJson('/api/accounting/journal-entries');
 
         $response->assertStatus(403);
@@ -111,7 +111,7 @@ class AccountingTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin', 'is_active' => true]);
         $accounting = User::factory()->create([
-            'role' => 'accounting',
+            'role' => 'finance',
             'password' => bcrypt('password'),
             'is_active' => true,
         ]);
@@ -124,7 +124,7 @@ class AccountingTest extends TestCase
             'created_by' => $admin->id,
         ]);
 
-        $invoice = \App\Models\Invoice::create([
+        $invoice = Invoice::create([
             'student_user_id' => User::factory()->create(['role' => 'student'])->id,
             'invoice_no' => 'INV-TEST-001',
             'description' => 'Test',
@@ -147,7 +147,7 @@ class AccountingTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $login->json('access_token'))
+        $response = $this->withHeader('Authorization', 'Bearer '.$login->json('access_token'))
             ->postJson('/api/accounting/budget/sync-actuals', [
                 'fiscal_year' => now()->year,
                 'alert_threshold' => 90,
@@ -166,7 +166,7 @@ class AccountingTest extends TestCase
 
         JournalEntry::create([
             'entry_date' => now()->toDateString(),
-            'reference_no' => 'JE-' . now()->year . '-0001',
+            'reference_no' => 'JE-'.now()->year.'-0001',
             'description' => 'Debit entry',
             'type' => 'debit',
             'account_code' => '1001',
@@ -178,7 +178,7 @@ class AccountingTest extends TestCase
 
         JournalEntry::create([
             'entry_date' => now()->toDateString(),
-            'reference_no' => 'JE-' . now()->year . '-0002',
+            'reference_no' => 'JE-'.now()->year.'-0002',
             'description' => 'Credit entry',
             'type' => 'credit',
             'account_code' => '2001',
@@ -188,8 +188,8 @@ class AccountingTest extends TestCase
             'created_by' => $auth['user']->id,
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
-            ->getJson('/api/accounting/reports/trial-balance?month=' . now()->month . '&year=' . now()->year);
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
+            ->getJson('/api/accounting/reports/trial-balance?month='.now()->month.'&year='.now()->year);
 
         $response->assertStatus(200);
         $response->assertJsonStructure(['data']);
@@ -208,7 +208,7 @@ class AccountingTest extends TestCase
 
         $entry = JournalEntry::create([
             'entry_date' => now()->toDateString(),
-            'reference_no' => 'JE-' . now()->year . '-0001',
+            'reference_no' => 'JE-'.now()->year.'-0001',
             'description' => 'To be protected',
             'type' => 'debit',
             'account_code' => '1001',
@@ -218,14 +218,14 @@ class AccountingTest extends TestCase
             'created_by' => $auth['user']->id,
         ]);
 
-        $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/accounting/closings', [
                 'month' => now()->month,
                 'year' => now()->year,
             ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
-            ->deleteJson('/api/accounting/journal-entries/' . $entry->id);
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
+            ->deleteJson('/api/accounting/journal-entries/'.$entry->id);
 
         $response->assertStatus(422);
     }

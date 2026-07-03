@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import Sidebar from '@/components/layout/Sidebar';
 import { useAuth } from '@/lib/auth';
 import userEvent from '@testing-library/user-event';

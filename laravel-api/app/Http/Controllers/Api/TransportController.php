@@ -27,7 +27,7 @@ class TransportController extends Controller
     public function childTransport(Request $request, int $studentId)
     {
         $isMyChild = $request->user()->children()->where('users.id', $studentId)->exists();
-        if (!$isMyChild) {
+        if (! $isMyChild) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

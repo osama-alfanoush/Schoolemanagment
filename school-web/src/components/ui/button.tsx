@@ -5,22 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40 focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "gradient-purple text-white shadow-card hover:shadow-hover hover:-translate-y-[1px]",
+          "bg-[var(--color-primary)] text-[var(--color-primary-fg)] shadow-card hover:shadow-hover hover:-translate-y-[1px] hover:brightness-110 active:scale-[0.98]",
         destructive:
-          "gradient-pink text-white shadow-card border-destructive-border hover:shadow-hover hover:-translate-y-[1px]",
+          "bg-destructive text-destructive-foreground shadow-card border-destructive-border hover:shadow-hover hover:-translate-y-[1px]",
         outline:
-          "border border-surface-border bg-card text-ink-dark hover:bg-surface-bg hover:text-brand-purple shadow-sm",
+          "border border-border bg-card text-foreground hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)]/30 shadow-sm",
         secondary:
-          "bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20",
+          "bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:bg-[var(--color-primary-medium)]",
         accent:
-          "bg-gold text-accent-foreground border border-accent-border hover:bg-gold/90",
-        ghost: "text-ink-muted hover:bg-surface-bg hover:text-brand-purple",
-        link: "text-brand-purple underline-offset-4 hover:underline",
+          "bg-[var(--color-accent)] text-[var(--color-accent-fg)] border border-[var(--color-accent-dark)]/20 hover:brightness-110",
+        ghost: "text-muted-foreground hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary)]",
+        link: "text-[var(--color-primary)] underline-offset-4 hover:underline",
       },
       size: {
         default: "min-h-9 px-4 py-2",

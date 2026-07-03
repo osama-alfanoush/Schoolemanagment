@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Accounting, AuditTrailEntry, PaginatedResponse } from "@/lib/api";
+import { Accounting, AuditTrailEntry } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import SearchAndFilter from "@/components/ui/SearchAndFilter";

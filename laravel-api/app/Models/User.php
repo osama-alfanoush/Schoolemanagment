@@ -14,7 +14,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    public const ROLES = ['student', 'parent', 'teacher', 'admin', 'finance', 'hr', 'accounting', 'warehouse'];
+    // 'finance' is the unified Finance & Accounting role (accounting was merged in).
+    public const ROLES = ['student', 'parent', 'teacher', 'admin', 'finance', 'hr', 'warehouse'];
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'phone', 'photo_path', 'locale', 'is_active',

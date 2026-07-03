@@ -76,20 +76,30 @@
   --radius-2xl: 1.5rem;
   --radius-3xl: 2rem;
 
-  /* ─── Dynamic School Theme (overridable) ─── */
-  --color-primary: #6C63FF;
-  --color-accent: #FF6584;
-  --color-primary-light: rgba(108, 99, 255, 0.12);
-  --color-primary-dark: #4B44CC;
-  --color-accent-light: rgba(255, 101, 132, 0.12);
-  --gradient-main: linear-gradient(135deg, #6C63FF, #A78BFA);
-  --gradient-hero: linear-gradient(135deg, #FF6584, #6C63FF);
+  /* ─── Dynamic School Theme (overridable by ThemeContext at runtime) ───
+     Defaults match Academic Prestige: Deep Academic Navy + Heritage Gold. */
+  --color-primary: #163964;
+  --color-accent: #C79A2E;
+  --color-primary-light: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  --color-primary-subtle: color-mix(in srgb, var(--color-primary) 5%, transparent);
+  --color-primary-medium: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  --color-primary-dark: #102C4E;
+  --color-primary-hover: #1E4D7B;
+  --color-primary-pressed: #112C4E;
+  --color-primary-fg: #FFFFFF;
+  --color-accent-light: rgba(199, 154, 46, 0.14);
+  --color-accent-medium: rgba(199, 154, 46, 0.20);
+  --color-accent-hover: #D8AC45;
+  --color-accent-dark: #A87E20;
+  --color-accent-fg: #1E1B12;
+  --gradient-main: linear-gradient(135deg, #163964 0%, #2A5C91 100%);
+  --gradient-hero: linear-gradient(135deg, #163964 0%, #C79A2E 135%);
   --font-primary: 'Plus Jakarta Sans', sans-serif;
   --radius-base: 16px;
 
-  /* ─── Design System: Brand Colors ─── */
-  --color-brand-purple: var(--color-primary, #6C63FF);
-  --color-brand-pink: var(--color-accent, #FF6584);
+  /* ─── Design System: Brand Colors (aliases follow the active theme) ─── */
+  --color-brand-purple: var(--color-primary, #163964);
+  --color-brand-pink: var(--color-accent, #C79A2E);
   --color-brand-mint: #43D9A2;
   --color-brand-amber: #FFB347;
   --color-brand-red: #FF5C5C;
@@ -108,15 +118,15 @@
   --color-role-accounting: #34D399;
   --color-role-warehouse: #FB923C;
 
-  /* ─── Design System: Surface ─── */
-  --color-surface-bg: #F8F7FF;
+  /* ─── Design System: Surface (cool academic neutrals) ─── */
+  --color-surface-bg: #F4F6FA;
   --color-surface-card: #FFFFFF;
-  --color-surface-border: #E5E3FF;
+  --color-surface-border: #E3E8EF;
 
-  /* ─── Design System: Ink ─── */
-  --color-ink-dark: #1E1B4B;
-  --color-ink-muted: #6B7280;
-  --color-ink-light: #A0A3BD;
+  /* ─── Design System: Ink (navy-leaning text) ─── */
+  --color-ink-dark: #16263F;
+  --color-ink-muted: #566379;
+  --color-ink-light: #94A3B8;
 
   /* ─── Design System: Shadows ─── */
   --shadow-card: 0 4px 24px color-mix(in srgb, var(--color-primary, #6C63FF) 8%, transparent);

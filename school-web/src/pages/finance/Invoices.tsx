@@ -17,36 +17,43 @@ export default function FinanceInvoices() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [genOpen, setGenOpen] = useState(false);
-  const [payOpen, setPayOpen] = useState<null | any>(null);
-  const [genForm, setGenForm] = useState({ fee_structure_id: "", due_date: "" });
+  const [payOpen, setPayOpen] = useState<any>(null);
+  const [genForm, setGenForm] = useState({ fee_structure_id: "", due_date: "", class_room_id: "", student_user_ids: "" });
   const [payForm, setPayForm] = useState({ amount: "", method: "cash", reference: "" });
 
   const { data, isLoading } = useQuery({
     queryKey: ["finance", "invoices"],
     queryFn: () => Finance.invoices()
   }) as any;
-  
-  const invoices = data?.data ?? [];
+  const { data: fsData } = useQuery({
+    queryKey: ["finance", "fee-structures"],
+    queryFn: Finance.feeStructures,
+  }) as any;
+
+  const invoices = Array.isArray(data) ? data : data?.data ?? [];
+  const feeStructures = Array.isArray(fsData) ? fsData : fsData?.data ?? [];
+  const outstandingOf = (inv: any) => Math.max(0, Number(inv.amount ?? 0) - Number(inv.paid_amount ?? 0));
 
   const generate = useMutation({
     mutationFn: (body: any) => Finance.generateInvoices(body),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["finance", "invoices"] });
+      void qc.invalidateQueries({ queryKey: ["finance", "invoices"] });
       toast({ title: "Invoices generated" });
       setGenOpen(false);
+      setGenForm({ fee_structure_id: "", due_date: "", class_room_id: "", student_user_ids: "" });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Generation failed", description: e?.message })
+    onError: (e: any) => toast({ variant: "destructive", title: "Generation failed", description: e?.data?.message ?? e?.message })
   });
 
   const pay = useMutation({
     mutationFn: ({ id, body }: { id: number; body: any }) => Finance.recordPayment(id, body),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["finance", "invoices"] });
+      void qc.invalidateQueries({ queryKey: ["finance", "invoices"] });
       toast({ title: "Payment recorded" });
       setPayOpen(null);
       setPayForm({ amount: "", method: "cash", reference: "" });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Payment failed", description: e?.message })
+    onError: (e: any) => toast({ variant: "destructive", title: "Payment failed", description: e?.data?.message ?? e?.message })
   });
 
   const reminders = useMutation({
@@ -97,7 +104,7 @@ export default function FinanceInvoices() {
               label: "Balance",
               sortable: true,
               align: "right",
-              render: (val) => <span className="font-mono">{Number(val ?? 0).toFixed(2)}</span>,
+              render: (_, inv) => <span className="font-mono">{outstandingOf(inv).toFixed(2)}</span>,
             },
             {
               key: "status",
@@ -138,7 +145,7 @@ export default function FinanceInvoices() {
               onClick: (inv) => {
                 setPayOpen(inv);
                 setPayForm({
-                  amount: String(inv.balance ?? inv.amount ?? ""),
+                  amount: String(outstandingOf(inv) || inv.amount || ""),
                   method: "cash",
                   reference: "",
                 });
@@ -147,7 +154,9 @@ export default function FinanceInvoices() {
             {
               label: "Download Receipt",
               icon: <Download className="h-4 w-4" />,
-              onClick: (inv) => Finance.receiptPdf(inv.id, inv.invoice_no),
+              onClick: (inv) => {
+                void Finance.receiptPdf(inv.id, inv.invoice_no);
+              },
             },
           ]}
         />
@@ -163,28 +172,49 @@ export default function FinanceInvoices() {
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="fs">Fee structure ID</Label>
-              <Input id="fs" type="number" value={genForm.fee_structure_id} onChange={e => setGenForm({
-              ...genForm,
-              fee_structure_id: e.target.value
-            })} />
+              <Label htmlFor="fs">Fee structure</Label>
+              <select
+                id="fs"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                value={genForm.fee_structure_id}
+                onChange={e => setGenForm({ ...genForm, fee_structure_id: e.target.value })}
+              >
+                <option value="">Select…</option>
+                {feeStructures.map((fs: any) => (
+                  <option key={fs.id} value={fs.id}>
+                    {fs.name}{fs.grade != null && fs.grade !== "" ? ` — Grade ${fs.grade}` : ""} (${Number(fs.amount ?? 0).toFixed(2)})
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="due">Due date</Label>
-              <Input id="due" type="date" value={genForm.due_date} onChange={e => setGenForm({
-              ...genForm,
-              due_date: e.target.value
-            })} />
+              <Input id="due" type="date" value={genForm.due_date} onChange={e => setGenForm({ ...genForm, due_date: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cls">Class room ID</Label>
+              <Input id="cls" type="number" value={genForm.class_room_id} placeholder="Invoice a whole class" onChange={e => setGenForm({ ...genForm, class_room_id: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sids">Student IDs (optional)</Label>
+              <Input id="sids" value={genForm.student_user_ids} placeholder="e.g. 12, 15, 20" onChange={e => setGenForm({ ...genForm, student_user_ids: e.target.value })} />
+              <p className="text-xs text-muted-foreground">Provide a class room ID and/or a comma-separated list of student IDs.</p>
             </div>
           </div>
           <DialogFooter>
             <BrandButton variant="outline" onClick={() => setGenOpen(false)}>
               {t("common.cancel")}
             </BrandButton>
-            <BrandButton onClick={() => generate.mutate({
-            fee_structure_id: Number(genForm.fee_structure_id),
-            due_date: genForm.due_date
-          })} disabled={!genForm.fee_structure_id || !genForm.due_date || generate.isPending}>
+            <BrandButton onClick={() => {
+              const ids = genForm.student_user_ids
+                .split(",")
+                .map(s => Number(s.trim()))
+                .filter(n => Number.isFinite(n) && n > 0);
+              const body: any = { fee_structure_id: Number(genForm.fee_structure_id), due_date: genForm.due_date };
+              if (genForm.class_room_id) body.class_room_id = Number(genForm.class_room_id);
+              if (ids.length) body.student_user_ids = ids;
+              generate.mutate(body);
+            }} disabled={!genForm.fee_structure_id || !genForm.due_date || (!genForm.class_room_id && !genForm.student_user_ids.trim()) || generate.isPending}>
               {generate.isPending ? t("common.loading") : "Generate"}
             </BrandButton>
           </DialogFooter>
@@ -209,10 +239,15 @@ export default function FinanceInvoices() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="method">Method</Label>
-              <Input id="method" value={payForm.method} onChange={e => setPayForm({
+              <select id="method" className="w-full rounded-md border bg-background px-3 py-2 text-sm" value={payForm.method} onChange={e => setPayForm({
               ...payForm,
               method: e.target.value
-            })} placeholder="cash, card, bank_transfer" />
+            })}>
+                <option value="cash">Cash</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="card">Card</option>
+                <option value="online">Online</option>
+              </select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ref">Reference</Label>

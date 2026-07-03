@@ -7,14 +7,12 @@ namespace App\Services;
 use App\Models\Grade;
 use App\Models\GradeComponent;
 use App\Models\Submission;
-use App\Models\StudentProfile;
 use App\Models\User;
-use App\Services\Notifier;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
 
 class GradeService
 {
-    public function gradeComponents(int $classRoomId, int $subjectId): \Illuminate\Database\Eloquent\Collection
+    public function gradeComponents(int $classRoomId, int $subjectId): Collection
     {
         return GradeComponent::where([
             'class_room_id' => $classRoomId,
@@ -36,7 +34,7 @@ class GradeService
             ->where('subject_id', $subjectId)->get();
 
         $students = User::where('role', 'student')
-            ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $classRoomId))
+            ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $classRoomId))
             ->with('studentProfile')->orderBy('name')->get();
 
         $rows = [];
@@ -81,6 +79,7 @@ class GradeService
     {
         $grade = Grade::findOrFail($gradeId);
         $grade->update(array_merge($data, ['entered_by' => $teacherId]));
+
         return $grade->fresh();
     }
 
@@ -91,7 +90,7 @@ class GradeService
         $componentNames = $components->pluck('name')->toArray();
 
         $students = User::where('role', 'student')
-            ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $classRoomId))
+            ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $classRoomId))
             ->with('studentProfile')->orderBy('name')->get();
 
         $rows = [];

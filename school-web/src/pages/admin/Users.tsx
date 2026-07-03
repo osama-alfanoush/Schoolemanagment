@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Search, Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-const ROLE_OPTIONS: Role[] = ["student", "parent", "teacher", "admin", "finance", "hr", "accounting", "warehouse"];
+const ROLE_OPTIONS: Role[] = ["student", "parent", "teacher", "admin", "finance", "hr", "warehouse"];
 function usersFromResponse(payload: any): any[] {
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload?.data)) return payload.data;
@@ -49,7 +49,7 @@ export default function AdminUsers() {
   const createUser = useMutation({
     mutationFn: (body: any) => Admin.createUser(body),
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["admin", "users"]
       });
       toast({

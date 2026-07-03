@@ -4,9 +4,9 @@ use App\Http\Controllers\Api\AccountingController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HrController;
 use App\Http\Controllers\Api\LibraryController;
-use App\Http\Controllers\Api\MedicalController;
 use App\Http\Controllers\Api\MessagingController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ParentController;
@@ -15,22 +15,23 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\TransportController;
 use App\Http\Controllers\Api\WarehouseController;
-use Illuminate\Http\Request;
+use App\Http\Middleware\AccountLockout;
+use App\Http\Middleware\EnsureParentOwnsChild;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/healthz', fn() => response()->json(['status' => 'ok', 'service' => 'school-management-api']));
-Route::get('/health', \App\Http\Controllers\Api\HealthController::class);
+Route::get('/healthz', fn () => response()->json(['status' => 'ok', 'service' => 'school-management-api']));
+Route::get('/health', HealthController::class);
 
 // Public auth endpoints with rate limiting
 Route::post('/auth/login', [AuthController::class, 'login'])
-    ->middleware(['throttle:10,1', \App\Http\Middleware\AccountLockout::class]);
+    ->middleware(['throttle:10,1', AccountLockout::class]);
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])
     ->middleware('throttle:3,5');
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])
     ->middleware('throttle:5,30');
 // Stub named route the framework references when generating reset-link emails.
 // In a real client app the user is sent here with the token + email, then POSTs to /api/auth/reset-password.
-Route::get('/auth/password/reset/{token}', fn(string $token) => response()->json([
+Route::get('/auth/password/reset/{token}', fn (string $token) => response()->json([
     'message' => 'Use POST /api/auth/reset-password with this token, your email, and the new password.',
     'token' => $token,
 ]))->name('password.reset');
@@ -91,16 +92,16 @@ Route::middleware('auth:sanctum')->group(function () {
         // Library
         Route::get('/library/books', [LibraryController::class, 'availableBooks']);
         Route::get('/library/my-borrowings', [LibraryController::class, 'myBorrowings']);
+        Route::post('/library/books/{id}/borrow', [LibraryController::class, 'selfBorrow']);
+        Route::post('/library/borrowings/{id}/return', [LibraryController::class, 'selfReturn']);
 
         // Transport
         Route::get('/transport/my-route', [TransportController::class, 'myRoute']);
 
-        // Medical
-        Route::get('/medical/my-records', [MedicalController::class, 'myRecords']);
     });
 
     // PARENT
-    Route::middleware(['role:parent', \App\Http\Middleware\EnsureParentOwnsChild::class])->prefix('parent')->group(function () {
+    Route::middleware(['role:parent', EnsureParentOwnsChild::class])->prefix('parent')->group(function () {
         Route::get('/children', [ParentController::class, 'children']);
         Route::get('/children/{id}/overview', [ParentController::class, 'childOverview']);
         Route::get('/children/{id}/grades', [ParentController::class, 'childGrades']);
@@ -114,10 +115,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('children/{id}/performance-chart', [ParentController::class, 'childPerformanceChart']);
         Route::get('/children/{id}/invoices/{invoiceId}/receipt-pdf', [ParentController::class, 'invoiceReceipt']);
         Route::get('/announcements', [ParentController::class, 'announcements']);
-
-        // Medical
-        Route::get('/children/{id}/medical', [MedicalController::class, 'childMedicalRecords']);
-        Route::get('/children/{id}/medical-visits', [MedicalController::class, 'childMedicalVisits']);
 
         // Transport
         Route::get('/children/{id}/transport', [TransportController::class, 'childTransport']);
@@ -201,15 +198,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::match(['get', 'post'], '/transport/stops', [TransportController::class, 'stops']);
         Route::get('/transport/assignments', [TransportController::class, 'allAssignments']);
 
-        // Medical Management
-        Route::get('/medical/records', [MedicalController::class, 'allRecords']);
-        Route::get('/medical/visits', [MedicalController::class, 'allVisits']);
-        Route::post('/medical/notify-parent/{visitId}', [MedicalController::class, 'notifyParent']);
     });
 
     // FINANCE
     Route::middleware('role:finance,admin')->prefix('finance')->group(function () {
         Route::match(['get', 'post'], '/fee-structures', [FinanceController::class, 'feeStructures']);
+        Route::patch('/fee-structures/{id}', [FinanceController::class, 'updateFeeStructure']);
+        Route::delete('/fee-structures/{id}', [FinanceController::class, 'deleteFeeStructure']);
         Route::get('/invoices', [FinanceController::class, 'invoices']);
         Route::post('/invoices/generate', [FinanceController::class, 'generateInvoices']);
         Route::post('/invoices/{id}/payments', [FinanceController::class, 'recordPayment']);
@@ -218,11 +213,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/outstanding', [FinanceController::class, 'outstandingByStudent']);
         Route::get('/payroll', [FinanceController::class, 'payroll']);
         Route::post('/payroll/process', [FinanceController::class, 'processPayroll']);
+        Route::patch('/payroll/{id}/pay', [FinanceController::class, 'markPayrollPaid']);
         Route::get('/reports', [FinanceController::class, 'financialReports']);
     });
 
     // ACCOUNTING
-    Route::prefix('accounting')->middleware(['auth:sanctum', 'role:accounting,admin'])->group(function () {
+    // Accounting module is now part of the unified Finance & Accounting role.
+    Route::prefix('accounting')->middleware(['auth:sanctum', 'role:finance,admin'])->group(function () {
         Route::get('journal-entries', [AccountingController::class, 'indexJournalEntries']);
         Route::post('journal-entries', [AccountingController::class, 'storeJournalEntry']);
         Route::get('journal-entries/{id}', [AccountingController::class, 'showJournalEntry']);
@@ -304,5 +301,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-// Payment Webhook (public, secured by signature)
-Route::post('/webhooks/payment', [PaymentController::class, 'handleWebhook']);
+// Payment Webhook (public, secured by Stripe signature). Throttled as
+// defense-in-depth: the signature check is the real control, but a per-IP
+// limit bounds resource use under a flood. Stripe treats 429 as a failed
+// delivery and retries with backoff, so legitimate events are not lost.
+Route::post('/webhooks/payment', [PaymentController::class, 'handleWebhook'])
+    ->middleware('throttle:120,1');

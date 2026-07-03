@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Warehouse, InventoryCount } from "@/lib/api";
+import { Warehouse, InventoryCount, WarehouseItem } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import BrandButton from "@/components/ui/BrandButton";
@@ -28,6 +28,11 @@ export default function InventoryCounts() {
     queryKey: ["warehouse-inventory-counts"],
     queryFn: () => Warehouse.inventoryCounts(),
   });
+  const { data: itemsData } = useQuery({
+    queryKey: ["warehouse-items", "all-for-count"],
+    queryFn: () => Warehouse.items({ per_page: 100 }),
+  }) as any;
+  const items = toArray<WarehouseItem>(itemsData);
 
   const createCount = useMutation({
     mutationFn: () => Warehouse.createInventoryCount({
@@ -40,7 +45,7 @@ export default function InventoryCounts() {
       }],
     }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["warehouse-inventory-counts"] });
+      void qc.invalidateQueries({ queryKey: ["warehouse-inventory-counts"] });
       toast({ title: "Inventory count saved" });
       setOpen(false);
       setForm({ count_type: "monthly", count_date: today, item_id: "", physical_qty: "", notes: "" });
@@ -63,9 +68,16 @@ export default function InventoryCounts() {
       <DataTable<InventoryCount>
         title="Count Sessions"
         columns={[
+          { key: "count_ref", label: "Reference", render: (v, row) => v ?? `COUNT-${row.id}` },
           { key: "count_type", label: "Type", sortable: true },
+          { key: "item", label: "Item", render: (_, row) => row.item?.name ?? `#${row.item_id}` },
+          { key: "system_qty", label: "System", align: "center" as const, render: (v) => Number(v ?? 0) },
+          { key: "physical_qty", label: "Physical", align: "center" as const, render: (v) => Number(v ?? 0) },
+          { key: "variance", label: "Variance", align: "center" as const, render: (_, row) => {
+            const diff = Number(row.physical_qty ?? 0) - Number(row.system_qty ?? 0);
+            return <span className={diff === 0 ? "text-muted-foreground" : diff > 0 ? "text-green-600" : "text-red-600"}>{diff > 0 ? "+" : ""}{diff}</span>;
+          }},
           { key: "count_date", label: "Date", render: (v) => renderDate(v), sortable: true },
-          { key: "id", label: "Reference", render: (v) => `COUNT-${v}`, hide: "md" },
         ]}
         data={counts}
         isLoading={isLoading}
@@ -104,13 +116,15 @@ export default function InventoryCounts() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Item ID</Label>
-                <Input
-                  type="number"
+                <Label>Item</Label>
+                <select
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={form.item_id}
                   onChange={(e) => setForm({ ...form, item_id: e.target.value })}
-                  placeholder="Inventory item id"
-                />
+                >
+                  <option value="">Select item…</option>
+                  {items.map((it: any) => <option key={it.id} value={it.id}>{it.name}{it.sku ? ` (${it.sku})` : ""}</option>)}
+                </select>
               </div>
               <div className="space-y-1.5">
                 <Label>Physical Quantity</Label>

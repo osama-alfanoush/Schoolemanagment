@@ -12,7 +12,7 @@ class NotificationPreference extends Model
 
     protected $fillable = [
         'user_id', 'push_enabled', 'email_enabled', 'in_app_enabled',
-        'type_preferences', 'quiet_hours'
+        'type_preferences', 'quiet_hours',
     ];
 
     protected $casts = [
@@ -42,7 +42,7 @@ class NotificationPreference extends Model
 
     public function isQuietHours(): bool
     {
-        if (!$this->quiet_hours || !isset($this->quiet_hours['start'], $this->quiet_hours['end'])) {
+        if (! $this->quiet_hours || ! isset($this->quiet_hours['start'], $this->quiet_hours['end'])) {
             return false;
         }
 
@@ -58,17 +58,17 @@ class NotificationPreference extends Model
         return $now->between($start, $end);
     }
 
-    public function canReceive(string $channel, string $type = null): bool
+    public function canReceive(string $channel, ?string $type = null): bool
     {
         // Check if channel is enabled
-        $channelEnabled = match($channel) {
+        $channelEnabled = match ($channel) {
             'push' => $this->push_enabled,
             'email' => $this->email_enabled,
             'in_app' => $this->in_app_enabled,
             default => false,
         };
 
-        if (!$channelEnabled) {
+        if (! $channelEnabled) {
             return false;
         }
 
@@ -80,7 +80,7 @@ class NotificationPreference extends Model
         // Check type-specific preferences
         if ($type && $this->type_preferences) {
             $typePref = $this->type_preferences[$type] ?? null;
-            if ($typePref !== null && !($typePref[$channel] ?? true)) {
+            if ($typePref !== null && ! ($typePref[$channel] ?? true)) {
                 return false;
             }
         }

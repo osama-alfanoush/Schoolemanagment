@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
+use App\Models\PaymentTransaction;
 use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class PaymentController extends Controller
 
     public function __construct()
     {
-        $this->paymentService = new PaymentGatewayService();
+        $this->paymentService = new PaymentGatewayService;
     }
 
     /**
@@ -31,10 +32,10 @@ class PaymentController extends Controller
         // Authorization: parent of student or student themselves
         $user = $request->user();
         $canPay = $user->role === 'student' && $user->id === $invoice->student_user_id;
-        if (!$canPay && $user->role === 'parent') {
+        if (! $canPay && $user->role === 'parent') {
             $canPay = $user->children()->where('users.id', $invoice->student_user_id)->exists();
         }
-        if (!$canPay && !in_array($user->role, ['admin', 'finance'])) {
+        if (! $canPay && ! in_array($user->role, ['admin', 'finance'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -44,7 +45,7 @@ class PaymentController extends Controller
             'customer_name' => $invoice->student->name,
         ]);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['error']], 400);
         }
 
@@ -56,6 +57,34 @@ class PaymentController extends Controller
     }
 
     /**
+     * Check the caller is allowed to act on the given payment intent:
+     * admin/finance, the student who owns the invoice, or that student's parent.
+     */
+    private function authorizeIntentAccess(Request $request, string $paymentIntentId): bool
+    {
+        $user = $request->user();
+        if (in_array($user->role, ['admin', 'finance'], true)) {
+            return true;
+        }
+
+        $txn = PaymentTransaction::with('invoice:id,student_user_id')
+            ->where('provider_transaction_id', $paymentIntentId)
+            ->first();
+        if (! $txn || ! $txn->invoice) {
+            return false;
+        }
+
+        if ($user->role === 'student') {
+            return $user->id === $txn->invoice->student_user_id;
+        }
+        if ($user->role === 'parent') {
+            return $user->children()->where('users.id', $txn->invoice->student_user_id)->exists();
+        }
+
+        return false;
+    }
+
+    /**
      * Confirm payment after client-side completion
      */
     public function confirmPayment(Request $request)
@@ -64,9 +93,13 @@ class PaymentController extends Controller
             'payment_intent_id' => 'required|string',
         ]);
 
+        if (! $this->authorizeIntentAccess($request, $data['payment_intent_id'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $result = $this->paymentService->confirmPayment($data['payment_intent_id']);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['error']], 400);
         }
 
@@ -82,9 +115,13 @@ class PaymentController extends Controller
      */
     public function getStatus(Request $request, string $paymentIntentId)
     {
+        if (! $this->authorizeIntentAccess($request, $paymentIntentId)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $result = $this->paymentService->getPaymentStatus($paymentIntentId);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['error']], 400);
         }
 
@@ -133,7 +170,7 @@ class PaymentController extends Controller
 
         $result = $this->paymentService->handleWebhook($payload, $signature);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['error']], 400);
         }
 

@@ -43,19 +43,20 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Arabic', 'code' => 'ARA'],
             ['name' => 'History', 'code' => 'HIS'],
             ['name' => 'Physical Education', 'code' => 'PE'],
-        ])->map(fn($s) => Subject::create($s));
+        ])->map(fn ($s) => Subject::create($s));
 
         // Admin and operational demo users
         $admin = $this->makeUser('Sara Admin', 'admin@school.test', 'admin');
         $this->makeUser('Fadi Finance', 'finance@school.test', 'finance');
         $this->makeUser('Hala HR', 'hr@school.test', 'hr');
-        $this->makeUser('Amina Accountant', 'accounting@school.test', 'accounting');
+        // 'accounting' role merged into 'finance' (unified Finance & Accounting).
+        $this->makeUser('Amina Accountant', 'accounting@school.test', 'finance');
         $this->makeUser('Omar Warehouse', 'warehouse@school.test', 'warehouse');
 
         // Teachers
         $teachers = collect();
         foreach (['Mr. Khaled Math', 'Ms. Layla English', 'Dr. Omar Science', 'Ms. Noor Arabic', 'Mr. Tarek History'] as $i => $name) {
-            $t = $this->makeUser($name, 'teacher' . ($i + 1) . '@school.test', 'teacher');
+            $t = $this->makeUser($name, 'teacher'.($i + 1).'@school.test', 'teacher');
             StaffProfile::create([
                 'user_id' => $t->id, 'department' => 'Academics', 'position' => 'Teacher',
                 'hire_date' => now()->subYears(rand(1, 8)), 'contract_type' => 'full-time',
@@ -89,7 +90,7 @@ class DatabaseSeeder extends Seeder
                     'class_room_id' => $class1->id, 'subject_id' => $subj->id,
                     'teacher_user_id' => $teachers[$i % $teachers->count()]->id,
                     'day_of_week' => $day, 'start_time' => $st, 'end_time' => $et,
-                    'room' => 'Room ' . (101 + ($i % 5)),
+                    'room' => 'Room '.(101 + ($i % 5)),
                 ]);
             }
         }
@@ -104,12 +105,12 @@ class DatabaseSeeder extends Seeder
         $students = collect();
         $studentNames = ['Ali', 'Mariam', 'Omar', 'Fatima', 'Yousef', 'Aisha', 'Hassan', 'Layla', 'Karim', 'Zainab', 'Mohamed', 'Sara'];
         foreach ($studentNames as $idx => $name) {
-            $email = strtolower($name) . ($idx + 1) . '@school.test';
+            $email = strtolower($name).($idx + 1).'@school.test';
             $u = $this->makeUser("$name Student", $email, 'student');
             $cls = [$class1, $class2, $class3][$idx % 3];
             StudentProfile::create([
                 'user_id' => $u->id, 'class_room_id' => $cls->id,
-                'admission_no' => 'ADM' . str_pad((string)(1000 + $u->id), 5, '0', STR_PAD_LEFT),
+                'admission_no' => 'ADM'.str_pad((string) (1000 + $u->id), 5, '0', STR_PAD_LEFT),
                 'date_of_birth' => now()->subYears(11)->subDays(rand(1, 1500)),
                 'gender' => $idx % 2 === 0 ? 'M' : 'F',
                 'emergency_contact_name' => 'Family',
@@ -129,7 +130,9 @@ class DatabaseSeeder extends Seeder
         foreach ($students as $s) {
             for ($d = 0; $d < 14; $d++) {
                 $date = now()->subDays($d)->format('Y-m-d');
-                if (now()->subDays($d)->isWeekend()) continue;
+                if (now()->subDays($d)->isWeekend()) {
+                    continue;
+                }
                 $statuses = ['present', 'present', 'present', 'present', 'present', 'late', 'absent'];
                 $status = $statuses[array_rand($statuses)];
                 AttendanceRecord::create([
@@ -203,7 +206,7 @@ class DatabaseSeeder extends Seeder
         foreach ($students as $i => $s) {
             Invoice::create([
                 'student_user_id' => $s->id, 'fee_structure_id' => $tuition->id,
-                'invoice_no' => 'INV-' . str_pad((string)(2026000 + $i), 8, '0', STR_PAD_LEFT),
+                'invoice_no' => 'INV-'.str_pad((string) (2026000 + $i), 8, '0', STR_PAD_LEFT),
                 'description' => 'Tuition - April 2026',
                 'amount' => 800, 'due_date' => now()->addDays(10),
                 'status' => $i % 3 === 0 ? 'paid' : 'pending',
@@ -212,7 +215,7 @@ class DatabaseSeeder extends Seeder
             if ($i % 2 === 0) {
                 Invoice::create([
                     'student_user_id' => $s->id, 'fee_structure_id' => $bus->id,
-                    'invoice_no' => 'INV-' . str_pad((string)(2026100 + $i), 8, '0', STR_PAD_LEFT),
+                    'invoice_no' => 'INV-'.str_pad((string) (2026100 + $i), 8, '0', STR_PAD_LEFT),
                     'description' => 'Bus - April 2026',
                     'amount' => 150, 'due_date' => now()->addDays(10),
                 ]);

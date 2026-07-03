@@ -30,6 +30,7 @@ class BudgetPlan extends Model
         if ($planned === 0.0) {
             return 0.0;
         }
+
         return round((float) $this->actual_amount / $planned * 100, 2);
     }
 

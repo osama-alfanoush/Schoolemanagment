@@ -2,13 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Assignment;
 use App\Models\ClassRoom;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Assignment>
+ * @extends Factory<Assignment>
  */
 class AssignmentFactory extends Factory
 {

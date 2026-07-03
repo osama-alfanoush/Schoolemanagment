@@ -76,8 +76,8 @@ export default function NotificationBell({ role, className }: NotificationBellPr
   const markRead = useMutation({
     mutationFn: (id: number) => Messaging.markRead(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] })
-      queryClient.invalidateQueries({ queryKey: ["unread-count"] })
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] })
+      void queryClient.invalidateQueries({ queryKey: ["unread-count"] })
     },
   })
 
@@ -88,15 +88,15 @@ export default function NotificationBell({ role, className }: NotificationBellPr
   const markAllRead = useMutation({
     mutationFn: Messaging.markAllRead,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] })
-      queryClient.invalidateQueries({ queryKey: ["unread-count"] })
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] })
+      void queryClient.invalidateQueries({ queryKey: ["unread-count"] })
     },
   })
 
   const notifications = toArray<NotificationItem>(notificationsQuery.data)
   const count = unreadTotal(unreadQuery.data)
 
-  const openNotification = async (notification: NotificationItem) => {
+  const openNotification = (notification: NotificationItem) => {
     if (!isRead(notification)) {
       markRead.mutate(notification.id)
     }

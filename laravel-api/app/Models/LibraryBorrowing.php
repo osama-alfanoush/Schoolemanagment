@@ -41,22 +41,24 @@ class LibraryBorrowing extends Model
 
     public function isOverdue(): bool
     {
-        return !$this->is_returned && now()->gt($this->due_date);
+        return ! $this->is_returned && now()->gt($this->due_date);
     }
 
     public function daysOverdue(): int
     {
-        if (!$this->isOverdue()) {
+        if (! $this->isOverdue()) {
             return 0;
         }
+
         return now()->diffInDays($this->due_date);
     }
 
     public function calculateFine(float $ratePerDay = 1.0): float
     {
-        if (!$this->isOverdue()) {
+        if (! $this->isOverdue()) {
             return 0;
         }
+
         return min($this->daysOverdue() * $ratePerDay, $this->book->price ?? 50);
     }
 

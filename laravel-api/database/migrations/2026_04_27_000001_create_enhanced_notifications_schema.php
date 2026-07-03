@@ -4,36 +4,37 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         // Add new columns to existing notifications table
         Schema::table('notifications', function (Blueprint $t) {
-            if (!Schema::hasColumn('notifications', 'category')) {
+            if (! Schema::hasColumn('notifications', 'category')) {
                 $t->string('category')->after('type')->default('general');
             }
-            if (!Schema::hasColumn('notifications', 'priority')) {
+            if (! Schema::hasColumn('notifications', 'priority')) {
                 $t->string('priority')->after('category')->default('normal');
             }
-            if (!Schema::hasColumn('notifications', 'action_url')) {
+            if (! Schema::hasColumn('notifications', 'action_url')) {
                 $t->string('action_url')->nullable()->after('data');
             }
-            if (!Schema::hasColumn('notifications', 'icon')) {
+            if (! Schema::hasColumn('notifications', 'icon')) {
                 $t->string('icon')->nullable()->after('action_url');
             }
-            if (!Schema::hasColumn('notifications', 'clicked_at')) {
+            if (! Schema::hasColumn('notifications', 'clicked_at')) {
                 $t->timestamp('clicked_at')->nullable()->after('read_at');
             }
-            if (!Schema::hasColumn('notifications', 'scheduled_at')) {
+            if (! Schema::hasColumn('notifications', 'scheduled_at')) {
                 $t->timestamp('scheduled_at')->nullable()->after('clicked_at');
             }
-            if (!Schema::hasColumn('notifications', 'expires_at')) {
+            if (! Schema::hasColumn('notifications', 'expires_at')) {
                 $t->timestamp('expires_at')->nullable()->after('scheduled_at');
             }
-            if (!Schema::hasColumn('notifications', 'source_type')) {
+            if (! Schema::hasColumn('notifications', 'source_type')) {
                 $t->string('source_type')->nullable()->after('expires_at');
             }
-            if (!Schema::hasColumn('notifications', 'source_id')) {
+            if (! Schema::hasColumn('notifications', 'source_id')) {
                 $t->unsignedBigInteger('source_id')->nullable()->after('source_type');
             }
 

@@ -16,7 +16,6 @@ import {
   CalendarDays,
   FileText,
   Briefcase,
-  DollarSign,
   Receipt,
   Megaphone,
   ClipboardCheck,
@@ -28,9 +27,7 @@ import {
   Wallet,
   TimerReset,
   PiggyBank,
-  Baby,
   ListChecks,
-  Home,
   AlertTriangle,
   Sun,
   Moon,
@@ -148,8 +145,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const navItems = useMemo(
-    () => (user ? buildNav(user.role as Role, t) : []),
-    [user, t, i18n.language],
+    () => (user ? buildNav(user.role, t) : []),
+    // `t` already changes identity on language switch, so i18n.language is redundant.
+    [user, t],
   );
 
   if (!user) return null;
@@ -160,7 +158,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Close menu"
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -263,7 +263,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
 
-            <NotificationBell role={user.role as Role} />
+            <NotificationBell role={user.role} />
 
             <Button variant="ghost" size="icon" className="relative" asChild>
               <Link href={`/${user.role}/messages`}>
@@ -298,7 +298,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={handleLogout}
+                  onClick={() => {
+                    void handleLogout();
+                  }}
                   className="text-destructive focus:text-destructive cursor-pointer"
                 >
                   <LogOut className="me-2 h-4 w-4" />

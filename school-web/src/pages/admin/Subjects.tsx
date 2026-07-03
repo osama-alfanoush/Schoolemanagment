@@ -18,6 +18,7 @@ export default function AdminSubjects() {
   } = useToast();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState({
     name: "",
     name_ar: "",
@@ -31,34 +32,50 @@ export default function AdminSubjects() {
     queryKey: ["admin", "subjects"],
     queryFn: Admin.subjects
   }) as any;
-  const subjects = data ?? [];
-  const create = useMutation({
-    mutationFn: (body: any) => Admin.createSubject(body),
+  const subjects = Array.isArray(data) ? data : data?.data ?? [];
+  const reset = () => {
+    setEditingId(null);
+    setForm({ name: "", name_ar: "", code: "", description: "" });
+  };
+  const openCreate = () => {
+    reset();
+    setOpen(true);
+  };
+  const openEdit = (sub: any) => {
+    setEditingId(sub.id);
+    setForm({
+      name: sub.name ?? "",
+      name_ar: sub.name_ar ?? "",
+      code: sub.code ?? "",
+      description: sub.description ?? ""
+    });
+    setOpen(true);
+  };
+  const save = useMutation({
+    mutationFn: (body: any) => {
+      const payload = { name: body.name, code: body.code };
+      return editingId ? Admin.updateSubject(editingId, payload) : Admin.createSubject(payload);
+    },
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["admin", "subjects"]
       });
       toast({
-        title: "Subject created"
+        title: editingId ? "Subject updated" : "Subject created"
       });
       setOpen(false);
-      setForm({
-        name: "",
-        name_ar: "",
-        code: "",
-        description: ""
-      });
+      reset();
     },
     onError: (e: any) => toast({
       variant: "destructive",
       title: "Failed",
-      description: e?.message
+      description: e?.data?.message ?? e?.message
     })
   });
   return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("nav.subjects")}</h1>
-        <BrandButton onClick={() => setOpen(true)}>
+        <BrandButton onClick={openCreate}>
           <Plus className="me-2 h-4 w-4" />
           {t("common.create")} Subject
         </BrandButton>
@@ -84,18 +101,18 @@ export default function AdminSubjects() {
                   <TableCell className="font-medium">{sub.name}</TableCell>
                   <TableCell>{sub.name_ar}</TableCell>
                   <TableCell className="text-right">
-                    <BrandButton variant="ghost" size="sm">{t("common.edit")}</BrandButton>
+                    <BrandButton variant="ghost" size="sm" onClick={() => openEdit(sub)}>{t("common.edit")}</BrandButton>
                   </TableCell>
                 </TableRow>)}
           </TableBody>
         </Table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("common.create")} Subject</DialogTitle>
-            <DialogDescription>Add a new subject.</DialogDescription>
+            <DialogTitle>{editingId ? t("common.edit") : t("common.create")} Subject</DialogTitle>
+            <DialogDescription>{editingId ? "Update this subject." : "Add a new subject."}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
@@ -128,9 +145,9 @@ export default function AdminSubjects() {
             </div>
           </div>
           <DialogFooter>
-            <BrandButton variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</BrandButton>
-            <BrandButton onClick={() => create.mutate(form)} disabled={create.isPending || !form.name || !form.code}>
-              {create.isPending ? t("common.loading") : t("common.create")}
+            <BrandButton variant="outline" onClick={() => { setOpen(false); reset(); }}>{t("common.cancel")}</BrandButton>
+            <BrandButton onClick={() => save.mutate(form)} disabled={save.isPending || !form.name || !form.code}>
+              {save.isPending ? t("common.loading") : editingId ? t("common.save") : t("common.create")}
             </BrandButton>
           </DialogFooter>
         </DialogContent>

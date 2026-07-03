@@ -50,7 +50,7 @@ export default function TeacherGrades() {
   const enter = useMutation({
     mutationFn: (data: any) => Teacher.enterGrade(data),
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["teacher"]
       });
       toast({
@@ -123,7 +123,9 @@ export default function TeacherGrades() {
             </select>
           </div>
           <div className="flex items-end">
-            <BrandButton className="w-full" onClick={saveAll} disabled={enter.isPending || !classId || !componentId || Object.keys(scores).length === 0}>
+            <BrandButton className="w-full" onClick={() => {
+              void saveAll()
+            }} disabled={enter.isPending || !classId || !componentId || Object.keys(scores).length === 0}>
               {enter.isPending ? t("common.loading") : t("common.save")}
             </BrandButton>
           </div>

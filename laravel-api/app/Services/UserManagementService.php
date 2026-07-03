@@ -4,31 +4,34 @@ namespace App\Services;
 
 use App\Models\AcademicYear;
 use App\Models\Announcement;
-use App\Models\AttendanceRecord;
 use App\Models\CalendarEvent;
 use App\Models\ClassRoom;
 use App\Models\Exam;
-use App\Models\HrRequest;
-use App\Models\Invoice;
+use App\Models\SchoolSetting;
 use App\Models\Subject;
 use App\Models\TimetableEntry;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserManagementService
 {
     public function listUsers(Request $request): array
     {
         $q = User::query();
-        if ($r = $request->query('role')) $q->where('role', $r);
+        if ($r = $request->query('role')) {
+            $q->where('role', $r);
+        }
         if ($s = $request->query('q')) {
             $q->where(function ($x) use ($s) {
-                $x->where(\DB::raw('LOWER(name)'), 'like', '%' . strtolower($s) . '%')
-                  ->orWhere(\DB::raw('LOWER(email)'), 'like', '%' . strtolower($s) . '%');
+                $x->where(\DB::raw('LOWER(name)'), 'like', '%'.strtolower($s).'%')
+                    ->orWhere(\DB::raw('LOWER(email)'), 'like', '%'.strtolower($s).'%');
             });
         }
+
         return ['data' => $q->with(['studentProfile', 'staffProfile'])->orderBy('name')->paginate(50)];
     }
 
@@ -38,7 +41,7 @@ class UserManagementService
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
-            'role' => 'required|in:' . implode(',', User::ROLES),
+            'role' => 'required|in:'.implode(',', User::ROLES),
             'phone' => 'nullable|string',
             'student' => 'nullable|array',
             'staff' => 'nullable|array',
@@ -49,17 +52,18 @@ class UserManagementService
                 'name' => $data['name'], 'email' => $data['email'], 'password' => $data['password'],
                 'role' => $data['role'], 'phone' => $data['phone'] ?? null,
             ]);
-            if ($data['role'] === 'student' && !empty($data['student'])) {
+            if ($data['role'] === 'student' && ! empty($data['student'])) {
                 $u->studentProfile()->create(array_merge(
-                    ['admission_no' => $data['student']['admission_no'] ?? ('ADM' . $u->id)],
+                    ['admission_no' => $data['student']['admission_no'] ?? ('ADM'.$u->id)],
                     array_intersect_key($data['student'], array_flip(['class_room_id', 'date_of_birth', 'gender', 'address', 'medical_notes', 'emergency_contact_name', 'emergency_contact_phone']))
                 ));
             }
-            if (in_array($data['role'], ['teacher', 'admin', 'finance', 'hr', 'accounting', 'warehouse']) && !empty($data['staff'])) {
+            if (in_array($data['role'], ['teacher', 'admin', 'finance', 'hr', 'warehouse']) && ! empty($data['staff'])) {
                 $u->staffProfile()->create(array_intersect_key($data['staff'],
                     array_flip(['department', 'position', 'hire_date', 'contract_type', 'contract_end', 'base_salary', 'qualifications', 'annual_leave_balance', 'sick_leave_balance'])));
             }
             AuditLogger::log($request, 'create_user', 'user', $u->id, ['role' => $u->role]);
+
             return $u;
         });
 
@@ -74,7 +78,7 @@ class UserManagementService
             'phone' => 'nullable|string', 'is_active' => 'sometimes|boolean',
             'password' => 'nullable|min:8',
         ]);
-        $u->update(array_filter($data, fn($v) => $v !== null));
+        $u->update(array_filter($data, fn ($v) => $v !== null));
         AuditLogger::log($request, 'update_user', 'user', $u->id, $data);
 
         return ['data' => $u];
@@ -90,8 +94,16 @@ class UserManagementService
     public function linkParentStudent(Request $request): array
     {
         $data = $request->validate([
-            'parent_user_id' => 'required|exists:users,id',
-            'student_user_id' => 'required|exists:users,id',
+            // Enforce role compatibility so a parent link can only ever join an
+            // actual parent account to an actual student account.
+            'parent_user_id' => [
+                'required',
+                Rule::exists('users', 'id')->where('role', 'parent'),
+            ],
+            'student_user_id' => [
+                'required',
+                Rule::exists('users', 'id')->where('role', 'student'),
+            ],
             'relation' => 'nullable|string',
         ]);
         DB::table('parent_student')->updateOrInsert(
@@ -108,13 +120,14 @@ class UserManagementService
         $request->validate(['file' => 'required|file|mimes:csv,txt']);
         $rows = array_map('str_getcsv', file($request->file('file')->getRealPath()));
         $header = array_map('trim', array_shift($rows));
-        $created = 0; $errors = [];
+        $created = 0;
+        $errors = [];
         DB::transaction(function () use ($rows, $header, &$created, &$errors) {
             foreach ($rows as $i => $row) {
                 $r = array_combine($header, $row);
                 try {
                     // Generate a secure random password instead of using a hardcoded default
-                    $password = $r['password'] ?? \Illuminate\Support\Str::random(12) . 'A1!';
+                    $password = $r['password'] ?? Str::random(12).'A1!';
                     $u = User::create([
                         'name' => $r['name'], 'email' => $r['email'],
                         'password' => Hash::make($password),
@@ -122,12 +135,14 @@ class UserManagementService
                         'must_change_password' => true,
                     ]);
                     $u->studentProfile()->create([
-                        'admission_no' => $r['admission_no'] ?? ('ADM' . $u->id),
+                        'admission_no' => $r['admission_no'] ?? ('ADM'.$u->id),
                         'class_room_id' => $r['class_room_id'] ?? null,
                         'gender' => $r['gender'] ?? null,
                     ]);
                     $created++;
-                } catch (\Throwable $e) { $errors[] = ['row' => $i + 2, 'error' => $e->getMessage()]; }
+                } catch (\Throwable $e) {
+                    $errors[] = ['row' => $i + 2, 'error' => $e->getMessage()];
+                }
             }
         });
         AuditLogger::log($request, 'bulk_import_students', 'user', null, ['created' => $created, 'errors' => count($errors)]);
@@ -218,8 +233,8 @@ class UserManagementService
     public function getAnnouncements(Request $request): array
     {
         $announcements = Announcement::query()
-            ->when($request->search, fn($q, $s) => $q->where('title', 'like', "%{$s}%"))
-            ->when($request->audience, fn($q, $a) => $q->where('audience', $a))
+            ->when($request->search, fn ($q, $s) => $q->where('title', 'like', "%{$s}%"))
+            ->when($request->audience, fn ($q, $a) => $q->where('audience', $a))
             ->latest()
             ->paginate($request->per_page ?? 20);
 
@@ -228,7 +243,8 @@ class UserManagementService
 
     public function getSchoolSettings(): array
     {
-        $settings = \App\Models\SchoolSetting::first() ?? new \App\Models\SchoolSetting();
+        $settings = SchoolSetting::first() ?? new SchoolSetting;
+
         return ['data' => $settings];
     }
 
@@ -248,16 +264,16 @@ class UserManagementService
         }
 
         $validated = $request->validate([
-            'school_name'   => 'sometimes|string|max:255',
-            'school_motto'  => 'nullable|string|max:255',
+            'school_name' => 'sometimes|string|max:255',
+            'school_motto' => 'nullable|string|max:255',
             'academic_year' => 'sometimes|string|max:20',
-            'address'       => 'nullable|string',
+            'address' => 'nullable|string',
             'primary_color' => 'sometimes|string|regex:/^#[0-9A-Fa-f]{6}$/',
-            'accent_color'  => 'sometimes|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'accent_color' => 'sometimes|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'sidebar_style' => 'sometimes|in:white,gradient,dark',
             'border_radius' => 'sometimes|in:sharp,medium,rounded',
-            'font_style'    => 'sometimes|in:modern,classic,friendly',
-            'school_logo'   => 'nullable|image|max:2048',
+            'font_style' => 'sometimes|in:modern,classic,friendly',
+            'school_logo' => 'nullable|image|max:2048',
             'remove_school_logo' => 'sometimes|boolean',
         ]);
 
@@ -266,12 +282,12 @@ class UserManagementService
 
         if ($request->hasFile('school_logo')) {
             $path = $request->file('school_logo')->store('school', 'public');
-            $validated['school_logo'] = asset('storage/' . $path);
+            $validated['school_logo'] = asset('storage/'.$path);
         } elseif ($removeLogo) {
             $validated['school_logo'] = null;
         }
 
-        $settings = \App\Models\SchoolSetting::updateOrCreate(['id' => 1], $validated);
+        $settings = SchoolSetting::updateOrCreate(['id' => 1], $validated);
 
         return ['data' => $settings];
     }
@@ -284,6 +300,7 @@ class UserManagementService
     public function createSubject(Request $request): array
     {
         $data = $request->validate(['name' => 'required', 'code' => 'required|unique:subjects,code']);
+
         return ['data' => Subject::create($data), 'status' => 201];
     }
 
@@ -293,6 +310,7 @@ class UserManagementService
         $data = $request->validate(['name' => 'sometimes|string', 'code' => "sometimes|unique:subjects,code,$id"]);
         $s->update($data);
         AuditLogger::log($request, 'update_subject', 'subject', $id, $data);
+
         return ['data' => $s];
     }
 
@@ -317,6 +335,7 @@ class UserManagementService
             'start_time' => 'required', 'end_time' => 'required',
             'room' => 'nullable',
         ]);
+
         return ['data' => Exam::create($data), 'status' => 201];
     }
 
@@ -332,6 +351,7 @@ class UserManagementService
         ]);
         $e->update($data);
         AuditLogger::log($request, 'update_exam', 'exam', $id, $data);
+
         return ['data' => $e->load(['classRoom', 'subject'])];
     }
 
@@ -352,7 +372,10 @@ class UserManagementService
             'name' => 'required', 'start_date' => 'required|date', 'end_date' => 'required|date',
             'is_current' => 'boolean',
         ]);
-        if ($data['is_current'] ?? false) AcademicYear::query()->update(['is_current' => false]);
+        if ($data['is_current'] ?? false) {
+            AcademicYear::query()->update(['is_current' => false]);
+        }
+
         return ['data' => AcademicYear::create($data), 'status' => 201];
     }
 
@@ -363,9 +386,12 @@ class UserManagementService
             'name' => 'sometimes|string', 'start_date' => 'sometimes|date', 'end_date' => 'sometimes|date',
             'is_current' => 'sometimes|boolean',
         ]);
-        if ($data['is_current'] ?? false) AcademicYear::where('id', '!=', $id)->update(['is_current' => false]);
+        if ($data['is_current'] ?? false) {
+            AcademicYear::where('id', '!=', $id)->update(['is_current' => false]);
+        }
         $ay->update($data);
         AuditLogger::log($request, 'update_academic_year', 'academic_year', $id, $data);
+
         return ['data' => $ay->load('semesters')];
     }
 
@@ -385,6 +411,7 @@ class UserManagementService
         ]);
         $c->update($data);
         AuditLogger::log($request, 'update_class', 'class_room', $id, $data);
+
         return ['data' => $c->load('homeroomTeacher:id,name')];
     }
 
@@ -410,6 +437,7 @@ class UserManagementService
         ]);
         $e->update($data);
         AuditLogger::log($request, 'update_calendar_event', 'calendar_event', $id, $data);
+
         return ['data' => $e];
     }
 

@@ -21,7 +21,7 @@ const sizeClasses: Record<string, string> = {
 
 const variantClasses = {
   primary: cn(
-    "bg-[var(--color-primary)] text-white font-semibold",
+    "bg-[var(--color-primary)] text-[var(--color-primary-fg)] font-semibold",
     "hover:brightness-110 hover:shadow-md hover:shadow-[var(--color-primary)]/30",
     "active:scale-[0.97] active:brightness-95",
     "focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/50 focus-visible:ring-offset-2",
@@ -35,7 +35,7 @@ const variantClasses = {
   ),
   outline: cn(
     "bg-transparent border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-semibold",
-    "hover:bg-[var(--color-primary)] hover:text-white",
+    "hover:bg-[var(--color-primary)] hover:text-[var(--color-primary-fg)]",
     "active:scale-[0.97]",
     "disabled:opacity-50 disabled:pointer-events-none"
   ),
@@ -70,7 +70,7 @@ export default function BrandButton({
 
   const spinnerColor =
     variant === "primary" || variant === "destructive"
-      ? "text-white"
+      ? "text-[var(--color-primary-fg)]"
       : "text-[var(--color-primary)]";
 
   return (
@@ -79,7 +79,7 @@ export default function BrandButton({
       className={cn(
         "inline-flex items-center justify-center rounded-lg transition-all duration-150 focus-visible:outline-none",
         sizeClasses[size],
-        variantClasses[variant as keyof typeof variantClasses],
+        variantClasses[variant],
         fullWidth && "w-full",
         className
       )}

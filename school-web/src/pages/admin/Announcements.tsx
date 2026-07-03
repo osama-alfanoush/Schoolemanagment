@@ -1,7 +1,8 @@
 import BrandCard from "@/components/ui/BrandCard";
 import BrandButton from "@/components/ui/BrandButton";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { Admin } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,15 +20,22 @@ export default function AdminAnnouncements() {
   const {
     toast
   } = useToast();
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
     body: "",
     audience: "all" as (typeof AUDIENCES)[number]
   });
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "announcements"],
+    queryFn: () => Admin.getAnnouncements(),
+  }) as any;
+  const items = Array.isArray(data) ? data : data?.data ?? [];
   const announce = useMutation({
     mutationFn: (data: any) => Admin.announce(data),
     onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["admin", "announcements"] });
       toast({
         title: "Announcement sent"
       });
@@ -108,6 +116,30 @@ export default function AdminAnnouncements() {
             Announcements. Use the form above to publish a new one.
           </CardDescription>
         </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground py-4">{t("common.loading")}</p>
+          ) : items.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">{t("common.empty")}</p>
+          ) : (
+            <ul className="divide-y">
+              {items.map((a: any) => (
+                <li key={a.id} className="py-3 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{a.title}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{a.body}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <Badge variant="outline" className="capitalize">{a.audience}</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {a.created_at ? format(new Date(a.created_at), "MMM d, yyyy") : ""}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
       </BrandCard>
     </div>;
 }

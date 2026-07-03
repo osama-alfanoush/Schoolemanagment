@@ -36,7 +36,7 @@ describe('useAuth hook', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns null user when not authenticated', async () => {
+  it('returns null user when not authenticated', () => {
     const { result } = renderHook(() => useAuth(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={makeClient()}>

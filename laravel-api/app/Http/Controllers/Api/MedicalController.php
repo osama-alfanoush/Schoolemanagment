@@ -25,11 +25,11 @@ class MedicalController extends Controller
     {
         // Verify parent has access to this child
         $isMyChild = $request->user()->children()->where('users.id', $studentId)->exists();
-        if (!$isMyChild) {
+        if (! $isMyChild) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $record = MedicalRecord::with(['visits' => fn($q) => $q->orderBy('visit_date', 'desc')])
+        $record = MedicalRecord::with(['visits' => fn ($q) => $q->orderBy('visit_date', 'desc')])
             ->where('student_user_id', $studentId)
             ->first();
 
@@ -39,7 +39,7 @@ class MedicalController extends Controller
     public function childMedicalVisits(Request $request, int $studentId)
     {
         $isMyChild = $request->user()->children()->where('users.id', $studentId)->exists();
-        if (!$isMyChild) {
+        if (! $isMyChild) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -56,7 +56,7 @@ class MedicalController extends Controller
         $query = MedicalRecord::with('student');
 
         if ($search = $request->query('search')) {
-            $query->whereHas('student', fn($q) => $q->where('name', 'ilike', "%{$search}%"));
+            $query->whereHas('student', fn ($q) => $q->where('name', 'ilike', "%{$search}%"));
         }
 
         return response()->json($query->paginate($request->query('per_page', 20)));

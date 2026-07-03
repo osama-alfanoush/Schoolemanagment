@@ -19,7 +19,17 @@ class SecurityHeaders
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-        $response->headers->set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http://localhost:* http://127.0.0.1:*; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+
+        // Localhost origins are only needed for local dev (Vite asset/HMR hosts);
+        // never emit them in production responses.
+        $localDev = app()->environment('production') ? '' : ' http://localhost:* http://127.0.0.1:*';
+        $response->headers->set('Content-Security-Policy',
+            "default-src 'self'; script-src 'self'; "
+            ."style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            ."font-src 'self' https://fonts.gstatic.com; "
+            ."img-src 'self' data: blob: https:".$localDev.'; '
+            ."connect-src 'self' https:".$localDev.'; '
+            ."frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
         $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
 

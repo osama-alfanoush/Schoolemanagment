@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Admin } from "@/lib/api";
-import { renderUser, renderDate, renderStatus } from "@/lib/tableHelpers";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import SearchAndFilter from "@/components/ui/SearchAndFilter";
@@ -19,10 +18,10 @@ export default function AdminAttendance() {
     queryKey: ["admin", "attendance-dashboard", selectedDate],
     queryFn: () => Admin.attendanceDashboard(),
   }) as any;
-const todayData = dashboard?.today ?? {};
-  const presentCount = (todayData as any).present ?? 0;
-  const absentCount = (todayData as any).absent ?? 0;
-  const lateCount = (todayData as any).late ?? 0;
+  const todayData = dashboard?.today ?? {};
+  const presentCount = todayData.present ?? 0;
+  const absentCount = todayData.absent ?? 0;
+  const lateCount = todayData.late ?? 0;
   const totalAttended = presentCount + absentCount + lateCount;
   const rate = totalAttended > 0 ? Math.round((presentCount / totalAttended) * 100) : 0;
 

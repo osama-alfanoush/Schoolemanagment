@@ -5,11 +5,12 @@ namespace App\Services;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use Stripe\Refund;
+use Stripe\Stripe;
+use Stripe\StripeClient;
+use Stripe\Webhook;
 
 class PaymentGatewayService
 {
@@ -23,9 +24,9 @@ class PaymentGatewayService
     /**
      * Initialize Stripe client
      */
-    protected function getStripeClient(): \Stripe\StripeClient
+    protected function getStripeClient(): StripeClient
     {
-        return new \Stripe\StripeClient(config('services.payment.stripe.secret_key'));
+        return new StripeClient(config('services.payment.stripe.secret_key'));
     }
 
     /**
@@ -36,10 +37,18 @@ class PaymentGatewayService
         try {
             $stripe = $this->getStripeClient();
 
-            $amount = ($invoice->amount - $invoice->paid_amount) * 100; // Convert to cents
+            $amountDue = round((float) $invoice->amount - (float) $invoice->paid_amount, 2);
+            if ($amountDue <= 0) {
+                return [
+                    'success' => false,
+                    'error' => 'Invoice has no outstanding balance.',
+                ];
+            }
+            // Round BEFORE casting to int to avoid float truncation (e.g. 19.99 * 100 = 1998.999…)
+            $amount = (int) round($amountDue * 100); // cents
 
             $paymentIntentData = [
-                'amount' => (int) $amount,
+                'amount' => $amount,
                 'currency' => $options['currency'] ?? config('services.payment.currency', 'usd'),
                 'automatic_payment_methods' => ['enabled' => true],
                 'metadata' => [
@@ -51,10 +60,12 @@ class PaymentGatewayService
                 'description' => "Payment for invoice {$invoice->invoice_no}",
             ];
 
-            if (!empty($options['customer_email'])) {
-                // Create or retrieve customer
+            if (! empty($options['customer_email'])) {
+                // Create or retrieve customer — escape quotes/backslashes to keep the
+                // Stripe search query well-formed regardless of stored email content.
+                $escapedEmail = str_replace(['\\', "'"], ['\\\\', "\\'"], $options['customer_email']);
                 $customers = $stripe->customers->search([
-                    'query' => "email:'{$options['customer_email']}'",
+                    'query' => "email:'{$escapedEmail}'",
                 ]);
 
                 if ($customers->data) {
@@ -76,7 +87,7 @@ class PaymentGatewayService
                 'invoice_id' => $invoice->id,
                 'provider' => $this->provider,
                 'provider_transaction_id' => $paymentIntent->id,
-                'amount' => $amount / 100,
+                'amount' => $amountDue,
                 'currency' => $paymentIntentData['currency'],
                 'status' => 'pending',
                 'metadata' => [
@@ -88,7 +99,7 @@ class PaymentGatewayService
                 'success' => true,
                 'client_secret' => $paymentIntent->client_secret,
                 'payment_intent_id' => $paymentIntent->id,
-                'amount' => $amount / 100,
+                'amount' => $amountDue,
             ];
 
         } catch (\Exception $e) {
@@ -122,34 +133,33 @@ class PaymentGatewayService
             }
 
             $invoiceId = $paymentIntent->metadata['invoice_id'] ?? null;
-            if (!$invoiceId) {
+            if (! $invoiceId) {
                 return [
                     'success' => false,
                     'error' => 'Invoice not found in payment metadata',
                 ];
             }
 
-            $invoice = Invoice::find($invoiceId);
-            if (!$invoice) {
-                return [
-                    'success' => false,
-                    'error' => 'Invoice not found',
-                ];
-            }
+            $amount = round($paymentIntent->amount / 100, 2);
+            $alreadyRecorded = false;
 
-            // Check if already recorded
-            $existingPayment = Payment::where('reference', $paymentIntentId)->first();
-            if ($existingPayment) {
-                return [
-                    'success' => true,
-                    'payment' => $existingPayment,
-                    'already_recorded' => true,
-                ];
-            }
+            // The Stripe webhook and the client-side /payments/confirm call can race.
+            // Serialize them by locking the invoice row and performing the duplicate
+            // check INSIDE the same transaction. The unique index on payments.reference
+            // is the final safety net against double-recording.
+            $payment = \DB::transaction(function () use ($invoiceId, $amount, $paymentIntent, &$alreadyRecorded) {
+                $invoice = Invoice::lockForUpdate()->find($invoiceId);
+                if (! $invoice) {
+                    return null;
+                }
 
-            // Record the payment
-            $amount = $paymentIntent->amount / 100;
-            $payment = \DB::transaction(function () use ($invoice, $amount, $paymentIntent) {
+                $existingPayment = Payment::where('reference', $paymentIntent->id)->first();
+                if ($existingPayment) {
+                    $alreadyRecorded = true;
+
+                    return $existingPayment;
+                }
+
                 $payment = Payment::create([
                     'invoice_id' => $invoice->id,
                     'amount' => $amount,
@@ -160,8 +170,8 @@ class PaymentGatewayService
                     'note' => 'Paid via Stripe',
                 ]);
 
-                $newPaid = $invoice->paid_amount + $amount;
-                $status = $newPaid >= $invoice->amount ? 'paid' : 'partial';
+                $newPaid = round((float) $invoice->paid_amount + $amount, 2);
+                $status = $newPaid >= (float) $invoice->amount ? 'paid' : 'partial';
                 $invoice->update([
                     'paid_amount' => $newPaid,
                     'status' => $status,
@@ -174,7 +184,28 @@ class PaymentGatewayService
                         'completed_at' => now(),
                     ]);
 
-                // Send notification
+                return $payment;
+            });
+
+            if (! $payment) {
+                return [
+                    'success' => false,
+                    'error' => 'Invoice not found',
+                ];
+            }
+
+            if ($alreadyRecorded) {
+                return [
+                    'success' => true,
+                    'payment' => $payment,
+                    'already_recorded' => true,
+                ];
+            }
+
+            // Notifications fire AFTER commit so a notifier failure can never
+            // roll back (or delay locks on) the financial records.
+            try {
+                $invoice = Invoice::with('student')->find($invoiceId);
                 NotificationService::sendWithTemplate(
                     $invoice->student_user_id,
                     'payment_received',
@@ -184,8 +215,6 @@ class PaymentGatewayService
                         'payment_id' => $payment->id,
                     ]
                 );
-
-                // Notify parents
                 NotificationService::sendToParents(
                     $invoice->student_user_id,
                     'payment_received',
@@ -195,14 +224,30 @@ class PaymentGatewayService
                         'description' => $invoice->description,
                     ]
                 );
-
-                return $payment;
-            });
+            } catch (\Throwable $e) {
+                Log::warning('Payment recorded but notification failed', [
+                    'payment_id' => $payment->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             return [
                 'success' => true,
                 'payment' => $payment,
             ];
+        } catch (QueryException $e) {
+            // Unique-constraint violation on payments.reference = concurrent insert
+            // already recorded this payment. Treat as idempotent success.
+            $existing = Payment::where('reference', $paymentIntentId)->first();
+            if ($existing) {
+                return ['success' => true, 'payment' => $existing, 'already_recorded' => true];
+            }
+            Log::error('Payment confirmation failed', [
+                'payment_intent_id' => $paymentIntentId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['success' => false, 'error' => 'Database error while recording payment'];
 
         } catch (\Exception $e) {
             Log::error('Payment confirmation failed', [
@@ -223,7 +268,7 @@ class PaymentGatewayService
     public function handleWebhook(string $payload, string $signature): array
     {
         try {
-            $event = \Stripe\Webhook::constructEvent(
+            $event = Webhook::constructEvent(
                 $payload,
                 $signature,
                 config('services.payment.stripe.webhook_secret')
@@ -232,6 +277,7 @@ class PaymentGatewayService
             switch ($event->type) {
                 case 'payment_intent.succeeded':
                     $paymentIntent = $event->data->object;
+
                     return $this->confirmPayment($paymentIntent->id);
 
                 case 'payment_intent.payment_failed':
@@ -241,10 +287,12 @@ class PaymentGatewayService
                             'status' => 'failed',
                             'error_message' => $paymentIntent->last_payment_error?->message ?? 'Payment failed',
                         ]);
+
                     return ['success' => true, 'event' => 'payment_failed'];
 
                 case 'charge.refunded':
                     $charge = $event->data->object;
+
                     return $this->handleRefund($charge);
 
                 default:
@@ -253,6 +301,7 @@ class PaymentGatewayService
 
         } catch (\Exception $e) {
             Log::error('Webhook processing failed', ['error' => $e->getMessage()]);
+
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -263,25 +312,32 @@ class PaymentGatewayService
     protected function handleRefund($charge): array
     {
         try {
-            $transaction = PaymentTransaction::where('provider_transaction_id', $charge->payment_intent)->first();
+            $refundedAmount = round($charge->amount_refunded / 100, 2);
 
-            if ($transaction) {
-                $transaction->update([
-                    'status' => 'refunded',
-                    'refunded_amount' => $charge->amount_refunded / 100,
-                ]);
+            \DB::transaction(function () use ($charge, $refundedAmount) {
+                $transaction = PaymentTransaction::where('provider_transaction_id', $charge->payment_intent)->first();
 
-                // Reverse the payment in our system
-                $payment = Payment::where('reference', $charge->payment_intent)->first();
-                if ($payment) {
-                    $invoice = $payment->invoice;
-                    $newPaid = max(0, $invoice->paid_amount - ($charge->amount_refunded / 100));
-                    $invoice->update([
-                        'paid_amount' => $newPaid,
-                        'status' => $newPaid >= $invoice->amount ? 'paid' : ($newPaid > 0 ? 'partial' : 'pending'),
+                if ($transaction) {
+                    $transaction->update([
+                        'status' => 'refunded',
+                        'refunded_amount' => $refundedAmount,
                     ]);
+
+                    // Reverse the payment in our system (lock invoice to avoid racing
+                    // with a concurrent payment confirmation on the same invoice)
+                    $payment = Payment::where('reference', $charge->payment_intent)->first();
+                    if ($payment) {
+                        $invoice = Invoice::lockForUpdate()->find($payment->invoice_id);
+                        if ($invoice) {
+                            $newPaid = round(max(0, (float) $invoice->paid_amount - $refundedAmount), 2);
+                            $invoice->update([
+                                'paid_amount' => $newPaid,
+                                'status' => $newPaid >= (float) $invoice->amount ? 'paid' : ($newPaid > 0 ? 'partial' : 'pending'),
+                            ]);
+                        }
+                    }
                 }
-            }
+            });
 
             return ['success' => true, 'event' => 'refund_processed'];
 

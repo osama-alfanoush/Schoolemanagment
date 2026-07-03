@@ -18,11 +18,6 @@ export default function WarehouseDashboard() {
     queryFn: () => Warehouse.dashboard(),
   }) as any;
 
-  const { data: lowStockData } = useQuery({
-    queryKey: ["low-stock-items"],
-    queryFn: () => Warehouse.items({ status: "low-stock", per_page: 6 }),
-  }) as any;
-
   const { data: recentMovements } = useQuery({
     queryKey: ["recent-movements"],
     queryFn: () => Warehouse.movements({ per_page: 6 }),
@@ -36,7 +31,8 @@ export default function WarehouseDashboard() {
     );
   }
 
-  const lowStockItems = toArray(lowStockData);
+  const lowStockItems = Array.isArray(stats?.low_stock_items) ? stats.low_stock_items : [];
+  const outOfStockCount = lowStockItems.filter((i: any) => Number(i.current_qty ?? 0) <= 0).length;
   const movements = toArray(recentMovements);
 
   return (
@@ -45,16 +41,16 @@ export default function WarehouseDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard title={t("warehouseDashboard.totalItems")} value={stats?.total_items ?? 0} icon={<span className="text-lg">📦</span>} />
-        <StatCard title={t("warehouseDashboard.lowStockText")} value={stats?.low_stock_count ?? 0} icon={<span className="text-lg">⚠️</span>} />
+        <StatCard title={t("warehouseDashboard.lowStockText")} value={lowStockItems.length} icon={<span className="text-lg">⚠️</span>} />
         <div className="relative overflow-hidden rounded-2xl p-6 text-white" style={{ background: "linear-gradient(135deg, #fca5a5, #f87171)" }}>
           <div className="absolute -bottom-6 -right-6 h-32 w-32 rounded-full bg-card/10" />
           <div className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl bg-card/20">
             <span className="text-lg">🚫</span>
           </div>
           <p className="mt-3 text-sm opacity-80">{t("warehouseDashboard.outOfStock")}</p>
-          <p className="font-display text-3xl font-bold">{stats?.out_of_stock ?? 0}</p>
+          <p className="font-display text-3xl font-bold">{outOfStockCount}</p>
         </div>
-        <StatCard title={t("warehouseDashboard.pendingRequests")} value={stats?.pending_requests ?? 0} icon={<span className="text-lg">🛒</span>} />
+        <StatCard title={t("warehouseDashboard.pendingRequests")} value={stats?.pending_purchase_requests ?? 0} icon={<span className="text-lg">🛒</span>} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
@@ -70,12 +66,12 @@ export default function WarehouseDashboard() {
                   <div key={item.id} className="flex items-center justify-between py-3">
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.name}</p>
-                      <p className="text-xs text-muted-foreground/70">{item.category_name}</p>
+                      <p className="text-xs text-muted-foreground/70">{item.sku ?? ""}</p>
                     </div>
-                    <div className="flex-1 mx-4">{renderProgress(item.current_stock, item.minimum_stock * 2)}</div>
+                    <div className="flex-1 mx-4">{renderProgress(Number(item.current_qty ?? 0), Math.max(1, Number(item.min_stock_qty ?? 0) * 2))}</div>
                     <div className="text-right rtl:text-left">
-                      {renderStatus("low-stock")}
-                      <p className="text-xs text-muted-foreground mt-0.5">{item.current_stock} {t("warehouseDashboard.left")}</p>
+                      {renderStatus(Number(item.current_qty ?? 0) <= 0 ? "out-stock" : "low-stock")}
+                      <p className="text-xs text-muted-foreground mt-0.5">{Number(item.current_qty ?? 0)} {item.unit ?? t("warehouseDashboard.left")}</p>
                     </div>
                   </div>
                 ))}
@@ -107,12 +103,12 @@ export default function WarehouseDashboard() {
                     <div key={m.id} className="flex items-center gap-3 py-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${cfg.bg} ${cfg.text}`}>{cfg.icon}</div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">{m.item_name}</p>
+                        <p className="text-sm font-medium text-foreground">{m.item?.name ?? "—"}</p>
                         <p className="text-xs text-muted-foreground/70">{renderDate(m.movement_date)}</p>
                       </div>
                       <div className="text-right rtl:text-left">
-                        <p className={`text-sm font-bold ${isIn ? "text-green-600" : "text-red-600"}`}>{isIn ? "+" : "-"}{m.quantity}</p>
-                        <p className="text-xs text-muted-foreground/70">{m.unit ?? "units"}</p>
+                        <p className={`text-sm font-bold ${isIn ? "text-green-600" : "text-red-600"}`}>{isIn ? "+" : "-"}{Number(m.quantity ?? 0)}</p>
+                        <p className="text-xs text-muted-foreground/70">{m.item?.unit ?? "units"}</p>
                       </div>
                     </div>
                   );

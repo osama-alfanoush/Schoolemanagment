@@ -27,7 +27,7 @@ class AssignmentService
                     'attachment_path' => $attachmentPath,
                 ]);
                 $studentIds = User::where('role', 'student')
-                    ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $classId))
+                    ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $classId))
                     ->pluck('id');
                 foreach ($studentIds as $sid) {
                     Notifier::send($sid, 'new_assignment', 'New homework', $a->title, ['assignment_id' => $a->id]);
@@ -35,6 +35,7 @@ class AssignmentService
                 $created[] = $a;
             }
         });
+
         return $created;
     }
 
@@ -42,6 +43,7 @@ class AssignmentService
     {
         $assignment = Assignment::findOrFail($assignmentId);
         $assignment->update($data);
+
         return $assignment->fresh();
     }
 

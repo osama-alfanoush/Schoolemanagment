@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Feature\BusinessRules;
 
-use App\Models\AttendanceRecord;
 use App\Models\ClassRoom;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AttendanceTest extends TestCase
@@ -18,8 +17,11 @@ class AttendanceTest extends TestCase
     use RefreshDatabase;
 
     private User $teacher;
+
     private User $student;
+
     private ClassRoom $classRoom;
+
     private Subject $subject;
 
     protected function setUp(): void

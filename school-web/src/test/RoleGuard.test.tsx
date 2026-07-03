@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, cleanup, act } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import { RoleGuard } from '@/components/layout/RoleGuard';
 import { useAuth } from '@/lib/auth';
 

@@ -11,7 +11,7 @@ class NotificationTemplate extends Model
 
     protected $fillable = [
         'key', 'category', 'title_template', 'body_template',
-        'default_priority', 'action_url_template', 'requires_action'
+        'default_priority', 'action_url_template', 'requires_action',
     ];
 
     protected $casts = [
@@ -52,6 +52,7 @@ class NotificationTemplate extends Model
     {
         return preg_replace_callback('/\{\{(\w+)\}\}/', function ($matches) use ($data) {
             $key = $matches[1];
+
             return $data[$key] ?? $matches[0];
         }, $template);
     }
@@ -226,7 +227,7 @@ class NotificationTemplate extends Model
                 'key' => 'new_purchase_request',
                 'category' => 'administrative',
                 'title_template' => 'New Purchase Request: {{item_name}}',
-                'body_template' => "{{requested_by_name}} requested {{quantity}} {{unit}} of {{item_name}}.",
+                'body_template' => '{{requested_by_name}} requested {{quantity}} {{unit}} of {{item_name}}.',
                 'default_priority' => 'normal',
                 'action_url_template' => '/warehouse/purchase-requests/{{request_id}}',
             ],
@@ -242,7 +243,7 @@ class NotificationTemplate extends Model
                 'key' => 'purchase_request_status',
                 'category' => 'administrative',
                 'title_template' => 'Purchase Request {{status}}: {{item_name}}',
-                'body_template' => "Your purchase request for {{item_name}} ({{quantity}} {{unit}}) has been {{status}}. Notes: {{admin_notes}}",
+                'body_template' => 'Your purchase request for {{item_name}} ({{quantity}} {{unit}}) has been {{status}}. Notes: {{admin_notes}}',
                 'default_priority' => 'normal',
                 'action_url_template' => '/warehouse/purchase-requests/{{request_id}}',
             ],

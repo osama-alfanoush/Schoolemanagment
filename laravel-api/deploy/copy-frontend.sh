@@ -1,22 +1,34 @@
 #!/bin/bash
-# Copies the built React dist into the named Docker volume used by NGINX
-set -e
+# Copies the built React SPA into the named Docker volume that NGINX serves.
+set -euo pipefail
 
-DIST_PATH="../school-web/dist"
-CONTAINER="school_nginx"
+# Vite builds to dist/public (see school-web/vite.config.ts outDir). Copying the
+# parent dist/ would nest the app under public/ and make NGINX serve 404s.
+DIST_PATH="../school-web/dist/public"
+
+# Compose prefixes volume names with the project name, which defaults to this
+# directory (laravel-api). Override with COMPOSE_PROJECT_NAME if you renamed it.
+PROJECT="${COMPOSE_PROJECT_NAME:-laravel-api}"
+VOLUME="${PROJECT}_frontend_dist"
 
 if [ ! -d "$DIST_PATH" ]; then
-  echo "❌ dist/ not found. Run: npm run build"
+  echo "❌ $DIST_PATH not found. Run: (cd ../school-web && npm run build)"
   exit 1
 fi
 
-echo "📦 Copying frontend dist to nginx volume..."
+if ! docker volume inspect "$VOLUME" >/dev/null 2>&1; then
+  echo "❌ Docker volume '$VOLUME' not found."
+  echo "   Start the stack first (deploy/prod-up.sh up -d) or set COMPOSE_PROJECT_NAME."
+  exit 1
+fi
+
+echo "📦 Copying $DIST_PATH → volume $VOLUME ..."
 
 docker run --rm \
   -v "$(cd "$DIST_PATH" && pwd)":/src:ro \
-  -v school_api_frontend_dist:/dst \
+  -v "$VOLUME":/dst \
   alpine \
   sh -c "rm -rf /dst/* && cp -r /src/. /dst/"
 
-echo "✅ Frontend deployed to nginx volume"
-echo "   Restart nginx: docker compose restart nginx"
+echo "✅ Frontend deployed to volume $VOLUME"
+echo "   Restart nginx: deploy/prod-up.sh restart nginx"

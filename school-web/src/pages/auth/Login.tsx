@@ -29,9 +29,6 @@ export default function Login() {
     toast
   } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  if (user) {
-    return <Redirect to={`/${user.role}`} />;
-  }
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,6 +36,9 @@ export default function Login() {
       password: ""
     }
   });
+  if (user) {
+    return <Redirect to={`/${user.role}`} />;
+  }
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsLoading(true);
     try {
@@ -71,7 +71,7 @@ export default function Login() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={(event) => void form.handleSubmit(onSubmit)(event)} className="space-y-4">
                 <FormField control={form.control} name="email" render={({
                 field
               }) => <FormItem>

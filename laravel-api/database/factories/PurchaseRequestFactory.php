@@ -2,19 +2,20 @@
 
 namespace Database\Factories;
 
+use App\Models\PurchaseRequest;
 use App\Models\User;
 use App\Models\WarehouseItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PurchaseRequest>
+ * @extends Factory<PurchaseRequest>
  */
 class PurchaseRequestFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'request_no' => 'PR-' . fake()->unique()->numerify('####'),
+            'request_no' => 'PR-'.fake()->unique()->numerify('####'),
             'item_id' => WarehouseItem::factory(),
             'quantity_requested' => $this->faker->numberBetween(5, 100),
             'unit' => $this->faker->randomElement(['piece', 'box', 'pack']),

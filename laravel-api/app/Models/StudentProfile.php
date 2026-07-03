@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StudentProfile extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id', 'class_room_id', 'admission_no', 'date_of_birth', 'gender', 'address',
         'medical_notes', 'emergency_contact_name', 'emergency_contact_phone',

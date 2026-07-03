@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('academic_years', function (Blueprint $t) {
@@ -214,8 +215,10 @@ return new class extends Migration {
             $t->foreignId('invoice_id')->constrained()->cascadeOnDelete();
             $t->decimal('amount', 12, 2);
             $t->string('method'); // cash, bank_transfer, card, online
-            $t->string('reference')->nullable();
-            $t->foreignId('recorded_by')->constrained('users');
+            $t->string('reference')->nullable(); // unique index added in 2026_06_11_000001
+            // Nullable: gateway/system-recorded payments (Stripe webhooks) have no
+            // human recorder. nullOnDelete keeps payment history if a staff user is removed.
+            $t->foreignId('recorded_by')->nullable()->constrained('users')->nullOnDelete();
             $t->timestamp('paid_at');
             $t->text('note')->nullable();
             $t->timestamps();

@@ -21,14 +21,14 @@ class EnsureParentOwnsChild
     {
         $user = $request->user();
 
-        if (!$user || $user->role !== 'parent') {
+        if (! $user || $user->role !== 'parent') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
         // Support both {id} and {studentId} route parameter names
         $childId = $request->route('id') ?? $request->route('studentId');
 
-        if ($childId && !$user->children()->where('users.id', (int) $childId)->exists()) {
+        if ($childId && ! $user->children()->where('users.id', (int) $childId)->exists()) {
             return response()->json(['message' => 'You do not have access to this student.'], 403);
         }
 

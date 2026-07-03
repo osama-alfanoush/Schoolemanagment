@@ -35,11 +35,11 @@ class MedicalRecord extends Model
 
     public function hasAllergies(): bool
     {
-        return !empty($this->allergies);
+        return ! empty($this->allergies);
     }
 
     public function hasChronicConditions(): bool
     {
-        return !empty($this->chronic_conditions);
+        return ! empty($this->chronic_conditions);
     }
 }

@@ -15,7 +15,7 @@ class DemoRoleUsersSeeder extends Seeder
             ['name' => 'Sara Admin', 'email' => 'admin@school.test', 'role' => 'admin', 'department' => 'Administration', 'position' => 'Administrator'],
             ['name' => 'Fadi Finance', 'email' => 'finance@school.test', 'role' => 'finance', 'department' => 'Finance', 'position' => 'Finance Officer'],
             ['name' => 'Hala HR', 'email' => 'hr@school.test', 'role' => 'hr', 'department' => 'Human Resources', 'position' => 'HR Officer'],
-            ['name' => 'Amina Accountant', 'email' => 'accounting@school.test', 'role' => 'accounting', 'department' => 'Accounting', 'position' => 'Accountant'],
+            ['name' => 'Amina Accountant', 'email' => 'accounting@school.test', 'role' => 'finance', 'department' => 'Accounting', 'position' => 'Accountant'],
             ['name' => 'Omar Warehouse', 'email' => 'warehouse@school.test', 'role' => 'warehouse', 'department' => 'Warehouse', 'position' => 'Warehouse Manager'],
         ];
 

@@ -54,7 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await Auth.logout();
-    } catch {}
+    } catch {
+      // Local logout should still clear client state if the API call fails.
+    }
     tokenStore.clear();
     setUser(null);
   }, []);

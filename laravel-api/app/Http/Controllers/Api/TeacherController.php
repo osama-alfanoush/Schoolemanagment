@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Announcement;
 use App\Models\Assignment;
-use App\Models\AttendanceRecord;
 use App\Models\ClassRoom;
 use App\Models\ConductLog;
 use App\Models\GradeComponent;
@@ -17,11 +16,14 @@ use App\Models\TimetableEntry;
 use App\Models\User;
 use App\Services\AssignmentService;
 use App\Services\AttendanceService;
+use App\Services\AuditLogger;
 use App\Services\GradeService;
 use App\Services\Notifier;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class TeacherController extends Controller
 {
@@ -41,13 +43,16 @@ class TeacherController extends Controller
         $q = DB::table('class_subject_teacher')
             ->where('class_room_id', $classRoomId)
             ->where('teacher_user_id', $teacherId);
-        if ($subjectId !== null) $q->where('subject_id', $subjectId);
+        if ($subjectId !== null) {
+            $q->where('subject_id', $subjectId);
+        }
+
         return $q->exists();
     }
 
     protected function assertCanAccessClassSubject(int $teacherId, int $classRoomId, ?int $subjectId = null): void
     {
-        if (!$this->teacherCanAccessClassSubject($teacherId, $classRoomId, $subjectId)) {
+        if (! $this->teacherCanAccessClassSubject($teacherId, $classRoomId, $subjectId)) {
             throw new AuthorizationException('You are not assigned to this class/subject.');
         }
     }
@@ -61,8 +66,9 @@ class TeacherController extends Controller
             $q->where('class_subject_teacher.teacher_user_id', $teacherId);
         })->orWhere('homeroom_teacher_id', $teacherId)
             ->withCount('students')
-            ->with(['subjects' => fn($q) => $q->wherePivot('teacher_user_id', $teacherId)])
+            ->with(['subjects' => fn ($q) => $q->wherePivot('teacher_user_id', $teacherId)])
             ->get();
+
         return ApiResponse::success($classes);
     }
 
@@ -70,6 +76,7 @@ class TeacherController extends Controller
     {
         $entries = TimetableEntry::where('teacher_user_id', $request->user()->id)
             ->with(['classRoom', 'subject'])->orderBy('day_of_week')->orderBy('start_time')->get();
+
         return ApiResponse::success($entries);
     }
 
@@ -77,8 +84,9 @@ class TeacherController extends Controller
     {
         $this->assertCanAccessClassSubject($request->user()->id, $classRoomId);
         $students = User::where('role', 'student')
-            ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $classRoomId))
+            ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $classRoomId))
             ->with('studentProfile')->orderBy('name')->get();
+
         return response()->json($students);
     }
 
@@ -100,6 +108,7 @@ class TeacherController extends Controller
         }
         $path = $request->hasFile('attachment') ? $request->file('attachment')->store('assignments') : null;
         $created = $this->assignments->create($data, $teacherId, $path);
+
         return response()->json($created, 201);
     }
 
@@ -111,9 +120,10 @@ class TeacherController extends Controller
             $this->assertCanAccessClassSubject($teacherId, $a->class_room_id, $a->subject_id);
         }
         $students = User::where('role', 'student')
-            ->whereHas('studentProfile', fn($q) => $q->where('class_room_id', $a->class_room_id))
-            ->with(['studentProfile', 'submissions' => fn($q) => $q->where('assignment_id', $assignmentId)])
+            ->whereHas('studentProfile', fn ($q) => $q->where('class_room_id', $a->class_room_id))
+            ->with(['studentProfile', 'submissions' => fn ($q) => $q->where('assignment_id', $assignmentId)])
             ->get();
+
         return response()->json(['assignment' => $a, 'students' => $students]);
     }
 
@@ -129,6 +139,7 @@ class TeacherController extends Controller
             return response()->json(['message' => 'Score exceeds assignment max_score'], 422);
         }
         $sub = $this->grades->gradeSubmission($submissionId, $data, $teacherId);
+
         return response()->json($sub);
     }
 
@@ -148,9 +159,10 @@ class TeacherController extends Controller
 
         $this->attendance->markAttendance($data, $teacherId);
 
-        \App\Services\AuditLogger::log($request, 'mark_attendance', 'attendance', $data['class_room_id'], [
+        AuditLogger::log($request, 'mark_attendance', 'attendance', $data['class_room_id'], [
             'date' => $data['date'], 'subject_id' => $data['subject_id'] ?? null, 'records' => count($data['records']),
         ]);
+
         return response()->json(['message' => 'Attendance saved']);
     }
 
@@ -166,9 +178,11 @@ class TeacherController extends Controller
                 'semester_id' => 'nullable|exists:semesters,id',
             ]);
             $c = $this->grades->createComponent($data, $classRoomId, $subjectId);
+
             return response()->json($c, 201);
         }
         $components = $this->grades->gradeComponents($classRoomId, $subjectId);
+
         return response()->json($components);
     }
 
@@ -182,7 +196,7 @@ class TeacherController extends Controller
         $component = GradeComponent::findOrFail($data['grade_component_id']);
         $teacherId = $request->user()->id;
         $this->assertCanAccessClassSubject($teacherId, $component->class_room_id, $component->subject_id);
-        if (!StudentProfile::where('user_id', $data['student_user_id'])
+        if (! StudentProfile::where('user_id', $data['student_user_id'])
             ->where('class_room_id', $component->class_room_id)->exists()) {
             return response()->json(['message' => 'Student is not in this class.'], 422);
         }
@@ -190,6 +204,7 @@ class TeacherController extends Controller
             return response()->json(['message' => 'Score exceeds component max_score'], 422);
         }
         $g = $this->grades->enter($data, $teacherId);
+
         return response()->json($g);
     }
 
@@ -203,7 +218,7 @@ class TeacherController extends Controller
         ]);
         $teacherId = $request->user()->id;
         $studentClass = StudentProfile::where('user_id', $data['student_user_id'])->value('class_room_id');
-        if (!$studentClass || !$this->teacherCanAccessClassSubject($teacherId, $studentClass)) {
+        if (! $studentClass || ! $this->teacherCanAccessClassSubject($teacherId, $studentClass)) {
             return response()->json(['message' => 'You may not log conduct for this student.'], 403);
         }
         $log = ConductLog::create(array_merge($data, ['teacher_user_id' => $teacherId]));
@@ -211,6 +226,7 @@ class TeacherController extends Controller
         foreach ($parentIds as $pid) {
             Notifier::send($pid, 'conduct', "Conduct note: {$data['category']}", $data['title']);
         }
+
         return response()->json($log, 201);
     }
 
@@ -228,6 +244,7 @@ class TeacherController extends Controller
             'title' => $data['title'],
             'body' => $data['body'],
         ]);
+
         return response()->json($a, 201);
     }
 
@@ -242,6 +259,7 @@ class TeacherController extends Controller
             'amount' => 'nullable|numeric|min:0',
         ]);
         $r = HrRequest::create(array_merge($data, ['teacher_user_id' => $request->user()->id]));
+
         return response()->json($r, 201);
     }
 
@@ -264,20 +282,21 @@ class TeacherController extends Controller
         $exportData = $this->grades->exportGrades($data['class_room_id'], $data['subject_id']);
 
         if ($data['format'] === 'pdf') {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.teacher-grades', $exportData);
+            $pdf = Pdf::loadView('reports.teacher-grades', $exportData);
+
             return $pdf->download("grades-{$data['class_room_id']}-{$data['subject_id']}.pdf");
         }
 
         $filename = "grades-{$data['class_room_id']}-{$data['subject_id']}.xlsx";
-        $path = storage_path('app/' . $filename);
+        $path = storage_path('app/'.$filename);
 
         $header = array_merge(['Student Name', 'Admission No'], $exportData['componentNames'], ['Total %']);
-        $writer = \Spatie\SimpleExcel\SimpleExcelWriter::create($path);
+        $writer = SimpleExcelWriter::create($path);
         $writer->addRow($header);
         foreach ($exportData['rows'] as $r) {
             $dataRow = array_merge(
                 [$r['name'], $r['admission_no']],
-                array_map(fn($name) => $r[$name] ?? '', $exportData['componentNames']),
+                array_map(fn ($name) => $r[$name] ?? '', $exportData['componentNames']),
                 [$r['total_pct'] ?? '']
             );
             $writer->addRow($dataRow);

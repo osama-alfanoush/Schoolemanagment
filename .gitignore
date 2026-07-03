@@ -28,6 +28,11 @@ yarn-error.log*
 .eslintcache
 *.tsbuildinfo
 
+# Archives — keep build/release artifacts out of the repo
+*.zip
+*.tar
+*.tar.gz
+
 # Mobile (school-mobile)
 .expo/
 *.jks

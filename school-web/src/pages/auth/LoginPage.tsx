@@ -14,7 +14,6 @@ const roles: { key: Role; emoji: string; labelKey: string }[] = [
   { key: "admin", emoji: "⚙️", labelKey: "roles.admin" },
   { key: "finance", emoji: "💰", labelKey: "roles.finance" },
   { key: "hr", emoji: "👥", labelKey: "roles.hr" },
-  { key: "accounting", emoji: "💰", labelKey: "roles.accounting" },
   { key: "warehouse", emoji: "📦", labelKey: "roles.warehouse" },
 ];
 
@@ -25,7 +24,6 @@ const demoCredentials: Record<Role, { email: string; password: string }> = {
   admin: { email: "admin@school.test", password: "password" },
   finance: { email: "finance@school.test", password: "password" },
   hr: { email: "hr@school.test", password: "password" },
-  accounting: { email: "accounting@school.test", password: "password" },
   warehouse: { email: "warehouse@school.test", password: "password" },
 };
 
@@ -142,12 +140,18 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* ─── LEFT PANEL (hidden on mobile) ─── */}
       <div className="hidden lg:flex w-1/2 gradient-sunset flex-col items-center justify-center p-12 relative overflow-hidden">
-        <SchoolIllustration />
+        {/* Depth overlays */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.16),transparent_55%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
 
-        <h1 className="font-display text-4xl text-white font-bold mt-10">
-          {t("login.welcomeBack")}
-        </h1>
-        <p className="text-white/80 text-lg mt-2">{t("login.schoolPortal")}</p>
+        <div className="relative flex flex-col items-center">
+          <SchoolIllustration />
+
+          <h1 className="heading-serif text-4xl text-white font-bold mt-10 text-center">
+            {t("login.welcomeBack")}
+          </h1>
+          <p className="text-white/85 text-lg mt-2">{t("login.schoolPortal")}</p>
+        </div>
 
         <div className="flex gap-3 mt-8">
           <span className="bg-card/20 text-white rounded-full px-4 py-2 text-sm">📚 {t("login.learn")}</span>
@@ -195,16 +199,19 @@ export default function LoginPage() {
 
           {/* Login form card */}
           <form
-            onSubmit={handleSubmit}
+            onSubmit={(event) => {
+              void handleSubmit(event)
+            }}
             className="glass-card p-6 space-y-5"
             style={{ animationDelay: "0.15s" }}
           >
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-ink-dark">{t("login.email")}</label>
+              <label htmlFor="login-email" className="text-sm font-medium text-ink-dark">{t("login.email")}</label>
               <div className="relative">
                 <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-light" />
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -220,10 +227,11 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-ink-dark">{t("login.password")}</label>
+              <label htmlFor="login-password" className="text-sm font-medium text-ink-dark">{t("login.password")}</label>
               <div className="relative">
                 <Lock className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-light" />
                 <input
+                  id="login-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -246,7 +254,7 @@ export default function LoginPage() {
 
             {/* Forgot password */}
             <div className="text-right rtl:text-left">
-              <a href="#" className="text-brand-purple text-sm hover:underline">{t("login.forgotPassword")}</a>
+              <button type="button" className="text-brand-purple text-sm hover:underline">{t("login.forgotPassword")}</button>
             </div>
 
             {/* Submit */}

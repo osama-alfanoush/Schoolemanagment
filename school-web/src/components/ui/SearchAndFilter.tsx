@@ -58,11 +58,12 @@ function FilterDropdown({
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-2.5 bg-card rounded-xl border text-sm transition-all duration-200",
+          "flex items-center gap-1.5 px-3 py-2.5 bg-card text-sm transition-all duration-200",
           active
-            ? "border-brand-purple text-brand-purple bg-brand-purple/5"
-            : "border-surface-border text-ink-muted hover:border-brand-purple hover:text-brand-purple"
+            ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary-subtle)]"
+            : "border-border text-muted-foreground hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
         )}
+        style={{ borderRadius: "var(--radius-base, 0.75rem)", borderWidth: "1px", borderStyle: "solid" }}
       >
         <span>{config.label}</span>
         {active && <span className="font-semibold">: {activeLabel}</span>}
@@ -70,13 +71,16 @@ function FilterDropdown({
       </button>
 
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-50 bg-card rounded-xl shadow-hover border border-surface-border min-w-[160px] py-1 overflow-hidden">
+        <div
+          className="absolute top-full mt-1 left-0 z-50 bg-card shadow-[var(--shadow-hover)] border border-border min-w-[160px] py-1 overflow-hidden"
+          style={{ borderRadius: "var(--radius-base, 0.75rem)" }}
+        >
           <button
             type="button"
             onClick={() => { onSelect("__all__"); setOpen(false); }}
             className={cn(
-              "w-full px-3 py-2 text-sm text-left hover:bg-surface-bg transition-colors",
-              !active && "text-brand-purple font-medium bg-brand-purple/5"
+              "w-full px-3 py-2 text-sm text-left hover:bg-[var(--color-primary-subtle)] transition-colors",
+              !active && "text-[var(--color-primary)] font-medium bg-[var(--color-primary-subtle)]"
             )}
           >
             All
@@ -87,8 +91,8 @@ function FilterDropdown({
               type="button"
               onClick={() => { onSelect(opt.value); setOpen(false); }}
               className={cn(
-                "w-full px-3 py-2 text-sm text-left hover:bg-surface-bg transition-colors",
-                activeValue === opt.value && "text-brand-purple font-medium bg-brand-purple/5"
+                "w-full px-3 py-2 text-sm text-left hover:bg-[var(--color-primary-subtle)] transition-colors",
+                activeValue === opt.value && "text-[var(--color-primary)] font-medium bg-[var(--color-primary-subtle)]"
               )}
             >
               {opt.label}
@@ -123,20 +127,23 @@ export default function SearchAndFilter({
     <div>
       <div className="flex items-center gap-3 flex-wrap">
         {/* Search input */}
-        <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-card rounded-xl border border-surface-border px-3 py-2.5 shadow-sm focus-within:border-brand-purple focus-within:ring-2 focus-within:ring-brand-purple/20 transition-all duration-200">
-          <Search className="h-4 w-4 text-ink-muted shrink-0" />
+        <div
+          className="flex-1 min-w-[200px] flex items-center gap-2 bg-card border border-border px-3 py-2.5 shadow-sm focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/20 transition-all duration-200"
+          style={{ borderRadius: "var(--radius-base, 0.75rem)" }}
+        >
+          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           <input
             type="text"
             value={searchValue}
             onChange={(e) => handleChange(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 text-sm outline-none bg-transparent text-ink-dark placeholder:text-ink-light"
+            className="flex-1 text-sm outline-none bg-transparent text-foreground placeholder:text-muted-foreground"
           />
           {searchValue && (
             <button
               type="button"
               onClick={() => handleChange("")}
-              className="text-ink-muted hover:text-ink-dark transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -163,13 +170,13 @@ export default function SearchAndFilter({
             return (
               <span
                 key={key}
-                className="flex items-center gap-1 bg-brand-purple/10 text-brand-purple rounded-full px-3 py-1 text-xs font-medium"
+                className="flex items-center gap-1 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-full px-3 py-1 text-xs font-medium"
               >
                 {config?.label}: {optLabel}
                 <button
                   type="button"
                   onClick={() => onFilterChange?.(key, "__all__")}
-                  className="ml-0.5 hover:text-brand-red transition-colors"
+                  className="ml-0.5 hover:text-destructive transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -180,7 +187,7 @@ export default function SearchAndFilter({
             <button
               type="button"
               onClick={onClearFilters}
-              className="text-xs text-brand-purple hover:underline font-medium"
+              className="text-xs text-[var(--color-primary)] hover:underline font-medium"
             >
               Clear all
             </button>

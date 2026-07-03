@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Student, PaginatedResponse, LibraryBook } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Student } from "@/lib/api";
 import { renderDate, renderStatus } from "@/lib/tableHelpers";
 import PageHeader from "@/components/ui/PageHeader";
 import BrandCard from "@/components/ui/BrandCard";
+import BrandButton from "@/components/ui/BrandButton";
 import DataTable from "@/components/ui/DataTable";
 import SearchAndFilter from "@/components/ui/SearchAndFilter";
 import BrandEmptyState from "@/components/ui/BrandEmptyState";
+import { useToast } from "@/hooks/use-toast";
 
 type Tab = "browse" | "borrowings";
 
 export default function StudentLibrary() {
   const [tab, setTab] = useState<Tab>("browse");
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
   const { data: booksData, isLoading: booksLoading } = useQuery({
     queryKey: ["student-library-books", search],
@@ -24,8 +28,26 @@ export default function StudentLibrary() {
     queryFn: () => Student.myBorrowings(),
     enabled: tab === "borrowings",
   }) as any;
-const books = Array.isArray(booksData) ? booksData : booksData?.data ?? [];
-  const borrowings = Array.isArray(borrowingsData) ? borrowingsData : borrowingsData?.data ?? [];
+  const books = Array.isArray(booksData) ? booksData : booksData?.data ?? [];
+  const borrowings = Array.isArray(borrowingsData)
+    ? borrowingsData
+    : borrowingsData?.borrowings ?? borrowingsData?.data ?? [];
+
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ["student-library-books"] });
+    void qc.invalidateQueries({ queryKey: ["student-borrowings"] });
+  };
+
+  const borrow = useMutation({
+    mutationFn: (id: number) => Student.borrowBook(id),
+    onSuccess: () => { toast({ title: "Book borrowed", description: "Due in 14 days." }); refresh(); },
+    onError: (e: any) => toast({ variant: "destructive", title: "Could not borrow", description: e?.data?.message ?? e?.message }),
+  });
+  const returnBook = useMutation({
+    mutationFn: (id: number) => Student.returnBook(id),
+    onSuccess: () => { toast({ title: "Book returned" }); refresh(); },
+    onError: (e: any) => toast({ variant: "destructive", title: "Could not return", description: e?.data?.message ?? e?.message }),
+  });
 
   return (
     <div className="space-y-6">
@@ -85,10 +107,18 @@ const books = Array.isArray(booksData) ? booksData : booksData?.data ?? [];
                   </div>
                   <p className="text-sm font-semibold text-foreground line-clamp-2 mb-1">{book.title}</p>
                   <p className="text-xs text-muted-foreground mb-2">{book.author}</p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     {renderStatus(book.available_copies > 0 ? "in-stock" : "out-stock")}
                     <span className="text-xs text-muted-foreground/70">{book.available_copies}/{book.total_copies}</span>
                   </div>
+                  <BrandButton
+                    size="sm"
+                    className="w-full"
+                    disabled={book.available_copies <= 0 || (borrow.isPending && borrow.variables === book.id)}
+                    onClick={() => borrow.mutate(book.id)}
+                  >
+                    {book.available_copies > 0 ? "Borrow" : "Unavailable"}
+                  </BrandButton>
                 </BrandCard>
               ))}
             </div>
@@ -118,7 +148,24 @@ const books = Array.isArray(booksData) ? booksData : booksData?.data ?? [];
               key: "fine",
               label: "Fine",
               render: (v: any) =>
-                v && v > 0 ? <span style={{ color: "var(--color-primary)" }}>${v.toFixed(2)}</span> : <span className="text-muted-foreground/50 text-xs">-</span>,
+                v && v > 0 ? <span style={{ color: "var(--color-primary)" }}>${Number(v).toFixed(2)}</span> : <span className="text-muted-foreground/50 text-xs">-</span>,
+            },
+            {
+              key: "actions",
+              label: "",
+              render: (_: any, row: any) =>
+                row.is_returned ? (
+                  <span className="text-xs text-muted-foreground/50">Returned</span>
+                ) : (
+                  <BrandButton
+                    size="sm"
+                    variant="outline"
+                    disabled={returnBook.isPending && returnBook.variables === row.id}
+                    onClick={() => returnBook.mutate(row.id)}
+                  >
+                    Return
+                  </BrandButton>
+                ),
             },
           ]}
           emptyMessage="No borrowing history"

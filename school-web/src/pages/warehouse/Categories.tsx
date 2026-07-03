@@ -27,7 +27,7 @@ export default function Categories() {
       description: form.description || undefined,
     }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["warehouse-categories"] });
+      void qc.invalidateQueries({ queryKey: ["warehouse-categories"] });
       toast({ title: "Category created" });
       setOpen(false);
       setForm({ name: "", description: "" });

@@ -33,7 +33,7 @@ export default function Closings() {
       notes: form.notes || undefined,
     }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["accounting-closings"] });
+      void qc.invalidateQueries({ queryKey: ["accounting-closings"] });
       toast({ title: "Month closed" });
       setOpen(false);
       setForm({ month: String(new Date().getMonth() + 1), year: String(new Date().getFullYear()), notes: "" });

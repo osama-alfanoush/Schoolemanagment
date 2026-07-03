@@ -16,7 +16,7 @@ class Notification extends Model
     protected $fillable = [
         'user_id', 'type', 'category', 'priority', 'title', 'body',
         'data', 'action_url', 'icon', 'read_at', 'clicked_at',
-        'scheduled_at', 'expires_at', 'source_type', 'source_id'
+        'scheduled_at', 'expires_at', 'source_type', 'source_id',
     ];
 
     protected $casts = [
@@ -29,33 +29,55 @@ class Notification extends Model
 
     // Priority levels
     public const PRIORITY_LOW = 'low';
+
     public const PRIORITY_NORMAL = 'normal';
+
     public const PRIORITY_HIGH = 'high';
+
     public const PRIORITY_URGENT = 'urgent';
 
     // Categories
     public const CATEGORY_ACADEMIC = 'academic';
+
     public const CATEGORY_FINANCIAL = 'financial';
+
     public const CATEGORY_ADMINISTRATIVE = 'administrative';
+
     public const CATEGORY_BEHAVIORAL = 'behavioral';
+
     public const CATEGORY_SYSTEM = 'system';
 
     // Types
     public const TYPE_ASSIGNMENT_CREATED = 'assignment_created';
+
     public const TYPE_ASSIGNMENT_DUE = 'assignment_due';
+
     public const TYPE_SUBMISSION_GRADED = 'submission_graded';
+
     public const TYPE_GRADE_POSTED = 'grade_posted';
+
     public const TYPE_ATTENDANCE_MARKED = 'attendance_marked';
+
     public const TYPE_ABSENCE_ALERT = 'absence_alert';
+
     public const TYPE_FEE_INVOICE = 'fee_invoice';
+
     public const TYPE_FEE_REMINDER = 'fee_reminder';
+
     public const TYPE_PAYMENT_RECEIVED = 'payment_received';
+
     public const TYPE_ANNOUNCEMENT = 'announcement';
+
     public const TYPE_MESSAGE_RECEIVED = 'message_received';
+
     public const TYPE_HR_REQUEST_STATUS = 'hr_request_status';
+
     public const TYPE_CONDUCT_LOG = 'conduct_log';
+
     public const TYPE_EXAM_SCHEDULED = 'exam_scheduled';
+
     public const TYPE_TIMETABLE_CHANGE = 'timetable_change';
+
     public const TYPE_SYSTEM_MAINTENANCE = 'system_maintenance';
 
     public function user(): BelongsTo
@@ -105,7 +127,7 @@ class Notification extends Model
 
     public function markAsRead(): void
     {
-        if (!$this->read_at) {
+        if (! $this->read_at) {
             $this->update(['read_at' => now()]);
         }
     }

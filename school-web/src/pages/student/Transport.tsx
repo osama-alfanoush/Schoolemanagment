@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Student, TransportRoute } from "@/lib/api";
+import { Student } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
 import BrandCard from "@/components/ui/BrandCard";
 import BrandEmptyState from "@/components/ui/BrandEmptyState";

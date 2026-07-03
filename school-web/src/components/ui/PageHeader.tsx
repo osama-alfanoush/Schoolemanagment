@@ -34,7 +34,7 @@ export default function PageHeader({
             const isLast = i === breadcrumbs.length - 1;
             return (
               <span key={i} className="inline-flex items-center gap-1.5">
-                {i > 0 && <span className="text-ink-light text-xs">›</span>}
+                {i > 0 && <span className="text-muted-foreground/40 text-xs">›</span>}
                 {crumb.href && !isLast ? (
                   <Link
                     href={crumb.href}
@@ -62,19 +62,22 @@ export default function PageHeader({
       )}
 
       {/* Main row */}
-      <div className="flex items-center justify-between pb-5 border-b border-border">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 pb-5 border-b border-border sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4 min-w-0">
           {icon && (
-            <div className="w-12 h-12 bg-[var(--color-primary-light)] text-[var(--color-primary)] rounded-xl flex items-center justify-center text-2xl shadow-sm">
+            <div
+              className="w-12 h-12 shrink-0 bg-[var(--color-primary-light)] text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/15 flex items-center justify-center text-2xl shadow-sm transition-transform duration-200 hover:scale-105"
+              style={{ borderRadius: "var(--radius-base, 0.75rem)" }}
+            >
               {icon}
             </div>
           )}
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground leading-tight">{title}</h1>
+          <div className="min-w-0">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground leading-tight truncate">{title}</h1>
             {subtitle && <p className="text-muted-foreground text-sm mt-0.5">{subtitle}</p>}
           </div>
         </div>
-        {actions && <div className="flex items-center gap-3">{actions}</div>}
+        {actions && <div className="flex items-center gap-2 sm:gap-3 flex-wrap">{actions}</div>}
       </div>
     </div>
   );

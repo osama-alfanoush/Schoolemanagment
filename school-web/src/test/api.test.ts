@@ -4,11 +4,11 @@ import { server } from './msw-handlers';
 import { http, HttpResponse } from 'msw';
 
 const localStorageMock = (() => {
-  let store = {};
+  let store: Record<string, string> = {};
   return {
-    getItem: (key) => store[key] ?? null,
-    setItem: (key, value) => { store[key] = value; },
-    removeItem: (key) => { delete store[key]; },
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => { store[key] = value; },
+    removeItem: (key: string) => { delete store[key]; },
     clear: () => { store = {}; },
   };
 })();

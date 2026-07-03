@@ -4,19 +4,27 @@ namespace App\Services;
 
 use App\Models\FinancialClosing;
 use App\Models\JournalEntry;
-use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class JournalService
 {
     public function listEntries(Request $request): array
     {
         $q = JournalEntry::query()->with('creator:id,name');
-        if ($from = $request->query('date_from')) $q->where('entry_date', '>=', $from);
-        if ($to = $request->query('date_to')) $q->where('entry_date', '<=', $to);
-        if ($type = $request->query('type')) $q->where('type', $type);
-        if ($code = $request->query('account_code')) $q->where('account_code', $code);
+        if ($from = $request->query('date_from')) {
+            $q->where('entry_date', '>=', $from);
+        }
+        if ($to = $request->query('date_to')) {
+            $q->where('entry_date', '<=', $to);
+        }
+        if ($type = $request->query('type')) {
+            $q->where('type', $type);
+        }
+        if ($code = $request->query('account_code')) {
+            $q->where('account_code', $code);
+        }
+
         return ['data' => $q->latest()->paginate((int) $request->query('per_page', 20))];
     }
 
@@ -32,7 +40,7 @@ class JournalService
             'source' => 'in:manual,invoice,payroll,expense',
         ]);
 
-        $entryDate = \Carbon\Carbon::parse($data['entry_date']);
+        $entryDate = Carbon::parse($data['entry_date']);
         $closing = FinancialClosing::where('month', $entryDate->month)
             ->where('year', $entryDate->year)
             ->where('status', 'closed')
@@ -43,7 +51,7 @@ class JournalService
 
         $year = $entryDate->year;
         $count = JournalEntry::withTrashed()->whereYear('entry_date', $year)->count() + 1;
-        $data['reference_no'] = 'JE-' . $year . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $data['reference_no'] = 'JE-'.$year.'-'.str_pad($count, 4, '0', STR_PAD_LEFT);
         $data['source'] = $data['source'] ?? 'manual';
         $data['created_by'] = $request->user()->id;
 
@@ -61,7 +69,7 @@ class JournalService
     public function deleteEntry(Request $request, int $id): void
     {
         $entry = JournalEntry::findOrFail($id);
-        $entryDate = \Carbon\Carbon::parse($entry->entry_date);
+        $entryDate = Carbon::parse($entry->entry_date);
         $closing = FinancialClosing::where('month', $entryDate->month)
             ->where('year', $entryDate->year)
             ->where('status', 'closed')

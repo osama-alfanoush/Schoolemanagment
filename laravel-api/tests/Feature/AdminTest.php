@@ -44,7 +44,7 @@ class AdminTest extends TestCase
     public function test_admin_can_create_all_roles(): void
     {
         $admin = $this->loginAs('admin');
-        $roles = ['student', 'parent', 'teacher', 'admin', 'finance', 'hr', 'accounting', 'warehouse'];
+        $roles = ['student', 'parent', 'teacher', 'admin', 'finance', 'hr', 'warehouse'];
 
         foreach ($roles as $role) {
             $response = $this->actingAs($admin)

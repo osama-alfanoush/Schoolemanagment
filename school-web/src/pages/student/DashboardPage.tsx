@@ -192,7 +192,7 @@ export default function StudentDashboardPage() {
             {new Date().toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
-        <BrandAvatar name={name} role="student" size="xl" className="hidden sm:block ring-4 ring-white/30" />
+        <BrandAvatar name={name} variant="student" size="xl" className="hidden sm:block ring-4 ring-white/30" />
       </div>
 
       {/* ── SECTION 2: Quick Stats ── */}

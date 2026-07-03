@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PurchaseRequest extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'request_no', 'item_id', 'quantity_requested', 'unit',
         'justification', 'estimated_cost', 'status', 'admin_notes',

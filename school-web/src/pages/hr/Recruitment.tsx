@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { toArray } from "@/lib/response";
 
 export default function HrRecruitment() {
-  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"jobs" | "applications">("jobs");
@@ -34,7 +32,7 @@ export default function HrRecruitment() {
     onSuccess: () => {
       toast({ title: "Success", description: "Job posted." });
       setShowForm(false); setJobTitle(""); setDepartment(""); setDescription(""); setRequirements("");
-      qc.invalidateQueries({ queryKey: ["hr-jobs"] });
+      void qc.invalidateQueries({ queryKey: ["hr-jobs"] });
     },
     onError: () => toast({ title: "Error", description: "Failed to post job.", variant: "destructive" }),
   });
@@ -44,7 +42,7 @@ export default function HrRecruitment() {
       apiFetch(`/hr/applications/${id}/status`, { method: "PATCH", body: { status } }),
     onSuccess: () => {
       toast({ title: "Success", description: "Application status updated." });
-      qc.invalidateQueries({ queryKey: ["hr-applications"] });
+      void qc.invalidateQueries({ queryKey: ["hr-applications"] });
     },
     onError: () => toast({ title: "Error", description: "Failed to update status.", variant: "destructive" }),
   });

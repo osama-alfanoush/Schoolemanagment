@@ -54,7 +54,7 @@ export default function TeacherAttendance() {
       }))
     }),
     onSuccess: () => {
-      qc.invalidateQueries({
+      void qc.invalidateQueries({
         queryKey: ["teacher"]
       });
       toast({

@@ -27,12 +27,12 @@ export default function HrAttendance() {
   const [records, setRecords] = useState<Record<number, "present" | "absent" | "late">>({});
 
   const mutation = useMutation({
-    mutationFn: (recs: { staff_user_id: number; status: string }[]) =>
+    mutationFn: (recs: { staff_user_id: number; status: "present" | "absent" | "late" }[]) =>
       Hr.markStaffAttendance(recs),
     onSuccess: () => {
       toast({ title: "Success", description: "Staff attendance saved." });
       setRecords({});
-      qc.invalidateQueries({ queryKey: ["hr-staff-attendance"] });
+      void qc.invalidateQueries({ queryKey: ["hr-staff-attendance"] });
     },
     onError: () => toast({ title: "Error", description: "Failed to save attendance.", variant: "destructive" }),
   });
@@ -55,16 +55,16 @@ export default function HrAttendance() {
       {/* Filters */}
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Year</label>
-          <select className="rounded-md border bg-background px-3 py-2 text-sm" value={year} onChange={(e) => setYear(Number(e.target.value))}>
+          <label htmlFor="hr-attendance-year" className="text-sm font-medium">Year</label>
+          <select id="hr-attendance-year" className="rounded-md border bg-background px-3 py-2 text-sm" value={year} onChange={(e) => setYear(Number(e.target.value))}>
             {[now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1].map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Month</label>
-          <select className="rounded-md border bg-background px-3 py-2 text-sm" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+          <label htmlFor="hr-attendance-month" className="text-sm font-medium">Month</label>
+          <select id="hr-attendance-month" className="rounded-md border bg-background px-3 py-2 text-sm" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
             {months.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
             ))}

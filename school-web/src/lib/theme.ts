@@ -17,15 +17,16 @@ export interface SchoolTheme {
   font_style: 'modern' | 'classic' | 'friendly'
 }
 
+// ─── Academic Prestige defaults: Deep Academic Navy + Heritage Gold ───
 export const DEFAULT_THEME: SchoolTheme = {
   school_name: 'School Management Suite',
-  primary: '#6C63FF',
-  accent: '#FF6584',
-  primary_light: 'rgba(108,99,255,0.12)',
-  primary_dark: '#4B44CC',
-  accent_light: 'rgba(255,101,132,0.12)',
-  gradient_main: 'linear-gradient(135deg, #6C63FF 0%, #A78BFA 100%)',
-  gradient_hero: 'linear-gradient(135deg, #FF6584 0%, #6C63FF 100%)',
+  primary: '#163964',
+  accent: '#C79A2E',
+  primary_light: 'rgba(22,57,100,0.10)',
+  primary_dark: '#102C4E',
+  accent_light: 'rgba(199,154,46,0.14)',
+  gradient_main: 'linear-gradient(135deg, #163964 0%, #2A5C91 100%)',
+  gradient_hero: 'linear-gradient(135deg, #163964 0%, #C79A2E 135%)',
   sidebar_style: 'white',
   border_radius: 'rounded',
   font_style: 'modern',
@@ -42,6 +43,44 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
     g: (num >> 8) & 255,
     b: num & 255,
   }
+}
+
+/** Convert hex to HSL string "H S% L%" (no commas, Tailwind-compatible) */
+export function hexToHSL(hex: string): { h: number; s: number; l: number } {
+  const { r, g, b } = hexToRgb(hex)
+  const rn = r / 255, gn = g / 255, bn = b / 255
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn)
+  let h = 0, s = 0
+  const l = (max + min) / 2
+
+  if (max !== min) {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6
+    else if (max === gn) h = ((bn - rn) / d + 2) / 6
+    else h = ((rn - gn) / d + 4) / 6
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  }
+}
+
+/** Relative luminance (WCAG formula) */
+export function getLuminance(hex: string): number {
+  const { r, g, b } = hexToRgb(hex)
+  const toLinear = (c: number) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+  }
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+}
+
+/** Returns white or dark text color for readable contrast on `bgHex` */
+export function contrastForeground(bgHex: string): string {
+  return getLuminance(bgHex) > 0.35 ? '#1E1B4B' : '#FFFFFF'
 }
 
 export function darken(hex: string, amount: number): string {

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/ThemeContext";
@@ -37,7 +37,6 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Stethoscope,
   Boxes,
   ClipboardList,
   ArchiveRestore,
@@ -46,6 +45,24 @@ import {
 
 /* ─── Nav items per role ─── */
 type NavItem = { href: string; label: string; icon: any; badge?: number };
+
+// Finance and Accounting share one combined menu so a single Finance & Accounting
+// user can reach both areas. The modules/data stay separate — only access is unified.
+const financeAndAccountingNav: NavItem[] = [
+  { href: "/finance", label: "roles.finance", icon: LayoutDashboard },
+  { href: "/finance/fee-structures", label: "nav.feeStructures", icon: Wallet },
+  { href: "/finance/invoices", label: "nav.invoices", icon: Receipt },
+  { href: "/finance/payments", label: "nav.payments", icon: DollarSign },
+  { href: "/finance/outstanding", label: "financeDashboard.outstandingAccounts", icon: AlertTriangle },
+  { href: "/finance/payroll", label: "nav.payroll", icon: PiggyBank },
+  { href: "/finance/reports", label: "nav.reports", icon: ListChecks },
+  { href: "/accounting", label: "roles.accounting", icon: BookOpen },
+  { href: "/accounting/journal-entries", label: "accountingDashboard.recentJournalEntries", icon: FileText },
+  { href: "/accounting/chart-of-accounts", label: "nav.chartOfAccounts", icon: BookOpen },
+  { href: "/accounting/budget", label: "nav.budget", icon: Wallet },
+  { href: "/accounting/closings", label: "nav.closings", icon: ArchiveRestore },
+  { href: "/accounting/audit", label: "nav.auditTrail", icon: ShieldCheck },
+];
 
 const navMap: Record<Role, NavItem[]> = {
   student: [
@@ -59,7 +76,6 @@ const navMap: Record<Role, NavItem[]> = {
     { href: "/student/calendar", label: "nav.calendar", icon: CalendarDays },
     { href: "/student/library", label: "nav.library", icon: Library },
     { href: "/student/transport", label: "nav.transport", icon: Bus },
-    { href: "/student/medical", label: "nav.medical", icon: Stethoscope },
     { href: "/student/messages", label: "nav.messages", icon: MessageSquare },
     { href: "/student/notifications", label: "common.notifications", icon: Bell },
   ],
@@ -98,7 +114,6 @@ const navMap: Record<Role, NavItem[]> = {
     { href: "/admin/attendance", label: "nav.attendance", icon: ClipboardCheck },
     { href: "/admin/library", label: "nav.library", icon: Library },
     { href: "/admin/transport", label: "nav.transport", icon: Bus },
-    { href: "/admin/medical", label: "nav.medical", icon: Stethoscope },
     { href: "/admin/hr-requests", label: "nav.hrRequests", icon: Briefcase },
     { href: "/admin/reports", label: "nav.reports", icon: ListChecks },
     { href: "/admin/announcements", label: "nav.announcements", icon: Megaphone },
@@ -106,32 +121,17 @@ const navMap: Record<Role, NavItem[]> = {
     { href: "/admin/audit", label: "nav.audit", icon: ShieldCheck },
     { href: "/admin/settings", label: "common.settings", icon: Settings },
   ],
-  finance: [
-    { href: "/finance", label: "nav.dashboard", icon: LayoutDashboard },
-    { href: "/finance/fee-structures", label: "nav.feeStructures", icon: Wallet },
-    { href: "/finance/invoices", label: "nav.invoices", icon: Receipt },
-    { href: "/finance/payments", label: "nav.payments", icon: DollarSign },
-    { href: "/finance/outstanding", label: "financeDashboard.outstandingAccounts", icon: AlertTriangle },
-    { href: "/finance/payroll", label: "nav.payroll", icon: PiggyBank },
-    { href: "/finance/reports", label: "nav.reports", icon: ListChecks },
-  ],
+  finance: financeAndAccountingNav,
   hr: [
     { href: "/hr", label: "nav.dashboard", icon: LayoutDashboard },
     { href: "/hr/staff", label: "nav.staff", icon: Users },
     { href: "/hr/leave", label: "nav.leave", icon: TimerReset },
+    { href: "/hr/requests", label: "nav.hrRequests", icon: Briefcase },
     { href: "/hr/attendance", label: "nav.attendance", icon: ClipboardCheck },
     { href: "/hr/evaluations", label: "nav.evaluations", icon: ClipboardList },
     { href: "/hr/recruitment", label: "nav.recruitment", icon: Briefcase },
     { href: "/hr/reports", label: "nav.reports", icon: ListChecks },
-  ],
-  accounting: [
-    { href: "/accounting", label: "nav.dashboard", icon: LayoutDashboard },
-    { href: "/accounting/journal-entries", label: "accountingDashboard.recentJournalEntries", icon: FileText },
-    { href: "/accounting/chart-of-accounts", label: "nav.chartOfAccounts", icon: BookOpen },
-    { href: "/accounting/budget", label: "nav.budget", icon: Wallet },
-    { href: "/accounting/closings", label: "nav.closings", icon: ArchiveRestore },
-    { href: "/accounting/reports", label: "nav.reports", icon: ListChecks },
-    { href: "/accounting/audit", label: "nav.auditTrail", icon: ShieldCheck },
+    { href: "/hr/messages", label: "nav.messages", icon: MessageSquare },
   ],
   warehouse: [
     { href: "/warehouse", label: "nav.dashboard", icon: LayoutDashboard },
@@ -147,16 +147,20 @@ const navMap: Record<Role, NavItem[]> = {
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  /** Mobile drawer open state (ignored on md+ where the sidebar is docked). */
+  mobileOpen?: boolean;
+  /** Close the mobile drawer (e.g. after navigating). */
+  onClose?: () => void;
 }
 
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ collapsed, onToggle, mobileOpen = false, onClose }: SidebarProps) {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { theme } = useTheme();
   const [pathname] = useLocation();
 
   const navItems = useMemo(
-    () => (user ? navMap[user.role as Role] ?? [] : []),
+    () => (user ? navMap[user.role] ?? [] : []),
     [user]
   );
 
@@ -171,7 +175,10 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "h-screen flex flex-col border-r transition-all duration-300 shrink-0",
+        "h-screen flex flex-col border-r transition-transform duration-300 shrink-0",
+        // Mobile: off-canvas drawer; Desktop (md+): docked in the flex row.
+        "fixed inset-y-0 start-0 z-50 md:static md:z-auto md:translate-x-0",
+        mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full rtl:translate-x-full md:translate-x-0 md:rtl:translate-x-0",
         sidebarStyle === "white" && "bg-card border-surface-border",
         sidebarStyle === "dark" && "bg-gray-950 border-gray-800",
         sidebarStyle === "gradient" && "border-transparent",
@@ -199,11 +206,12 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         )}
         <button
           onClick={onToggle}
+          aria-label="Toggle sidebar"
           className={cn(
-            "absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border shadow-sm flex items-center justify-center transition-colors z-10",
+            "absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border shadow-sm hidden md:flex items-center justify-center transition-colors z-10",
             isDarkSidebar
               ? "bg-gray-950 border-white/20 text-white/70 hover:text-white"
-              : "bg-card border-surface-border text-ink-muted hover:text-brand-purple"
+              : "bg-card border-surface-border text-ink-muted hover:text-[var(--color-primary)]"
           )}
         >
           {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
@@ -211,26 +219,46 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-1">
+        {!collapsed && (
+          <p className={cn(
+            "px-3 pt-1 pb-2 text-[11px] font-semibold uppercase tracking-wider",
+            isDarkSidebar ? "text-white/40" : "text-ink-light"
+          )}>
+            {t("common.menu", "Menu")}
+          </p>
+        )}
         {navItems.map((item, idx) => {
           const active = isActive(item.href);
           return (
             <Link
               key={`${item.href}-${idx}`}
               href={item.href}
+              onClick={onClose}
+              title={collapsed ? t(item.label) : undefined}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                collapsed && "justify-center px-0",
                 active
-                  ? "gradient-purple text-white shadow-glow"
+                  ? "gradient-purple text-white shadow-[var(--shadow-card)] font-semibold"
                   : isDarkSidebar
-                    ? "text-white/75 hover:bg-card/10"
-                    : "text-ink-muted hover:bg-surface-bg"
+                    ? "text-white/70 hover:bg-white/10 hover:text-white"
+                    : "text-ink-muted hover:bg-[var(--color-primary-subtle)] hover:text-[var(--color-primary)]"
               )}
             >
-              <item.icon className={cn("h-5 w-5 shrink-0", active ? "text-white" : isDarkSidebar ? "text-white/60" : "text-ink-light")} />
+              {active && !collapsed && (
+                <span className="absolute inset-y-1.5 -start-2.5 w-1 rounded-e-full bg-[var(--color-accent)]" />
+              )}
+              <item.icon
+                className={cn(
+                  "h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110",
+                  active ? "text-white" : isDarkSidebar ? "text-white/60" : "text-ink-light group-hover:text-[var(--color-primary)]"
+                )}
+              />
               {!collapsed && <span className="truncate">{t(item.label)}</span>}
               {!collapsed && item.badge && (
-                <span className="ml-auto bg-brand-red text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="ml-auto bg-brand-red text-white text-[10px] font-bold rounded-full min-w-5 h-5 px-1 flex items-center justify-center">
                   {item.badge}
                 </span>
               )}
@@ -242,7 +270,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Bottom user section */}
       <div className={cn("border-t p-3", isDarkSidebar ? "border-white/15" : "border-surface-border")}>
         <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
-          <BrandAvatar name={user.name} role={user.role} size="sm" />
+          <BrandAvatar name={user.name} variant={user.role} size="sm" />
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className={cn("text-sm font-semibold truncate", isDarkSidebar ? "text-white" : "text-ink-dark")}>{user.name}</p>
@@ -254,13 +282,16 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <div className="flex items-center gap-2 mt-3">
             <Link
               href={`/${user.role}/profile`}
+              onClick={onClose}
               className={cn("flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors", isDarkSidebar ? "text-white/70 hover:bg-card/10" : "text-ink-muted hover:bg-surface-bg")}
             >
               <Settings className="h-3.5 w-3.5" />
               {t("common.settings")}
             </Link>
             <button
-              onClick={() => logout()}
+              onClick={() => {
+                void logout();
+              }}
               className={cn("flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors", isDarkSidebar ? "text-white/70 hover:text-white hover:bg-card/10" : "text-ink-muted hover:text-brand-red hover:bg-brand-red/5")}
             >
               <LogOut className="h-3.5 w-3.5" />

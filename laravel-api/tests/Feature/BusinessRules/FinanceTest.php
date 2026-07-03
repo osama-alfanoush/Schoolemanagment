@@ -6,6 +6,8 @@ namespace Tests\Feature\BusinessRules;
 
 use App\Models\FeeStructure;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -87,6 +89,77 @@ class FinanceTest extends TestCase
         ]);
     }
 
+    public function test_zero_payment_is_rejected(): void
+    {
+        $finance = $this->loginAs('finance');
+        $invoice = Invoice::factory()->pending()->create(['amount' => 1000]);
+
+        $response = $this->actingAs($finance)
+            ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
+                'amount' => 0,
+                'method' => 'cash',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['amount']);
+    }
+
+    public function test_overpayment_is_rejected(): void
+    {
+        $finance = $this->loginAs('finance');
+        $invoice = Invoice::factory()->pending()->create(['amount' => 1000, 'paid_amount' => 0]);
+
+        $response = $this->actingAs($finance)
+            ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
+                'amount' => 1500,
+                'method' => 'cash',
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseMissing('payments', [
+            'invoice_id' => $invoice->id,
+            'amount' => 1500,
+        ]);
+    }
+
+    public function test_exact_payment_marks_invoice_paid(): void
+    {
+        $finance = $this->loginAs('finance');
+        $invoice = Invoice::factory()->pending()->create(['amount' => 1000, 'paid_amount' => 0]);
+
+        $this->actingAs($finance)
+            ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
+                'amount' => 1000,
+                'method' => 'cash',
+            ])->assertStatus(201);
+
+        $this->assertDatabaseHas('invoices', [
+            'id' => $invoice->id,
+            'status' => 'paid',
+        ]);
+    }
+
+    public function test_gateway_payment_can_have_null_recorder(): void
+    {
+        // Stripe/system-recorded payments have no human recorder.
+        $invoice = Invoice::factory()->pending()->create(['amount' => 500]);
+        $payment = Payment::create([
+            'invoice_id' => $invoice->id,
+            'amount' => 100,
+            'method' => 'online',
+            'reference' => 'pi_test_'.uniqid(),
+            'recorded_by' => null,
+            'paid_at' => now(),
+            'note' => 'Paid via Stripe',
+        ]);
+
+        $this->assertNull($payment->fresh()->recorded_by);
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'recorded_by' => null,
+        ]);
+    }
+
     public function test_finance_can_generate_invoices(): void
     {
         $finance = $this->loginAs('finance');
@@ -96,7 +169,7 @@ class FinanceTest extends TestCase
             'billing_cycle' => 'yearly',
         ]);
         $student = User::factory()->student()->create();
-        \App\Models\StudentProfile::factory()->create(['user_id' => $student->id]);
+        StudentProfile::factory()->create(['user_id' => $student->id]);
 
         $response = $this->actingAs($finance)
             ->postJson('/api/finance/invoices/generate', [

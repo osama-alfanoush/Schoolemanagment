@@ -13,24 +13,24 @@ class HealthController extends Controller
     public function __invoke()
     {
         $checks = [
-            'database'    => $this->checkDatabase(),
-            'redis'       => $this->checkRedis(),
-            'storage'     => $this->checkStorage(),
-            'cache'       => $this->checkCache(),
-            'horizon'     => $this->checkHorizon(),
+            'database' => $this->checkDatabase(),
+            'redis' => $this->checkRedis(),
+            'storage' => $this->checkStorage(),
+            'cache' => $this->checkCache(),
+            'queue' => $this->checkQueue(),
             'environment' => $this->checkEnvironment(),
         ];
 
         $hasErrors = collect($checks)
-            ->filter(fn($c) => $c['status'] === 'error')
+            ->filter(fn ($c) => $c['status'] === 'error')
             ->isNotEmpty();
 
         return response()->json([
-            'status'    => $hasErrors ? 'degraded' : 'ok',
-            'service'   => 'school-management-api',
-            'version'   => config('app.version', '1.0.0'),
+            'status' => $hasErrors ? 'degraded' : 'ok',
+            'service' => 'school-management-api',
+            'version' => config('app.version', '1.0.0'),
             'timestamp' => now()->toIso8601String(),
-            'checks'    => $checks,
+            'checks' => $checks,
         ], $hasErrors ? 503 : 200);
     }
 
@@ -38,6 +38,7 @@ class HealthController extends Controller
     {
         try {
             DB::select('SELECT 1');
+
             return ['status' => 'ok', 'message' => 'Connected'];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -46,11 +47,12 @@ class HealthController extends Controller
 
     private function checkRedis(): array
     {
-        if (!class_exists('Redis')) {
+        if (! class_exists('Redis')) {
             return ['status' => 'warning', 'message' => 'Redis extension not installed'];
         }
         try {
             Redis::ping();
+
             return ['status' => 'ok', 'message' => 'Connected'];
         } catch (\Exception $e) {
             return ['status' => 'warning', 'message' => 'Redis unreachable — cache/session degraded'];
@@ -60,7 +62,7 @@ class HealthController extends Controller
     private function checkStorage(): array
     {
         try {
-            $testFile = 'health-' . uniqid() . '.tmp';
+            $testFile = 'health-'.uniqid().'.tmp';
             Storage::put($testFile, 'ok');
             $contents = Storage::get($testFile);
             Storage::delete($testFile);
@@ -71,10 +73,10 @@ class HealthController extends Controller
             $freePercent = $total > 0 ? round(($free / $total) * 100) : 0;
 
             return [
-                'status'        => $contents === 'ok' ? 'ok' : 'error',
-                'message'       => 'Read/Write OK',
-                'disk'          => $disk,
-                'free_percent'  => $freePercent,
+                'status' => $contents === 'ok' ? 'ok' : 'error',
+                'message' => 'Read/Write OK',
+                'disk' => $disk,
+                'free_percent' => $freePercent,
             ];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -84,33 +86,42 @@ class HealthController extends Controller
     private function checkCache(): array
     {
         try {
-            $key = 'health-' . uniqid();
+            $key = 'health-'.uniqid();
             Cache::put($key, 'ok', 1);
             $value = Cache::get($key);
             Cache::forget($key);
+
             return [
-                'status'  => $value === 'ok' ? 'ok' : 'error',
-                'message' => 'Driver: ' . config('cache.default'),
+                'status' => $value === 'ok' ? 'ok' : 'error',
+                'message' => 'Driver: '.config('cache.default'),
             ];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
 
-    private function checkHorizon(): array
+    private function checkQueue(): array
     {
         try {
-            if (!class_exists(\Laravel\Horizon\Contracts\MasterSupervisorRepository::class)) {
-                return ['status' => 'warning', 'message' => 'Horizon not installed'];
+            $driver = config('queue.default');
+            $failed = 0;
+            try {
+                $failer = app('queue.failer');
+                if (method_exists($failer, 'count')) {
+                    $failed = $failer->count();
+                }
+            } catch (\Throwable $e) {
+                // Failed-job provider unavailable — report driver only.
             }
-            $repo = app(\Laravel\Horizon\Contracts\MasterSupervisorRepository::class);
-            $masters = $repo->all();
-            if (empty($masters)) {
-                return ['status' => 'warning', 'message' => 'Horizon not running'];
-            }
-            return ['status' => 'ok', 'message' => 'Running (' . count($masters) . ' master(s))'];
+
+            return [
+                'status' => $failed > 0 ? 'warning' : 'ok',
+                'message' => $failed > 0 ? "{$failed} failed job(s)" : 'Driver: '.$driver,
+                'driver' => $driver,
+                'failed' => $failed,
+            ];
         } catch (\Exception $e) {
-            return ['status' => 'warning', 'message' => 'Horizon not running'];
+            return ['status' => 'warning', 'message' => $e->getMessage()];
         }
     }
 
@@ -125,10 +136,11 @@ class HealthController extends Controller
                 $warnings[] = 'APP_ENV mismatch';
             }
         }
+
         return [
-            'status'   => empty($warnings) ? 'ok' : 'warning',
-            'env'      => config('app.env'),
-            'debug'    => config('app.debug'),
+            'status' => empty($warnings) ? 'ok' : 'warning',
+            'env' => config('app.env'),
+            'debug' => config('app.debug'),
             'warnings' => $warnings,
         ];
     }

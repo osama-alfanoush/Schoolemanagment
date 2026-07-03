@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Laravel API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: laravel-api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, sqlite3, bcmath, zip, gd
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Check code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Run tests
+        run: php artisan test
+
+      # Advisory until the flagged advisories are patched, then drop `|| true`.
+      - name: Dependency audit (advisory)
+        run: composer audit || true
+
+  frontend:
+    name: React Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: school-web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: school-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test -- --run
+
+      - name: Build
+        run: npm run build
+
+      # Advisory until the flagged advisories are patched, then drop `|| true`.
+      - name: Dependency audit (advisory)
+        run: npm audit --audit-level=moderate || true

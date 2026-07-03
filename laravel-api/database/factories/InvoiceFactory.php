@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Invoice>
+ * @extends Factory<Invoice>
  */
 class InvoiceFactory extends Factory
 {
@@ -15,7 +16,7 @@ class InvoiceFactory extends Factory
         return [
             'student_user_id' => User::factory()->student(),
             'fee_structure_id' => null,
-            'invoice_no' => 'INV-' . $this->faker->unique()->numerify('#####'),
+            'invoice_no' => 'INV-'.$this->faker->unique()->numerify('#####'),
             'description' => $this->faker->randomElement(['Tuition Fee', 'Activity Fee', 'Exam Fee', 'Transport Fee', 'Library Fee']),
             'amount' => $this->faker->randomFloat(2, 500, 5000),
             'paid_amount' => 0,

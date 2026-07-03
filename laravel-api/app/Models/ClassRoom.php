@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ClassRoom extends Model
 {
     use HasFactory;
+
     protected $fillable = ['name', 'grade', 'section', 'capacity', 'academic_year_id', 'homeroom_teacher_id'];
 
     public function students(): HasMany

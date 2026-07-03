@@ -86,17 +86,17 @@ function getPageNumbers(current: number, last: number): (number | "...")[] {
 }
 
 function SortIcon({ colKey, sortKey, sortDir }: { colKey: string; sortKey: string | null; sortDir: "asc" | "desc" }) {
-  if (sortKey !== colKey) return <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+  if (sortKey !== colKey) return <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/40" />
   return sortDir === "asc" ? (
-    <ChevronUp className="h-3.5 w-3.5" style={{ color: "var(--color-primary, #6C63FF)" }} />
+    <ChevronUp className="h-3.5 w-3.5 text-[var(--color-primary)]" />
   ) : (
-    <ChevronDown className="h-3.5 w-3.5" style={{ color: "var(--color-primary, #6C63FF)" }} />
+    <ChevronDown className="h-3.5 w-3.5 text-[var(--color-primary)]" />
   )
 }
 
 function LoadingRow({ columns, isCompact }: { columns: TableColumn[]; isCompact: boolean }) {
   return (
-    <tr className="border-b border-gray-50 last:border-0">
+    <tr className="border-b border-border/50 last:border-0">
       {columns.map((col, i) => (
         <td key={col.key || i} className={cn("px-4", isCompact ? "py-2.5" : "py-3.5")}>
           <div
@@ -122,7 +122,7 @@ function RowActionDropdown({ actions, row, onClose }: { actions: TableAction[]; 
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full mt-1 bg-card rounded-xl shadow-lg border border-border/50 z-10 min-w-[140px] py-1"
+      className="absolute right-0 z-50 mt-1 min-w-[160px] rounded-xl border border-border bg-popover p-1 shadow-lg"
     >
       {actions.map((action, ai) => {
         const isDanger = action.variant === "danger"
@@ -134,8 +134,10 @@ function RowActionDropdown({ actions, row, onClose }: { actions: TableAction[]; 
               onClose()
             }}
             className={cn(
-              "w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors",
-              isDanger ? "text-red-600 hover:bg-red-50" : "text-foreground hover:bg-muted/30",
+              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-100",
+              isDanger
+                ? "text-destructive hover:bg-destructive/10"
+                : "text-foreground hover:bg-muted/60",
             )}
           >
             {action.icon}
@@ -164,9 +166,7 @@ export default function DataTable<T extends Record<string, any>>({
   title,
   subtitle,
   headerActions,
-  striped = false,
   compact = false,
-  stickyHeader = false,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
@@ -241,10 +241,10 @@ export default function DataTable<T extends Record<string, any>>({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+    <div className="w-full overflow-hidden border border-border bg-card shadow-sm" style={{ borderRadius: "var(--radius-base, 0.75rem)" }}>
       {/* Header */}
       {(title || headerActions) && (
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30">
           <div>
             {title && <h3 className="font-display text-base font-bold text-foreground">{title}</h3>}
             {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
@@ -262,7 +262,7 @@ export default function DataTable<T extends Record<string, any>>({
       <div ref={scrollRef} className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-muted/50 border-b border-border">
+            <tr className="border-b border-border bg-muted/40">
               {/* Checkbox column */}
               {selectable && (
                 <th className="w-10 px-4 py-3 border-b border-border/50">
@@ -327,8 +327,8 @@ export default function DataTable<T extends Record<string, any>>({
                     </div>
                     <button
                       onClick={() => window.location.reload()}
-                      className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                      style={{ backgroundColor: "var(--color-primary, #6C63FF)" }}
+                      className="px-4 py-2 text-sm font-medium transition-all hover:brightness-110 hover:shadow-[var(--shadow-hover)] active:scale-[0.97]"
+                      style={{ backgroundColor: "var(--color-primary)", color: "var(--color-primary-fg)", borderRadius: "var(--radius-base, 0.5rem)" }}
                     >
                       Try Again
                     </button>
@@ -345,7 +345,7 @@ export default function DataTable<T extends Record<string, any>>({
                     <motion.div
                       animate={{ y: [0, -8, 0] }}
                       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-20 h-20 rounded-full flex items-center justify-center mx-auto bg-[var(--color-primary-light)] text-[var(--color-primary)]"
+                      className="w-20 h-20 rounded-full flex items-center justify-center mx-auto bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-sm"
                     >
                       <span className="text-5xl">{emptyIcon}</span>
                     </motion.div>
@@ -353,8 +353,8 @@ export default function DataTable<T extends Record<string, any>>({
                     {emptyAction && (
                       <button
                         onClick={emptyAction.onClick}
-                        className="px-4 py-2 rounded-lg text-sm font-medium text-white"
-                        style={{ backgroundColor: "var(--color-primary, #6C63FF)" }}
+                        className="px-4 py-2 text-sm font-medium transition-all hover:brightness-110 hover:shadow-[var(--shadow-hover)] active:scale-[0.97]"
+                        style={{ backgroundColor: "var(--color-primary)", color: "var(--color-primary-fg)", borderRadius: "var(--radius-base, 0.5rem)" }}
                       >
                         {emptyAction.label}
                       </button>
@@ -370,10 +370,10 @@ export default function DataTable<T extends Record<string, any>>({
                   <tr
                     key={ri}
                     className={cn(
-                      "bg-card border-b border-border/50 transition-colors duration-100",
-                      isSelected && "bg-[var(--color-primary-light)] border-l-[3px] border-l-[var(--color-primary)]",
-                      !isSelected && "border-l-[3px] border-l-transparent",
-                      onRowClick && "cursor-pointer hover:bg-muted/30",
+                      "group border-b border-border/60 bg-card transition-colors duration-100",
+                      isSelected && "bg-[var(--color-primary-light)] hover:bg-[var(--color-primary-medium)]",
+                      !isSelected && "hover:bg-muted/30",
+                      onRowClick && "cursor-pointer",
                     )}
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
@@ -414,7 +414,7 @@ export default function DataTable<T extends Record<string, any>>({
                     })}
                     {/* Actions cell */}
                     {rowActionsList.length > 0 && (
-                      <td className="px-4 py-3.5 text-right border-b border-gray-50" onClick={(e) => e.stopPropagation()}>
+                      <td className="px-4 py-3.5 text-right align-middle" onClick={(e) => e.stopPropagation()}>
                         <div className="relative inline-flex items-center gap-1">
                           {rowActionsList.length <= 2 ? (
                             rowActionsList.map((action, ai) => {
@@ -425,10 +425,10 @@ export default function DataTable<T extends Record<string, any>>({
                                   onClick={() => action.onClick(row)}
                                   title={action.label}
                                   className={cn(
-                                    "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150",
                                     isDanger
-                                      ? "text-muted-foreground/70 hover:text-red-500 hover:bg-red-50"
-                                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                                      ? "text-destructive bg-transparent border border-transparent hover:bg-destructive/10 hover:border-destructive/30"
+                                      : "text-muted-foreground bg-transparent border border-transparent hover:bg-muted/60 hover:text-foreground hover:border-border",
                                   )}
                                 >
                                   {action.icon}
@@ -467,7 +467,7 @@ export default function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && pagination.total > 0 && (
-        <div className="flex items-center justify-between border-t border-border bg-muted/30 px-4 py-3">
+        <div className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <p className="text-sm text-muted-foreground">
               Showing{" "}
@@ -482,7 +482,7 @@ export default function DataTable<T extends Record<string, any>>({
                 <select
                   value={pagination.perPage}
                   onChange={(e) => pagination.onPerPageChange?.(Number(e.target.value))}
-                  className="border border-border rounded-lg px-2 py-1 text-xs bg-card outline-none"
+                  className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground focus:border-[var(--color-primary)] outline-none"
                 >
                   {PER_PAGE_OPTIONS.map((n) => (
                     <option key={n} value={n}>
@@ -497,7 +497,7 @@ export default function DataTable<T extends Record<string, any>>({
             <button
               disabled={pagination.currentPage <= 1}
               onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
-              className="h-8 w-8 rounded-md border border-border bg-card text-sm text-foreground hover:bg-muted/60 disabled:opacity-50 flex items-center justify-center p-0"
+              className="h-8 w-8 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted/60 hover:border-[var(--color-primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center p-0 transition-all duration-150"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -509,13 +509,14 @@ export default function DataTable<T extends Record<string, any>>({
               ) : (
                 <button
                   key={p}
-                  onClick={() => pagination.onPageChange(p as number)}
+                  onClick={() => pagination.onPageChange(p)}
                   className={cn(
-                    "h-8 w-8 flex items-center justify-center rounded-md text-sm transition-colors",
+                    "h-8 w-8 flex items-center justify-center rounded-lg text-sm transition-all duration-150",
                     p === pagination.currentPage
-                      ? "bg-[var(--color-primary)] font-semibold text-white"
-                      : "border border-border bg-card text-foreground hover:bg-muted/60"
+                      ? "font-semibold shadow-sm"
+                      : "border border-border bg-card text-foreground hover:bg-[var(--color-primary-subtle)] hover:border-[var(--color-primary)]/40"
                   )}
+                  style={p === pagination.currentPage ? { backgroundColor: "var(--color-primary)", color: "var(--color-primary-fg)" } : undefined}
                 >
                   {p}
                 </button>
@@ -524,7 +525,7 @@ export default function DataTable<T extends Record<string, any>>({
             <button
               disabled={pagination.currentPage >= pagination.lastPage}
               onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
-              className="h-8 w-8 rounded-md border border-border bg-card text-sm text-foreground hover:bg-muted/60 disabled:opacity-50 flex items-center justify-center p-0"
+              className="h-8 w-8 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-muted/60 hover:border-[var(--color-primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center p-0 transition-all duration-150"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

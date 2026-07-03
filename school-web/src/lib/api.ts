@@ -252,7 +252,9 @@ export function mediaUrl(path?: string | null): string {
       if (url.pathname.startsWith("/storage/") && /^https?:\/\//i.test(apiRoot)) {
         return new URL(url.pathname + url.search + url.hash, apiRoot).toString();
       }
-    } catch {}
+    } catch {
+      // Keep the original path if URL parsing fails.
+    }
     return path;
   }
 
@@ -411,47 +413,36 @@ export async function apiFetch<T = unknown>(path: string, init: RequestInitX = {
     return JSON.stringify(init.body);
   };
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-  const doFetch = async (token: string | null) =>
-    fetch(url.toString(), {
-      method: init.method ?? "GET",
-      headers: buildHeaders(token),
-      body: buildBody(),
-      signal: controller.signal,
-    });
-
-  let token = tokenStore.getAccess();
-  let res: Response;
-
-  try {
-    res = await doFetch(token);
-  } catch (err) {
-    clearTimeout(timeoutId);
-    if ((err as Error).name === "AbortError") {
-      throw new ApiError(0, "Request timed out");
+  // Each attempt gets its OWN controller + timeout so the post-refresh retry
+  // is also bounded (previously the retry ran without any timeout).
+  const doFetch = async (token: string | null): Promise<Response> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      return await fetch(url.toString(), {
+        method: init.method ?? "GET",
+        headers: buildHeaders(token),
+        body: buildBody(),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if ((err as Error).name === "AbortError") {
+        throw new ApiError(0, "Request timed out");
+      }
+      throw new ApiError(0, "Network error");
+    } finally {
+      clearTimeout(timeoutId);
     }
-    throw new ApiError(0, "Network error");
-  }
+  };
+
+  let res = await doFetch(tokenStore.getAccess());
 
   if (res.status === 401 && tokenStore.getRefresh()) {
     const newAccess = await refreshTokens();
     if (newAccess) {
-      clearTimeout(timeoutId);
-      try {
-        res = await doFetch(newAccess);
-      } catch (err) {
-        clearTimeout(timeoutId);
-        if ((err as Error).name === "AbortError") {
-          throw new ApiError(0, "Request timed out");
-        }
-        throw new ApiError(0, "Network error");
-      }
+      res = await doFetch(newAccess);
     }
   }
-
-  clearTimeout(timeoutId);
 
   const ct = res.headers.get("content-type") || "";
   const isJson = ct.includes("application/json");
@@ -467,40 +458,61 @@ export async function apiFetch<T = unknown>(path: string, init: RequestInitX = {
   return (await res.blob()) as unknown as T;
 }
 
-export async function apiDownload(path: string, filename: string) {
-  const access = tokenStore.getAccess();
-  if (!access) {
+export async function apiDownload(path: string, filename: string, params?: QueryParams) {
+  const url = new URL(API_BASE_URL + path, window.location.origin);
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
+    });
+  }
+  const urlStr = url.toString();
+
+  // Each attempt gets its own controller + timeout so the post-refresh retry is
+  // also bounded (mirrors apiFetch).
+  const doFetch = async (token: string | null): Promise<Response> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      return await fetch(urlStr, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if ((err as Error).name === "AbortError") {
+        throw new ApiError(0, "Download timed out");
+      }
+      throw new ApiError(0, "Network error");
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  let res = await doFetch(tokenStore.getAccess());
+
+  // Refresh and retry once on access-token expiry — the same path apiFetch uses —
+  // so report cards, receipts and other downloads keep working after rotation.
+  if (res.status === 401 && tokenStore.getRefresh()) {
+    const newAccess = await refreshTokens();
+    if (newAccess) {
+      res = await doFetch(newAccess);
+    }
+  }
+
+  if (res.status === 401) {
     tokenStore.clear();
     window.location.href = "/login";
     throw new ApiError(401, "Not authenticated");
   }
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    const res = await fetch(
-      new URL(API_BASE_URL + path, window.location.origin).toString(),
-      {
-        headers: { Authorization: `Bearer ${access}` },
-        signal: controller.signal,
-      },
-    );
-    clearTimeout(timeoutId);
-    if (!res.ok) throw new ApiError(res.status, "Download failed");
-    const blob = await res.blob();
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
-  } catch (err) {
-    clearTimeout(timeoutId);
-    if ((err as Error).name === "AbortError") {
-      throw new ApiError(0, "Download timed out");
-    }
-    throw err;
-  }
+  if (!res.ok) throw new ApiError(res.status, "Download failed");
+
+  const blob = await res.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
 }
 
 // ---------------------------------------------------------------------------
@@ -544,15 +556,18 @@ export const Student = {
   grades: (): Promise<Grade[]> => apiFetch("/student/grades"),
   attendance: (): Promise<AttendanceRecord[]> => apiFetch("/student/attendance"),
   reportCard: (): Promise<unknown> => apiFetch("/student/report-card"),
-  reportCardPdf: () => apiDownload("/student/report-card/pdf", "report-card.pdf"),
+  reportCardPdf: (params?: QueryParams) => apiDownload("/student/report-card/pdf", "report-card.pdf", params),
   announcements: (): Promise<unknown> => apiFetch("/student/announcements"),
   calendar: (): Promise<CalendarEvent[]> => apiFetch("/student/calendar"),
   performanceChart: (): Promise<PaginatedChartData> => apiFetch("/student/performance-chart"),
   libraryBooks: (params?: QueryParams): Promise<PaginatedResponse<LibraryBook>> =>
     apiFetch("/student/library/books", { query: params }),
   myBorrowings: (): Promise<unknown> => apiFetch("/student/library/my-borrowings"),
+  borrowBook: (id: number): Promise<unknown> =>
+    apiFetch(`/student/library/books/${id}/borrow`, { method: "POST" }),
+  returnBook: (id: number): Promise<unknown> =>
+    apiFetch(`/student/library/borrowings/${id}/return`, { method: "POST" }),
   myTransportRoute: (): Promise<TransportRoute> => apiFetch("/student/transport/my-route"),
-  myMedicalRecords: (): Promise<unknown> => apiFetch("/student/medical/my-records"),
 };
 
 export const Parent = {
@@ -561,7 +576,8 @@ export const Parent = {
   childGrades: (id: number): Promise<unknown> => apiFetch(`/parent/children/${id}/grades`),
   childAssignments: (id: number): Promise<unknown> => apiFetch(`/parent/children/${id}/assignments`),
   childAttendance: (id: number): Promise<AttendanceRecord[]> => apiFetch(`/parent/children/${id}/attendance`),
-  childInvoices: (id: number): Promise<Invoice[]> => apiFetch(`/parent/children/${id}/invoices`),
+  childInvoices: (id: number): Promise<{ invoices: Invoice[]; outstanding_total: number }> =>
+    apiFetch(`/parent/children/${id}/invoices`),
   childPayments: (id: number): Promise<unknown> => apiFetch(`/parent/children/${id}/payments`),
   childConduct: (id: number): Promise<unknown> => apiFetch(`/parent/children/${id}/conduct`),
   childInvoiceReceipt: (studentId: number, invoiceId: number, invoiceNo: string) =>
@@ -576,10 +592,6 @@ export const Parent = {
     apiDownload(`/parent/children/${childId}/report-card/pdf`, "report-card.pdf"),
   childPerformanceChart: (childId: number): Promise<PaginatedChartData> =>
     apiFetch(`/parent/children/${childId}/performance-chart`),
-  childMedicalRecords: (childId: number): Promise<unknown> =>
-    apiFetch(`/parent/children/${childId}/medical`),
-  childMedicalVisits: (childId: number): Promise<unknown> =>
-    apiFetch(`/parent/children/${childId}/medical-visits`),
   childTransport: (childId: number): Promise<unknown> =>
     apiFetch(`/parent/children/${childId}/transport`),
 };
@@ -708,18 +720,16 @@ export const Admin = {
   createTransportVehicle: (data: CreateTransportVehicleRequest): Promise<any> =>
     apiFetch("/admin/transport/vehicles", { method: "POST", body: data }),
   transportAssignments: (): Promise<any[]> => apiFetch("/admin/transport/assignments"),
-  medicalRecords: (params?: QueryParams): Promise<PaginatedResponse<any>> =>
-    apiFetch("/admin/medical/records", { query: params }),
-  medicalVisits: (params?: QueryParams): Promise<PaginatedResponse<any>> =>
-    apiFetch("/admin/medical/visits", { query: params }),
-  notifyParentMedical: (visitId: number): Promise<{ message: string }> =>
-    apiFetch(`/admin/medical/notify-parent/${visitId}`, { method: "POST" }),
 };
 
 export const Finance = {
   feeStructures: (): Promise<FeeStructure[]> => apiFetch("/finance/fee-structures"),
   createFeeStructure: (data: CreateFeeStructureRequest): Promise<unknown> =>
     apiFetch("/finance/fee-structures", { method: "POST", body: data }),
+  updateFeeStructure: (id: number, data: UpdateFeeStructureRequest): Promise<unknown> =>
+    apiFetch(`/finance/fee-structures/${id}`, { method: "PATCH", body: data }),
+  deleteFeeStructure: (id: number): Promise<void> =>
+    apiFetch(`/finance/fee-structures/${id}`, { method: "DELETE" }),
   invoices: (q?: { status?: string; student_user_id?: number }): Promise<PaginatedResponse<Invoice>> =>
     apiFetch("/finance/invoices", { query: q }),
   generateInvoices: (data: GenerateInvoicesRequest): Promise<unknown> =>
@@ -734,6 +744,10 @@ export const Finance = {
     apiFetch("/finance/payroll", { query: { year, month } }),
   processPayroll: (year: number, month: number): Promise<unknown> =>
     apiFetch("/finance/payroll/process", { method: "POST", body: { year, month } }),
+  payrollFor: (year: number, month: number): Promise<PayrollRecord[]> =>
+    apiFetch("/finance/payroll", { query: { year, month } }),
+  markPayrollPaid: (id: number): Promise<unknown> =>
+    apiFetch(`/finance/payroll/${id}/pay`, { method: "PATCH" }),
   reports: (year?: number, month?: number): Promise<FinanceReports> =>
     apiFetch("/finance/reports", { query: { year, month } }),
 };
@@ -819,11 +833,11 @@ export const Accounting = {
   trialBalance: (params?: QueryParams): Promise<TrialBalanceData> =>
     apiFetch("/accounting/reports/trial-balance", { query: params }),
   trialBalancePdf: (params?: QueryParams) =>
-    apiDownload("/accounting/reports/trial-balance/pdf", "trial-balance.pdf"),
+    apiDownload("/accounting/reports/trial-balance/pdf", "trial-balance.pdf", params),
   incomeStatement: (params?: QueryParams): Promise<unknown> =>
     apiFetch("/accounting/reports/income-statement", { query: params }),
   incomeStatementPdf: (params?: QueryParams) =>
-    apiDownload("/accounting/reports/income-statement/pdf", "income-statement.pdf"),
+    apiDownload("/accounting/reports/income-statement/pdf", "income-statement.pdf", params),
   balanceSheet: (params?: QueryParams): Promise<unknown> =>
     apiFetch("/accounting/reports/balance-sheet", { query: params }),
   auditTrail: (params?: QueryParams): Promise<PaginatedResponse<AuditTrailEntry>> =>
@@ -858,11 +872,11 @@ export const Warehouse = {
   consumptionReport: (params?: QueryParams): Promise<PaginatedResponse<ConsumptionRow>> =>
     apiFetch("/warehouse/reports/consumption", { query: params }),
   consumptionPdf: (params?: QueryParams) =>
-    apiDownload("/warehouse/reports/consumption/pdf", "consumption.pdf"),
+    apiDownload("/warehouse/reports/consumption/pdf", "consumption.pdf", params),
   inventoryReport: (params?: QueryParams): Promise<unknown> =>
     apiFetch("/warehouse/reports/inventory", { query: params }),
   inventoryPdf: (params?: QueryParams) =>
-    apiDownload("/warehouse/reports/inventory/pdf", "inventory.pdf"),
+    apiDownload("/warehouse/reports/inventory/pdf", "inventory.pdf", params),
 };
 
 export const Payments = {

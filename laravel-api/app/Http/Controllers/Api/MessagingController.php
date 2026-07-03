@@ -8,6 +8,7 @@ use App\Models\ClassRoom;
 use App\Models\Message;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,12 +17,21 @@ class MessagingController extends Controller
     public function threads(Request $request)
     {
         $uid = $request->user()->id;
+
+        // Unread counts for every conversation partner in one grouped query,
+        // instead of a COUNT per thread (previously an N+1 over conversations).
+        $unreadBySender = Message::where('recipient_user_id', $uid)
+            ->whereNull('read_at')
+            ->selectRaw('sender_user_id, count(*) as unread')
+            ->groupBy('sender_user_id')
+            ->pluck('unread', 'sender_user_id');
+
         $threads = Message::where('sender_user_id', $uid)->orWhere('recipient_user_id', $uid)
             ->with(['sender:id,name,role', 'recipient:id,name,role'])
             ->orderBy('created_at', 'desc')->limit(200)->get()
             ->groupBy(function ($m) use ($uid) {
                 return $m->sender_user_id === $uid ? $m->recipient_user_id : $m->sender_user_id;
-            })->map(function ($msgs, $otherId) use ($uid) {
+            })->map(function ($msgs, $otherId) use ($uid, $unreadBySender) {
                 $last = $msgs->first();
                 $other = $last->sender_user_id === $uid ? $last->recipient : $last->sender;
 
@@ -29,12 +39,10 @@ class MessagingController extends Controller
                     'id' => (int) $otherId,
                     'other_user' => $this->userPayload($other),
                     'last_message' => $this->messagePayload($last, $uid),
-                    'unread_count' => Message::where('sender_user_id', $otherId)
-                        ->where('recipient_user_id', $uid)
-                        ->whereNull('read_at')
-                        ->count(),
+                    'unread_count' => (int) ($unreadBySender[$otherId] ?? 0),
                 ];
             });
+
         return response()->json($threads->values());
     }
 
@@ -42,6 +50,12 @@ class MessagingController extends Controller
     {
         $sender = $request->user();
         $search = trim((string) $request->query('search', ''));
+
+        // Privileged roles may message anyone, so canMessage() is always true and
+        // 100 candidates == 100 results. Other roles are authorization-filtered in
+        // PHP, so widen the candidate pool and cap AFTER filtering — otherwise an
+        // allowed recipient sorting past the first 100 users is silently dropped.
+        $privileged = in_array($sender->role, ['admin', 'finance', 'hr', 'warehouse'], true);
 
         $users = User::query()
             ->select(['id', 'name', 'email', 'role', 'photo_path'])
@@ -54,11 +68,12 @@ class MessagingController extends Controller
                 });
             })
             ->orderBy('name')
-            ->limit(100)
+            ->limit($privileged ? 100 : 500)
             ->get()
-            ->filter(fn(User $user) => $this->canMessage($sender, $user->id))
+            ->filter(fn (User $user) => $this->canMessage($sender, $user->id))
+            ->take(100)
             ->values()
-            ->map(fn(User $user) => $this->userPayload($user));
+            ->map(fn (User $user) => $this->userPayload($user));
 
         return response()->json($users);
     }
@@ -72,18 +87,19 @@ class MessagingController extends Controller
             $q->where('sender_user_id', $otherId)->where('recipient_user_id', $uid);
         })->exists();
 
-        if (!$hasConversation && !$this->canMessage($request->user(), $otherId)) {
+        if (! $hasConversation && ! $this->canMessage($request->user(), $otherId)) {
             return response()->json(['message' => 'You may not message this user.'], 403);
         }
 
         $msgs = Message::where(function ($q) use ($uid, $otherId) {
-                $q->where('sender_user_id', $uid)->where('recipient_user_id', $otherId);
-            })->orWhere(function ($q) use ($uid, $otherId) {
-                $q->where('sender_user_id', $otherId)->where('recipient_user_id', $uid);
-            })->with(['sender:id,name,role', 'recipient:id,name,role'])->orderBy('created_at')->get();
+            $q->where('sender_user_id', $uid)->where('recipient_user_id', $otherId);
+        })->orWhere(function ($q) use ($uid, $otherId) {
+            $q->where('sender_user_id', $otherId)->where('recipient_user_id', $uid);
+        })->with(['sender:id,name,role', 'recipient:id,name,role'])->orderBy('created_at')->get();
         Message::where('sender_user_id', $otherId)->where('recipient_user_id', $uid)
             ->whereNull('read_at')->update(['read_at' => now()]);
-        return response()->json($msgs->map(fn(Message $msg) => $this->messagePayload($msg, $uid)));
+
+        return response()->json($msgs->map(fn (Message $msg) => $this->messagePayload($msg, $uid)));
     }
 
     public function send(Request $request)
@@ -97,12 +113,13 @@ class MessagingController extends Controller
         if ($data['body'] === '') {
             return response()->json(['message' => 'Message cannot be empty.'], 422);
         }
-        if (!$this->canMessage($request->user(), (int) $data['recipient_user_id'])) {
+        if (! $this->canMessage($request->user(), (int) $data['recipient_user_id'])) {
             return response()->json(['message' => 'You may not message this user.'], 403);
         }
         $msg = Message::create(array_merge($data, ['sender_user_id' => $request->user()->id]));
-        \App\Services\Notifier::send($data['recipient_user_id'], 'message', 'New message', substr($data['body'], 0, 100), ['from' => $request->user()->id]);
+        Notifier::send($data['recipient_user_id'], 'message', 'New message', substr($data['body'], 0, 100), ['from' => $request->user()->id]);
         $msg->load(['sender:id,name,role', 'recipient:id,name,role']);
+
         return response()->json($this->messagePayload($msg, $request->user()->id), 201);
     }
 
@@ -113,14 +130,22 @@ class MessagingController extends Controller
      *   - Parents may message their children's teachers, plus admin/HR.
      *   - Students may message their teachers and admin.
      */
-    protected function canMessage(\App\Models\User $sender, int $recipientId): bool
+    protected function canMessage(User $sender, int $recipientId): bool
     {
-        if ($sender->id === $recipientId) return false;
-        if (in_array($sender->role, ['admin', 'finance', 'hr', 'accounting', 'warehouse'], true)) return true;
+        if ($sender->id === $recipientId) {
+            return false;
+        }
+        if (in_array($sender->role, ['admin', 'finance', 'hr', 'warehouse'], true)) {
+            return true;
+        }
 
         $recipient = User::find($recipientId);
-        if (!$recipient || !$recipient->is_active) return false;
-        if (in_array($recipient->role, ['admin', 'hr'], true)) return true;
+        if (! $recipient || ! $recipient->is_active) {
+            return false;
+        }
+        if (in_array($recipient->role, ['admin', 'hr'], true)) {
+            return true;
+        }
 
         $db = DB::table('parent_student');
 
@@ -136,9 +161,11 @@ class MessagingController extends Controller
             }
             if ($recipient->role === 'parent') {
                 $childIds = $db->where('parent_user_id', $recipient->id)->pluck('student_user_id');
+
                 return StudentProfile::whereIn('user_id', $childIds)
                     ->whereIn('class_room_id', $teacherClassIds)->exists();
             }
+
             return false;
         }
 
@@ -146,18 +173,30 @@ class MessagingController extends Controller
             // Recipient must be a teacher of one of the parent's children.
             $childIds = $db->where('parent_user_id', $sender->id)->pluck('student_user_id');
             $childClassIds = StudentProfile::whereIn('user_id', $childIds)->pluck('class_room_id');
-            if ($recipient->role !== 'teacher') return false;
-            if (ClassRoom::whereIn('id', $childClassIds)->where('homeroom_teacher_id', $recipient->id)->exists()) return true;
+            if ($recipient->role !== 'teacher') {
+                return false;
+            }
+            if (ClassRoom::whereIn('id', $childClassIds)->where('homeroom_teacher_id', $recipient->id)->exists()) {
+                return true;
+            }
+
             return DB::table('class_subject_teacher')
                 ->whereIn('class_room_id', $childClassIds)->where('teacher_user_id', $recipient->id)->exists();
         }
 
         if ($sender->role === 'student') {
             // Recipient must be a teacher of the student's class.
-            if ($recipient->role !== 'teacher') return false;
+            if ($recipient->role !== 'teacher') {
+                return false;
+            }
             $classId = StudentProfile::where('user_id', $sender->id)->value('class_room_id');
-            if (!$classId) return false;
-            if (ClassRoom::where('id', $classId)->where('homeroom_teacher_id', $recipient->id)->exists()) return true;
+            if (! $classId) {
+                return false;
+            }
+            if (ClassRoom::where('id', $classId)->where('homeroom_teacher_id', $recipient->id)->exists()) {
+                return true;
+            }
+
             return DB::table('class_subject_teacher')
                 ->where('class_room_id', $classId)->where('teacher_user_id', $recipient->id)->exists();
         }
@@ -167,7 +206,9 @@ class MessagingController extends Controller
 
     protected function userPayload(?User $user): ?array
     {
-        if (!$user) return null;
+        if (! $user) {
+            return null;
+        }
 
         return [
             'id' => $user->id,
@@ -204,6 +245,7 @@ class MessagingController extends Controller
     {
         AppNotification::where('user_id', $request->user()->id)->where('id', $id)
             ->update(['read_at' => now()]);
+
         return response()->json(['message' => 'Marked read']);
     }
 

@@ -300,7 +300,9 @@ export default function ParentChildDetail() {
                         </TableCell>
                         <TableCell className="text-right font-mono">
                           {Number(i.total ?? i.amount ?? 0).toLocaleString()}{" "}
-                          <button type="button" className="text-primary hover:underline ms-2 text-xs" onClick={() => Parent.childInvoiceReceipt(id, i.id, i.invoice_no ?? String(i.id))}>
+                          <button type="button" className="text-primary hover:underline ms-2 text-xs" onClick={() => {
+                            void Parent.childInvoiceReceipt(id, i.id, i.invoice_no ?? String(i.id))
+                          }}>
                             {t("common.download")}
                           </button>
                         </TableCell>

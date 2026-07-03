@@ -24,8 +24,11 @@ class PaymentTransaction extends Model
     ];
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_REFUNDED = 'refunded';
 
     public function invoice(): BelongsTo

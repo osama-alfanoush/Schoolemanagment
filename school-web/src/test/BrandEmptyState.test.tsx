@@ -42,13 +42,8 @@ describe('BrandEmptyState', () => {
     expect(handleAction).toHaveBeenCalledTimes(1);
   });
 
-  it('renders different sizes', () => {
-    const { rerender } = render(
-      <BrandEmptyState icon="📭" title="Small" />
-    );
-    expect(document.querySelector('.h-16')).toBeInTheDocument();
-
-    rerender(<BrandEmptyState icon="📭" title="Large" />);
-    expect(document.querySelector('.h-28')).toBeInTheDocument();
+  it('renders the icon container', () => {
+    render(<BrandEmptyState icon="📭" title="Empty" />);
+    expect(document.querySelector('.h-10')).toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Accounting, JournalEntry, ChartOfAccount, PaginatedResponse } from "@/lib/api";
+import { Accounting, JournalEntry, ChartOfAccount } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import SearchAndFilter from "@/components/ui/SearchAndFilter";
@@ -43,7 +43,7 @@ export default function JournalEntries() {
   const createMutation = useMutation({
     mutationFn: (payload: any) => Accounting.createJournalEntry(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["journal-entries"] });
+      void qc.invalidateQueries({ queryKey: ["journal-entries"] });
       toast({ title: "Journal entry posted" });
       setShowModal(false);
       setForm({ entry_date: new Date().toISOString().slice(0, 10), description: "", reference_number: "", type: "general", lines: [{ account_id: "", description: "", debit: 0, credit: 0 }] });
@@ -53,7 +53,7 @@ export default function JournalEntries() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => Accounting.deleteJournalEntry(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["journal-entries"] }); toast({ title: "Entry deleted" }); },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["journal-entries"] }); toast({ title: "Entry deleted" }); },
     onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.message }),
   });
 
@@ -108,7 +108,7 @@ export default function JournalEntries() {
           />
         }
         rowActions={[
-          { label: "View", icon: <EyeIcon />, onClick: (row) => {} },
+          { label: "View", icon: <EyeIcon />, onClick: () => {} },
           { label: "Delete", icon: <TrashIcon />, onClick: (row) => deleteMutation.mutate(row.id), variant: "danger" as const, show: (row) => row.status === "draft" },
         ]}
         pagination={{ currentPage: page, lastPage: meta.last_page ?? 1, total: meta.total ?? entries.length, perPage: 20, onPageChange: setPage }}
@@ -119,21 +119,21 @@ export default function JournalEntries() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Date</label>
-              <input type="date" value={form.entry_date} onChange={(e) => setForm({ ...form, entry_date: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-border text-sm" />
+              <label htmlFor="journal-entry-date" className="block text-xs font-medium text-muted-foreground mb-1">Date</label>
+              <input id="journal-entry-date" type="date" value={form.entry_date} onChange={(e) => setForm({ ...form, entry_date: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-border text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Reference</label>
-              <input type="text" value={form.reference_number} onChange={(e) => setForm({ ...form, reference_number: e.target.value })} placeholder="JE-2026-001" className="w-full px-3 py-2 rounded-lg border border-border text-sm" />
+              <label htmlFor="journal-entry-reference" className="block text-xs font-medium text-muted-foreground mb-1">Reference</label>
+              <input id="journal-entry-reference" type="text" value={form.reference_number} onChange={(e) => setForm({ ...form, reference_number: e.target.value })} placeholder="JE-2026-001" className="w-full px-3 py-2 rounded-lg border border-border text-sm" />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
-            <textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-border text-sm" />
+            <label htmlFor="journal-entry-description" className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+            <textarea id="journal-entry-description" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-border text-sm" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Type</label>
-            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-border text-sm">
+            <label htmlFor="journal-entry-type" className="block text-xs font-medium text-muted-foreground mb-1">Type</label>
+            <select id="journal-entry-type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-border text-sm">
               <option value="general">General</option>
               <option value="adjustment">Adjustment</option>
               <option value="closing">Closing</option>

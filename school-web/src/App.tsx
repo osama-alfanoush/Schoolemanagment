@@ -24,7 +24,6 @@ const StudentCalendar = lazy(() => import("@/pages/student/Calendar"));
 const StudentLibrary = lazy(() => import("@/pages/student/Library"));
 const StudentTransport = lazy(() => import("@/pages/student/Transport"));
 const StudentNotifications = lazy(() => import("@/pages/student/Notifications"));
-const StudentMedical = lazy(() => import("@/pages/student/Medical"));
 
 const TeacherDashboard = lazy(() => import("@/pages/teacher/Dashboard"));
 const TeacherClasses = lazy(() => import("@/pages/teacher/Classes"));
@@ -54,7 +53,6 @@ const AdminAnnouncements = lazy(() => import("@/pages/admin/Announcements"));
 const SchoolSettings = lazy(() => import("@/pages/admin/SchoolSettings"));
 const AdminLibrary = lazy(() => import("@/pages/admin/Library"));
 const AdminTransport = lazy(() => import("@/pages/admin/Transport"));
-const AdminMedical = lazy(() => import("@/pages/admin/Medical"));
 
 const ParentDashboard = lazy(() => import("@/pages/parent/Dashboard"));
 const ParentChildDetail = lazy(() => import("@/pages/parent/ChildDetail"));
@@ -80,6 +78,7 @@ const HrAttendance = lazy(() => import("@/pages/hr/Attendance"));
 const HrReports = lazy(() => import("@/pages/hr/Reports"));
 const HrEvaluations = lazy(() => import("@/pages/hr/Evaluations"));
 const HrRecruitment = lazy(() => import("@/pages/hr/Recruitment"));
+const HrRequests = lazy(() => import("@/pages/hr/HrRequests"));
 
 const AccountingDashboard = lazy(() => import("@/pages/accounting/Dashboard"));
 const JournalEntries = lazy(() => import("@/pages/accounting/JournalEntries"));
@@ -179,7 +178,6 @@ const routes: Array<{ path: string; roles: Role[]; component: ComponentType<any>
   { path: "/student/calendar", roles: ["student"], component: StudentCalendar },
   { path: "/student/library", roles: ["student"], component: StudentLibrary },
   { path: "/student/transport", roles: ["student"], component: StudentTransport },
-  { path: "/student/medical", roles: ["student"], component: StudentMedical },
   { path: "/student/notifications", roles: ["student"], component: StudentNotifications },
   { path: "/student/messages", roles: ["student"], component: Messages },
   { path: "/student/profile", roles: ["student"], component: Profile },
@@ -214,7 +212,6 @@ const routes: Array<{ path: string; roles: Role[]; component: ComponentType<any>
   { path: "/admin/settings", roles: ["admin"], component: SchoolSettings },
   { path: "/admin/library", roles: ["admin"], component: AdminLibrary },
   { path: "/admin/transport", roles: ["admin"], component: AdminTransport },
-  { path: "/admin/medical", roles: ["admin"], component: AdminMedical },
   { path: "/admin/messages", roles: ["admin"], component: Messages },
   { path: "/admin/profile", roles: ["admin"], component: Profile },
 
@@ -247,20 +244,21 @@ const routes: Array<{ path: string; roles: Role[]; component: ComponentType<any>
   { path: "/hr/reports", roles: ["hr"], component: HrReports },
   { path: "/hr/evaluations", roles: ["hr"], component: HrEvaluations },
   { path: "/hr/recruitment", roles: ["hr"], component: HrRecruitment },
+  { path: "/hr/requests", roles: ["hr"], component: HrRequests },
   { path: "/hr/notifications", roles: ["hr"], component: StudentNotifications },
   { path: "/hr/messages", roles: ["hr"], component: Messages },
   { path: "/hr/profile", roles: ["hr"], component: Profile },
 
-  { path: "/accounting", roles: ["accounting", "admin"], component: AccountingDashboard },
-  { path: "/accounting/journal-entries", roles: ["accounting", "admin"], component: JournalEntries },
-  { path: "/accounting/chart-of-accounts", roles: ["accounting", "admin"], component: ChartOfAccounts },
-  { path: "/accounting/budget", roles: ["accounting", "admin"], component: Budget },
-  { path: "/accounting/closings", roles: ["accounting", "admin"], component: Closings },
-  { path: "/accounting/reports", roles: ["accounting", "admin"], component: AccountingReports },
-  { path: "/accounting/audit", roles: ["accounting", "admin"], component: AuditTrail },
-  { path: "/accounting/notifications", roles: ["accounting", "admin"], component: StudentNotifications },
-  { path: "/accounting/messages", roles: ["accounting", "admin"], component: Messages },
-  { path: "/accounting/profile", roles: ["accounting", "admin"], component: Profile },
+  { path: "/accounting", roles: ["finance", "admin"], component: AccountingDashboard },
+  { path: "/accounting/journal-entries", roles: ["finance", "admin"], component: JournalEntries },
+  { path: "/accounting/chart-of-accounts", roles: ["finance", "admin"], component: ChartOfAccounts },
+  { path: "/accounting/budget", roles: ["finance", "admin"], component: Budget },
+  { path: "/accounting/closings", roles: ["finance", "admin"], component: Closings },
+  { path: "/accounting/reports", roles: ["finance", "admin"], component: AccountingReports },
+  { path: "/accounting/audit", roles: ["finance", "admin"], component: AuditTrail },
+  { path: "/accounting/notifications", roles: ["finance", "admin"], component: StudentNotifications },
+  { path: "/accounting/messages", roles: ["finance", "admin"], component: Messages },
+  { path: "/accounting/profile", roles: ["finance", "admin"], component: Profile },
 
   { path: "/warehouse", roles: ["warehouse", "admin"], component: WarehouseDashboard },
   { path: "/warehouse/categories", roles: ["warehouse", "admin"], component: WarehouseCategories },

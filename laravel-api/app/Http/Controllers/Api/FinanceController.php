@@ -12,6 +12,8 @@ use App\Models\StaffProfile;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\Notifier;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -28,16 +30,48 @@ class FinanceController extends Controller
             ]);
             $fs = FeeStructure::create($data);
             AuditLogger::log($request, 'create_fee_structure', 'fee_structure', $fs->id, $data);
+
             return response()->json($fs, 201);
         }
+
         return response()->json(FeeStructure::orderBy('name')->get());
+    }
+
+    public function updateFeeStructure(Request $request, int $id)
+    {
+        $fs = FeeStructure::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'sometimes|string',
+            'grade' => 'nullable',
+            'billing_cycle' => 'sometimes|in:monthly,semester,yearly,one-time',
+            'amount' => 'sometimes|numeric|min:0',
+            'is_active' => 'sometimes|boolean',
+        ]);
+        $fs->update($data);
+        AuditLogger::log($request, 'update_fee_structure', 'fee_structure', $fs->id, $data);
+
+        return response()->json($fs);
+    }
+
+    public function deleteFeeStructure(Request $request, int $id)
+    {
+        $fs = FeeStructure::findOrFail($id);
+        $fs->delete();
+        AuditLogger::log($request, 'delete_fee_structure', 'fee_structure', $id);
+
+        return response()->noContent();
     }
 
     public function invoices(Request $request)
     {
         $q = Invoice::query()->with(['student:id,name', 'payments']);
-        if ($s = $request->query('status')) $q->where('status', $s);
-        if ($studentId = $request->query('student_user_id')) $q->where('student_user_id', $studentId);
+        if ($s = $request->query('status')) {
+            $q->where('status', $s);
+        }
+        if ($studentId = $request->query('student_user_id')) {
+            $q->where('student_user_id', $studentId);
+        }
+
         return response()->json($q->latest()->paginate(50));
     }
 
@@ -57,58 +91,82 @@ class FinanceController extends Controller
         }
 
         $studentIds = $data['student_user_ids'] ?? null;
-        if (!$studentIds && !empty($data['class_room_id'])) {
+        if (! $studentIds && ! empty($data['class_room_id'])) {
             $studentIds = User::where('role', 'student')->whereHas('studentProfile',
-                fn($q) => $q->where('class_room_id', $data['class_room_id']))->pluck('id')->all();
+                fn ($q) => $q->where('class_room_id', $data['class_room_id']))->pluck('id')->all();
         }
+        // Pre-fetch all parent links in ONE query (avoids a per-student lookup).
+        $parentsByStudent = \DB::table('parent_student')
+            ->whereIn('student_user_id', $studentIds)
+            ->get()
+            ->groupBy('student_user_id');
+
         $created = [];
-        DB::transaction(function () use ($studentIds, $fee, $data, &$created) {
+        DB::transaction(function () use ($studentIds, $fee, $data, $parentsByStudent, &$created) {
             foreach ($studentIds as $sid) {
                 $inv = Invoice::create([
                     'student_user_id' => $sid,
                     'fee_structure_id' => $fee->id,
-                    'invoice_no' => 'INV-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4)),
+                    'invoice_no' => 'INV-'.now()->format('YmdHis').'-'.strtoupper(Str::random(4)),
                     'description' => $fee->name,
                     'amount' => $fee->amount,
                     'due_date' => $data['due_date'],
                 ]);
                 $created[] = $inv->id;
                 Notifier::send($sid, 'new_invoice', 'New invoice', "$fee->name: $fee->amount");
-                foreach (\DB::table('parent_student')->where('student_user_id', $sid)->pluck('parent_user_id') as $pid) {
-                    Notifier::send($pid, 'new_invoice', 'New invoice for child', "$fee->name: $fee->amount");
+                foreach ($parentsByStudent->get($sid, collect()) as $link) {
+                    Notifier::send($link->parent_user_id, 'new_invoice', 'New invoice for child', "$fee->name: $fee->amount");
                 }
             }
         });
         AuditLogger::log($request, 'generate_invoices', 'invoice', null, [
             'fee_structure_id' => $fee->id, 'count' => count($created), 'invoice_ids' => $created,
         ]);
+
         return response()->json(['created' => count($created)], 201);
     }
 
     public function recordPayment(Request $request, int $invoiceId)
     {
         $data = $request->validate([
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|gt:0',
             'method' => 'required|in:cash,bank_transfer,card,online',
             'reference' => 'nullable|string',
             'paid_at' => 'nullable|date',
             'note' => 'nullable|string',
         ]);
-        $inv = Invoice::findOrFail($invoiceId);
-        $payment = DB::transaction(function () use ($data, $inv, $request) {
+
+        // Fail fast with 404 before opening a write transaction.
+        Invoice::findOrFail($invoiceId);
+
+        $payment = DB::transaction(function () use ($data, $invoiceId, $request) {
+            // Lock the invoice row so concurrent manual payments cannot race and
+            // overwrite each other's paid_amount totals.
+            $inv = Invoice::lockForUpdate()->findOrFail($invoiceId);
+            $amount = round((float) $data['amount'], 2);
+            $newPaid = round((float) $inv->paid_amount + $amount, 2);
+
+            // Reject overpayment (tolerate a sub-cent rounding margin).
+            if ($newPaid > (float) $inv->amount + 0.005) {
+                $outstanding = round((float) $inv->amount - (float) $inv->paid_amount, 2);
+                abort(422, "Payment exceeds the outstanding balance of {$outstanding}.");
+            }
+
             $p = Payment::create(array_merge($data, [
                 'invoice_id' => $inv->id,
+                'amount' => $amount,
                 'paid_at' => $data['paid_at'] ?? now(),
                 'recorded_by' => $request->user()->id,
             ]));
-            $newPaid = $inv->paid_amount + $data['amount'];
-            $status = $newPaid >= $inv->amount ? 'paid' : 'partial';
+            $status = $newPaid >= (float) $inv->amount ? 'paid' : 'partial';
             $inv->update(['paid_amount' => $newPaid, 'status' => $status]);
+
             return $p;
         });
-        AuditLogger::log($request, 'record_payment', 'invoice', $inv->id, [
+        AuditLogger::log($request, 'record_payment', 'invoice', $invoiceId, [
             'payment_id' => $payment->id, 'amount' => (float) $data['amount'], 'method' => $data['method'],
         ]);
+
         return response()->json($payment, 201);
     }
 
@@ -116,12 +174,20 @@ class FinanceController extends Controller
     {
         $unpaid = Invoice::whereIn('status', ['pending', 'partial', 'overdue'])
             ->where('due_date', '<=', now()->addDays(3))->get();
+
+        // Pre-fetch all parent links for the affected students in ONE query.
+        $parentsByStudent = \DB::table('parent_student')
+            ->whereIn('student_user_id', $unpaid->pluck('student_user_id')->unique())
+            ->get()
+            ->groupBy('student_user_id');
+
         foreach ($unpaid as $inv) {
-            foreach (\DB::table('parent_student')->where('student_user_id', $inv->student_user_id)->pluck('parent_user_id') as $pid) {
-                Notifier::send($pid, 'fee_reminder', 'Fee reminder', "Invoice {$inv->invoice_no} due {$inv->due_date->format('Y-m-d')}");
+            foreach ($parentsByStudent->get($inv->student_user_id, collect()) as $link) {
+                Notifier::send($link->parent_user_id, 'fee_reminder', 'Fee reminder', "Invoice {$inv->invoice_no} due {$inv->due_date->format('Y-m-d')}");
             }
         }
         AuditLogger::log($request, 'send_fee_reminders', 'invoice', null, ['reminded' => $unpaid->count()]);
+
         return response()->json(['reminded' => $unpaid->count()]);
     }
 
@@ -131,6 +197,7 @@ class FinanceController extends Controller
             ->select('student_user_id')
             ->selectRaw('sum(COALESCE(amount, 0) - COALESCE(paid_amount, 0)) as outstanding')
             ->groupBy('student_user_id')->with('student:id,name')->get();
+
         return response()->json($rows);
     }
 
@@ -138,6 +205,7 @@ class FinanceController extends Controller
     {
         $year = (int) $request->query('year', now()->year);
         $month = (int) $request->query('month', now()->month);
+
         return response()->json(PayrollRecord::where('year', $year)->where('month', $month)
             ->with('staff:id,name,role')->get());
     }
@@ -145,7 +213,7 @@ class FinanceController extends Controller
     public function processPayroll(Request $request)
     {
         $data = $request->validate(['year' => 'required|integer', 'month' => 'required|integer|between:1,12']);
-        $start = \Carbon\Carbon::create($data['year'], $data['month'], 1)->startOfMonth();
+        $start = Carbon::create($data['year'], $data['month'], 1)->startOfMonth();
         $end = (clone $start)->endOfMonth();
         $created = 0;
         DB::transaction(function () use ($data, $start, $end, &$created) {
@@ -175,6 +243,7 @@ class FinanceController extends Controller
         AuditLogger::log($request, 'process_payroll', 'payroll', null, [
             'year' => $data['year'], 'month' => $data['month'], 'records' => $created,
         ]);
+
         return response()->json(['processed' => $created]);
     }
 
@@ -184,7 +253,8 @@ class FinanceController extends Controller
     public function invoiceReceipt(int $invoiceId)
     {
         $inv = Invoice::with(['student:id,name,email', 'payments', 'feeStructure'])->findOrFail($invoiceId);
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice-receipt', ['invoice' => $inv]);
+        $pdf = Pdf::loadView('pdf.invoice-receipt', ['invoice' => $inv]);
+
         return $pdf->download("receipt-{$inv->invoice_no}.pdf");
     }
 
@@ -197,15 +267,42 @@ class FinanceController extends Controller
             ->select('method')
             ->selectRaw('COALESCE(sum(amount), 0) as total')
             ->groupBy('method')->get();
+        $collected = (float) $income->sum('total');
         $billed = Invoice::whereYear('created_at', $year)->whereMonth('created_at', $month)->sum('amount');
         $payroll = PayrollRecord::where('year', $year)->where('month', $month)->sum('net_pay');
+        $invoicesIssued = Invoice::whereYear('created_at', $year)->whereMonth('created_at', $month)->count();
+        $payrollCount = PayrollRecord::where('year', $year)->where('month', $month)->count();
+        $outstanding = (float) Invoice::whereIn('status', ['pending', 'partial', 'overdue'])
+            ->selectRaw('COALESCE(sum(COALESCE(amount, 0) - COALESCE(paid_amount, 0)), 0) as total')
+            ->value('total');
 
         return response()->json([
             'period' => compact('year', 'month'),
             'income_by_method' => $income,
+            'total_collected' => $collected,
             'total_billed' => (float) $billed,
+            'total_outstanding' => $outstanding,
             'total_payroll' => (float) $payroll,
-            'net' => (float) $income->sum('total') - (float) $payroll,
+            'invoices_issued' => $invoicesIssued,
+            'payroll_count' => $payrollCount,
+            'net' => $collected - (float) $payroll,
         ]);
+    }
+
+    /**
+     * Mark a single payroll record as paid.
+     */
+    public function markPayrollPaid(Request $request, int $id)
+    {
+        $record = PayrollRecord::findOrFail($id);
+        if ($record->status === 'paid') {
+            return response()->json(['message' => 'This payroll record is already paid.'], 400);
+        }
+        $record->update(['status' => 'paid', 'paid_at' => now()]);
+        AuditLogger::log($request, 'mark_payroll_paid', 'payroll', $record->id, [
+            'net_pay' => (float) $record->net_pay,
+        ]);
+
+        return response()->json($record->load('staff:id,name,role'));
     }
 }

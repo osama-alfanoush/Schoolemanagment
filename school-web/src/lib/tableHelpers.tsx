@@ -69,7 +69,6 @@ const roleColors: Record<string, string> = {
   admin: "#4DC9F6",
   finance: "#FFB347",
   hr: "#A78BFA",
-  accounting: "#34D399",
   warehouse: "#FB923C",
 }
 
@@ -159,7 +158,7 @@ export function renderUser(name?: string, subtitle?: string) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "white",
+          color: "var(--color-primary-fg, white)",
           fontSize: "12px",
           fontWeight: 700,
           flexShrink: 0,
@@ -168,11 +167,11 @@ export function renderUser(name?: string, subtitle?: string) {
         {initials}
       </div>
       <div>
-        <div style={{ fontSize: "13px", fontWeight: 500, color: "#111827", lineHeight: 1.3 }}>
+        <div style={{ fontSize: "13px", fontWeight: 500, color: "var(--color-ink-dark, hsl(var(--foreground)))", lineHeight: 1.3 }}>
           {name ?? "\u2014"}
         </div>
         {subtitle && (
-          <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "1px" }}>{subtitle}</div>
+          <div style={{ fontSize: "11px", color: "var(--color-ink-muted, hsl(var(--muted-foreground)))", marginTop: "1px" }}>{subtitle}</div>
         )}
       </div>
     </div>
@@ -185,7 +184,7 @@ export function renderCurrency(amount?: number, currency = "USD") {
       style={{
         fontSize: "13px",
         fontWeight: 600,
-        color: "#111827",
+        color: "var(--color-ink-dark, hsl(var(--foreground)))",
         fontVariantNumeric: "tabular-nums",
         fontFamily: "ui-monospace, monospace",
       }}
@@ -234,8 +233,8 @@ export function renderProgress(value: number, max = 100, label?: string) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {label && <span style={{ fontSize: "11px", color: "#9ca3af" }}>{label}</span>}
-        <span style={{ fontSize: "11px", fontWeight: 500, color: "#374151" }}>
+        {label && <span style={{ fontSize: "11px", color: "var(--color-ink-muted, hsl(var(--muted-foreground)))" }}>{label}</span>}
+        <span style={{ fontSize: "11px", fontWeight: 500, color: "var(--color-ink-dark, hsl(var(--foreground)))" }}>
           {value}/{max}
         </span>
       </div>

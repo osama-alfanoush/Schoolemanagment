@@ -13,6 +13,9 @@ use App\Models\ConductLog;
 use App\Models\Grade;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\User;
+use App\Services\PerformanceChartService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class ParentController extends Controller
@@ -26,7 +29,7 @@ class ParentController extends Controller
 
     public function childOverview(Request $request, int $studentId)
     {
-        $student = \App\Models\User::with('studentProfile.classRoom')->findOrFail($studentId);
+        $student = User::with('studentProfile.classRoom')->findOrFail($studentId);
         $this->authorize('view', $student);
 
         $todayAttn = AttendanceRecord::where('student_user_id', $studentId)->whereDate('date', today())->first();
@@ -40,7 +43,7 @@ class ParentController extends Controller
 
     public function childGrades(Request $request, int $studentId)
     {
-        $student = \App\Models\User::findOrFail($studentId);
+        $student = User::findOrFail($studentId);
         $this->authorize('view', $student);
 
         $grades = Grade::where('student_user_id', $studentId)->with('component.subject')->get();
@@ -50,11 +53,11 @@ class ParentController extends Controller
 
     public function childAssignments(Request $request, int $studentId)
     {
-        $student = \App\Models\User::with('studentProfile')->findOrFail($studentId);
+        $student = User::with('studentProfile')->findOrFail($studentId);
         $this->authorize('view', $student);
 
         $assignments = Assignment::where('class_room_id', $student->studentProfile?->class_room_id)
-            ->with(['subject', 'submissions' => fn($q) => $q->where('student_user_id', $studentId)])
+            ->with(['subject', 'submissions' => fn ($q) => $q->where('student_user_id', $studentId)])
             ->orderBy('due_at', 'desc')->paginate(20);
 
         return ApiResponse::paginate($assignments);
@@ -62,7 +65,7 @@ class ParentController extends Controller
 
     public function childAttendance(Request $request, int $studentId)
     {
-        $student = \App\Models\User::findOrFail($studentId);
+        $student = User::findOrFail($studentId);
         $this->authorize('view', $student);
 
         $records = AttendanceRecord::where('student_user_id', $studentId)
@@ -77,21 +80,21 @@ class ParentController extends Controller
 
     public function childInvoices(Request $request, int $studentId)
     {
-        $student = \App\Models\User::findOrFail($studentId);
+        $student = User::findOrFail($studentId);
         $this->authorize('view', $student);
 
         $invoices = Invoice::where('student_user_id', $studentId)->with('payments')->latest()->get();
-        $outstanding = $invoices->whereIn('status', ['pending', 'partial', 'overdue'])->sum(fn($i) => $i->amount - $i->paid_amount);
+        $outstanding = $invoices->whereIn('status', ['pending', 'partial', 'overdue'])->sum(fn ($i) => $i->amount - $i->paid_amount);
 
         return response()->json(['invoices' => $invoices, 'outstanding_total' => $outstanding]);
     }
 
     public function paymentHistory(Request $request, int $studentId)
     {
-        $student = \App\Models\User::findOrFail($studentId);
+        $student = User::findOrFail($studentId);
         $this->authorize('view', $student);
 
-        $payments = Payment::whereHas('invoice', fn($q) => $q->where('student_user_id', $studentId))
+        $payments = Payment::whereHas('invoice', fn ($q) => $q->where('student_user_id', $studentId))
             ->with('invoice')->latest('paid_at')->get();
 
         return ApiResponse::success($payments);
@@ -99,7 +102,7 @@ class ParentController extends Controller
 
     public function childConduct(Request $request, int $studentId)
     {
-        $student = \App\Models\User::findOrFail($studentId);
+        $student = User::findOrFail($studentId);
         $this->authorize('view', $student);
 
         return ApiResponse::paginate(
@@ -110,14 +113,14 @@ class ParentController extends Controller
 
     public function invoiceReceipt(Request $request, int $studentId, int $invoiceId)
     {
-        $student = \App\Models\User::findOrFail($studentId);
+        $student = User::findOrFail($studentId);
         $this->authorize('view', $student);
 
         $inv = Invoice::with(['student:id,name,email', 'payments', 'feeStructure'])
             ->where('student_user_id', $studentId)
             ->findOrFail($invoiceId);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice-receipt', ['invoice' => $inv]);
+        $pdf = Pdf::loadView('pdf.invoice-receipt', ['invoice' => $inv]);
 
         return $pdf->download("receipt-{$inv->invoice_no}.pdf");
     }
@@ -131,7 +134,7 @@ class ParentController extends Controller
 
     public function childReportCard(Request $request, int $childId)
     {
-        $student = \App\Models\User::with('studentProfile.classRoom')->findOrFail($childId);
+        $student = User::with('studentProfile.classRoom')->findOrFail($childId);
         $this->authorize('view', $student);
 
         $grades = $this->childGradesData($childId, $student);
@@ -145,12 +148,12 @@ class ParentController extends Controller
 
     public function childReportCardPdf(Request $request, int $childId)
     {
-        $student = \App\Models\User::with('studentProfile.classRoom')->findOrFail($childId);
+        $student = User::with('studentProfile.classRoom')->findOrFail($childId);
         $this->authorize('view', $student);
 
         $bySubject = $this->childGradesData($childId, $student);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.report-card', [
+        $pdf = Pdf::loadView('pdf.report-card', [
             'student' => $student,
             'bySubject' => $bySubject,
         ]);
@@ -194,35 +197,14 @@ class ParentController extends Controller
 
     public function childPerformanceChart(Request $request, int $childId)
     {
-        $student = \App\Models\User::with('studentProfile')->findOrFail($childId);
+        $student = User::with('studentProfile')->findOrFail($childId);
         $this->authorize('view', $student);
 
-        $classRoomId = $student->studentProfile?->class_room_id;
-
-        $labels = collect(range(5, 0))->map(fn($i) => now()->subMonths($i)->format('M'))->values()->toArray();
-
-        $subjectIds = \App\Models\Subject::whereHas('gradeComponents', fn($q) => $q->where('class_room_id', $classRoomId))->get();
-
-        $datasets = [];
-
-        foreach ($subjectIds as $subject) {
-            $data = [];
-
-            foreach (range(5, 0) as $i) {
-                $month = now()->subMonths($i);
-                $avg = Grade::where('student_user_id', $childId)
-                    ->whereHas('component', fn($q) => $q->where('subject_id', $subject->id)->where('class_room_id', $classRoomId))
-                    ->whereYear('created_at', $month->year)
-                    ->whereMonth('created_at', $month->month)
-                    ->selectRaw('avg(score / nullif(max_score, 0) * 100) as avg_pct')
-                    ->value('avg_pct');
-
-                $data[] = $avg !== null ? round((float) $avg, 1) : null;
-            }
-
-            $datasets[] = ['subject' => $subject->name, 'data' => $data];
-        }
-
-        return response()->json(['labels' => $labels, 'datasets' => $datasets]);
+        // Single, database-portable query instead of subjects × 6-months of
+        // aggregate queries (see PerformanceChartService).
+        return response()->json(PerformanceChartService::build(
+            $childId,
+            $student->studentProfile?->class_room_id,
+        ));
     }
 }

@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/lib/auth";
 import { Admin } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import StatCard from "@/components/ui/StatCard";
@@ -78,7 +77,6 @@ function unwrapList(payload: any): any[] {
 
 /* ─── Main Component ─── */
 export default function AdminDashboardPage() {
-  const { user } = useAuth();
   const { t, i18n } = useTranslation();
 
   const { data: kpis, isLoading } = useQuery({

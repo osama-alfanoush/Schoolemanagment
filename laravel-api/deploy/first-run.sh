@@ -1,43 +1,39 @@
 #!/bin/bash
 # Run ONCE on first deployment to a new server
-set -e
+set -euo pipefail
+cd "$(dirname "$0")/.."
 
 echo "=== School Suite — First Run Setup ==="
 
-if [ ! -f .env.prod ]; then
-  echo "❌ .env.prod not found!"
-  echo "   Copy .env.prod.example → .env.prod"
-  echo "   Fill in all CHANGE_THIS values"
-  exit 1
-fi
+# Validate secrets up front (also guards the ${VAR:?} interpolation in compose).
+bash deploy/preflight.sh
 
-if grep -q "GENERATE_WITH_ARTISAN" .env.prod; then
-  echo "❌ APP_KEY not set in .env.prod"
-  echo "   Run: php artisan key:generate"
-  echo "   Or generate manually and paste it"
-  exit 1
-fi
+# Always source .env.prod for compose interpolation, not the shell/root .env.
+COMPOSE="docker compose --env-file .env.prod -f docker-compose.prod.yml"
 
 echo "🔨 Building Docker images..."
-docker compose -f docker-compose.prod.yml build
+$COMPOSE build
 
 echo "🗄️  Starting database and cache..."
-docker compose -f docker-compose.prod.yml up -d postgres redis
+$COMPOSE up -d postgres redis
 
 echo "⏳ Waiting for postgres to be ready..."
 sleep 15
 
 echo "🗃️  Running migrations..."
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan migrate --force
+$COMPOSE run --rm api1 php artisan migrate --force
+
+echo "🔗 Linking public storage..."
+$COMPOSE run --rm api1 php artisan storage:link || true
 
 echo "⚡ Caching config, routes, views..."
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan config:cache
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan route:cache
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan view:cache
-docker compose -f docker-compose.prod.yml run --rm api1 php artisan event:cache
+$COMPOSE run --rm api1 php artisan config:cache
+$COMPOSE run --rm api1 php artisan route:cache
+$COMPOSE run --rm api1 php artisan view:cache
+$COMPOSE run --rm api1 php artisan event:cache
 
 echo "🚀 Starting all services..."
-docker compose -f docker-compose.prod.yml up -d
+$COMPOSE up -d
 
 echo "🌐 Deploying frontend..."
 bash deploy/copy-frontend.sh
@@ -48,6 +44,6 @@ curl -s http://localhost/api/health | python3 -m json.tool || echo "⚠️  Heal
 
 echo ""
 echo "=== First run complete ==="
-echo "   App:     http://YOUR_SERVER_IP"
-echo "   MinIO:   http://YOUR_SERVER_IP:9001"
-echo "   Logs:    docker compose logs -f"
+echo "   App:     \$APP_URL"
+echo "   MinIO:   tunnel to 127.0.0.1:9001 (console is not exposed publicly)"
+echo "   Logs:    deploy/prod-up.sh logs -f"

@@ -6,6 +6,7 @@ use App\Models\ChartOfAccount;
 use App\Models\JournalEntry;
 use App\Models\Payment;
 use App\Models\PayrollRecord;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class FinancialReportService
@@ -24,7 +25,7 @@ class FinancialReportService
                 sum(amount) filter (where type = \'credit\') as total_credit')
             ->groupBy('account_code', 'account_name')
             ->get()
-            ->map(fn($r) => [
+            ->map(fn ($r) => [
                 'account_code' => $r->account_code,
                 'account_name' => $r->account_name,
                 'total_debit' => (float) $r->total_debit,
@@ -50,7 +51,7 @@ class FinancialReportService
             ->groupBy('account_code', 'account_name')
             ->get();
 
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.trial-balance', [
+        return Pdf::loadView('reports.trial-balance', [
             'rows' => $rows, 'month' => $data['month'], 'year' => $data['year'],
         ])->download("trial-balance-{$data['year']}-{$data['month']}.pdf");
     }
@@ -96,7 +97,7 @@ class FinancialReportService
             ->whereMonth('entry_date', $data['month'])
             ->where('type', 'debit')->where('source', 'expense')->sum('amount');
 
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.income-statement', [
+        return Pdf::loadView('reports.income-statement', [
             'total_income' => $totalIncome,
             'total_payroll' => $totalPayroll,
             'total_expenses' => $totalExpenses,
@@ -113,8 +114,12 @@ class FinancialReportService
         ]);
 
         $accounts = ChartOfAccount::where('is_active', true)->get();
-        $assets = []; $liabilities = []; $equity = [];
-        $assetTotal = 0; $liabilityTotal = 0; $equityTotal = 0;
+        $assets = [];
+        $liabilities = [];
+        $equity = [];
+        $assetTotal = 0;
+        $liabilityTotal = 0;
+        $equityTotal = 0;
 
         foreach ($accounts as $account) {
             $debit = (float) JournalEntry::where('account_code', $account->account_code)
@@ -132,11 +137,14 @@ class FinancialReportService
             ];
 
             if ($account->account_type === 'asset') {
-                $assets[] = $entry; $assetTotal += $balance;
+                $assets[] = $entry;
+                $assetTotal += $balance;
             } elseif ($account->account_type === 'liability') {
-                $liabilities[] = $entry; $liabilityTotal += $balance;
+                $liabilities[] = $entry;
+                $liabilityTotal += $balance;
             } elseif ($account->account_type === 'equity') {
-                $equity[] = $entry; $equityTotal += $balance;
+                $equity[] = $entry;
+                $equityTotal += $balance;
             }
         }
 

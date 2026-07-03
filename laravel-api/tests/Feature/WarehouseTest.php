@@ -2,11 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\InventoryCount;
-use App\Models\Notification;
 use App\Models\NotificationTemplate;
 use App\Models\PurchaseRequest;
-use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\WarehouseCategory;
 use App\Models\WarehouseItem;
@@ -42,6 +39,7 @@ class WarehouseTest extends TestCase
     private function createItem(float $currentQty = 0, float $minStockQty = 0): WarehouseItem
     {
         $category = WarehouseCategory::create(['name' => 'Office Supplies']);
+
         return WarehouseItem::create([
             'sku' => 'OFS-2026-0001',
             'name' => 'Test Item',
@@ -58,7 +56,7 @@ class WarehouseTest extends TestCase
         $auth = $this->loginWarehouse();
         $category = WarehouseCategory::create(['name' => 'Stationery']);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/warehouse/items', [
                 'name' => 'A4 Paper',
                 'category_id' => $category->id,
@@ -77,7 +75,7 @@ class WarehouseTest extends TestCase
         $auth = $this->loginWarehouse();
         $item = $this->createItem(currentQty: 10);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/warehouse/movements', [
                 'item_id' => $item->id,
                 'movement_type' => 'in',
@@ -94,7 +92,7 @@ class WarehouseTest extends TestCase
         $auth = $this->loginWarehouse();
         $item = $this->createItem(currentQty: 10);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/warehouse/movements', [
                 'item_id' => $item->id,
                 'movement_type' => 'out',
@@ -111,7 +109,7 @@ class WarehouseTest extends TestCase
         $auth = $this->loginWarehouse();
         $item = $this->createItem(currentQty: 5);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/warehouse/movements', [
                 'item_id' => $item->id,
                 'movement_type' => 'out',
@@ -129,7 +127,7 @@ class WarehouseTest extends TestCase
         $auth = $this->loginWarehouse();
         $item = $this->createItem(currentQty: 5, minStockQty: 3);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/warehouse/movements', [
                 'item_id' => $item->id,
                 'movement_type' => 'out',
@@ -149,7 +147,7 @@ class WarehouseTest extends TestCase
         $auth = $this->loginWarehouse();
         $item = $this->createItem();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $auth['token'])
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
             ->postJson('/api/warehouse/purchase-requests', [
                 'item_id' => $item->id,
                 'quantity_requested' => 50,
@@ -194,7 +192,7 @@ class WarehouseTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $login->json('access_token'))
+        $response = $this->withHeader('Authorization', 'Bearer '.$login->json('access_token'))
             ->patchJson("/api/warehouse/purchase-requests/{$pr->id}/review", [
                 'status' => 'approved',
                 'admin_notes' => 'Approved - proceed with purchase',
@@ -225,7 +223,7 @@ class WarehouseTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $login->json('access_token'))
+        $response = $this->withHeader('Authorization', 'Bearer '.$login->json('access_token'))
             ->getJson('/api/warehouse/items');
 
         $response->assertStatus(403);
