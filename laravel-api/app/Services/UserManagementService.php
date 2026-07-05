@@ -39,7 +39,7 @@ class UserManagementService
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email:rfc,strict|unique:users,email',
             'password' => 'required|min:8',
             'role' => 'required|in:'.implode(',', User::ROLES),
             'phone' => 'nullable|string',
@@ -74,7 +74,7 @@ class UserManagementService
     {
         $u = User::findOrFail($id);
         $data = $request->validate([
-            'name' => 'sometimes|string', 'email' => "sometimes|email|unique:users,email,$id",
+            'name' => 'sometimes|string', 'email' => "sometimes|email:rfc,strict|unique:users,email,$id",
             'phone' => 'nullable|string', 'is_active' => 'sometimes|boolean',
             'password' => 'nullable|min:8',
         ]);

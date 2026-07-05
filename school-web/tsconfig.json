@@ -4,6 +4,8 @@
   "exclude": ["node_modules", "build", "dist"],
   "compilerOptions": {
     "noEmit": true,
+    "strict": true,
+    "strictFunctionTypes": true,
     "jsx": "preserve",
     "lib": ["esnext", "dom", "dom.iterable"],
     "resolveJsonModule": true,

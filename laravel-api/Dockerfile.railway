@@ -1,0 +1,71 @@
+# syntax=docker/dockerfile:1
+#
+# Railway deployment image — single standalone container that serves HTTP
+# directly on $PORT (Railway injects PORT at runtime). Unlike Dockerfile.prod
+# (php-fpm behind the compose nginx), this uses Laravel's built-in server via
+# `php artisan serve`, which is the simplest reliable option for Railway's
+# one-process-per-service model and is plenty for a free-tier instance.
+# PHP_CLI_SERVER_WORKERS gives it a small worker pool for concurrency.
+
+##############################################################################
+# Stage 1 — builder: resolve Composer dependencies against the same PHP ABI  #
+# as the runtime so compiled-extension platform requirements match exactly.  #
+##############################################################################
+FROM php:8.2-cli-alpine AS builder
+
+# libpq-dev (not postgresql-dev): pdo_pgsql only needs libpq, and the full
+# postgresql-dev meta-package drags in llvm/clang (~300 MB) for server JIT.
+RUN apk add --no-cache libpq-dev libzip-dev zip unzip && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+# Install vendor deps first, keyed only on the manifests, for better layer
+# caching (source changes don't invalidate the dependency layer).
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist \
+    --no-scripts --no-autoloader
+
+COPY . .
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative && \
+    composer run-script post-autoload-dump --no-interaction
+
+##############################################################################
+# Stage 2 — runtime: lean CLI image, no Composer, runs as www-data.          #
+##############################################################################
+FROM php:8.2-cli-alpine AS runtime
+
+RUN apk add --no-cache libpq libzip && \
+    apk add --no-cache --virtual .build-deps libpq-dev libzip-dev && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache && \
+    apk del .build-deps
+
+# OPcache for the CLI server (enable_cli is required — the built-in server
+# runs under the CLI SAPI). Timestamps not validated: image code is immutable.
+RUN { \
+      echo "opcache.enable=1"; \
+      echo "opcache.enable_cli=1"; \
+      echo "opcache.memory_consumption=192"; \
+      echo "opcache.max_accelerated_files=20000"; \
+      echo "opcache.validate_timestamps=0"; \
+      echo "opcache.interned_strings_buffer=16"; \
+    } > /usr/local/etc/php/conf.d/opcache.ini
+
+# Worker pool for the built-in server (artisan serve passes this through).
+ENV PHP_CLI_SERVER_WORKERS=8
+
+WORKDIR /var/www
+
+COPY --from=builder --chown=www-data:www-data /var/www /var/www
+
+RUN chmod +x docker/railway-entrypoint.sh && \
+    chmod -R 775 storage bootstrap/cache
+
+USER www-data
+
+# Local default; Railway overrides via the PORT env var.
+EXPOSE 8080
+
+CMD ["sh", "docker/railway-entrypoint.sh"]

@@ -166,3 +166,46 @@ PostgreSQL is the default connection (`config/database.php` →
 
 Schema lives in `database/migrations/2026_04_17_100000_create_school_schema.php`
 (30+ tables) plus the personal access tokens migration.
+
+## Deploy to Railway
+
+Railway builds `Dockerfile.railway` (selected by `railway.json`) and runs the
+container standalone: the entrypoint (`docker/railway-entrypoint.sh`) migrates
+the database, rebuilds the config/route/view/event caches, then serves HTTP on
+Railway's injected `$PORT` via `php artisan serve`. Health check:
+`GET /api/healthz`. In the Railway service settings, set **Root Directory** to
+`laravel-api` (this repo is a monorepo).
+
+Smoke-test the exact image locally before pushing:
+
+```bash
+cd laravel-api
+APP_KEY="base64:..." docker compose -f docker-compose.railway.yml up --build
+curl http://localhost:8080/api/healthz
+```
+
+### Environment variables to set in the Railway dashboard
+
+Service → **Variables** tab. No `.env` file ships in the image; everything
+comes from these.
+
+| Variable | Value / description |
+| -------- | ------------------- |
+| `APP_KEY` | Laravel encryption key. Generate locally with `php artisan key:generate --show` and paste the full `base64:...` string. |
+| `APP_ENV` | `production` — disables debug pages, enables prod optimizations. |
+| `APP_DEBUG` | `false` — never expose stack traces publicly. |
+| `APP_URL` | The API's public URL: `https://api.your-domain.com` once the custom domain is attached, else the Railway-assigned `https://YOUR-RAILWAY-APP.up.railway.app`. |
+| `LOG_CHANNEL` | `stderr` — routes logs to Railway's log viewer instead of a file. |
+| `DB_CONNECTION` | `pgsql` — the production database driver. |
+| `DB_URL` | `${{Postgres.DATABASE_URL}}` — Railway variable reference to the Postgres service; supplies host/port/user/password/database in one URL. |
+| `CORS_ALLOWED_ORIGINS` | Frontend origin(s) allowed to call the API, comma-separated, scheme + host only (no path): `https://your-domain.com` with a custom domain, `https://osama-alfanoush.github.io` without one. Keep both listed during a domain cut-over. |
+| `SESSION_DRIVER` | `file` — API is token-based; file sessions are fine. |
+| `CACHE_STORE` | `file` — no Redis on the free tier. |
+| `QUEUE_CONNECTION` | `sync` — no separate worker process on the free tier, so jobs run inline. |
+| `RUN_SEED` | *(first deploy only)* `true` — seeds the demo accounts after migrating; **remove the variable afterwards** so redeploys don't re-seed. |
+| `FCM_SERVER_KEY` | *(optional)* Firebase Cloud Messaging key for push notifications; leave unset to disable. |
+| `STRIPE_SECRET_KEY` / `STRIPE_PUBLIC_KEY` / `STRIPE_WEBHOOK_SECRET` | *(optional)* Stripe credentials; leave unset to disable online payments. |
+
+> **Storage caveat:** Railway's container filesystem is ephemeral — uploaded
+> files (profile photos) vanish on each redeploy. Attach a Railway **Volume**
+> mounted at `/var/www/storage/app` if uploads must persist.

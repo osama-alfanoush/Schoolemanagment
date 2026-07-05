@@ -1,44 +1,78 @@
-FROM php:8.2-fpm-alpine
+# syntax=docker/dockerfile:1
 
-RUN apk add --no-cache \
-    postgresql-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    supervisor && \
-    docker-php-ext-install \
-    pdo_pgsql \
-    pcntl \
-    bcmath \
-    zip \
-    opcache
+##############################################################################
+# Stage 1 — builder: resolve Composer dependencies against the same PHP ABI  #
+# as the runtime so compiled-extension platform requirements match exactly.  #
+##############################################################################
+FROM php:8.2-fpm-alpine AS builder
 
-RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.interned_strings_buffer=16" >> /usr/local/etc/php/conf.d/opcache.ini
+# Build-time system headers + PHP extensions needed to resolve/verify packages.
+RUN apk add --no-cache postgresql-dev libzip-dev zip unzip && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache
 
-RUN echo "pm = dynamic" >> /usr/local/etc/php-fpm.d/www.conf && \
-    echo "pm.max_children = 20" >> /usr/local/etc/php-fpm.d/www.conf && \
-    echo "pm.start_servers = 4" >> /usr/local/etc/php-fpm.d/www.conf && \
-    echo "pm.min_spare_servers = 2" >> /usr/local/etc/php-fpm.d/www.conf && \
-    echo "pm.max_spare_servers = 6" >> /usr/local/etc/php-fpm.d/www.conf
+# Composer (pinned major) from the official image.
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
+# Install vendor deps first, keyed only on the manifests, for better layer
+# caching (source changes don't invalidate the dependency layer).
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist \
+    --no-scripts --no-autoloader
+
+# Bring in the application source, then build the optimized autoloader and run
+# package discovery (post-autoload-dump) now that the full app is present.
 COPY . .
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative && \
+    composer run-script post-autoload-dump --no-interaction
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+##############################################################################
+# Stage 2 — runtime: lean image with only runtime libraries, no toolchain,   #
+# and no Composer binary. Runs php-fpm as the unprivileged www-data user.    #
+##############################################################################
+FROM php:8.2-fpm-alpine AS runtime
 
-RUN composer install \
-    --no-dev \
-    --optimize-autoloader \
-    --no-interaction \
-    --prefer-dist
+# Runtime shared libraries (permanent) + a throwaway build-deps layer used only
+# to compile the PHP extensions, then removed so no headers/compilers ship.
+RUN apk add --no-cache postgresql-libs libzip && \
+    apk add --no-cache --virtual .build-deps postgresql-dev libzip-dev && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache && \
+    apk del .build-deps
 
-RUN chown -R www-data:www-data storage bootstrap/cache && \
-    chmod -R 775 storage bootstrap/cache
+# OPcache tuned for production — timestamps are not validated because the code
+# in the image is immutable (invalidated only by a new deploy).
+RUN { \
+      echo "opcache.enable=1"; \
+      echo "opcache.memory_consumption=256"; \
+      echo "opcache.max_accelerated_files=20000"; \
+      echo "opcache.validate_timestamps=0"; \
+      echo "opcache.interned_strings_buffer=16"; \
+    } > /usr/local/etc/php/conf.d/opcache.ini
+
+# PHP-FPM process-manager tuning.
+RUN { \
+      echo "pm = dynamic"; \
+      echo "pm.max_children = 20"; \
+      echo "pm.start_servers = 4"; \
+      echo "pm.min_spare_servers = 2"; \
+      echo "pm.max_spare_servers = 6"; \
+    } >> /usr/local/etc/php-fpm.d/www.conf
+
+WORKDIR /var/www
+
+# Copy the built application (source + optimized vendor) from the builder,
+# owned by the unprivileged runtime user.
+COPY --from=builder --chown=www-data:www-data /var/www /var/www
+
+# Writable runtime paths. storage/ and bootstrap/cache are backed by volumes in
+# compose; their initial ownership is seeded from these image dirs.
+RUN chmod -R 775 storage bootstrap/cache
+
+# Drop root: php-fpm master and workers all run as www-data (uid 82). The pool
+# listens on unprivileged tcp/9000 (official image's zz-docker.conf), so no
+# privileged capabilities are required.
+USER www-data
 
 EXPOSE 9000
-CMD ["php-fpm"]
+CMD ["php-fpm", "--nodaemonize"]

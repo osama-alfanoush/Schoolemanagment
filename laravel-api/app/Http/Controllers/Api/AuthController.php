@@ -21,7 +21,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,strict',
             'password' => 'required',
             'device_name' => 'nullable|string',
         ]);
@@ -179,7 +179,7 @@ class AuthController extends Controller
      */
     public function forgotPassword(Request $request)
     {
-        $data = $request->validate(['email' => 'required|email']);
+        $data = $request->validate(['email' => 'required|email:rfc,strict']);
         $status = Password::sendResetLink($data);
 
         return response()->json([
@@ -195,7 +195,7 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'token' => 'required|string',
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,strict',
             'password' => 'required|string|min:8|regex:/[A-Z]/|regex:/[0-9]/|confirmed',
         ]);
         $status = Password::reset($data, function (User $user, string $password) {
