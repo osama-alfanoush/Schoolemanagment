@@ -44,12 +44,11 @@ jobs:
           # base path is /. Without it, Pages serves the project path
           # https://osama-alfanoush.github.io/Schoolemanagment/.
           BASE_PATH: ${{ vars.PAGES_CNAME != '' && '/' || '/Schoolemanagment/' }}
-          # Backend URL. Set the VITE_API_BASE_URL repository variable
-          # (Settings → Secrets and variables → Actions → Variables) to
-          # https://api.your-domain.com/api (custom domain) or
-          # https://<app>.up.railway.app/api (Railway default domain); the
-          # fallback below is a placeholder that will NOT work until replaced.
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://YOUR-RAILWAY-APP.up.railway.app/api' }}
+          # Backend URL. The VITE_API_BASE_URL repository variable
+          # (Settings → Secrets and variables → Actions → Variables) overrides
+          # the default below — set it when switching to a custom domain
+          # (https://api.your-domain.com/api).
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://schoolemanagment-production.up.railway.app/api' }}
         run: npm run build
 
       # GitHub Pages serves 404.html for unknown paths; shipping the SPA there

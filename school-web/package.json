@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --config vite.config.ts",
     "build": "vite build --config vite.config.ts",
-    "build:pages": "cross-env BASE_PATH=/Schoolemanagment/ VITE_API_BASE_URL=https://YOUR-RAILWAY-APP.up.railway.app/api vite build --config vite.config.ts",
+    "build:pages": "cross-env BASE_PATH=/Schoolemanagment/ VITE_API_BASE_URL=https://schoolemanagment-production.up.railway.app/api vite build --config vite.config.ts",
     "predeploy": "npm run build:pages",
     "deploy": "gh-pages -d dist/public",
     "serve": "vite preview --config vite.config.ts",
