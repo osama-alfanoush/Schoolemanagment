@@ -29,7 +29,16 @@ RUN composer install --no-dev --no-interaction --prefer-dist \
     --no-scripts --no-autoloader
 
 COPY . .
-RUN composer dump-autoload --no-dev --optimize --classmap-authoritative && \
+# The repo's .gitignore excludes bootstrap/cache and parts of storage/, so a
+# clean git checkout (Railway's build context) lacks them — recreate the full
+# runtime tree before artisan runs (package:discover requires bootstrap/cache).
+RUN mkdir -p bootstrap/cache \
+             storage/framework/cache/data \
+             storage/framework/sessions \
+             storage/framework/views \
+             storage/logs \
+             storage/app/public && \
+    composer dump-autoload --no-dev --optimize --classmap-authoritative && \
     composer run-script post-autoload-dump --no-interaction
 
 ##############################################################################
