@@ -65,3 +65,7 @@ jobs:
           # Writes the CNAME file GitHub Pages needs for a custom domain.
           # Empty (variable unset) = no CNAME file = default github.io URL.
           cname: ${{ vars.PAGES_CNAME }}
+          # Always push a fresh single-commit branch, even when the built
+          # files are unchanged — an identical build otherwise skips the push
+          # and GitHub never starts a new Pages deployment.
+          force_orphan: true
