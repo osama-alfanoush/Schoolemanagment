@@ -1,0 +1,1 @@
+function t(r){return Array.isArray(r)?r:Array.isArray(r?.data)?r.data:Array.isArray(r?.data?.data)?r.data.data:Array.isArray(r?.students)?r.students:Array.isArray(r?.records)?r.records:Array.isArray(r?.records?.data)?r.records.data:[]}export{t};
