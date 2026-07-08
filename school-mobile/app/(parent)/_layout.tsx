@@ -1,8 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { Tabs, router } from "expo-router";
 import React, { useEffect } from "react";
-import { Platform, Pressable } from "react-native";
+import { Platform } from "react-native";
 
+import { MessagesButton } from "@/components/MessagesButton";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -36,19 +37,7 @@ export default function ParentTabsLayout() {
             fontFamily: "Inter_600SemiBold",
             color: colors.foreground,
           },
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push("/messaging")}
-              style={({ pressed }) => ({
-                padding: 8,
-                marginRight: 8,
-                opacity: pressed ? 0.5 : 1,
-              })}
-              accessibilityLabel="Messages"
-            >
-              <Feather name="message-circle" size={20} color={colors.foreground} />
-            </Pressable>
-          ),
+          headerRight: () => <MessagesButton />,
         }}
       >
         <Tabs.Screen

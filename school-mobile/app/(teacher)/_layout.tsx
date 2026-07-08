@@ -8,14 +8,14 @@ import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 
-export default function StudentTabsLayout() {
+export default function TeacherTabsLayout() {
   const colors = useColors();
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const isWeb = Platform.OS === "web";
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== "student")) {
+    if (!loading && (!user || user.role !== "teacher")) {
       router.replace("/login");
     }
   }, [user, loading]);
@@ -46,25 +46,16 @@ export default function StudentTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="assignments"
+        name="classes"
         options={{
-          title: t("tabs.homework"),
-          tabBarIcon: ({ color }) => <Feather name="book" size={22} color={color} />,
+          title: t("tabs.classes"),
+          tabBarIcon: ({ color }) => <Feather name="users" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="grades"
+        name="schedule"
         options={{
-          title: t("tabs.grades"),
-          tabBarIcon: ({ color }) => (
-            <Feather name="bar-chart-2" size={22} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="attendance"
-        options={{
-          title: t("tabs.attendance"),
+          title: t("tabs.schedule"),
           tabBarIcon: ({ color }) => (
             <Feather name="calendar" size={22} color={color} />
           ),
@@ -77,6 +68,13 @@ export default function StudentTabsLayout() {
           tabBarIcon: ({ color }) => (
             <Feather name="more-horizontal" size={22} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="class/[id]"
+        options={{
+          href: null,
+          title: t("teacher.classStudents"),
         }}
       />
     </Tabs>

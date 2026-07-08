@@ -17,8 +17,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "staging-api.yourdomain.com",
-        "EXPO_PUBLIC_API_URL": "https://staging-api.yourdomain.com/api"
+        "EXPO_PUBLIC_API_URL": "https://schoolemanagment-production.up.railway.app/api"
       }
     },
     "production": {
@@ -27,8 +26,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "api.yourdomain.com",
-        "EXPO_PUBLIC_API_URL": "https://api.yourdomain.com/api"
+        "EXPO_PUBLIC_API_URL": "https://schoolemanagment-production.up.railway.app/api"
       }
     }
   },

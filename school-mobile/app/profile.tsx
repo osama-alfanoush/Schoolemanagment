@@ -1,9 +1,11 @@
 import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 
 import {
+  Avatar,
   Body,
   Btn,
   Card,
@@ -13,18 +15,51 @@ import {
   Row,
 } from "@/components/ui";
 import { useColors } from "@/hooks/useColors";
-import { Auth } from "@/lib/api";
+import { Auth, getApiBaseUrl } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+
+function photoUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${getApiBaseUrl().replace(/\/api$/, "")}/storage/${path}`;
+}
 
 export default function Profile() {
   const colors = useColors();
   const { t, locale, setLocale } = useI18n();
-  const { user, logout } = useAuth();
+  const { user, logout, setUserLocal } = useAuth();
   const [cur, setCur] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const pickPhoto = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
+    const r = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (r.canceled || !r.assets?.[0]) return;
+    const a = r.assets[0];
+    setUploading(true);
+    try {
+      const res = await Auth.uploadProfilePhoto({
+        uri: a.uri,
+        name: a.fileName ?? `photo-${Date.now()}.jpg`,
+        type: a.mimeType ?? "image/jpeg",
+      });
+      if (res?.user) await setUserLocal(res.user);
+    } catch (e: any) {
+      Alert.alert(t("common.error"), e?.message ?? "Failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const change = async () => {
     if (!cur || !next || next !== confirm) {
@@ -61,26 +96,26 @@ export default function Profile() {
     >
       <Card>
         <Row>
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 28,
-              backgroundColor: colors.primary,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+          <Pressable
+            onPress={pickPhoto}
+            disabled={uploading}
+            accessibilityLabel="Change profile photo"
+            style={({ pressed }) => ({ opacity: pressed || uploading ? 0.6 : 1 })}
           >
-            <Body
+            <Avatar name={user?.name} uri={photoUrl(user?.photo_path)} size={56} />
+            <View
               style={{
-                color: colors.primaryForeground,
-                fontFamily: "Inter_700Bold",
-                fontSize: 22,
+                position: "absolute",
+                bottom: -2,
+                right: -2,
+                backgroundColor: colors.primary,
+                borderRadius: 10,
+                padding: 4,
               }}
             >
-              {(user?.name ?? "?").charAt(0).toUpperCase()}
-            </Body>
-          </View>
+              <Feather name="camera" size={10} color={colors.primaryForeground} />
+            </View>
+          </Pressable>
           <View style={{ flex: 1, gap: 4 }}>
             <Body style={{ fontFamily: "Inter_700Bold", fontSize: 18 }}>
               {user?.name}

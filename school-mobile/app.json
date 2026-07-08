@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "School Mobile (Parent & Student)",
+    "name": "School Portal",
     "slug": "school-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,12 +17,23 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.schoolmanagement.app",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "NSCameraUsageDescription": "Upload profile photos and assignment files",
+        "NSPhotoLibraryUsageDescription": "Select photos for assignments"
       }
     },
     "android": {
       "package": "com.schoolmanagement.app",
-      "permissions": ["POST_NOTIFICATIONS", "RECEIVE_BOOT_COMPLETED", "VIBRATE"]
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -33,6 +44,12 @@
       "expo-web-browser",
       "expo-secure-store",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Select photos for assignments"
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
@@ -40,14 +57,14 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
-      }
-    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ca054a6a-6846-4021-83f8-27b3b91db354"
+      }
     }
   }
 }

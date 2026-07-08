@@ -1,4 +1,6 @@
 import { Feather } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -6,7 +8,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,17 +23,21 @@ import {
   Row,
 } from "@/components/ui";
 import { useColors } from "@/hooks/useColors";
+import { Auth } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { registerPushToken } from "@/lib/notifications";
+import { useTheme } from "@/lib/theme";
 
 const DEMO_ACCOUNTS = [
   { role: "student", email: "ali1@school.test" },
   { role: "parent", email: "parent1@school.test" },
+  { role: "teacher", email: "teacher1@school.test" },
 ];
 
 export default function LoginScreen() {
   const colors = useColors();
+  const { theme, refresh: refreshTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { login } = useAuth();
   const { t, locale, setLocale } = useI18n();
@@ -41,9 +46,10 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(
     params.reason === "web-only"
-      ? "This account uses the web portal. Sign in there with admin/teacher/finance/HR roles."
+      ? "This account uses the web portal. Sign in there with admin/finance/HR/warehouse roles."
       : null,
   );
 
@@ -51,14 +57,17 @@ export default function LoginScreen() {
     if (!email || !password) return;
     setLoading(true);
     setError(null);
+    setNotice(null);
     try {
       const user = await login(email.trim(), password);
       registerPushToken();
+      refreshTheme();
       if (user.role === "student") router.replace("/(student)");
       else if (user.role === "parent") router.replace("/(parent)");
+      else if (user.role === "teacher") router.replace("/(teacher)");
       else
         setError(
-          "This account uses the web portal. Sign in there with admin/teacher/finance/HR roles.",
+          "This account uses the web portal. Sign in there with admin/finance/HR/warehouse roles.",
         );
     } catch (e: any) {
       const status = e?.status;
@@ -67,6 +76,20 @@ export default function LoginScreen() {
       else setError(e?.message ?? t("common.error"));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onForgotPassword = async () => {
+    if (!email) {
+      setError(t("common.email"));
+      return;
+    }
+    setError(null);
+    try {
+      await Auth.forgotPassword(email.trim());
+      setNotice(t("common.resetLinkSent"));
+    } catch (e: any) {
+      setError(e?.message ?? t("common.error"));
     }
   };
 
@@ -85,18 +108,29 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Row style={{ justifyContent: "space-between" }}>
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 14,
-              backgroundColor: colors.primary,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Feather name="book-open" size={22} color={colors.primaryForeground} />
-          </View>
+          {theme.schoolLogo ? (
+            <Image
+              source={{ uri: theme.schoolLogo }}
+              style={{ width: 56, height: 56, borderRadius: colors.radius }}
+              contentFit="contain"
+              accessibilityLabel="School logo"
+            />
+          ) : (
+            <LinearGradient
+              colors={[colors.primary, colors.accent]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: colors.radius,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Feather name="book-open" size={24} color="#ffffff" />
+            </LinearGradient>
+          )}
           <Pressable
             onPress={() => setLocale(locale === "en" ? "ar" : "en")}
             style={{
@@ -118,7 +152,8 @@ export default function LoginScreen() {
         </Row>
 
         <View style={{ gap: 6 }}>
-          <H1>{t("common.app")}</H1>
+          <H1>{theme.schoolName || t("common.app")}</H1>
+          {theme.schoolMotto ? <Body muted>{theme.schoolMotto}</Body> : null}
           <Body muted>{t("common.enterCredentials")}</Body>
         </View>
 
@@ -150,10 +185,21 @@ export default function LoginScreen() {
               style={{
                 backgroundColor: "#fee2e2",
                 padding: 12,
-                borderRadius: 10,
+                borderRadius: colors.radius,
               }}
             >
               <Body style={{ color: "#991b1b" }}>{error}</Body>
+            </View>
+          ) : null}
+          {notice ? (
+            <View
+              style={{
+                backgroundColor: "#dcfce7",
+                padding: 12,
+                borderRadius: colors.radius,
+              }}
+            >
+              <Body style={{ color: "#166534" }}>{notice}</Body>
             </View>
           ) : null}
           <Btn
@@ -163,6 +209,19 @@ export default function LoginScreen() {
             disabled={!email || !password}
             icon="log-in"
           />
+          <Pressable
+            onPress={onForgotPassword}
+            accessibilityLabel={t("common.forgotPassword")}
+            style={({ pressed }) => ({
+              alignSelf: "center",
+              padding: 6,
+              opacity: pressed ? 0.6 : 1,
+            })}
+          >
+            <Body style={{ color: colors.primary, fontFamily: "Inter_500Medium" }}>
+              {t("common.forgotPassword")}
+            </Body>
+          </Pressable>
         </View>
 
         <Card>
@@ -198,5 +257,3 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({});

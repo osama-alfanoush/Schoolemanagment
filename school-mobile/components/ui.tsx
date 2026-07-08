@@ -126,7 +126,7 @@ export function Card({ style, children, ...p }: ViewProps) {
       style={[
         {
           backgroundColor: colors.card,
-          borderRadius: 14,
+          borderRadius: colors.radius,
           padding: 16,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: colors.border,
@@ -182,7 +182,7 @@ export function Btn({
       style={({ pressed }) => [
         {
           backgroundColor: bg,
-          borderRadius: 12,
+          borderRadius: colors.radius,
           paddingHorizontal: 18,
           paddingVertical: 14,
           alignItems: "center",
@@ -228,7 +228,7 @@ export function Input(props: TextInputProps) {
           backgroundColor: colors.background,
           borderColor: colors.input,
           borderWidth: 1,
-          borderRadius: 12,
+          borderRadius: colors.radius,
           paddingHorizontal: 14,
           paddingVertical: 12,
           fontSize: 15,
@@ -390,6 +390,59 @@ export function Row({
     >
       {children}
     </View>
+  );
+}
+
+export function Avatar({
+  name,
+  uri,
+  size = 40,
+}: {
+  name?: string | null;
+  uri?: string | null;
+  size?: number;
+}) {
+  const colors = useColors();
+  const initials = (name ?? "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+  if (uri) {
+    const { Image } = require("expo-image");
+    return (
+      <Image
+        source={{ uri }}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        accessibilityLabel={name ?? "Avatar"}
+      />
+    );
+  }
+  const { LinearGradient } = require("expo-linear-gradient");
+  return (
+    <LinearGradient
+      colors={[colors.primary, colors.accent]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Text
+        style={{
+          color: "#ffffff",
+          fontFamily: "Inter_600SemiBold",
+          fontSize: size * 0.38,
+        }}
+      >
+        {initials || "?"}
+      </Text>
+    </LinearGradient>
   );
 }
 

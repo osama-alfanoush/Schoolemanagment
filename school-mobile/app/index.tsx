@@ -10,6 +10,7 @@ export default function Index() {
   if (!user) return <Redirect href="/login" />;
   if (user.role === "student") return <Redirect href="/(student)" />;
   if (user.role === "parent") return <Redirect href="/(parent)" />;
+  if (user.role === "teacher") return <Redirect href="/(teacher)" />;
   // Other roles must use the web portal — redirect them back to login with a message.
   return <Redirect href="/login?reason=web-only" />;
 }
