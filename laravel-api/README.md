@@ -1,10 +1,10 @@
 # School Management API
 
-A Laravel 11 backend powering the Private School Management System. Six actor roles
+A Laravel 12 backend powering the Private School Management System. Six actor roles
 (student, parent, teacher, admin, finance, hr) share a single REST surface with
 role-based access enforced by middleware and per-resource ownership checks.
 
-- **Stack**: Laravel 11, PHP 8.2+, PostgreSQL, Sanctum bearer tokens.
+- **Stack**: Laravel 12, PHP 8.2+, PostgreSQL, Sanctum bearer tokens.
 - **Run**: `php -S 0.0.0.0:20141 -t public public/index.php` (workflow `artifacts/laravel-api: web`).
 - **Reset DB**: `php artisan migrate:fresh --seed`.
 - **Seed accounts** (password: `password`): `admin@school.test`, `finance@school.test`,
@@ -202,7 +202,7 @@ comes from these.
 | `SESSION_DRIVER` | `file` — API is token-based; file sessions are fine. |
 | `CACHE_STORE` | `file` — no Redis on the free tier. |
 | `QUEUE_CONNECTION` | `sync` — no separate worker process on the free tier, so jobs run inline. |
-| `RUN_SEED` | *(first deploy only)* `true` — seeds the demo accounts after migrating; **remove the variable afterwards** so redeploys don't re-seed. |
+| Initial admin | Do not seed demo accounts in production. After the first migration run `deploy/prod-up.sh exec api1 php artisan school:provision-admin you@example.com --school=1`. |
 | `FCM_SERVER_KEY` | *(optional)* Firebase Cloud Messaging key for push notifications; leave unset to disable. |
 | `STRIPE_SECRET_KEY` / `STRIPE_PUBLIC_KEY` / `STRIPE_WEBHOOK_SECRET` | *(optional)* Stripe credentials; leave unset to disable online payments. |
 

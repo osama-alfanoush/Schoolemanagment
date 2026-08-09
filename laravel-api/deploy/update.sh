@@ -12,6 +12,8 @@ COMPOSE="docker compose --env-file .env.prod -f docker-compose.prod.yml"
 
 echo "🔧 Maintenance mode ON..."
 $COMPOSE exec api1 php artisan down --retry=60
+$COMPOSE exec api2 php artisan down --retry=60
+trap '$COMPOSE exec api1 php artisan up >/dev/null 2>&1 || true; $COMPOSE exec api2 php artisan up >/dev/null 2>&1 || true' EXIT
 
 echo "🔨 Rebuilding images..."
 $COMPOSE build api1 api2 queue scheduler
@@ -38,6 +40,8 @@ fi
 
 echo "✅ Maintenance mode OFF..."
 $COMPOSE exec api1 php artisan up
+$COMPOSE exec api2 php artisan up
+trap - EXIT
 
 echo ""
 echo "=== Update complete ==="

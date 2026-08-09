@@ -138,23 +138,22 @@ services:
     networks:
       - school_net
 
-  minio:
-    image: minio/minio
-    container_name: school_minio
-    command: server /data --console-address ":9001"
+  backup:
+    image: postgres:16-alpine
+    container_name: school_backup
+    env_file: .env.prod
     environment:
-      MINIO_ROOT_USER: ${MINIO_KEY:?MINIO_KEY is required — run via deploy/prod-up.sh}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET:?MINIO_SECRET is required — run via deploy/prod-up.sh}
+      PGPASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      BACKUP_PREFIX: school_prod
+    command: ["sh", "/ops/backup-container.sh"]
     volumes:
-      - minio_data:/data
-    ports:
-      # Bind the admin console to localhost only — reach it via SSH tunnel, never publicly.
-      - "127.0.0.1:9001:9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - ./deploy/backup-container.sh:/ops/backup-container.sh:ro
+      - ./deploy/sql:/ops/sql:ro
+      - ./backups:/backups
+      - storage_data:/storage:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - school_net
@@ -162,7 +161,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  minio_data:
   storage_data:
   frontend_dist:
   cache_data:
