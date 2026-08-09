@@ -29,6 +29,7 @@ class HealthController extends Controller
             'status' => $hasErrors ? 'degraded' : 'ok',
             'service' => 'school-management-api',
             'version' => config('app.version', '1.0.0'),
+            'release' => config('app.release', 'unknown'),
             'timestamp' => now()->toIso8601String(),
             'checks' => $checks,
         ], $hasErrors ? 503 : 200);
@@ -40,8 +41,8 @@ class HealthController extends Controller
             DB::select('SELECT 1');
 
             return ['status' => 'ok', 'message' => 'Connected'];
-        } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => $e->getMessage()];
+        } catch (\Exception) {
+            return ['status' => 'error', 'message' => 'Database check failed'];
         }
     }
 
@@ -78,8 +79,8 @@ class HealthController extends Controller
                 'disk' => $disk,
                 'free_percent' => $freePercent,
             ];
-        } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => $e->getMessage()];
+        } catch (\Exception) {
+            return ['status' => 'error', 'message' => 'Storage check failed'];
         }
     }
 
@@ -95,8 +96,8 @@ class HealthController extends Controller
                 'status' => $value === 'ok' ? 'ok' : 'error',
                 'message' => 'Driver: '.config('cache.default'),
             ];
-        } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => $e->getMessage()];
+        } catch (\Exception) {
+            return ['status' => 'error', 'message' => 'Cache check failed'];
         }
     }
 
@@ -120,8 +121,8 @@ class HealthController extends Controller
                 'driver' => $driver,
                 'failed' => $failed,
             ];
-        } catch (\Exception $e) {
-            return ['status' => 'warning', 'message' => $e->getMessage()];
+        } catch (\Exception) {
+            return ['status' => 'warning', 'message' => 'Queue check failed'];
         }
     }
 
