@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HrRequest extends Model
 {
-    protected $fillable = ['teacher_user_id', 'type', 'start_date', 'end_date', 'amount', 'subject', 'reason', 'status', 'admin_response', 'reviewed_by', 'reviewed_at'];
+    protected $fillable = ['school_id', 'teacher_user_id', 'type', 'start_date', 'end_date', 'amount', 'subject', 'reason', 'status', 'admin_response', 'reviewed_by', 'reviewed_at'];
 
     protected $casts = ['start_date' => 'date', 'end_date' => 'date', 'reviewed_at' => 'datetime'];
 

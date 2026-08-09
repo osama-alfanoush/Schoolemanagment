@@ -10,9 +10,9 @@ class Grade extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_user_id', 'grade_component_id', 'score', 'entered_by'];
+    protected $fillable = ['student_user_id', 'grade_component_id', 'score', 'entered_by', 'version'];
 
-    protected $casts = ['score' => 'decimal:2'];
+    protected $casts = ['score' => 'decimal:2', 'version' => 'integer'];
 
     public function student(): BelongsTo
     {

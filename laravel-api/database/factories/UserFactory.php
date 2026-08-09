@@ -4,7 +4,9 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
@@ -13,6 +15,21 @@ use Illuminate\Support\Str;
 class UserFactory extends Factory
 {
     protected static ?string $password;
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            if (Schema::hasTable('schools') && Schema::hasTable('school_user_roles')) {
+                $schoolId = DB::table('schools')->orderBy('id')->value('id');
+                if ($schoolId) {
+                    $user->schoolRoles()->firstOrCreate([
+                        'school_id' => $schoolId,
+                        'role' => $user->role,
+                    ]);
+                }
+            }
+        });
+    }
 
     public function definition(): array
     {

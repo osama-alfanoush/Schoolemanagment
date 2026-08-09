@@ -9,7 +9,7 @@ class StaffAttendance extends Model
 {
     protected $table = 'staff_attendance';
 
-    protected $fillable = ['staff_user_id', 'date', 'status', 'check_in', 'check_out'];
+    protected $fillable = ['school_id', 'staff_user_id', 'date', 'status', 'check_in', 'check_out'];
 
     protected $casts = ['date' => 'date'];
 

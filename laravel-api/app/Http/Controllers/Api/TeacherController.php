@@ -17,12 +17,15 @@ use App\Models\User;
 use App\Services\AssignmentService;
 use App\Services\AttendanceService;
 use App\Services\AuditLogger;
+use App\Services\CurrentSchool;
 use App\Services\GradeService;
 use App\Services\Notifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class TeacherController extends Controller
@@ -41,6 +44,7 @@ class TeacherController extends Controller
             return true;
         }
         $q = DB::table('class_subject_teacher')
+            ->where('school_id', app(CurrentSchool::class)->id())
             ->where('class_room_id', $classRoomId)
             ->where('teacher_user_id', $teacherId);
         if ($subjectId !== null) {
@@ -148,6 +152,7 @@ class TeacherController extends Controller
         $data = $request->validate([
             'class_room_id' => 'required|exists:class_rooms,id',
             'subject_id' => 'nullable|exists:subjects,id',
+            'course_section_id' => 'nullable|exists:course_sections,id',
             'date' => 'required|date',
             'records' => 'required|array',
             'records.*.student_user_id' => 'required|integer',
@@ -157,13 +162,24 @@ class TeacherController extends Controller
         $teacherId = $request->user()->id;
         $this->assertCanAccessClassSubject($teacherId, $data['class_room_id'], $data['subject_id'] ?? null);
 
-        $this->attendance->markAttendance($data, $teacherId);
+        $idempotencyKey = $request->header('Idempotency-Key');
+        if (! is_string($idempotencyKey) || ! Str::isUuid($idempotencyKey)) {
+            $idempotencyKey = (string) Uuid::uuid5(
+                Uuid::NAMESPACE_URL,
+                $teacherId.':'.hash('sha256', json_encode($data, JSON_THROW_ON_ERROR))
+            );
+        }
+        $batch = $this->attendance->markAttendance($data, $teacherId, $idempotencyKey);
 
         AuditLogger::log($request, 'mark_attendance', 'attendance', $data['class_room_id'], [
             'date' => $data['date'], 'subject_id' => $data['subject_id'] ?? null, 'records' => count($data['records']),
         ]);
 
-        return response()->json(['message' => 'Attendance saved']);
+        return response()->json([
+            'message' => 'Attendance saved',
+            'submission_batch_id' => $batch->id,
+            'idempotency_key' => $batch->idempotency_key,
+        ]);
     }
 
     public function gradeComponents(Request $request, int $classRoomId, int $subjectId)
@@ -173,9 +189,10 @@ class TeacherController extends Controller
             $data = $request->validate([
                 'name' => 'required|string',
                 'type' => 'required|in:quiz,homework,exam',
-                'weight' => 'required|numeric',
-                'max_score' => 'required|numeric',
+                'weight' => 'required|numeric|min:0|max:100',
+                'max_score' => 'required|numeric|gt:0',
                 'semester_id' => 'nullable|exists:semesters,id',
+                'grading_period_id' => 'nullable|exists:grading_periods,id',
             ]);
             $c = $this->grades->createComponent($data, $classRoomId, $subjectId);
 
@@ -192,6 +209,8 @@ class TeacherController extends Controller
             'student_user_id' => 'required|exists:users,id',
             'grade_component_id' => 'required|exists:grade_components,id',
             'score' => 'required|numeric|min:0',
+            'version' => 'nullable|integer|min:1',
+            'reason' => 'nullable|string|max:1000',
         ]);
         $component = GradeComponent::findOrFail($data['grade_component_id']);
         $teacherId = $request->user()->id;
@@ -222,7 +241,8 @@ class TeacherController extends Controller
             return response()->json(['message' => 'You may not log conduct for this student.'], 403);
         }
         $log = ConductLog::create(array_merge($data, ['teacher_user_id' => $teacherId]));
-        $parentIds = DB::table('parent_student')->where('student_user_id', $data['student_user_id'])->pluck('parent_user_id');
+        $parentIds = DB::table('parent_student')->where('school_id', (int) $request->attributes->get('school_id'))
+            ->where('student_user_id', $data['student_user_id'])->pluck('parent_user_id');
         foreach ($parentIds as $pid) {
             Notifier::send($pid, 'conduct', "Conduct note: {$data['category']}", $data['title']);
         }

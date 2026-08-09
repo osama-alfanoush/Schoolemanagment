@@ -6,7 +6,9 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Stripe\Refund;
 use Stripe\Stripe;
 use Stripe\StripeClient;
@@ -16,7 +18,7 @@ class PaymentGatewayService
 {
     protected string $provider;
 
-    public function __construct()
+    public function __construct(private CurrentSchool $currentSchool)
     {
         $this->provider = config('services.payment.provider', 'stripe');
     }
@@ -37,7 +39,7 @@ class PaymentGatewayService
         try {
             $stripe = $this->getStripeClient();
 
-            $amountDue = round((float) $invoice->amount - (float) $invoice->paid_amount, 2);
+            $amountDue = round((float) $invoice->amount - (float) $invoice->paid_amount - (float) ($invoice->credits ?? 0), 2);
             if ($amountDue <= 0) {
                 return [
                     'success' => false,
@@ -80,13 +82,15 @@ class PaymentGatewayService
                 $paymentIntentData['customer'] = $customer->id;
             }
 
-            $paymentIntent = $stripe->paymentIntents->create($paymentIntentData);
+            $requestOptions = empty($options['idempotency_key']) ? [] : ['idempotency_key' => $options['idempotency_key']];
+            $paymentIntent = $stripe->paymentIntents->create($paymentIntentData, $requestOptions);
 
             // Create transaction record
-            PaymentTransaction::create([
-                'invoice_id' => $invoice->id,
+            PaymentTransaction::updateOrCreate([
                 'provider' => $this->provider,
                 'provider_transaction_id' => $paymentIntent->id,
+            ], [
+                'invoice_id' => $invoice->id,
                 'amount' => $amountDue,
                 'currency' => $paymentIntentData['currency'],
                 'status' => 'pending',
@@ -120,6 +124,23 @@ class PaymentGatewayService
      */
     public function confirmPayment(string $paymentIntentId): array
     {
+        $transactionSchoolId = PaymentTransaction::withoutGlobalScope('school')
+            ->where('provider', $this->provider)
+            ->where('provider_transaction_id', $paymentIntentId)
+            ->value('school_id');
+        if (! $transactionSchoolId) {
+            return ['success' => false, 'error' => 'Payment transaction not found'];
+        }
+        if (! $this->currentSchool->has()) {
+            return $this->currentSchool->run(
+                (int) $transactionSchoolId,
+                fn (): array => $this->confirmPayment($paymentIntentId),
+            );
+        }
+        if ($this->currentSchool->id() !== (int) $transactionSchoolId) {
+            return ['success' => false, 'error' => 'Payment transaction belongs to another school'];
+        }
+
         try {
             $stripe = $this->getStripeClient();
             $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId);
@@ -168,6 +189,11 @@ class PaymentGatewayService
                     'recorded_by' => null, // System recorded
                     'paid_at' => now(),
                     'note' => 'Paid via Stripe',
+                ]);
+                DB::table('payment_allocations')->insertOrIgnore([
+                    'school_id' => $invoice->school_id,
+                    'payment_id' => $payment->id, 'invoice_id' => $invoice->id, 'amount' => $amount,
+                    'created_at' => now(), 'updated_at' => now(),
                 ]);
 
                 $newPaid = round((float) $invoice->paid_amount + $amount, 2);
@@ -267,6 +293,7 @@ class PaymentGatewayService
      */
     public function handleWebhook(string $payload, string $signature): array
     {
+        $event = null;
         try {
             $event = Webhook::constructEvent(
                 $payload,
@@ -274,32 +301,80 @@ class PaymentGatewayService
                 config('services.payment.stripe.webhook_secret')
             );
 
+            $payloadHash = hash('sha256', $payload);
+            DB::table('payment_webhook_events')->insertOrIgnore([
+                'provider' => $this->provider, 'event_id' => $event->id, 'payload_hash' => $payloadHash,
+                'status' => 'pending', 'attempts' => 0, 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            $claim = DB::transaction(function () use ($event, $payloadHash) {
+                $row = DB::table('payment_webhook_events')->where('provider', $this->provider)
+                    ->where('event_id', $event->id)->lockForUpdate()->first();
+                if (! hash_equals($row->payload_hash, $payloadHash)) {
+                    return 'mismatch';
+                }
+                if ($row->status === 'completed') {
+                    return 'completed';
+                }
+                if ($row->status === 'processing') {
+                    return 'processing';
+                }
+                DB::table('payment_webhook_events')->where('id', $row->id)->update([
+                    'status' => 'processing', 'attempts' => $row->attempts + 1, 'updated_at' => now(),
+                ]);
+
+                return 'claimed';
+            });
+            if ($claim === 'mismatch') {
+                return ['success' => false, 'error' => 'Webhook event payload does not match its original event ID.'];
+            }
+            if (in_array($claim, ['completed', 'processing'], true)) {
+                return ['success' => true, 'already_processed' => true];
+            }
+
             switch ($event->type) {
                 case 'payment_intent.succeeded':
                     $paymentIntent = $event->data->object;
-
-                    return $this->confirmPayment($paymentIntent->id);
+                    $result = $this->confirmPayment($paymentIntent->id);
+                    break;
 
                 case 'payment_intent.payment_failed':
                     $paymentIntent = $event->data->object;
-                    PaymentTransaction::where('provider_transaction_id', $paymentIntent->id)
+                    PaymentTransaction::withoutGlobalScope('school')
+                        ->where('provider', $this->provider)
+                        ->where('provider_transaction_id', $paymentIntent->id)
                         ->update([
                             'status' => 'failed',
                             'error_message' => $paymentIntent->last_payment_error?->message ?? 'Payment failed',
                         ]);
 
-                    return ['success' => true, 'event' => 'payment_failed'];
+                    $result = ['success' => true, 'event' => 'payment_failed'];
+                    break;
 
                 case 'charge.refunded':
                     $charge = $event->data->object;
 
-                    return $this->handleRefund($charge);
+                    $result = $this->handleRefund($charge, $event->id);
+                    break;
 
                 default:
-                    return ['success' => true, 'event' => $event->type, 'handled' => false];
+                    $result = ['success' => true, 'event' => $event->type, 'handled' => false];
             }
 
+            DB::table('payment_webhook_events')->where('provider', $this->provider)->where('event_id', $event->id)->update([
+                'status' => $result['success'] ? 'completed' : 'failed',
+                'processed_at' => $result['success'] ? now() : null,
+                'last_error' => $result['success'] ? null : ($result['error'] ?? 'Unknown webhook processing failure'),
+                'updated_at' => now(),
+            ]);
+
+            return $result;
+
         } catch (\Exception $e) {
+            if ($event?->id) {
+                DB::table('payment_webhook_events')->where('provider', $this->provider)->where('event_id', $event->id)->update([
+                    'status' => 'failed', 'last_error' => Str::limit($e->getMessage(), 2000), 'updated_at' => now(),
+                ]);
+            }
             Log::error('Webhook processing failed', ['error' => $e->getMessage()]);
 
             return ['success' => false, 'error' => $e->getMessage()];
@@ -309,15 +384,17 @@ class PaymentGatewayService
     /**
      * Handle refund
      */
-    protected function handleRefund($charge): array
+    protected function handleRefund($charge, string $eventId): array
     {
         try {
             $refundedAmount = round($charge->amount_refunded / 100, 2);
 
-            \DB::transaction(function () use ($charge, $refundedAmount) {
+            \DB::transaction(function () use ($charge, $refundedAmount, $eventId) {
                 $transaction = PaymentTransaction::where('provider_transaction_id', $charge->payment_intent)->first();
 
                 if ($transaction) {
+                    $previousRefunded = (float) $transaction->refunded_amount;
+                    $refundDelta = round(max(0, $refundedAmount - $previousRefunded), 2);
                     $transaction->update([
                         'status' => 'refunded',
                         'refunded_amount' => $refundedAmount,
@@ -326,10 +403,16 @@ class PaymentGatewayService
                     // Reverse the payment in our system (lock invoice to avoid racing
                     // with a concurrent payment confirmation on the same invoice)
                     $payment = Payment::where('reference', $charge->payment_intent)->first();
-                    if ($payment) {
+                    if ($payment && $refundDelta > 0) {
+                        DB::table('payment_reversals')->insertOrIgnore([
+                            'school_id' => $transaction->school_id,
+                            'payment_id' => $payment->id, 'amount' => $refundDelta,
+                            'provider_reference' => $eventId, 'reason' => 'Stripe refund',
+                            'reversed_at' => now(), 'created_at' => now(), 'updated_at' => now(),
+                        ]);
                         $invoice = Invoice::lockForUpdate()->find($payment->invoice_id);
                         if ($invoice) {
-                            $newPaid = round(max(0, (float) $invoice->paid_amount - $refundedAmount), 2);
+                            $newPaid = round(max(0, (float) $invoice->paid_amount - $refundDelta), 2);
                             $invoice->update([
                                 'paid_amount' => $newPaid,
                                 'status' => $newPaid >= (float) $invoice->amount ? 'paid' : ($newPaid > 0 ? 'partial' : 'pending'),

@@ -9,11 +9,14 @@ use App\Models\Notification;
 use App\Models\NotificationPreference;
 use App\Models\NotificationTemplate;
 use App\Models\User;
+use App\Services\CurrentSchool;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    public function __construct(private CurrentSchool $currentSchool) {}
+
     /**
      * Get user's notifications
      */
@@ -131,7 +134,6 @@ class NotificationController extends Controller
             'quiet_hours.end' => 'required_with:quiet_hours|string',
             'type_preferences' => 'nullable|array',
         ]);
-
         $preferences = NotificationPreference::getOrCreateForUser($request->user()->id);
         $preferences->update($data);
 
@@ -242,6 +244,10 @@ class NotificationController extends Controller
             'template_key' => 'required|string',
             'template_data' => 'nullable|array',
         ]);
+        $authorised = User::whereKey($data['user_id'])
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))
+            ->exists();
+        abort_unless($authorised, 422, 'The user belongs to another school.');
 
         $notification = NotificationService::sendWithTemplate(
             $data['user_id'],
@@ -286,10 +292,15 @@ class NotificationController extends Controller
 
         // Determine target users
         if (! empty($data['target']['user_ids'])) {
-            $userIds = $data['target']['user_ids'];
+            $requestedIds = array_values(array_unique(array_map('intval', $data['target']['user_ids'])));
+            $userIds = User::whereIn('id', $requestedIds)
+                ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))
+                ->pluck('id')->all();
+            abort_unless(count($userIds) === count($requestedIds), 422, 'One or more users belong to another school.');
         } elseif (! empty($data['target']['role'])) {
             $userIds = User::where('role', $data['target']['role'])
                 ->where('is_active', true)
+                ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))
                 ->pluck('id')
                 ->toArray();
         } elseif (! empty($data['target']['class_room_id'])) {

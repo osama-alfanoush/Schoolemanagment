@@ -11,6 +11,7 @@ use App\Models\NotificationPreference;
 use App\Models\NotificationTemplate;
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -79,7 +80,10 @@ class NotificationService
         array $templateData = [],
         array $options = []
     ): array {
-        $userIds = User::where('role', $role)->where('is_active', true)->pluck('id')->toArray();
+        $schoolId = app(CurrentSchool::class)->id();
+        $userIds = User::where('role', $role)->where('is_active', true)
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $schoolId))
+            ->pluck('id')->toArray();
 
         return self::sendToMany($userIds, $templateKey, $templateData, $options);
     }
@@ -94,6 +98,7 @@ class NotificationService
         array $options = []
     ): array {
         $parentIds = \DB::table('parent_student')
+            ->where('school_id', app(CurrentSchool::class)->id())
             ->where('student_user_id', $studentId)
             ->pluck('parent_user_id')
             ->toArray();
@@ -134,6 +139,15 @@ class NotificationService
         ?int $sourceId = null,
         ?\DateTime $scheduledAt = null
     ): Notification {
+        $schoolId = app(CurrentSchool::class)->id();
+        abort_unless(
+            User::query()->whereKey($userId)
+                ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $schoolId))
+                ->exists(),
+            422,
+            'Notification recipient belongs to another school.',
+        );
+
         // Get user preferences
         $preferences = NotificationPreference::getOrCreateForUser($userId);
 
@@ -152,6 +166,10 @@ class NotificationService
             'source_id' => $sourceId,
             'scheduled_at' => $scheduledAt,
         ]);
+
+        if ($scheduledAt !== null) {
+            return $notification;
+        }
 
         // Deliver through enabled channels
         if ($preferences->canReceive('in_app', $type)) {
@@ -177,12 +195,16 @@ class NotificationService
      */
     protected static function deliverInApp(Notification $notification): void
     {
-        NotificationDelivery::create([
-            'notification_id' => $notification->id,
-            'channel' => NotificationDelivery::CHANNEL_IN_APP,
-            'status' => NotificationDelivery::STATUS_DELIVERED,
-            'delivered_at' => now(),
-        ]);
+        NotificationDelivery::firstOrCreate(
+            [
+                'notification_id' => $notification->id,
+                'channel' => NotificationDelivery::CHANNEL_IN_APP,
+            ],
+            [
+                'status' => NotificationDelivery::STATUS_DELIVERED,
+                'delivered_at' => now(),
+            ],
+        );
     }
 
     /**
@@ -196,11 +218,16 @@ class NotificationService
             return;
         }
 
-        $delivery = NotificationDelivery::create([
-            'notification_id' => $notification->id,
-            'channel' => NotificationDelivery::CHANNEL_PUSH,
-            'status' => NotificationDelivery::STATUS_PENDING,
-        ]);
+        $delivery = NotificationDelivery::firstOrCreate(
+            [
+                'notification_id' => $notification->id,
+                'channel' => NotificationDelivery::CHANNEL_PUSH,
+            ],
+            ['status' => NotificationDelivery::STATUS_PENDING],
+        );
+        if (! $delivery->wasRecentlyCreated) {
+            return;
+        }
 
         try {
             $serverKey = config('services.fcm.server_key');
@@ -279,11 +306,16 @@ class NotificationService
      */
     protected static function deliverEmail(Notification $notification): void
     {
-        $delivery = NotificationDelivery::create([
-            'notification_id' => $notification->id,
-            'channel' => NotificationDelivery::CHANNEL_EMAIL,
-            'status' => NotificationDelivery::STATUS_PENDING,
-        ]);
+        $delivery = NotificationDelivery::firstOrCreate(
+            [
+                'notification_id' => $notification->id,
+                'channel' => NotificationDelivery::CHANNEL_EMAIL,
+            ],
+            ['status' => NotificationDelivery::STATUS_PENDING],
+        );
+        if (! $delivery->wasRecentlyCreated) {
+            return;
+        }
 
         try {
             $user = User::find($notification->user_id);
@@ -433,16 +465,33 @@ class NotificationService
      */
     public static function processScheduled(): int
     {
-        $dueNotifications = Notification::whereNotNull('scheduled_at')
+        $dueNotificationIds = Notification::whereNotNull('scheduled_at')
             ->where('scheduled_at', '<=', now())
-            ->whereNull('read_at') // Not yet processed
-            ->get();
+            ->orderBy('id')
+            ->pluck('id');
 
         $processed = 0;
 
-        foreach ($dueNotifications as $notification) {
-            // Re-deliver to all channels
+        foreach ($dueNotificationIds as $notificationId) {
+            $notification = DB::transaction(function () use ($notificationId): ?Notification {
+                $candidate = Notification::query()->whereKey($notificationId)->lockForUpdate()->first();
+                if (! $candidate || $candidate->scheduled_at === null || $candidate->scheduled_at->isFuture()) {
+                    return null;
+                }
+
+                $candidate->forceFill(['scheduled_at' => null])->save();
+
+                return $candidate;
+            });
+            if (! $notification) {
+                continue;
+            }
+
             $preferences = NotificationPreference::getOrCreateForUser($notification->user_id);
+
+            if ($preferences->canReceive('in_app', $notification->type)) {
+                self::deliverInApp($notification);
+            }
 
             if ($preferences->canReceive('push', $notification->type)) {
                 self::deliverPush($notification);
@@ -452,6 +501,7 @@ class NotificationService
                 self::deliverEmail($notification);
             }
 
+            self::broadcast($notification);
             $processed++;
         }
 

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class FinancialClosing extends Model
 {
     protected $fillable = [
-        'month', 'year', 'status', 'notes', 'closed_by', 'closed_at',
+        'school_id', 'month', 'year', 'status', 'notes', 'closed_by', 'closed_at',
     ];
 
     protected $casts = [

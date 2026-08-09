@@ -4,12 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
+use App\Models\AcademicYear;
 use App\Models\Announcement;
 use App\Models\AttendanceRecord;
 use App\Models\AuditLog;
 use App\Models\HrRequest;
 use App\Models\Invoice;
+use App\Models\Permission;
+use App\Models\RolePermission;
 use App\Models\User;
+use App\Models\UserPermission;
+use App\Services\AuditLogger;
+use App\Services\CurrentSchool;
 use App\Services\UserManagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -17,7 +23,10 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    public function __construct(private UserManagementService $users) {}
+    public function __construct(
+        private UserManagementService $users,
+        private CurrentSchool $currentSchool,
+    ) {}
 
     public function listUsers(Request $request)
     {
@@ -106,7 +115,7 @@ class AdminController extends Controller
 
     public function attendanceDashboard(Request $request)
     {
-        $data = Cache::remember('admin:attendance_dashboard:'.today()->format('Y-m-d'), 120, function () {
+        $data = Cache::remember($this->cacheKey('attendance_dashboard:'.today()->format('Y-m-d')), 120, function () {
             $today = AttendanceRecord::whereDate('date', today())
                 ->select('status')
                 ->selectRaw('count(*) as count')
@@ -134,11 +143,15 @@ class AdminController extends Controller
 
     public function dashboardKpis()
     {
-        $kpis = Cache::remember('admin:kpis', 300, function () {
+        $kpis = Cache::remember($this->cacheKey('kpis'), 300, function () {
             return [
-                'students' => User::where('role', 'student')->count(),
-                'teachers' => User::where('role', 'teacher')->count(),
-                'staff' => User::whereIn('role', ['teacher', 'admin', 'finance', 'hr'])->count(),
+                'students' => $this->usersInCurrentSchool()->where('role', 'student')->count(),
+                'teachers' => $this->usersInCurrentSchool()->where('role', 'teacher')->count(),
+                'staff' => $this->usersInCurrentSchool()->whereIn('role', User::STAFF_ROLES)->count(),
+                'academic_year' => AcademicYear::query()
+                    ->where('is_current', true)
+                    ->orderByDesc('start_date')
+                    ->value('name'),
                 'today_attendance_rate' => $this->todayAttendanceRate(),
                 'pending_hr_requests' => HrRequest::where('status', 'pending')->count(),
                 'outstanding_fees' => Invoice::whereIn('status', ['pending', 'partial', 'overdue'])->sum(DB::raw('amount - paid_amount')),
@@ -189,7 +202,7 @@ class AdminController extends Controller
     public function auditLogs()
     {
         return response()->json(
-            Cache::remember('admin:audit_logs', 60, function () {
+            Cache::remember($this->cacheKey('audit_logs'), 60, function () {
                 return AuditLog::with('user:id,name,role')->latest()->paginate(50);
             })
         );
@@ -223,6 +236,7 @@ class AdminController extends Controller
     {
         if ($request->isMethod('post')) {
             $result = $this->users->createAcademicYear($request);
+            Cache::forget($this->cacheKey('kpis'));
 
             return response()->json($result['data'], $result['status'] ?? 201);
         }
@@ -305,6 +319,7 @@ class AdminController extends Controller
     public function updateAcademicYear(Request $request, int $id)
     {
         $result = $this->users->updateAcademicYear($request, $id);
+        Cache::forget($this->cacheKey('kpis'));
 
         return response()->json($result['data']);
     }
@@ -312,6 +327,7 @@ class AdminController extends Controller
     public function deleteAcademicYear(Request $request, int $id)
     {
         $this->users->deleteAcademicYear($request, $id);
+        Cache::forget($this->cacheKey('kpis'));
 
         return ApiResponse::deleted();
     }
@@ -348,5 +364,119 @@ class AdminController extends Controller
         $this->users->deleteAnnouncement($request, $id);
 
         return ApiResponse::deleted();
+    }
+
+    // ── Granular permissions (procurement / finance sub-modules) ─────
+
+    public function listPermissions()
+    {
+        return response()->json([
+            'data' => Permission::orderBy('module')->orderBy('action')->get()->groupBy('module'),
+        ]);
+    }
+
+    public function rolePermissions(string $role)
+    {
+        return response()->json([
+            'role' => $role,
+            'keys' => Permission::keysForRole($role),
+        ]);
+    }
+
+    /** Replace a role's grants wholesale with the given permission keys. */
+    public function updateRolePermissions(Request $request, string $role)
+    {
+        if (! in_array($role, User::ROLES, true) || $role === 'admin') {
+            return response()->json(['message' => 'Unknown or non-editable role.'], 422);
+        }
+        $data = $request->validate([
+            'keys' => 'present|array',
+            'keys.*' => 'string|exists:permissions,key',
+        ]);
+
+        $revokedSessions = DB::transaction(function () use ($role, $data) {
+            RolePermission::where('role', $role)->delete();
+            $ids = Permission::whereIn('key', $data['keys'])->pluck('id');
+            foreach ($ids as $id) {
+                RolePermission::create(['role' => $role, 'permission_id' => $id]);
+            }
+
+            return $this->usersInCurrentSchool()->where('role', $role)->get()->sum(
+                fn (User $user) => $user->tokens()->delete()
+            );
+        });
+        Permission::clearRoleCache($role);
+        AuditLogger::log($request, 'update_role_permissions', 'role', null, [
+            'role' => $role, 'keys' => $data['keys'], 'revoked_session_count' => $revokedSessions,
+        ]);
+
+        return response()->json(['role' => $role, 'keys' => Permission::keysForRole($role)]);
+    }
+
+    /** A user's permission picture: role baseline, overrides, and the result. */
+    public function userPermissions(int $id)
+    {
+        $user = $this->usersInCurrentSchool()->findOrFail($id);
+        $overrides = UserPermission::with('permission:id,key')
+            ->where('user_id', $user->id)->get();
+
+        return response()->json([
+            'user_id' => $user->id,
+            'role' => $user->role,
+            'role_keys' => $user->role === 'admin' ? ['*'] : Permission::keysForRole($user->role),
+            'grants' => $overrides->where('granted', true)->pluck('permission.key')->values(),
+            'denies' => $overrides->where('granted', false)->pluck('permission.key')->values(),
+            'effective' => $user->allPermissionKeys(),
+        ]);
+    }
+
+    /** Per-user grant/deny overrides on top of the role's set. */
+    public function updateUserPermissions(Request $request, int $id)
+    {
+        $user = $this->usersInCurrentSchool()->findOrFail($id);
+        $data = $request->validate([
+            'grants' => 'present|array',
+            'grants.*' => 'string|exists:permissions,key',
+            'denies' => 'present|array',
+            'denies.*' => 'string|exists:permissions,key',
+        ]);
+
+        $revokedSessions = DB::transaction(function () use ($user, $data) {
+            UserPermission::where('user_id', $user->id)->delete();
+            foreach (['grants' => true, 'denies' => false] as $field => $granted) {
+                $ids = Permission::whereIn('key', $data[$field])->pluck('id');
+                foreach ($ids as $permId) {
+                    UserPermission::create([
+                        'user_id' => $user->id, 'permission_id' => $permId, 'granted' => $granted,
+                    ]);
+                }
+            }
+
+            return $user->tokens()->delete();
+        });
+        AuditLogger::log($request, 'update_user_permissions', 'user', $user->id, $data + [
+            'revoked_session_count' => $revokedSessions,
+        ]);
+
+        return response()->json([
+            'user_id' => $user->id,
+            'permissions' => $user->fresh()->allPermissionKeys(),
+        ]);
+    }
+
+    private function usersInCurrentSchool()
+    {
+        $schoolId = $this->currentSchool->id();
+        $today = now()->toDateString();
+
+        return User::query()->whereHas('schoolRoles', fn ($query) => $query
+            ->where('school_id', $schoolId)
+            ->where(fn ($dates) => $dates->whereNull('starts_on')->orWhereDate('starts_on', '<=', $today))
+            ->where(fn ($dates) => $dates->whereNull('ends_on')->orWhereDate('ends_on', '>=', $today)));
+    }
+
+    private function cacheKey(string $suffix): string
+    {
+        return 'school:'.$this->currentSchool->id().':admin:'.$suffix;
     }
 }

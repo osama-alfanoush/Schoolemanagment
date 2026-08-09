@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 class BudgetService
 {
+    public function __construct(private readonly CurrentSchool $currentSchool) {}
+
     public function listBudget(Request $request): array
     {
         $year = (int) $request->query('fiscal_year', now()->year);
@@ -97,7 +99,9 @@ class BudgetService
             ->filter(fn ($p) => $p->usage_percent >= $threshold);
 
         $recipientIds = User::whereIn('role', ['finance', 'admin'])
-            ->where('is_active', true)->pluck('id')->toArray();
+            ->where('is_active', true)
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))
+            ->pluck('id')->toArray();
 
         foreach ($overrunPlans as $overrun) {
             NotificationService::sendToMany($recipientIds, 'budget_overrun', [

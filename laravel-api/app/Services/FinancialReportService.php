@@ -63,7 +63,7 @@ class FinancialReportService
             'year' => 'required|integer',
         ]);
 
-        $totalIncome = (float) Payment::whereYear('paid_at', $data['year'])
+        $totalIncome = (float) Payment::where('status', 'posted')->whereYear('paid_at', $data['year'])
             ->whereMonth('paid_at', $data['month'])->sum('amount');
         $totalPayroll = (float) PayrollRecord::where('year', $data['year'])
             ->where('month', $data['month'])->sum('net_pay');
@@ -89,7 +89,7 @@ class FinancialReportService
             'year' => 'required|integer',
         ]);
 
-        $totalIncome = (float) Payment::whereYear('paid_at', $data['year'])
+        $totalIncome = (float) Payment::where('status', 'posted')->whereYear('paid_at', $data['year'])
             ->whereMonth('paid_at', $data['month'])->sum('amount');
         $totalPayroll = (float) PayrollRecord::where('year', $data['year'])
             ->where('month', $data['month'])->sum('net_pay');

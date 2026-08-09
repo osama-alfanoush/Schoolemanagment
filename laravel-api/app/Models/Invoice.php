@@ -29,4 +29,9 @@ class Invoice extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function adjustments(): HasMany
+    {
+        return $this->hasMany(StudentFinancialAdjustment::class);
+    }
 }

@@ -6,18 +6,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\AuditLog;
 use App\Models\ChartOfAccount;
+use App\Models\JournalBatch;
 use App\Services\AuditLogger;
 use App\Services\BudgetService;
 use App\Services\FinancialReportService;
+use App\Services\JournalBatchService;
 use App\Services\JournalService;
+use App\Services\SchoolContext;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AccountingController extends Controller
 {
     public function __construct(
         private JournalService $journal,
+        private JournalBatchService $journalBatches,
         private BudgetService $budget,
-        private FinancialReportService $reports
+        private FinancialReportService $reports,
+        private SchoolContext $schools,
     ) {}
 
     public function indexJournalEntries(Request $request)
@@ -29,12 +35,82 @@ class AccountingController extends Controller
 
     public function storeJournalEntry(Request $request)
     {
+        if ($request->has('lines')) {
+            return response()->json($this->journalBatches->create($request), 201);
+        }
+
         try {
             $result = $this->journal->createEntry($request);
 
             return response()->json($result['data'], $result['status'] ?? 201);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function indexJournalBatches(Request $request)
+    {
+        $schoolId = $this->schools->forUser($request->user());
+        $query = JournalBatch::query()->where(fn ($q) => $q->where('school_id', $schoolId)
+            ->orWhere(fn ($legacy) => $legacy->whereNull('school_id')->whereNotIn('source', ['payroll', 'payroll_accrual', 'payroll_reversal', 'employee_advance', 'employee_advance_settlement'])))
+            ->with(['lines', 'creator:id,name']);
+        foreach (['status', 'source', 'academic_year_id'] as $filter) {
+            if ($request->filled($filter)) {
+                $query->where($filter, $request->query($filter));
+            }
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('entry_date', '>=', $request->query('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('entry_date', '<=', $request->query('date_to'));
+        }
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(fn ($q) => $q->where('reference_no', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%"));
+        }
+
+        return response()->json($query->latest('entry_date')->latest('id')
+            ->paginate(min((int) $request->query('per_page', 20), 100)));
+    }
+
+    public function showJournalBatch(Request $request, int $id)
+    {
+        $batch = JournalBatch::with(['lines', 'creator:id,name'])->findOrFail($id);
+        if ($batch->school_id !== null) {
+            $this->schools->authorize($request->user(), (int) $batch->school_id);
+        }
+
+        return response()->json($batch);
+    }
+
+    public function approveJournalBatch(Request $request, int $id)
+    {
+        $this->authorizeBatch($request, $id);
+
+        return response()->json($this->journalBatches->approve($request, $id));
+    }
+
+    public function postJournalBatch(Request $request, int $id)
+    {
+        $this->authorizeBatch($request, $id);
+
+        return response()->json($this->journalBatches->post($request, $id));
+    }
+
+    public function reverseJournalBatch(Request $request, int $id)
+    {
+        $this->authorizeBatch($request, $id);
+
+        return response()->json($this->journalBatches->reverse($request, $id), 201);
+    }
+
+    private function authorizeBatch(Request $request, int $id): void
+    {
+        $schoolId = JournalBatch::whereKey($id)->value('school_id');
+        if ($schoolId !== null) {
+            $this->schools->authorize($request->user(), (int) $schoolId);
         }
     }
 
@@ -75,7 +151,7 @@ class AccountingController extends Controller
     public function storeAccount(Request $request)
     {
         $data = $request->validate([
-            'account_code' => 'required|unique:chart_of_accounts',
+            'account_code' => ['required', Rule::unique('chart_of_accounts')->where('school_id', $request->attributes->get('school_id'))],
             'account_name' => 'required',
             'account_type' => 'required|in:asset,liability,equity,income,expense',
             'description' => 'nullable|string',
@@ -91,7 +167,7 @@ class AccountingController extends Controller
     {
         $account = ChartOfAccount::findOrFail($id);
         $data = $request->validate([
-            'account_code' => "sometimes|unique:chart_of_accounts,account_code,{$id}",
+            'account_code' => ['sometimes', Rule::unique('chart_of_accounts')->where('school_id', $request->attributes->get('school_id'))->ignore($account->id)],
             'account_name' => 'sometimes|string',
             'account_type' => 'sometimes|in:asset,liability,equity,income,expense',
             'description' => 'nullable|string',
@@ -131,9 +207,9 @@ class AccountingController extends Controller
         return response()->json($result);
     }
 
-    public function indexClosings()
+    public function indexClosings(Request $request)
     {
-        $result = $this->journal->listClosings();
+        $result = $this->journal->listClosings($request);
 
         return response()->json($result);
     }

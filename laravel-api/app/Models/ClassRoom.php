@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CurrentSchool;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ class ClassRoom extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'grade', 'section', 'capacity', 'academic_year_id', 'homeroom_teacher_id'];
+    protected $fillable = ['name', 'grade', 'section', 'capacity', 'academic_year_id', 'homeroom_teacher_id', 'school_id', 'archived_at', 'archived_by', 'archive_reason'];
 
     public function students(): HasMany
     {
@@ -21,8 +22,15 @@ class ClassRoom extends Model
 
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'class_subject_teacher')
-            ->withPivot('teacher_user_id')->withTimestamps();
+        $relation = $this->belongsToMany(Subject::class, 'class_subject_teacher')
+            ->withPivot('school_id', 'teacher_user_id')->withTimestamps();
+        $currentSchool = app(CurrentSchool::class);
+
+        $schoolId = $currentSchool->idOrNull() ?? $this->school_id;
+
+        return $schoolId
+            ? $relation->withPivotValue('school_id', (int) $schoolId)
+            : $relation;
     }
 
     public function timetableEntries(): HasMany
@@ -33,5 +41,10 @@ class ClassRoom extends Model
     public function homeroomTeacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'homeroom_teacher_id');
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
     }
 }

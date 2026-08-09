@@ -17,6 +17,7 @@ class DemoRoleUsersSeeder extends Seeder
             ['name' => 'Hala HR', 'email' => 'hr@school.test', 'role' => 'hr', 'department' => 'Human Resources', 'position' => 'HR Officer'],
             ['name' => 'Amina Accountant', 'email' => 'accounting@school.test', 'role' => 'finance', 'department' => 'Accounting', 'position' => 'Accountant'],
             ['name' => 'Omar Warehouse', 'email' => 'warehouse@school.test', 'role' => 'warehouse', 'department' => 'Warehouse', 'position' => 'Warehouse Manager'],
+            ['name' => 'Rania Procurement', 'email' => 'procurement@school.test', 'role' => 'procurement', 'department' => 'Procurement', 'position' => 'Procurement Officer'],
         ];
 
         foreach ($users as $data) {

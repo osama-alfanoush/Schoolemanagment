@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AppNotification;
 use App\Models\PushToken;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -15,6 +16,15 @@ class Notifier
      */
     public static function send(int $userId, string $type, string $title, string $body, array $data = []): AppNotification
     {
+        $schoolId = app(CurrentSchool::class)->id();
+        abort_unless(
+            User::query()->whereKey($userId)
+                ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $schoolId))
+                ->exists(),
+            422,
+            'Notification recipient belongs to another school.',
+        );
+
         $note = AppNotification::create([
             'user_id' => $userId,
             'type' => $type,

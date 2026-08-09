@@ -14,6 +14,7 @@ use App\Services\NotificationService;
 use App\Services\WarehouseService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class WarehouseController extends Controller
 {
@@ -31,7 +32,7 @@ class WarehouseController extends Controller
     public function storeCategory(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:warehouse_categories',
+            'name' => ['required', 'string', Rule::unique('warehouse_categories')->where('school_id', $request->attributes->get('school_id'))],
             'description' => 'nullable|string',
         ]);
         $category = WarehouseCategory::create($data);
@@ -75,7 +76,7 @@ class WarehouseController extends Controller
             'min_stock_qty' => 'required|numeric|min:0',
             'location' => 'nullable|string',
             'description' => 'nullable|string',
-            'sku' => 'nullable|string|unique:warehouse_items',
+            'sku' => ['nullable', 'string', Rule::unique('warehouse_items')->where('school_id', $request->attributes->get('school_id'))],
         ]);
 
         if (empty($data['sku'])) {
@@ -120,7 +121,7 @@ class WarehouseController extends Controller
             'min_stock_qty' => 'sometimes|numeric|min:0',
             'location' => 'nullable|string',
             'description' => 'nullable|string',
-            'sku' => "sometimes|string|unique:warehouse_items,sku,{$id}",
+            'sku' => ['sometimes', 'string', Rule::unique('warehouse_items')->where('school_id', $request->attributes->get('school_id'))->ignore($item->id)],
             'is_active' => 'sometimes|boolean',
         ]);
         $item->update($data);
@@ -211,7 +212,9 @@ class WarehouseController extends Controller
 
         $pr = PurchaseRequest::create($data);
 
-        $adminIds = User::where('role', 'admin')->pluck('id')->toArray();
+        $adminIds = User::where('role', 'admin')
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $request->attributes->get('school_id')))
+            ->pluck('id')->toArray();
         NotificationService::sendToMany($adminIds, 'new_purchase_request', [
             'item_name' => $item->name,
             'quantity' => $request->quantity_requested,

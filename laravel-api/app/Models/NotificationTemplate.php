@@ -247,6 +247,38 @@ class NotificationTemplate extends Model
                 'default_priority' => 'normal',
                 'action_url_template' => '/warehouse/purchase-requests/{{request_id}}',
             ],
+            [
+                'key' => 'po_pending_approval',
+                'category' => 'administrative',
+                'title_template' => 'PO Awaiting Approval: {{po_no}}',
+                'body_template' => 'Purchase order {{po_no}} for {{supplier_name}} ({{total}}) was submitted by {{requested_by_name}} and needs approval.',
+                'default_priority' => 'high',
+                'action_url_template' => '/procurement/purchase-orders/{{po_id}}',
+            ],
+            [
+                'key' => 'po_status_changed',
+                'category' => 'administrative',
+                'title_template' => 'PO {{status}}: {{po_no}}',
+                'body_template' => 'Purchase order {{po_no}} for {{supplier_name}} is now {{status}}.',
+                'default_priority' => 'normal',
+                'action_url_template' => '/procurement/purchase-orders/{{po_id}}',
+            ],
+            [
+                'key' => 'goods_received',
+                'category' => 'administrative',
+                'title_template' => 'Goods Received: {{grn_no}}',
+                'body_template' => 'Receipt {{grn_no}} against PO {{po_no}} ({{supplier_name}}) posted — {{lines}} line(s), total {{total}}. Stock levels updated.',
+                'default_priority' => 'normal',
+                'action_url_template' => '/procurement/goods-receipts/{{grn_id}}',
+            ],
+            [
+                'key' => 'installment_due',
+                'category' => 'financial',
+                'title_template' => 'Installment Due: {{amount}}',
+                'body_template' => 'Installment {{sequence_no}} of plan {{plan_no}} for {{student_name}} ({{amount}}) is due on {{due_date}}.',
+                'default_priority' => 'high',
+                'action_url_template' => '/finance/installments/plans/{{plan_id}}',
+            ],
         ];
 
         foreach ($templates as $template) {

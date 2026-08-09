@@ -13,6 +13,7 @@ use App\Models\FeeStructure;
 use App\Models\Grade;
 use App\Models\GradeComponent;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Semester;
 use App\Models\StaffProfile;
 use App\Models\StudentProfile;
@@ -28,6 +29,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Granular permission catalogue + default role grants
+        $this->call(PermissionSeeder::class);
+
         // Academic year + semesters
         $year = AcademicYear::create([
             'name' => '2025-2026', 'start_date' => '2025-09-01', 'end_date' => '2026-06-30', 'is_current' => true,
@@ -47,11 +51,12 @@ class DatabaseSeeder extends Seeder
 
         // Admin and operational demo users
         $admin = $this->makeUser('Sara Admin', 'admin@school.test', 'admin');
-        $this->makeUser('Fadi Finance', 'finance@school.test', 'finance');
+        $finance = $this->makeUser('Fadi Finance', 'finance@school.test', 'finance');
         $this->makeUser('Hala HR', 'hr@school.test', 'hr');
         // 'accounting' role merged into 'finance' (unified Finance & Accounting).
         $this->makeUser('Amina Accountant', 'accounting@school.test', 'finance');
         $this->makeUser('Omar Warehouse', 'warehouse@school.test', 'warehouse');
+        $this->makeUser('Rania Procurement', 'procurement@school.test', 'procurement');
 
         // Teachers
         $teachers = collect();
@@ -74,6 +79,7 @@ class DatabaseSeeder extends Seeder
         foreach ([$class1, $class2, $class3] as $cls) {
             foreach ($subjects as $i => $subj) {
                 DB::table('class_subject_teacher')->insert([
+                    'school_id' => $cls->school_id,
                     'class_room_id' => $cls->id, 'subject_id' => $subj->id,
                     'teacher_user_id' => $teachers[$i % $teachers->count()]->id,
                     'created_at' => now(), 'updated_at' => now(),
@@ -118,6 +124,7 @@ class DatabaseSeeder extends Seeder
             ]);
             // Link to a parent
             DB::table('parent_student')->insert([
+                'school_id' => $cls->school_id,
                 'parent_user_id' => $parents[$idx % $parents->count()]->id,
                 'student_user_id' => $u->id,
                 'relation' => $idx % 2 === 0 ? 'father' : 'mother',
@@ -204,7 +211,7 @@ class DatabaseSeeder extends Seeder
         FeeStructure::create(['name' => 'Activity Fee', 'billing_cycle' => 'semester', 'amount' => 200, 'is_active' => true]);
 
         foreach ($students as $i => $s) {
-            Invoice::create([
+            $invoice = Invoice::create([
                 'student_user_id' => $s->id, 'fee_structure_id' => $tuition->id,
                 'invoice_no' => 'INV-'.str_pad((string) (2026000 + $i), 8, '0', STR_PAD_LEFT),
                 'description' => 'Tuition - April 2026',
@@ -212,6 +219,25 @@ class DatabaseSeeder extends Seeder
                 'status' => $i % 3 === 0 ? 'paid' : 'pending',
                 'paid_amount' => $i % 3 === 0 ? 800 : 0,
             ]);
+            if ($invoice->status === 'paid') {
+                $payment = Payment::create([
+                    'invoice_id' => $invoice->id,
+                    'amount' => 800,
+                    'method' => 'cash',
+                    'reference' => 'SEED-'.$invoice->invoice_no,
+                    'recorded_by' => $finance->id,
+                    'paid_at' => now(),
+                    'note' => 'Consistent demo payment for a paid invoice.',
+                ]);
+                DB::table('payment_allocations')->insert([
+                    'school_id' => $invoice->school_id,
+                    'payment_id' => $payment->id,
+                    'invoice_id' => $invoice->id,
+                    'amount' => 800,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
             if ($i % 2 === 0) {
                 Invoice::create([
                     'student_user_id' => $s->id, 'fee_structure_id' => $bus->id,
@@ -242,11 +268,21 @@ class DatabaseSeeder extends Seeder
 
     private function makeUser(string $name, string $email, string $role): User
     {
-        return User::create([
+        $user = User::create([
             'name' => $name, 'email' => $email,
             'password' => Hash::make('password'),
             'role' => $role, 'is_active' => true,
             'phone' => '+971 50 000 0000',
         ]);
+
+        $schoolId = DB::table('schools')->orderBy('id')->value('id');
+        if ($schoolId) {
+            $user->schoolRoles()->firstOrCreate([
+                'school_id' => (int) $schoolId,
+                'role' => $role,
+            ]);
+        }
+
+        return $user;
     }
 }
