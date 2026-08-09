@@ -7,7 +7,7 @@ Thumbs.db
 .vscode/
 *.log
 
-# Node & Frontend (school-web, school-mobile)
+# Node and frontend output
 node_modules/
 dist/
 build/
@@ -16,24 +16,26 @@ out/
 .yarn/
 coverage/
 .nyc_output/
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.eslintcache
+*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+school-web/test-results/
+school-web/playwright-report/
 
-# Vite / React Specific
-.eslintcache
-*.tsbuildinfo
+# Local secrets; keep documented examples
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
 
-# Archives — keep build/release artifacts out of the repo
+# Archives and local release bundles
 *.zip
 *.tar
 *.tar.gz
 
-# Mobile (school-mobile)
+# Mobile build credentials and output
 .expo/
 *.jks
 *.p8
@@ -42,7 +44,7 @@ yarn-error.log*
 *.mobileprovision
 *.orig.*
 
-# Laravel Backend (laravel-api)
+# Laravel backend
 /laravel-api/vendor/
 /laravel-api/node_modules/
 /laravel-api/public/build/
@@ -56,13 +58,13 @@ yarn-error.log*
 /laravel-api/storage/framework/views/
 /laravel-api/storage/app/public/
 /laravel-api/storage/app/private/
-/laravel-api/.phpunit.cache
+/laravel-api/.phpunit.cache/
+/laravel-api/.phpunit.result.cache
 /laravel-api/bootstrap/cache/
-/laravel-api/.env
-/laravel-api/.env.backup
-/laravel-api/.env.production
+/laravel-api/backups/
+/laravel-api/restore-evidence/
 
-# staging backend
+# Optional staging backend checkout
 /laravel-api-staging/vendor/
 /laravel-api-staging/node_modules/
 /laravel-api-staging/public/build/
@@ -76,13 +78,5 @@ yarn-error.log*
 /laravel-api-staging/storage/framework/views/
 /laravel-api-staging/storage/app/public/
 /laravel-api-staging/storage/app/private/
-/laravel-api-staging/.phpunit.cache
+/laravel-api-staging/.phpunit.cache/
 /laravel-api-staging/bootstrap/cache/
-/laravel-api-staging/.env
-/laravel-api-staging/.env.backup
-/laravel-api-staging/.env.production
-
-# Ignore the actual .env file for security, but allow .env.example
-.env
-!.env.example
-!.env.prod.example
