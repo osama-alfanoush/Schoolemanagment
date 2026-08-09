@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react"
 import { SchoolTheme, DEFAULT_THEME, buildTheme, hexToHSL, lighten, darken, hexToRgba, contrastForeground } from "./theme"
-import { apiFetch, mediaUrl, tokenStore } from "./api"
+import { apiFetch, authStore, mediaUrl } from "./api"
 
 const STORAGE_KEY = "school_theme"
 const FONTS: Record<string, string> = {
@@ -140,7 +140,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const refreshSchoolTheme = () => {
-      if (!tokenStore.getAccess()) return
+      if (!authStore.hasSession()) return
       apiFetch<any>("/school-settings")
         .then((payload) => {
           const data = payload?.data ?? payload

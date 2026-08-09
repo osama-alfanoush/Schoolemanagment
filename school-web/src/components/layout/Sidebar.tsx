@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/ThemeContext";
@@ -41,23 +41,32 @@ import {
   ClipboardList,
   ArchiveRestore,
   FolderKanban,
+  FileClock,
+  HandCoins,
 } from "lucide-react";
 
 /* ─── Nav items per role ─── */
-type NavItem = { href: string; label: string; icon: any; badge?: number };
+type NavItem = { href: string; label: string; icon: any; badge?: number; permission?: string };
 
 // Finance and Accounting share one combined menu so a single Finance & Accounting
 // user can reach both areas. The modules/data stay separate — only access is unified.
 const financeAndAccountingNav: NavItem[] = [
   { href: "/finance", label: "roles.finance", icon: LayoutDashboard },
+  { href: "/finance/students", label: "الملف المالي للطالب", icon: Users, permission: "finance.student.view" },
   { href: "/finance/fee-structures", label: "nav.feeStructures", icon: Wallet },
   { href: "/finance/invoices", label: "nav.invoices", icon: Receipt },
-  { href: "/finance/payments", label: "nav.payments", icon: DollarSign },
+  { href: "/finance/payments", label: "القبض", icon: DollarSign, permission: "finance.receipts.view" },
   { href: "/finance/outstanding", label: "financeDashboard.outstandingAccounts", icon: AlertTriangle },
+  { href: "/finance/installments", label: "nav.installments", icon: CalendarClock },
+  { href: "/finance/adjustments", label: "الخصومات والتسويات", icon: Wallet, permission: "finance.adjustments.view" },
   { href: "/finance/payroll", label: "nav.payroll", icon: PiggyBank },
-  { href: "/finance/reports", label: "nav.reports", icon: ListChecks },
+  { href: "/finance/payroll-runs", label: "nav.payrollRuns", icon: ClipboardList },
+  { href: "/finance/hr-advances", label: "سلف الموظفين", icon: HandCoins, permission: "hr.advances.view" },
+  { href: "/finance/payroll-settings", label: "إعدادات الرواتب", icon: Settings, permission: "payroll.settings.view" },
+  { href: "/finance/reports", label: "nav.reports", icon: ListChecks, permission: "finance.reports.view" },
+  { href: "/procurement/supplier-invoices", label: "nav.supplierInvoices", icon: Receipt },
   { href: "/accounting", label: "roles.accounting", icon: BookOpen },
-  { href: "/accounting/journal-entries", label: "accountingDashboard.recentJournalEntries", icon: FileText },
+  { href: "/accounting/journal-entries", label: "accountingDashboard.recentJournalEntries", icon: FileText, permission: "finance.journal.view" },
   { href: "/accounting/chart-of-accounts", label: "nav.chartOfAccounts", icon: BookOpen },
   { href: "/accounting/budget", label: "nav.budget", icon: Wallet },
   { href: "/accounting/closings", label: "nav.closings", icon: ArchiveRestore },
@@ -125,12 +134,18 @@ const navMap: Record<Role, NavItem[]> = {
   hr: [
     { href: "/hr", label: "nav.dashboard", icon: LayoutDashboard },
     { href: "/hr/staff", label: "nav.staff", icon: Users },
+    { href: "/hr/contracts", label: "العقود", icon: FileClock, permission: "hr.contracts.view" },
     { href: "/hr/leave", label: "nav.leave", icon: TimerReset },
     { href: "/hr/requests", label: "nav.hrRequests", icon: Briefcase },
     { href: "/hr/attendance", label: "nav.attendance", icon: ClipboardCheck },
     { href: "/hr/evaluations", label: "nav.evaluations", icon: ClipboardList },
     { href: "/hr/recruitment", label: "nav.recruitment", icon: Briefcase },
     { href: "/hr/reports", label: "nav.reports", icon: ListChecks },
+    { href: "/hr/warnings", label: "الإنذارات", icon: AlertTriangle, permission: "hr.warnings.view" },
+    { href: "/hr/advances", label: "السلف", icon: HandCoins, permission: "hr.advances.view" },
+    { href: "/hr/payroll-settings", label: "إعدادات الرواتب", icon: Settings, permission: "payroll.settings.view" },
+    // HR prepares payroll runs (finance approves and pays them).
+    { href: "/finance/payroll-runs", label: "nav.payrollRuns", icon: ClipboardList },
     { href: "/hr/messages", label: "nav.messages", icon: MessageSquare },
   ],
   warehouse: [
@@ -140,7 +155,18 @@ const navMap: Record<Role, NavItem[]> = {
     { href: "/warehouse/movements", label: "nav.movements", icon: FileText },
     { href: "/warehouse/inventory-counts", label: "nav.inventoryCounts", icon: Boxes },
     { href: "/warehouse/purchase-requests", label: "nav.purchaseRequests", icon: ListChecks },
+    // Warehouse can post goods receipts against approved purchase orders.
+    { href: "/procurement/purchase-orders", label: "nav.purchaseOrders", icon: ClipboardList },
     { href: "/warehouse/reports", label: "nav.reports", icon: ListChecks },
+  ],
+  procurement: [
+    { href: "/procurement", label: "nav.dashboard", icon: LayoutDashboard },
+    { href: "/procurement/suppliers", label: "nav.suppliers", icon: Building2 },
+    { href: "/procurement/purchase-orders", label: "nav.purchaseOrders", icon: ClipboardList },
+    { href: "/procurement/goods-receipts", label: "nav.goodsReceipts", icon: Boxes },
+    { href: "/procurement/supplier-invoices", label: "nav.supplierInvoices", icon: Receipt },
+    { href: "/procurement/messages", label: "nav.messages", icon: MessageSquare },
+    { href: "/procurement/notifications", label: "common.notifications", icon: Bell },
   ],
 };
 
@@ -157,10 +183,11 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen = false, onClo
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { theme } = useTheme();
-  const [pathname] = useLocation();
+  const [pathname, setLocation] = useLocation();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const navItems = useMemo(
-    () => (user ? navMap[user.role] ?? [] : []),
+    () => (user ? (navMap[user.role] ?? []).filter((item) => !item.permission || user.permissions?.includes("*") || user.permissions?.includes(item.permission)) : []),
     [user]
   );
 
@@ -171,6 +198,21 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen = false, onClo
   const schoolLogo = mediaUrl(theme.school_logo);
   const isActive = (href: string) =>
     pathname === href || (href !== `/${user.role}` && pathname.startsWith(href));
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } catch {
+      // AuthProvider still clears local state when the API is unavailable.
+      // The login page is the safe destination in either case.
+    } finally {
+      onClose?.();
+      setLocation("/login", { replace: true });
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <aside
@@ -289,13 +331,14 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen = false, onClo
               {t("common.settings")}
             </Link>
             <button
-              onClick={() => {
-                void logout();
-              }}
+              type="button"
+              onClick={() => { void handleLogout(); }}
+              disabled={isLoggingOut}
+              aria-busy={isLoggingOut}
               className={cn("flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors", isDarkSidebar ? "text-white/70 hover:text-white hover:bg-card/10" : "text-ink-muted hover:text-brand-red hover:bg-brand-red/5")}
             >
               <LogOut className="h-3.5 w-3.5" />
-              {t("common.logout")}
+              {isLoggingOut ? t("common.loading", "Loading…") : t("common.logout")}
             </button>
           </div>
         )}

@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Accounting, JournalEntry, ChartOfAccount } from "@/lib/api";
+import { Accounting, JournalBatch, ChartOfAccount } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import SearchAndFilter from "@/components/ui/SearchAndFilter";
 import BrandButton from "@/components/ui/BrandButton";
 import BrandModal from "@/components/ui/BrandModal";
 import { renderCurrency, renderDate, renderStatus } from "@/lib/tableHelpers";
-import { EyeIcon, TrashIcon } from "@/lib/icons";
+import { EyeIcon } from "@/lib/icons";
 import { useToast } from "@/hooks/use-toast";
 import { paginationMeta, toArray } from "@/lib/response";
 
@@ -28,7 +28,7 @@ export default function JournalEntries() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["journal-entries", search, activeFilters, page],
-    queryFn: () => Accounting.journalEntries({ search, ...activeFilters, page, per_page: 20 }),
+    queryFn: () => Accounting.journalBatches({ search, ...activeFilters, page, per_page: 20 }),
   }) as any;
 
   const { data: accountsData } = useQuery({
@@ -36,24 +36,30 @@ export default function JournalEntries() {
     queryFn: () => Accounting.chartOfAccounts({ per_page: 200 }),
   }) as any;
 
-  const entries = toArray<JournalEntry>(data);
+  const entries = toArray<JournalBatch>(data);
   const accounts = toArray<ChartOfAccount>(accountsData);
   const meta = paginationMeta(data);
 
   const createMutation = useMutation({
-    mutationFn: (payload: any) => Accounting.createJournalEntry(payload),
+    mutationFn: (payload: any) => Accounting.createJournalBatch({ ...payload, source: payload.type }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["journal-entries"] });
-      toast({ title: "Journal entry posted" });
+      toast({ title: "Journal draft created" });
       setShowModal(false);
       setForm({ entry_date: new Date().toISOString().slice(0, 10), description: "", reference_number: "", type: "general", lines: [{ account_id: "", description: "", debit: 0, credit: 0 }] });
     },
     onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.message }),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => Accounting.deleteJournalEntry(id),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["journal-entries"] }); toast({ title: "Entry deleted" }); },
+  const workflowMutation = useMutation({
+    mutationFn: async ({ row, action }: { row: JournalBatch; action: "approve" | "post" | "reverse" }) => {
+      if (action === "approve") return Accounting.approveJournalBatch(row.id);
+      if (action === "post") return Accounting.postJournalBatch(row.id);
+      const reason = window.prompt("Reversal reason")?.trim();
+      if (!reason) throw new Error("Reversal reason is required");
+      return Accounting.reverseJournalBatch(row.id, reason);
+    },
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["journal-entries"] }); toast({ title: "Journal workflow updated" }); },
     onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.message }),
   });
 
@@ -86,8 +92,8 @@ export default function JournalEntries() {
           { key: "reference_no", label: "Reference", render: (v) => <span className="font-mono text-xs text-muted-foreground">{v ?? "-"}</span> },
           { key: "entry_date", label: "Date", render: (v) => renderDate(v), sortable: true },
           { key: "description", label: "Description", render: (v) => <span className="text-sm text-foreground line-clamp-1">{v}</span> },
-          { key: "amount", label: "Amount", render: (v) => renderCurrency(v ?? 0), align: "right" as const, sortable: true },
-          { key: "type", label: "Type", render: (v) => (
+          { key: "lines", label: "Amount", render: (_v, row) => renderCurrency((row.lines ?? []).filter((line: any) => line.type === "debit").reduce((sum: number, line: any) => sum + Number(line.amount), 0)), align: "right" as const },
+          { key: "source", label: "Type", render: (v) => (
             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${v === "closing" ? "bg-purple-50 text-purple-700" : v === "adjustment" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"}`}>{v ?? "general"}</span>
           )},
           { key: "status", label: "Status", render: (v) => renderStatus(v ?? "draft") },
@@ -102,14 +108,16 @@ export default function JournalEntries() {
             activeFilters={activeFilters}
             onFilterChange={(key, value) => setActiveFilters((prev) => ({ ...prev, [key]: value === "__all__" ? "" : value }))}
             filters={[
-              { key: "type", label: "Type", options: [{ value: "general", label: "General" }, { value: "adjustment", label: "Adjustment" }, { value: "closing", label: "Closing" }] },
+              { key: "source", label: "Type", options: [{ value: "general", label: "General" }, { value: "adjustment", label: "Adjustment" }, { value: "closing", label: "Closing" }] },
               { key: "status", label: "Status", options: [{ value: "draft", label: "Draft" }, { value: "posted", label: "Posted" }, { value: "reversed", label: "Reversed" }] },
             ]}
           />
         }
         rowActions={[
           { label: "View", icon: <EyeIcon />, onClick: () => {} },
-          { label: "Delete", icon: <TrashIcon />, onClick: (row) => deleteMutation.mutate(row.id), variant: "danger" as const, show: (row) => row.status === "draft" },
+          { label: "Approve", icon: <span>✓</span>, onClick: (row) => workflowMutation.mutate({ row, action: "approve" }), show: (row) => row.status === "draft" },
+          { label: "Post", icon: <span>↗</span>, onClick: (row) => workflowMutation.mutate({ row, action: "post" }), show: (row) => row.status === "approved" },
+          { label: "Reverse", icon: <span>↶</span>, onClick: (row) => workflowMutation.mutate({ row, action: "reverse" }), variant: "danger" as const, show: (row) => row.status === "posted" },
         ]}
         pagination={{ currentPage: page, lastPage: meta.last_page ?? 1, total: meta.total ?? entries.length, perPage: 20, onPageChange: setPage }}
         emptyMessage="No journal entries found."

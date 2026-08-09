@@ -24,6 +24,16 @@ export default function TopBar({ title, onMenuClick }: TopBarProps) {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // Local auth state is cleared even if the server is unreachable.
+    } finally {
+      setLocation("/login", { replace: true });
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -80,8 +90,7 @@ export default function TopBar({ title, onMenuClick }: TopBarProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                void logout();
-                setLocation("/login");
+                void handleLogout();
               }}
               className="cursor-pointer flex items-center gap-2 text-brand-red focus:text-brand-red"
             >

@@ -35,7 +35,10 @@ type MessageItem = {
 };
 function asArray<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) return payload as T[];
-  if (Array.isArray((payload as any)?.data)) return (payload as any).data as T[];
+  if (typeof payload === "object" && payload !== null && "data" in payload) {
+    const data = (payload as { data?: unknown }).data;
+    if (Array.isArray(data)) return data as T[];
+  }
   return [];
 }
 function initials(name?: string) {
@@ -74,7 +77,9 @@ export default function Messages() {
     isLoading: threadsLoading
   } = useQuery({
     queryKey: ["messages", "threads"],
-    queryFn: Messaging.threads
+    queryFn: Messaging.threads,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
   const {
     data: recipientsData,
@@ -91,7 +96,9 @@ export default function Messages() {
   } = useQuery({
     queryKey: ["messages", "conversation", activeUser?.id],
     queryFn: () => Messaging.conversation(activeUser!.id),
-    enabled: !!activeUser?.id
+    enabled: !!activeUser?.id,
+    refetchInterval: activeUser?.id ? 5_000 : false,
+    refetchIntervalInBackground: false,
   });
   const conversation = asArray<MessageItem>(conversationData);
   const sendMessage = useMutation({
@@ -115,10 +122,10 @@ export default function Messages() {
         queryKey: ["unread-count"]
       })]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Message not sent",
-        description: error?.message || "Please check the recipient and try again.",
+        description: error instanceof Error ? error.message : "Please check the recipient and try again.",
         variant: "destructive"
       });
     }

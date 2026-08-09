@@ -10,18 +10,29 @@ export default function FinanceDashboard() {
   } = useTranslation();
   const {
     data: reports,
-    isLoading
+    isLoading,
+    error,
+    refetch
   } = useQuery({
     queryKey: ["finance", "reports"],
     queryFn: () => Finance.reports()
-  }) as any;
+  });
   const {
     data: outstanding
   } = useQuery({
     queryKey: ["finance", "outstanding"],
     queryFn: Finance.outstanding
-  }) as any;
+  });
   if (isLoading) return <div className="p-8">{t("common.loading")}</div>;
+  // A failed load must not render as "all zeros" — for a finance dashboard
+  // that reads as "nothing outstanding", which is dangerously wrong.
+  if (error) return <div className="p-8 space-y-3" role="alert">
+      <p className="text-sm font-semibold text-foreground">{t("common.loadFailed", "Couldn't load dashboard data.")}</p>
+      <p className="text-sm text-muted-foreground">{error.message}</p>
+      <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90" onClick={() => void refetch()}>
+        {t("common.retry", "Retry")}
+      </button>
+    </div>;
   return <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("nav.dashboard")}</h1>
       

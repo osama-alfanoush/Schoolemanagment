@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { apiFetch, Auth, tokenStore } from '@/lib/api';
+import { apiFetch, Auth, authStore } from '@/lib/api';
 import { server } from './msw-handlers';
 import { http, HttpResponse } from 'msw';
 
@@ -14,6 +14,12 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
+function requestUrl(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.toString();
+  return input.url;
+}
+
 describe('API layer', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -24,8 +30,8 @@ describe('API layer', () => {
     vi.restoreAllMocks();
   });
 
-  it('includes Bearer token in request headers', async () => {
-    tokenStore.setSession('test-access-token', 'test-refresh-token', {
+  it('uses credentialed cookie requests without exposing an Authorization token', async () => {
+    authStore.setSession({
       id: 1, name: 'Test', email: 'test@test.com', role: 'admin', is_active: true,
     });
 
@@ -41,35 +47,38 @@ describe('API layer', () => {
     expect(fetchSpy).toHaveBeenCalledWith(
       expect.stringContaining('/api/test'),
       expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: 'Bearer test-access-token',
-        }),
+        credentials: 'include',
       })
     );
+    const request = fetchSpy.mock.calls[0]?.[1];
+    const headers = new Headers(request?.headers);
+    expect(headers.get('Authorization')).toBeNull();
+    expect(headers.get('X-Auth-Mode')).toBe('cookie');
   });
 
-  it('login returns access token and user', async () => {
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({
-        access_token: 'token-abc',
-        refresh_token: 'refresh-xyz',
+  it('login initializes CSRF and returns user without browser-visible tokens', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation((input) => {
+      const url = requestUrl(input);
+      const payload = url.includes('/auth/csrf-cookie')
+        ? { csrf_token: 'csrf-for-login' }
+        : {
         token_type: 'Bearer',
         expires_in: 3600,
         user: { id: 1, name: 'Admin', email: 'admin@test.com', role: 'admin', is_active: true },
-      }), {
+      };
+      return Promise.resolve(new Response(JSON.stringify(payload), {
         status: 200,
         headers: { 'content-type': 'application/json' },
-      })
-    );
+      }));
+    });
 
     const result = await Auth.login('admin@test.com', 'password');
 
-    expect(result.access_token).toBe('token-abc');
+    expect('user' in result).toBe(true);
+    if (!('user' in result)) throw new Error('Expected a completed login response');
     expect(result.user.role).toBe('admin');
-    expect(fetchSpy).toHaveBeenCalledWith(
-      expect.stringContaining('/api/auth/login'),
-      expect.objectContaining({ method: 'POST' })
-    );
+    expect('access_token' in result).toBe(false);
+    expect(fetchSpy.mock.calls.some(([url]) => requestUrl(url).includes('/api/auth/login'))).toBe(true);
   });
 
   it('returns error message on failed request', async () => {

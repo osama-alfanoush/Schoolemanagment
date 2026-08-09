@@ -44,11 +44,11 @@ export default function Login() {
     try {
       const user = await login(values.email, values.password);
       setLocation(`/${user.role}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         variant: "destructive",
         title: "Login failed",
-        description: err.message || t("login.invalidCredentials")
+        description: err instanceof Error ? err.message : t("login.invalidCredentials")
       });
     } finally {
       setIsLoading(false);
@@ -97,7 +97,7 @@ export default function Login() {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col text-sm text-muted-foreground">
+          {import.meta.env.DEV && <CardFooter className="flex flex-col text-sm text-muted-foreground">
             <p className="mb-2 text-center">{t("login.demoAccounts")}</p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 w-full text-xs">
               <span>admin@school.test</span>
@@ -107,7 +107,7 @@ export default function Login() {
               <span>parent1@school.test</span>
               <span>ali1@school.test</span>
             </div>
-          </CardFooter>
+          </CardFooter>}
         </BrandCard>
       </div>
     </div>;

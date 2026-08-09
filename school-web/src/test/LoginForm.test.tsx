@@ -4,6 +4,7 @@ import LoginPage from '@/pages/auth/LoginPage';
 import { useAuth } from '@/lib/auth';
 import { act } from 'react';
 import userEvent from '@testing-library/user-event';
+import { ApiError } from '@/lib/api';
 
 vi.mock('@/lib/auth', () => ({
   useAuth: vi.fn(),
@@ -38,6 +39,16 @@ describe('LoginPage', () => {
   it('renders submit button', () => {
     const { getByRole } = setup();
     expect(getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
+
+  it('renders every role without a horizontally scrolling selector', () => {
+    const { getByTestId, getByRole } = setup();
+    const selector = getByTestId('role-selector');
+
+    expect(selector.className).toContain('grid');
+    expect(selector.className).not.toContain('overflow-x-auto');
+    expect(getByRole('button', { name: /student/i })).toBeInTheDocument();
+    expect(getByRole('button', { name: /procurement/i })).toBeInTheDocument();
   });
 
   it('shows error when submitted with empty fields', async () => {
@@ -89,6 +100,24 @@ describe('LoginPage', () => {
     await vi.waitFor(() => {
       expect(getByText(/invalid credentials/i)).toBeInTheDocument();
     });
+  });
+
+  it('maps the API validation envelope to a safe credential error', async () => {
+    const user = userEvent.setup();
+    mockLogin.mockRejectedValue(new ApiError(422, 'Validation failed', {
+      errors: { email: ['Invalid credentials.'] },
+    }));
+
+    const { getByRole, getByText } = setup();
+    const inputs = document.querySelectorAll('input');
+    await user.type(inputs[0], 'admin@school.test');
+    await user.type(inputs[1], 'wrongpassword');
+    await user.click(getByRole('button', { name: /sign in/i }));
+
+    await vi.waitFor(() => {
+      expect(getByText(/invalid email or password/i)).toBeInTheDocument();
+    });
+    expect(document.body).not.toHaveTextContent('Validation failed');
   });
 
   it('disables submit button while loading', async () => {

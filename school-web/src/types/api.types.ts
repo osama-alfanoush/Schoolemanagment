@@ -57,8 +57,9 @@ export interface AttendanceDashboard {
 }
 
 export interface FinanceReports {
-  total_revenue: number;
-  total_invoices: number;
+  total_collected: number;
+  total_outstanding?: number;
+  invoices_issued: number;
   payroll_count: number;
 }
 
@@ -190,14 +191,16 @@ export interface PaginatedChartData {
 // ─── Enums / Unions ───────────────────────────────────────────────
 export type UserRole =
   | 'admin' | 'teacher' | 'student' | 'parent'
-  | 'finance' | 'hr' | 'warehouse';
+  | 'finance' | 'hr' | 'warehouse' | 'procurement';
 
 export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
-export type InvoiceStatus = 'pending' | 'partial' | 'paid' | 'overdue';
+export type InvoiceStatus = 'pending' | 'partial' | 'paid' | 'overdue' | 'cancelled';
 export type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'online';
 export type GradeComponentType = 'quiz' | 'homework' | 'exam' | 'project';
 export type JournalEntryType = 'debit' | 'credit';
-export type JournalSource = 'manual' | 'invoice' | 'payroll' | 'expense';
+export type JournalSource =
+  | 'manual' | 'invoice' | 'payroll' | 'expense'
+  | 'purchase' | 'supplier_payment' | 'installment';
 export type PurchaseRequestStatus = 'pending' | 'approved' | 'rejected' | 'purchased';
 export type MovementType = 'in' | 'out' | 'adjustment' | 'return';
 
@@ -229,6 +232,7 @@ export interface ClassRoom {
   capacity?: number;
   homeroom_teacher_id?: number;
   homeroom_teacher?: User;
+  academic_year?: AcademicYear;
 }
 
 export interface StudentProfile {
@@ -263,7 +267,10 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  permissions?: string[];
+  must_change_password?: boolean;
   phone?: string;
+  photo_path?: string | null;
   is_active: boolean;
   student_profile?: StudentProfile;
   staff_profile?: StaffProfile;
@@ -346,6 +353,8 @@ export interface Payment {
   method: PaymentMethod;
   paid_at: string;
   recorded_by: number;
+  status?: 'posted' | 'reversed';
+  receipt?: { id: number; receipt_no: string; status: string } | null;
 }
 
 export type BillingCycle = "monthly" | "semester" | "yearly" | "one-time";
@@ -374,6 +383,94 @@ export interface Invoice {
   created_at?: string;
 }
 
+export type FinanceWorkflowStatus = 'draft' | 'approved' | 'posted' | 'reversed';
+
+export interface ReceiptAllocation {
+  id: number;
+  invoice_id: number;
+  installment_id?: number | null;
+  amount: number;
+  invoice?: Invoice;
+}
+
+export interface PaymentReceipt {
+  id: number;
+  receipt_no: string;
+  student_user_id: number;
+  student?: User;
+  amount: number;
+  method: PaymentMethod;
+  receipt_date: string;
+  reference?: string | null;
+  cash_account?: string | null;
+  note?: string | null;
+  status: FinanceWorkflowStatus;
+  allocations?: ReceiptAllocation[];
+  created_at?: string;
+}
+
+export interface StudentFinancialAdjustment {
+  id: number;
+  adjustment_no: string;
+  student_user_id: number;
+  student?: User;
+  invoice_id?: number | null;
+  invoice?: Invoice;
+  type: 'discount' | 'adjustment' | 'refund';
+  direction: 'debit' | 'credit';
+  calculation_type: 'amount' | 'percentage';
+  value: number;
+  amount: number;
+  reason: string;
+  status: FinanceWorkflowStatus;
+  created_at?: string;
+}
+
+export interface StudentFinanceSummary {
+  gross_fees: number;
+  discounts: number;
+  adjustments: number;
+  amount_due: number;
+  paid: number;
+  remaining: number;
+  overdue: number;
+}
+
+export interface FinancialTimelineRow {
+  date: string;
+  type: 'invoice' | 'payment' | 'discount' | 'adjustment' | 'refund';
+  status: string;
+  description: string;
+  reference?: string | null;
+  debit: number;
+  credit: number;
+  balance?: number;
+  source_type: string;
+  source_id: number;
+}
+
+export interface StudentFinanceProfile {
+  student: User & { student_profile?: StudentProfile; parents?: User[] };
+  summary: StudentFinanceSummary;
+  invoices: Invoice[];
+  payment_plans: PaymentPlan[];
+  payments: Payment[];
+  adjustments: StudentFinancialAdjustment[];
+  timeline: FinancialTimelineRow[];
+}
+
+export interface StudentStatement {
+  data: FinancialTimelineRow[];
+  current_page: number;
+  per_page: number;
+  last_page: number;
+  total: number;
+  opening_balance: number;
+  period_debit: number;
+  period_credit: number;
+  closing_balance: number;
+}
+
 // ─── Accounting ───────────────────────────────────────────────────
 export interface JournalEntry {
   id: number;
@@ -388,6 +485,18 @@ export interface JournalEntry {
   created_by: number;
   created_at?: string;
   status?: string;
+  total_debit?: number;
+  total_credit?: number;
+}
+
+export interface JournalBatch {
+  id: number;
+  reference_no: string;
+  entry_date: string;
+  description: string;
+  source: string;
+  status: FinanceWorkflowStatus;
+  lines: JournalEntry[];
   total_debit?: number;
   total_credit?: number;
 }
@@ -455,6 +564,195 @@ export interface WarehouseItem {
   location?: string;
   description?: string;
   is_active: boolean;
+  unit_cost?: number | null;
+  last_unit_cost?: number | null;
+}
+
+// Procurement
+export type PurchaseOrderStatus =
+  | 'draft' | 'pending_approval' | 'approved' | 'partially_received'
+  | 'received' | 'closed' | 'cancelled';
+
+export interface SupplierAccount {
+  id: number;
+  balance: number;
+  credit_limit?: number | null;
+  payment_terms: string;
+}
+
+export interface Supplier {
+  id: number;
+  code: string;
+  name: string;
+  contact_person?: string | null;
+  phone: string;
+  secondary_phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  tax_number?: string | null;
+  is_active: boolean;
+  account?: SupplierAccount | null;
+}
+
+export interface PurchaseOrderItem {
+  id: number;
+  warehouse_item_id: number;
+  warehouse_item?: WarehouseItem | null;
+  warehouseItem?: WarehouseItem | null;
+  description?: string | null;
+  quantity_ordered: number;
+  quantity_received: number;
+  unit: string;
+  unit_cost: number;
+  line_total: number;
+  warehouse_location?: string | null;
+}
+
+export interface PurchaseOrder {
+  id: number;
+  po_no: string;
+  supplier_id: number;
+  supplier?: Supplier | null;
+  status: PurchaseOrderStatus;
+  order_date: string;
+  expected_date?: string | null;
+  subtotal: number;
+  tax: number;
+  total: number;
+  notes?: string | null;
+  items?: PurchaseOrderItem[];
+  requestedBy?: UserRef | null;
+}
+
+export interface GoodsReceipt {
+  id: number;
+  grn_no: string;
+  purchase_order_id: number;
+  purchase_order?: PurchaseOrder | null;
+  purchaseOrder?: PurchaseOrder | null;
+  status: string;
+  notes?: string | null;
+  received_at: string;
+  received_by?: UserRef | null;
+  items?: Array<{
+    id: number;
+    quantity_received: number;
+    unit_cost: number;
+    purchase_order_item?: PurchaseOrderItem | null;
+  }>;
+}
+
+export interface SupplierInvoice {
+  id: number;
+  invoice_no: string;
+  supplier_invoice_ref?: string | null;
+  supplier_id: number;
+  supplier?: Supplier | null;
+  purchase_order_id?: number | null;
+  invoice_date: string;
+  due_date: string;
+  amount: number;
+  paid_amount: number;
+  status: 'pending' | 'partial' | 'paid' | 'overdue' | 'cancelled';
+  notes?: string | null;
+}
+
+export interface ProcurementDashboardData {
+  suppliers_active: number;
+  orders_by_status: Record<string, number>;
+  pending_approval: number;
+  awaiting_delivery: number;
+  month_received_total: number;
+  total_payable: number;
+}
+
+// ─── Finance sub-modules (installments + payroll runs) ───────────
+export interface InstallmentRow {
+  id: number;
+  payment_plan_id: number;
+  sequence_no: number;
+  due_date: string;
+  amount: number;
+  paid_amount: number;
+  status: 'pending' | 'partial' | 'paid' | 'overdue' | 'waived';
+  paid_at?: string | null;
+  plan?: PaymentPlan | null;
+}
+
+export interface PaymentPlan {
+  id: number;
+  plan_no: string;
+  student_user_id: number;
+  invoice_id?: number | null;
+  total_amount: number;
+  down_payment: number;
+  num_installments: number;
+  frequency: 'monthly' | 'quarterly';
+  start_date: string;
+  status: 'active' | 'completed' | 'defaulted' | 'cancelled';
+  student?: UserRef | null;
+  invoice?: { id: number; invoice_no: string; amount: number; paid_amount?: number; status?: string } | null;
+  installments?: InstallmentRow[];
+}
+
+export interface CreatePaymentPlanRequest {
+  student_user_id: number;
+  invoice_id?: number;
+  total_amount: number;
+  down_payment?: number;
+  num_installments: number;
+  frequency?: 'monthly' | 'quarterly';
+  start_date: string;
+}
+
+export interface PayInstallmentRequest {
+  amount: number;
+  method: 'cash' | 'bank_transfer' | 'card' | 'online';
+  reference?: string;
+  note?: string;
+}
+
+export interface PayrollRunRecord {
+  id: number;
+  staff_user_id: number;
+  year: number;
+  month: number;
+  base_salary: number;
+  allowances: number;
+  deductions: number;
+  advance_deduction: number;
+  net_pay: number;
+  total_earnings: number;
+  gross_salary: number;
+  insurable_wage: number;
+  employee_social_insurance: number;
+  employer_social_insurance: number;
+  employer_contributions: number;
+  other_deductions: number;
+  employer_cost: number;
+  contract_snapshot?: Record<string, unknown> | null;
+  social_insurance_snapshot?: Record<string, unknown> | null;
+  calculation_snapshot?: { formula?: string; amounts_cents?: Record<string, number>; [key: string]: unknown } | null;
+  components?: Array<{ id: number; component_code: string; name_ar: string; name_en: string; category: string; calculation_type: string; rate?: number | null; amount: number }>;
+  status: string;
+  paid_at?: string | null;
+  staff?: { id: number; name: string; role?: string };
+}
+
+export interface PayrollRunRow {
+  id: number;
+  run_no: string;
+  year: number;
+  month: number;
+  status: 'draft' | 'processed' | 'approved' | 'paid' | 'reversed';
+  total_gross: number;
+  total_deductions: number;
+  total_net: number;
+  processed_by?: { id: number; name: string } | null;
+  approved_by?: { id: number; name: string } | null;
+  accrual_journal?: { id: number; reference_no: string; status: string; lines?: JournalEntry[] } | null;
+  payment_journal?: { id: number; reference_no: string; status: string; lines?: JournalEntry[] } | null;
+  records?: PayrollRunRecord[];
 }
 
 export interface StockMovement {
@@ -622,10 +920,9 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
   token_type: string;
   expires_in: number;
+  must_change_password?: boolean;
   user: User;
 }
 
@@ -749,7 +1046,10 @@ export interface UpdateUserRequest {
   email?: string;
   phone?: string;
   is_active?: boolean;
+  /** Admin reset: the backend flags it temporary (must_change_password). */
   password?: string;
+  /** Staff-to-staff role changes only; students/parents are rejected. */
+  role?: UserRole;
 }
 
 export interface CreateClassRoomRequest {
@@ -981,6 +1281,63 @@ export interface CreateInventoryCountRequest {
     physical_qty: number;
     notes?: string;
   }>;
+}
+
+export interface CreateSupplierRequest {
+  name: string;
+  contact_person?: string;
+  phone: string;
+  secondary_phone?: string;
+  email?: string;
+  address?: string;
+  tax_number?: string;
+  payment_terms?: 'cash' | 'net_15' | 'net_30' | 'net_60';
+  credit_limit?: number;
+  notes?: string;
+}
+
+export interface CreatePurchaseOrderRequest {
+  supplier_id: number;
+  order_date: string;
+  expected_date?: string;
+  tax?: number;
+  notes?: string;
+  items: Array<{
+    warehouse_item_id: number;
+    description?: string;
+    quantity_ordered: number;
+    unit: string;
+    unit_cost: number;
+    warehouse_location?: string;
+  }>;
+}
+
+export interface ReceivePurchaseOrderRequest {
+  notes?: string;
+  lines: Array<{
+    purchase_order_item_id: number;
+    quantity_received: number;
+    unit_cost?: number;
+    warehouse_location?: string;
+  }>;
+}
+
+export interface CreateSupplierInvoiceRequest {
+  supplier_id: number;
+  purchase_order_id?: number;
+  supplier_invoice_ref?: string;
+  invoice_date: string;
+  due_date: string;
+  amount: number;
+  notes?: string;
+}
+
+export interface RecordSupplierPaymentRequest {
+  amount: number;
+  method: 'cash' | 'bank_transfer' | 'cheque';
+  reference?: string;
+  paid_at?: string;
+  note?: string;
 }
 
 // Payments

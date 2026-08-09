@@ -30,6 +30,7 @@ export interface TableAction<T = any> {
   onClick: (row: T) => void
   variant?: "default" | "danger"
   show?: (row: T) => boolean
+  disabled?: (row: T) => boolean
 }
 
 export interface DataTableProps<T = any> {
@@ -129,12 +130,13 @@ function RowActionDropdown({ actions, row, onClose }: { actions: TableAction[]; 
         return (
           <button
             key={ai}
+            disabled={action.disabled?.(row)}
             onClick={() => {
               action.onClick(row)
               onClose()
             }}
             className={cn(
-              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-100",
+              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-100 disabled:cursor-not-allowed disabled:opacity-50",
               isDanger
                 ? "text-destructive hover:bg-destructive/10"
                 : "text-foreground hover:bg-muted/60",
@@ -422,10 +424,11 @@ export default function DataTable<T extends Record<string, any>>({
                               return (
                                 <button
                                   key={ai}
+                                  disabled={action.disabled?.(row)}
                                   onClick={() => action.onClick(row)}
                                   title={action.label}
                                   className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150",
+                                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50",
                                     isDanger
                                       ? "text-destructive bg-transparent border border-transparent hover:bg-destructive/10 hover:border-destructive/30"
                                       : "text-muted-foreground bg-transparent border border-transparent hover:bg-muted/60 hover:text-foreground hover:border-border",

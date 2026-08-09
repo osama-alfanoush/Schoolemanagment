@@ -1,110 +1,58 @@
-import BrandCard from "@/components/ui/BrandCard";
-import BrandButton from "@/components/ui/BrandButton";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Finance } from "@/lib/api";
-import { useTranslation } from "react-i18next";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FinanceWorkspace } from "@/lib/api";
+import PageHeader from "@/components/ui/PageHeader";
+import BrandCard from "@/components/ui/BrandCard";
+import BrandButton from "@/components/ui/BrandButton";
+import BrandEmptyState from "@/components/ui/BrandEmptyState";
 import { Download, RefreshCw } from "lucide-react";
-function toCsv(rows: Record<string, any>[]): string {
-  if (rows.length === 0) return "";
-  const cols = Object.keys(rows[0]);
-  const head = cols.join(",");
-  const body = rows.map(r => cols.map(c => {
-    const v = r[c];
-    if (v == null) return "";
-    const s = typeof v === "object" ? JSON.stringify(v) : String(v);
-    return `"${s.replace(/"/g, '""')}"`;
-  }).join(",")).join("\n");
-  return `${head}\n${body}`;
-}
-function downloadCsv(filename: string, csv: string) {
-  const blob = new Blob([csv], {
-    type: "text/csv"
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+
+const reportTypes = [
+  ["student-balances", "أرصدة الطلاب"],
+  ["due-installments", "الأقساط المستحقة والمتأخرة"],
+  ["receipts", "المقبوضات"],
+  ["discounts", "الخصومات"],
+  ["general-journal", "اليومية العامة"],
+  ["reversed", "الحركات المعكوسة"],
+  ["reconciliation", "مطابقة السندات والقيود"],
+] as const;
+
 export default function FinanceReports() {
-  const {
-    t
-  } = useTranslation();
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
-  const {
-    data,
-    isLoading,
-    refetch,
-    isFetching
-  } = useQuery({
-    queryKey: ["finance", "reports", year, month],
-    queryFn: () => Finance.reports(year, month)
-  }) as any;
-  const report: any = data ?? {};
-  const rows = Array.isArray(report.rows) ? report.rows : Array.isArray(report.invoices) ? report.invoices : Array.isArray(report) ? report : [];
-  const summary = Array.isArray(report) ? null : report;
-  return <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("nav.reports")}</h1>
-        <div className="flex gap-2">
-          <BrandButton variant="outline" onClick={() => downloadCsv(`finance-report-${year}-${String(month).padStart(2, "0")}.csv`, toCsv(rows))} disabled={rows.length === 0}>
-            <Download className="h-4 w-4 me-2" />
-            CSV
-          </BrandButton>
-        </div>
-      </div>
+  const [type, setType] = useState<(typeof reportTypes)[number][0]>("student-balances");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
+  const report = useQuery({
+    queryKey: ["financial-report-center", type, dateFrom, dateTo, page],
+    queryFn: () => FinanceWorkspace.report<Record<string, unknown>>(type, { date_from: dateFrom || undefined, date_to: dateTo || undefined, page, per_page: 25 }),
+  });
+  const rows = report.data?.data ?? [];
+  const directPagination = report.data as unknown as { last_page?: number } | undefined;
+  const lastPage = report.data?.meta?.last_page ?? directPagination?.last_page ?? 1;
+  const columns = rows.length ? Object.keys(rows[0]).filter((key) => !["created_at", "updated_at", "deleted_at"].includes(key)) : [];
 
-      <BrandCard className="shadow-academic border-surface-border">
-        <CardHeader>
-          <CardTitle className="text-base">Period</CardTitle>
-          <CardDescription>
-            Monthly financial summary — collections, outstanding, payroll.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-3 max-w-xl">
-          <div className="space-y-1.5">
-            <Label htmlFor="year">Year</Label>
-            <Input id="year" type="number" value={year} onChange={e => setYear(Number(e.target.value) || year)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="month">Month</Label>
-            <Input id="month" type="number" min={1} max={12} value={month} onChange={e => setMonth(Number(e.target.value) || month)} />
-          </div>
-          <div className="flex items-end">
-            <BrandButton onClick={() => refetch()} disabled={isFetching} className="w-full">
-              <RefreshCw className={`h-4 w-4 me-2 ${isFetching ? "animate-spin" : ""}`} />
-              {t("common.refresh")}
-            </BrandButton>
-          </div>
-        </CardContent>
-      </BrandCard>
+  function downloadCsv() {
+    if (!rows.length) return;
+    const csv = [columns.join(","), ...rows.map((row) => columns.map((key) => `"${cellText(row[key]).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const url = URL.createObjectURL(new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${type}.csv`; anchor.click(); URL.revokeObjectURL(url);
+  }
 
-      {isLoading ? <div className="text-center text-muted-foreground py-8">
-          {t("common.loading")}
-        </div> : summary && Object.keys(summary).length > 0 ? <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(summary).filter(([k]) => !["rows", "invoices"].includes(k)).map(([k, v]) => <BrandCard key={k}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm capitalize">
-                    {k.replace(/_/g, " ")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {typeof v === "object" && v !== null ? <pre className="text-xs whitespace-pre-wrap text-muted-foreground overflow-auto max-h-48 bg-muted p-2 rounded">
-                      {JSON.stringify(v, null, 2)}
-                    </pre> : <div className="text-2xl font-semibold font-mono">
-                      {String(v)}
-                    </div>}
-                </CardContent>
-              </BrandCard>)}
-        </div> : <div className="text-center text-muted-foreground py-8 border rounded-md">
-          {t("common.empty")}
-        </div>}
-    </div>;
+  return <div className="space-y-6" dir="rtl">
+    <PageHeader title="مركز التقارير المالية" subtitle="تقارير مفلترة من نفس حركات السندات والقيود" icon="📊" actions={<BrandButton variant="outline" disabled={!rows.length} onClick={downloadCsv}><Download className="h-4 w-4" /> Excel CSV</BrandButton>} />
+    <BrandCard className="p-4"><div className="grid gap-3 md:grid-cols-4">
+      <label className="text-sm"><span className="mb-1 block font-medium">التقرير</span><select value={type} onChange={(e) => { setType(e.target.value as typeof type); setPage(1); }} className="w-full rounded-lg border p-2.5">{reportTypes.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+      <label className="text-sm"><span className="mb-1 block font-medium">من تاريخ</span><input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-full rounded-lg border p-2.5" /></label>
+      <label className="text-sm"><span className="mb-1 block font-medium">إلى تاريخ</span><input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-full rounded-lg border p-2.5" /></label>
+      <div className="flex items-end"><BrandButton fullWidth variant="secondary" onClick={() => { void report.refetch(); }} isLoading={report.isFetching}><RefreshCw className="h-4 w-4" /> تحديث</BrandButton></div>
+    </div></BrandCard>
+    {!rows.length && !report.isLoading ? <BrandEmptyState icon="📊" title="لا توجد بيانات للفلاتر المحددة" subtitle="غيّر الفترة أو نوع التقرير ثم أعد المحاولة." /> : <BrandCard className="overflow-x-auto p-0"><table className="w-full min-w-[760px] text-sm"><thead className="bg-muted/40"><tr>{columns.map((column) => <th key={column} className="p-3 text-start">{column.replace(/_/g, " ")}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={typeof row.id === "string" || typeof row.id === "number" ? row.id : index} className="border-t">{columns.map((column) => <td key={column} className="max-w-72 p-3"><span className="line-clamp-2">{cellText(row[column])}</span></td>)}</tr>)}</tbody></table></BrandCard>}
+    <div className="flex justify-center gap-2"><button className="rounded border px-3 py-1 disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>السابق</button><span className="px-3 py-1">{page} / {lastPage}</span><button className="rounded border px-3 py-1 disabled:opacity-40" disabled={page >= lastPage} onClick={() => setPage((p) => p + 1)}>التالي</button></div>
+  </div>;
+}
+
+function cellText(value: unknown): string {
+  if (value === null || value === undefined) return "—";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  try { return JSON.stringify(value); } catch { return "—"; }
 }

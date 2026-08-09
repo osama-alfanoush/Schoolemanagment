@@ -1,108 +1,33 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { Hr } from "@/lib/api";
-import { toArray } from "@/lib/response";
+import { Download } from "lucide-react";
+import { HrPayrollReportsApi } from "@/lib/hrPayrollApi";
+import { paginationMeta, toArray } from "@/lib/response";
+import PageHeader from "@/components/ui/PageHeader";
+import BrandButton from "@/components/ui/BrandButton";
+import BrandCard from "@/components/ui/BrandCard";
+import { CardContent } from "@/components/ui/card";
+
+const reports = [
+  ["payroll", "كشف الرواتب وتكلفة الموظفين"], ["payroll-reconciliation", "مطابقة الرواتب مع القيود المحاسبية"],
+  ["payroll-detail", "تفاصيل الرواتب"], ["social-insurance", "تقرير الضمان الاجتماعي"],
+  ["components", "مكونات الراتب"], ["employee-cost", "تكلفة الموظف"],
+  ["contracts", "العقود المنتهية والقريبة"], ["advances", "السلف والأرصدة والأقساط"],
+  ["warnings", "الإنذارات"], ["uninsured", "الموظفون غير المسجلين في الضمان"],
+];
 
 export default function HrReports() {
-  const { t } = useTranslation();
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["hr-monthly-report", year, month],
-    queryFn: () => Hr.staffMonthlyReport(year, month),
-  });
-
-  const report = (data as any)?.data ?? (data as any) ?? {};
-  const details = toArray(report.details);
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-  return (
-    <div className="space-y-6">
-      <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("nav.reports")}</h1>
-
-      {/* Filters */}
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <label htmlFor="hr-report-year" className="text-sm font-medium">Year</label>
-          <select id="hr-report-year" className="rounded-md border bg-background px-3 py-2 text-sm" value={year} onChange={(e) => setYear(Number(e.target.value))}>
-            {[now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1].map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="hr-report-month" className="text-sm font-medium">Month</label>
-          <select id="hr-report-month" className="rounded-md border bg-background px-3 py-2 text-sm" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
-            {months.map((m, i) => (
-              <option key={i} value={i + 1}>{m}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="p-8 text-center text-muted-foreground">Loading report…</div>
-      ) : (
-        <div className="space-y-4">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-sm text-muted-foreground">Total Staff</div>
-              <div className="text-2xl font-bold mt-1">{report.total_staff ?? report.data?.total_staff ?? "—"}</div>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-sm text-muted-foreground">Avg Attendance Rate</div>
-              <div className="text-2xl font-bold mt-1 text-green-600">{report.attendance_rate ?? report.data?.attendance_rate ?? "—"}%</div>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-sm text-muted-foreground">Total Leave Days</div>
-              <div className="text-2xl font-bold mt-1 text-yellow-600">{report.total_leave_days ?? report.data?.total_leave_days ?? "—"}</div>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="text-sm text-muted-foreground">Working Days</div>
-              <div className="text-2xl font-bold mt-1">{report.working_days ?? report.data?.working_days ?? "—"}</div>
-            </div>
-          </div>
-
-          {/* Detail Table */}
-          {details.length > 0 && (
-            <div className="rounded-lg border bg-card overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="text-left p-3">Staff Member</th>
-                    <th className="text-center p-3">Present</th>
-                    <th className="text-center p-3">Absent</th>
-                    <th className="text-center p-3">Late</th>
-                    <th className="text-center p-3">Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {details.map((d: any, i: number) => (
-                    <tr key={i} className="border-b hover:bg-muted/30">
-                      <td className="p-3 font-medium">{d.name ?? d.staff_name}</td>
-                      <td className="p-3 text-center text-green-600">{d.present ?? 0}</td>
-                      <td className="p-3 text-center text-red-600">{d.absent ?? 0}</td>
-                      <td className="p-3 text-center text-yellow-600">{d.late ?? 0}</td>
-                      <td className="p-3 text-center font-medium">{d.rate ?? "—"}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Fallback if no detail data */}
-          {details.length === 0 && !isLoading && (
-            <div className="p-8 text-center border rounded-md text-muted-foreground">
-              No detailed report data available for {months[month - 1]} {year}. Staff attendance records will appear here once attendance is tracked.
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  const [type, setType] = useState("payroll"); const [page, setPage] = useState(1);
+  const query = useQuery({ queryKey: ["hr-payroll-report", type, page], queryFn: () => HrPayrollReportsApi.report<Record<string, any>>(type, { page, per_page: 25 }) });
+  const rows = toArray<Record<string, any>>(query.data); const meta = paginationMeta(query.data);
+  const downloadCsv = () => {
+    if (!rows.length) return; const keys = Object.keys(rows[0]).filter(key => typeof rows[0][key] !== "object");
+    const csv = [keys.join(","), ...rows.map(row => keys.map(key => `"${String(row[key] ?? "").replaceAll('"', '""')}"`).join(","))].join("\n");
+    const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${type}.csv`; anchor.click(); URL.revokeObjectURL(url);
+  };
+  return <div className="space-y-6" dir="rtl"><PageHeader title="تقارير HR والرواتب" subtitle="فلترة وصفحات من الخادم ومن نفس snapshots والقيود" icon="📊" actions={<BrandButton variant="outline" disabled={!rows.length} onClick={downloadCsv}><Download className="h-4 w-4" /> CSV</BrandButton>} />
+    <div className="flex flex-wrap gap-2">{reports.map(([key, label]) => <BrandButton key={key} size="sm" variant={type === key ? "primary" : "outline"} onClick={() => { setType(key); setPage(1); }}>{label}</BrandButton>)}</div>
+    <BrandCard><CardContent className="p-0"><div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-muted"><tr>{rows[0] && Object.keys(rows[0]).filter(key => typeof rows[0][key] !== "object").map(key => <th key={key} className="p-3 text-right">{key}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={row.id ?? index} className="border-t">{Object.keys(row).filter(key => typeof row[key] !== "object").map(key => <td key={key} className="whitespace-nowrap p-3">{String(row[key] ?? "—")}</td>)}</tr>)}</tbody></table></div>{query.isLoading && <div className="p-8 text-center">جارٍ تحميل التقرير…</div>}{!query.isLoading && !rows.length && <div className="p-8 text-center text-muted-foreground">لا توجد بيانات</div>}</CardContent></BrandCard>
+    <div className="flex justify-center gap-2"><BrandButton size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>السابق</BrandButton><span className="self-center text-sm">{page} / {meta.last_page ?? 1}</span><BrandButton size="sm" variant="outline" disabled={page >= (meta.last_page ?? 1)} onClick={() => setPage(page + 1)}>التالي</BrandButton></div>
+  </div>;
 }
