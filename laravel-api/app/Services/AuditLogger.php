@@ -25,6 +25,22 @@ class AuditLogger
         'webhook_secret',
         'card_number',
         'cvv',
+        // MFA material: recovery codes are bearer credentials and one-time
+        // codes must not be replayable from the audit trail.
+        'recovery_code',
+        'recovery_codes',
+        'otp',
+        'totp',
+        // Session material that would allow an audit-log reader to impersonate.
+        'cookie',
+        'csrf',
+        'xsrf',
+        'credential',
+        'signature',
+        // Payment instrument data beyond the card number itself.
+        'iban',
+        'cardholder',
+        'card_expiry',
     ];
 
     private const REDACTED_PLACEHOLDER = '[REDACTED]';
@@ -32,6 +48,7 @@ class AuditLogger
     public static function log(Request $request, string $action, ?string $entityType = null, ?int $entityId = null, array $changes = [], ?int $userId = null): void
     {
         $data = [
+            'school_id' => app(CurrentSchool::class)->idOrNull(),
             'user_id' => $userId ?? $request->user()?->id,
             'action' => $action,
             'entity_type' => $entityType,
