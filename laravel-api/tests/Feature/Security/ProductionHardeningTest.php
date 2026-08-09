@@ -118,7 +118,7 @@ class ProductionHardeningTest extends TestCase
             'debug enabled' => [['app.debug' => true]],
             'debug forced off at boot' => [['app.debug_forced_off' => true]],
             'card payments without a webhook secret' => [[
-                'services.payment.stripe.secret_key' => 'sk_live_placeholder_for_test_only',
+                'services.payment.stripe.secret_key' => 'stripe-key-is-present',
                 'services.payment.stripe.webhook_secret' => null,
             ]],
         ];
