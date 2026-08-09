@@ -62,8 +62,19 @@ RUN { \
       echo "opcache.interned_strings_buffer=16"; \
     } > /usr/local/etc/php/conf.d/opcache.ini
 
+# Never advertise the exact PHP build in HTTP responses; X-Powered-By hands an
+# attacker the precise patch level to look up CVEs against. Also keep runtime
+# errors out of responses regardless of what the framework does.
+RUN {       echo "expose_php=Off";       echo "display_errors=Off";       echo "display_startup_errors=Off";       echo "log_errors=On";     } > /usr/local/etc/php/conf.d/zz-hardening.ini
+
 # Worker pool for the built-in server (artisan serve passes this through).
 ENV PHP_CLI_SERVER_WORKERS=8
+
+# Immutable release identity, stamped by CI with the commit SHA. Surfaces in
+# log lines, /api/health and any error reporter so an incident can be traced to
+# exact source. Defaults to "unknown", which is itself worth alerting on.
+ARG APP_RELEASE=unknown
+ENV APP_RELEASE=${APP_RELEASE}
 
 WORKDIR /var/www
 
