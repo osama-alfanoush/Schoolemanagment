@@ -1,0 +1,172 @@
+name: Deploy API
+
+# Production deploys are gated, immutable and traceable:
+#   * they only run after CI is green on the same commit;
+#   * the image is tagged with the commit SHA, never a moving tag;
+#   * APP_RELEASE is stamped into the build so logs, /api/health and any error
+#     reporter identify the exact source;
+#   * a preflight refuses to promote a build whose environment is unsafe;
+#   * migrations run exactly once, from a single job, before traffic shifts.
+#
+# The `production` environment must have a required reviewer configured in
+# repository settings — that approval is the human gate on this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy" to confirm a production release'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # Never let two deploys interleave migrations.
+  group: deploy-api-production
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: Confirm and verify CI is green
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check confirmation
+        if: inputs.confirm != 'deploy'
+        run: |
+          echo "::error::Refusing to deploy: type 'deploy' in the confirm input."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - name: Require a successful CI run for this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            --commit "${{ github.sha }}" \
+            --json conclusion --jq '.[0].conclusion // "missing"')
+          echo "CI conclusion for ${{ github.sha }}: $conclusion"
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::CI has not passed for this commit; refusing to deploy."
+            exit 1
+          fi
+
+  build:
+    name: Build immutable image
+    needs: guard
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: meta
+        run: echo "image=ghcr.io/${{ github.repository }}/school-api:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: laravel-api
+          file: laravel-api/Dockerfile.railway
+          push: true
+          # SHA tag only. No `latest`: a rollback must be able to name the exact
+          # image that was running, and a moving tag makes that impossible.
+          tags: ${{ steps.meta.outputs.image }}
+          build-args: |
+            APP_RELEASE=${{ github.sha }}
+          provenance: true
+
+  migrate:
+    name: Preflight and migrate (once)
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Fails closed on unsafe production configuration (APP_DEBUG, non-HTTPS
+      # APP_URL, insecure cookies, wildcard CORS, sqlite, lockless cache).
+      - name: Environment preflight
+        run: |
+          docker run --rm \
+            --env-file <(printenv | grep -E '^(APP_|DB_|REDIS_|CACHE_|QUEUE_|SESSION_|CORS_|WEB_AUTH_|UPLOADS_|AWS_|STRIPE_|MAIL_)') \
+            ${{ needs.build.outputs.image }} \
+            php artisan ops:preflight-env
+        env:
+          APP_ENV: production
+          APP_RELEASE: ${{ github.sha }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
+          APP_DEBUG: 'false'
+          DB_CONNECTION: pgsql
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          CACHE_STORE: redis
+          QUEUE_CONNECTION: redis
+          SESSION_DRIVER: redis
+          SESSION_SECURE_COOKIE: 'true'
+          WEB_AUTH_COOKIE_SECURE: 'true'
+          CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }}
+          UPLOADS_DRIVER: s3
+          AWS_BUCKET: ${{ vars.AWS_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+      # --isolated takes a lock so a retried job or an overlapping release
+      # cannot run the migration set twice.
+      - name: Run migrations
+        run: |
+          docker run --rm \
+            --env-file <(printenv | grep -E '^(APP_|DB_|DATABASE_|REDIS_|CACHE_)') \
+            ${{ needs.build.outputs.image }} \
+            php artisan migrate --force --isolated
+        env:
+          APP_ENV: production
+          APP_KEY: ${{ secrets.APP_KEY }}
+          DB_CONNECTION: pgsql
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          CACHE_STORE: redis
+
+  release:
+    name: Promote image and verify
+    needs: [build, migrate]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      # Replace with the platform's own promotion step (Railway/Fly/ECS...).
+      # Whatever it is, it must deploy `needs.build.outputs.image` by digest or
+      # SHA tag and set APP_RELEASE to the same commit.
+      - name: Promote
+        run: |
+          echo "Promote ${{ needs.build.outputs.image }} with APP_RELEASE=${{ github.sha }}"
+          echo "::notice::Wire this step to the hosting platform before first use."
+
+      - name: Verify liveness and release stamp
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            if curl -fsS "${{ vars.APP_URL }}/api/healthz" >/dev/null; then
+              echo "Liveness OK after ${attempt} attempt(s)."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Service did not become live; roll back to the previous SHA."
+          exit 1

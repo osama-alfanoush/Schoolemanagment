@@ -1,5 +1,9 @@
 name: CI
 
+# Every job here is a required status check. Configure branch protection on
+# `main` to require: backend, backend-postgres, migration-safety, frontend,
+# e2e, security-scan. A pull request cannot merge while any of them is red.
+
 on:
   push:
     branches: [main, master]
@@ -9,21 +13,82 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
+env:
+  # Matches the PHP version baked into Dockerfile.prod / Dockerfile.railway.
+  PHP_VERSION: "8.2"
+  NODE_VERSION: "24"
+
 jobs:
   backend:
-    name: Laravel API
+    name: Backend — style, unit & feature tests
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: laravel-api
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.2 is what production runs; 8.4 is what developers run locally.
+        php: ["8.2", "8.4"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, sqlite3, bcmath, zip, gd, redis
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: laravel-api/vendor
+          key: composer-${{ matrix.php }}-${{ hashFiles('laravel-api/composer.lock') }}
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Unit & feature tests
+        run: php artisan test
+
+  backend-postgres:
+    name: Backend — PostgreSQL integration & concurrency
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: laravel-api
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: school_test
+          POSTGRES_USER: school_test
+          POSTGRES_PASSWORD: school_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U school_test -d school_test"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: pdo_sqlite, sqlite3, bcmath, zip, gd
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_pgsql, pgsql, bcmath, zip, gd
           coverage: none
 
       - name: Install Composer dependencies
@@ -34,18 +99,73 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Check code style (Pint)
-        run: vendor/bin/pint --test
+      # Proves the tenant-isolation, locking and uniqueness guarantees that
+      # SQLite cannot express (partial indexes, exclusion constraints, real
+      # row locks under concurrent writers).
+      - name: PostgreSQL concurrency suite
+        run: php artisan test --configuration phpunit.postgres.xml
 
-      - name: Run tests
-        run: php artisan test
+  migration-safety:
+    name: Migration safety — clean DB, rollback, re-apply
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: laravel-api
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: school_migrate
+          POSTGRES_USER: school_test
+          POSTGRES_PASSWORD: school_test
+        ports:
+          - 55433:5432
+        options: >-
+          --health-cmd "pg_isready -U school_test -d school_migrate"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 55433
+      DB_DATABASE: school_migrate
+      DB_USERNAME: school_test
+      DB_PASSWORD: school_test
+    steps:
+      - uses: actions/checkout@v4
 
-      # Advisory until the flagged advisories are patched, then drop `|| true`.
-      - name: Dependency audit (advisory)
-        run: composer audit || true
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_pgsql, pgsql, bcmath, zip, gd
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Migrate a clean database
+        run: php artisan migrate --force --no-interaction
+
+      # A release must be reversible by one step; a migration that cannot roll
+      # back leaves no way out of a bad deploy other than a full restore.
+      - name: Roll back the newest migration and re-apply it
+        run: |
+          php artisan migrate:rollback --step=1 --force --no-interaction
+          php artisan migrate --force --no-interaction
+
+      - name: Migrate an already-populated database (idempotency)
+        run: php artisan migrate --force --no-interaction
+
+      - name: Assert every tenant table is indexed on school_id
+        run: php artisan tenancy:verify-indexes
 
   frontend:
-    name: React Web
+    name: Frontend — lint, types, tests, production build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,22 +176,98 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: school-web/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Type-check
         run: npm run typecheck
 
-      - name: Run tests
+      - name: Unit & integration tests
         run: npm test -- --run
 
-      - name: Build
+      - name: Production build
         run: npm run build
 
-      # Advisory until the flagged advisories are patched, then drop `|| true`.
-      - name: Dependency audit (advisory)
-        run: npm audit --audit-level=moderate || true
+  e2e:
+    name: Frontend — critical Playwright flows
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: school-web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: school-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run critical flows
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: school-web/playwright-report/
+          retention-days: 7
+
+  security-scan:
+    name: Dependency & secret scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # TruffleHog diffs commits, so it needs more than a shallow clone.
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_sqlite, sqlite3, bcmath, zip, gd
+          coverage: none
+
+      - name: Install Composer dependencies
+        working-directory: laravel-api
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Blocking, not advisory: a known-vulnerable dependency must not merge.
+      # Time-boxed acceptances live in laravel-api/docs/security-exceptions.md
+      # and are expressed here as explicit --ignore flags with an expiry.
+      - name: Composer audit
+        working-directory: laravel-api
+        run: composer audit --no-dev --abandoned=report
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: school-web/package-lock.json
+
+      - name: npm audit
+        working-directory: school-web
+        run: |
+          npm ci
+          npm audit --audit-level=high
+
+      - name: Secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --results=verified,unknown --exclude-detectors=cloudflarecakey
