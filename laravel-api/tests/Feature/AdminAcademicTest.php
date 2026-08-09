@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\ClassRoom;
+use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +34,18 @@ class AdminAcademicTest extends TestCase
         $this->actingAs($this->admin)->getJson('/api/admin/classes')->assertOk();
         $this->actingAs($this->admin)->patchJson("/api/admin/classes/{$id}", ['capacity' => 35])->assertOk();
         $this->actingAs($this->admin)->deleteJson("/api/admin/classes/{$id}")->assertNoContent();
+    }
+
+    public function test_class_list_includes_assigned_student_count(): void
+    {
+        $class = ClassRoom::factory()->create(['capacity' => 30]);
+        StudentProfile::factory()->count(3)->create(['class_room_id' => $class->id]);
+
+        $this->actingAs($this->admin)
+            ->getJson('/api/admin/classes')
+            ->assertOk()
+            ->assertJsonPath('0.id', $class->id)
+            ->assertJsonPath('0.students_count', 3);
     }
 
     public function test_admin_can_manage_subjects(): void
@@ -67,6 +80,11 @@ class AdminAcademicTest extends TestCase
         $class = ClassRoom::factory()->create();
         $subject = Subject::factory()->create();
         $teacher = User::factory()->teacher()->create();
+        DB::table('class_subject_teacher')->insert([
+            'school_id' => $class->school_id,
+            'class_room_id' => $class->id, 'subject_id' => $subject->id,
+            'teacher_user_id' => $teacher->id, 'created_at' => now(), 'updated_at' => now(),
+        ]);
 
         $create = $this->actingAs($this->admin)->postJson("/api/admin/classes/{$class->id}/timetable", [
             'subject_id' => $subject->id, 'teacher_user_id' => $teacher->id,

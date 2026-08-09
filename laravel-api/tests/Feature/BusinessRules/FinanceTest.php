@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class FinanceTest extends TestCase
@@ -23,7 +24,13 @@ class FinanceTest extends TestCase
         $response = $this->actingAs($finance)
             ->getJson('/api/finance/invoices');
 
-        $response->assertOk();
+        $response->assertOk()->assertJsonStructure([
+            'data',
+            'summary' => ['today_total', 'month_total', 'pending_confirmation_total'],
+        ]);
+        $this->assertSame(0.0, (float) $response->json('summary.today_total'));
+        $this->assertSame(0.0, (float) $response->json('summary.month_total'));
+        $this->assertSame(0.0, (float) $response->json('summary.pending_confirmation_total'));
     }
 
     public function test_payment_amount_must_be_positive(): void
@@ -32,6 +39,7 @@ class FinanceTest extends TestCase
         $invoice = Invoice::factory()->pending()->create();
 
         $response = $this->actingAs($finance)
+            ->withHeader('Idempotency-Key', (string) Str::uuid())
             ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
                 'amount' => -50,
                 'method' => 'cash',
@@ -62,6 +70,7 @@ class FinanceTest extends TestCase
         $invoice = Invoice::factory()->pending()->create();
 
         $response = $this->actingAs($finance)
+            ->withHeader('Idempotency-Key', (string) Str::uuid())
             ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
                 'amount' => 500,
                 'method' => 'bitcoin',
@@ -77,6 +86,7 @@ class FinanceTest extends TestCase
         $invoice = Invoice::factory()->pending()->create(['amount' => 1000]);
 
         $response = $this->actingAs($finance)
+            ->withHeader('Idempotency-Key', (string) Str::uuid())
             ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
                 'amount' => 500,
                 'method' => 'cash',
@@ -128,6 +138,7 @@ class FinanceTest extends TestCase
         $invoice = Invoice::factory()->pending()->create(['amount' => 1000, 'paid_amount' => 0]);
 
         $this->actingAs($finance)
+            ->withHeader('Idempotency-Key', (string) Str::uuid())
             ->postJson("/api/finance/invoices/{$invoice->id}/payments", [
                 'amount' => 1000,
                 'method' => 'cash',

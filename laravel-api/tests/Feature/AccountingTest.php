@@ -67,6 +67,7 @@ class AccountingTest extends TestCase
         $auth = $this->loginAccounting();
 
         FinancialClosing::create([
+            'school_id' => $auth['user']->schoolRoles()->value('school_id'),
             'month' => now()->month,
             'year' => now()->year,
             'status' => 'closed',

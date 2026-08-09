@@ -41,6 +41,7 @@ class AttendanceTest extends TestCase
         ]);
 
         DB::table('class_subject_teacher')->insert([
+            'school_id' => $this->classRoom->school_id,
             'class_room_id' => $this->classRoom->id,
             'subject_id' => $this->subject->id,
             'teacher_user_id' => $this->teacher->id,

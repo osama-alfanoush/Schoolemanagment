@@ -20,7 +20,7 @@ class IdorTest extends TestCase
 
         $student2 = User::factory()->student()->create();
 
-        $this->getJson("/api/parent/children/{$student2->id}/grades")
+        $this->actingAs($parent1)->getJson("/api/parent/children/{$student2->id}/grades")
             ->assertForbidden();
     }
 
@@ -32,7 +32,7 @@ class IdorTest extends TestCase
 
         $student2 = User::factory()->student()->create();
 
-        $this->getJson("/api/parent/children/{$student2->id}/attendance")
+        $this->actingAs($parent1)->getJson("/api/parent/children/{$student2->id}/attendance")
             ->assertForbidden();
     }
 
@@ -44,7 +44,7 @@ class IdorTest extends TestCase
 
         $student2 = User::factory()->student()->create();
 
-        $this->getJson("/api/parent/children/{$student2->id}/invoices")
+        $this->actingAs($parent1)->getJson("/api/parent/children/{$student2->id}/invoices")
             ->assertForbidden();
     }
 
@@ -56,7 +56,7 @@ class IdorTest extends TestCase
 
         $student2 = User::factory()->student()->create();
 
-        $this->getJson("/api/parent/children/{$student2->id}/assignments")
+        $this->actingAs($parent1)->getJson("/api/parent/children/{$student2->id}/assignments")
             ->assertForbidden();
     }
 
@@ -66,7 +66,7 @@ class IdorTest extends TestCase
         $student = User::factory()->student()->create();
         $student->parents()->attach($parent);
 
-        $this->getJson("/api/parent/children/{$student->id}/grades")
+        $this->actingAs($parent)->getJson("/api/parent/children/{$student->id}/grades")
             ->assertOk();
     }
 
@@ -74,7 +74,7 @@ class IdorTest extends TestCase
     {
         $student = $this->loginAs('student');
 
-        $response = $this->getJson('/api/parent/children');
+        $response = $this->actingAs($student)->getJson('/api/parent/children');
         $response->assertForbidden();
     }
 
@@ -82,7 +82,7 @@ class IdorTest extends TestCase
     {
         $teacher = $this->loginAs('teacher');
 
-        $response = $this->getJson('/api/finance/invoices');
+        $response = $this->actingAs($teacher)->getJson('/api/finance/invoices');
         $response->assertForbidden();
     }
 
@@ -90,7 +90,7 @@ class IdorTest extends TestCase
     {
         $finance = $this->loginAs('finance');
 
-        $response = $this->getJson('/api/hr/staff');
+        $response = $this->actingAs($finance)->getJson('/api/hr/staff');
         $response->assertForbidden();
     }
 
@@ -98,7 +98,7 @@ class IdorTest extends TestCase
     {
         $warehouse = $this->loginAs('warehouse');
 
-        $response = $this->getJson('/api/accounting/journal-entries');
+        $response = $this->actingAs($warehouse)->getJson('/api/accounting/journal-entries');
         $response->assertForbidden();
     }
 }

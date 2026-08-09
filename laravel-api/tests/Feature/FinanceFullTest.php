@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\ClassRoom;
 use App\Models\FeeStructure;
 use App\Models\Invoice;
 use App\Models\StaffProfile;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class FinanceFullTest extends TestCase
@@ -35,7 +37,7 @@ class FinanceFullTest extends TestCase
 
     public function test_finance_can_generate_invoices_for_class(): void
     {
-        $class = \App\Models\ClassRoom::factory()->create();
+        $class = ClassRoom::factory()->create();
         $student = User::factory()->student()->create();
         StudentProfile::factory()->create(['user_id' => $student->id, 'class_room_id' => $class->id]);
         $fee = FeeStructure::factory()->create();
@@ -56,7 +58,7 @@ class FinanceFullTest extends TestCase
             'student_user_id' => $student->id, 'amount' => 1000, 'paid_amount' => 0, 'status' => 'pending',
         ]);
 
-        $this->actingAs($this->finance)->postJson("/api/finance/invoices/{$invoice->id}/payments", [
+        $this->actingAs($this->finance)->withHeader('Idempotency-Key', (string) Str::uuid())->postJson("/api/finance/invoices/{$invoice->id}/payments", [
             'amount' => 1000, 'method' => 'cash',
         ])->assertCreated();
 
@@ -84,19 +86,16 @@ class FinanceFullTest extends TestCase
         $this->actingAs($this->finance)->postJson('/api/finance/invoices/send-reminders')->assertOk();
     }
 
-    public function test_finance_can_process_and_pay_payroll(): void
+    public function test_legacy_payroll_writers_are_disabled(): void
     {
         $teacher = User::factory()->teacher()->create();
         StaffProfile::create(['user_id' => $teacher->id, 'base_salary' => 2000]);
 
-        $process = $this->actingAs($this->finance)->postJson('/api/finance/payroll/process', [
+        $this->actingAs($this->finance)->postJson('/api/finance/payroll/process', [
             'year' => (int) now()->year, 'month' => (int) now()->month,
-        ])->assertOk();
-        $this->assertGreaterThanOrEqual(1, $process->json('processed'));
-
-        $record = \App\Models\PayrollRecord::where('staff_user_id', $teacher->id)->firstOrFail();
-        $this->actingAs($this->finance)->patchJson("/api/finance/payroll/{$record->id}/pay")->assertOk();
-        $this->assertEquals('paid', $record->fresh()->status);
+        ])->assertStatus(410)->assertJsonPath('code', 'LEGACY_PAYROLL_WRITE_DISABLED');
+        $this->actingAs($this->finance)->patchJson('/api/finance/payroll/999/pay')
+            ->assertStatus(410)->assertJsonPath('code', 'LEGACY_PAYROLL_WRITE_DISABLED');
     }
 
     public function test_finance_can_view_reports(): void

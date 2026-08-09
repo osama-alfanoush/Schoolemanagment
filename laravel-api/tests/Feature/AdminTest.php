@@ -114,7 +114,7 @@ class AdminTest extends TestCase
         $user = User::factory()->teacher()->create(['is_active' => true]);
 
         $response = $this->actingAs($admin)
-            ->deleteJson("/api/admin/users/{$user->id}");
+            ->deleteJson("/api/admin/users/{$user->id}", ['reason' => 'Employment ended']);
 
         $response->assertStatus(204);
         $this->assertDatabaseHas('users', [

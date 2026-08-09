@@ -49,7 +49,7 @@ class NewFeaturesTest extends TestCase
 
         $this->actingAs($student)
             ->postJson("/api/student/library/books/{$book->id}/borrow")
-            ->assertStatus(400);
+            ->assertConflict();
     }
 
     public function test_student_cannot_borrow_same_book_twice(): void
@@ -62,7 +62,7 @@ class NewFeaturesTest extends TestCase
         ]);
 
         $this->actingAs($student)->postJson("/api/student/library/books/{$book->id}/borrow")->assertCreated();
-        $this->actingAs($student)->postJson("/api/student/library/books/{$book->id}/borrow")->assertStatus(400);
+        $this->actingAs($student)->postJson("/api/student/library/books/{$book->id}/borrow")->assertConflict();
     }
 
     public function test_student_can_return_borrowed_book(): void
@@ -150,6 +150,7 @@ class NewFeaturesTest extends TestCase
         $finance = User::factory()->finance()->create();
         $staff = User::factory()->teacher()->create();
         $record = PayrollRecord::create([
+            'school_id' => $staff->schoolRoles()->value('school_id'),
             'staff_user_id' => $staff->id, 'year' => (int) now()->year, 'month' => (int) now()->month,
             'base_salary' => 1000, 'allowances' => 0, 'deductions' => 0,
             'advance_deduction' => 0, 'net_pay' => 1000, 'status' => 'processed',
@@ -157,8 +158,8 @@ class NewFeaturesTest extends TestCase
 
         $this->actingAs($finance)
             ->patchJson("/api/finance/payroll/{$record->id}/pay")
-            ->assertOk();
+            ->assertStatus(410)->assertJsonPath('code', 'LEGACY_PAYROLL_WRITE_DISABLED');
 
-        $this->assertEquals('paid', $record->fresh()->status);
+        $this->assertEquals('processed', $record->fresh()->status);
     }
 }
