@@ -1,0 +1,19 @@
+{
+  "checked_at_utc": "2026-08-09T22:07:48Z",
+  "backup_file": "school_20260809T220237Z.dump",
+  "sha256": "8849d4b70d096c70314ac2847652680d549c48b8f80ec35d4a2d03bf6330532c",
+  "checksum_verified": true,
+  "temporary_database": "restore_drill_20260809220618",
+  "table_counts_match": true,
+  "tables_compared": 119,
+  "integrity_assertions_passed": true,
+  "application_migrations_readable": true,
+  "migrate_idempotent": true,
+  "tenant_indexes_verified": true,
+  "operational_smoke_passed": true,
+  "schools_restored": 2,
+  "duration_seconds": 89,
+  "rto_target_seconds": 7200,
+  "rto_met": true,
+  "result": "passed"
+}
