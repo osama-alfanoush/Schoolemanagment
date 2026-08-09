@@ -8,9 +8,11 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
-        "laravel/framework": "^11.31",
+        "laravel/framework": "^12.61",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "league/flysystem-aws-s3-v3": "^3.30",
+        "pragmarx/google2fa": "^8.0",
         "spatie/simple-excel": "^3.7",
         "stripe/stripe-php": "^14.0"
     },
