@@ -21,16 +21,22 @@ return [
 
     'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:5173')),
 
-    // Local development hosts (Vite web app, Expo web on :8081, etc.) are
-    // always allowed regardless of CORS_ALLOWED_ORIGINS so browser-based
-    // dev clients can reach the deployed API. Native mobile apps send no
-    // Origin header and are unaffected by CORS.
-    'allowed_origins_patterns' => [
+    // Local origins are accepted only outside production. Native clients send
+    // no Origin header and do not need a CORS exception.
+    'allowed_origins_patterns' => env('APP_ENV', 'production') === 'production' ? [] : [
         '#^https?://localhost(:\d+)?$#',
         '#^https?://127\.0\.0\.1(:\d+)?$#',
     ],
 
-    'allowed_headers' => ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    'allowed_headers' => [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'X-Requested-With',
+        'X-Auth-Mode',
+        'X-XSRF-TOKEN',
+        'Idempotency-Key',
+    ],
 
     'exposed_headers' => [],
 

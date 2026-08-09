@@ -27,10 +27,10 @@ class AccountLockout
 
     public function handle(Request $request, Closure $next): Response
     {
-        $email = $request->input('email');
+        $email = mb_strtolower(trim((string) $request->input('email')));
 
         if ($email) {
-            $user = User::where('email', $email)->first();
+            $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
             if ($user && $user->locked_until && now()->lt($user->locked_until)) {
                 $minutes = (int) now()->diffInMinutes($user->locked_until, false);
@@ -50,7 +50,8 @@ class AccountLockout
      */
     public static function recordFailure(string $email): void
     {
-        $user = User::where('email', $email)->first();
+        $email = mb_strtolower(trim($email));
+        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
         if (! $user) {
             return;
         }
