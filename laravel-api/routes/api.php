@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AccountingController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EnrollmentController;
+use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\FinanceController;
 use App\Http\Controllers\Api\FinancialWorkspaceController;
 use App\Http\Controllers\Api\GradebookController;
@@ -66,6 +67,16 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
     Route::post('/auth/mfa/recovery-codes', [MfaController::class, 'regenerateRecoveryCodes'])->middleware('throttle:5,1');
     Route::post('/auth/mfa/disable', [MfaController::class, 'disable'])->middleware('throttle:5,1');
     Route::get('/health', HealthController::class)->middleware('role:admin');
+
+    // Private files. The only route out of the private disk; every action
+    // checks school scope, record ownership and role before streaming. Rate
+    // limited because a download endpoint keyed by record id is the natural
+    // place to attempt enumeration.
+    Route::middleware('throttle:120,1')->prefix('files')->group(function () {
+        Route::get('/profile-photo/{userId}', [FileController::class, 'profilePhoto'])->whereNumber('userId');
+        Route::get('/assignment/{assignmentId}/attachment', [FileController::class, 'assignmentAttachment'])->whereNumber('assignmentId');
+        Route::get('/submission/{submissionId}', [FileController::class, 'submission'])->whereNumber('submissionId');
+    });
 
     Route::get('/school-settings', [AdminController::class, 'getSchoolSettings']);
     Route::get('/hr-requests', [HrController::class, 'myRequests']);

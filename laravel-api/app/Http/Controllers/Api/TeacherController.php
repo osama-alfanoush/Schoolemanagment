@@ -20,6 +20,7 @@ use App\Services\AuditLogger;
 use App\Services\CurrentSchool;
 use App\Services\GradeService;
 use App\Services\Notifier;
+use App\Services\PrivateFileVault;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -94,7 +95,7 @@ class TeacherController extends Controller
         return response()->json($students);
     }
 
-    public function createAssignment(Request $request)
+    public function createAssignment(Request $request, PrivateFileVault $vault)
     {
         $data = $request->validate([
             'class_room_ids' => 'required|array|min:1',
@@ -104,13 +105,19 @@ class TeacherController extends Controller
             'instructions' => 'required|string',
             'due_at' => 'required|date',
             'max_score' => 'nullable|numeric|min:0',
-            'attachment' => 'nullable|file|max:20480',
+            // mimetypes: inspects real content; the previous rule accepted
+            // any file, including an executable script.
+            'attachment' => array_merge(['nullable'], PrivateFileVault::rulesFor('assignment-attachment')),
         ]);
         $teacherId = $request->user()->id;
         foreach ($data['class_room_ids'] as $classId) {
             $this->assertCanAccessClassSubject($teacherId, $classId, $data['subject_id']);
         }
-        $path = $request->hasFile('attachment') ? $request->file('attachment')->store('assignments') : null;
+        // Private disk, generated key, served only through
+        // GET /api/files/assignment/{id}/attachment after authorization.
+        $path = $request->hasFile('attachment')
+            ? $vault->store($request->file('attachment'), 'assignment-attachment')
+            : null;
         $created = $this->assignments->create($data, $teacherId, $path);
 
         return response()->json($created, 201);
@@ -308,7 +315,13 @@ class TeacherController extends Controller
         }
 
         $filename = "grades-{$data['class_room_id']}-{$data['subject_id']}.xlsx";
-        $path = storage_path('app/'.$filename);
+        // The temporary workbook used a predictable path derived from the class
+        // and subject, shared by every request for the same export. Two
+        // concurrent exports raced on one file, and deleteFileAfterSend meant
+        // one request could delete the bytes another was still streaming. A
+        // per-request random path in the system temp directory removes both,
+        // and keeps generated grade data out of the application storage tree.
+        $path = tempnam(sys_get_temp_dir(), 'grades-').'.xlsx';
 
         $header = array_merge(['Student Name', 'Admission No'], $exportData['componentNames'], ['Total %']);
         $writer = SimpleExcelWriter::create($path);

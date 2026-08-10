@@ -9,6 +9,7 @@ use App\Models\PushToken;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\CurrentSchool;
+use App\Services\PrivateFileVault;
 use App\Services\SchoolContext;
 use App\Services\TokenIssuer;
 use Illuminate\Auth\Events\PasswordReset;
@@ -293,24 +294,40 @@ class AuthController extends Controller
      * Upload a profile photo (multipart). Stored on the configured uploads disk; the public URL
      * is persisted on the user record.
      */
-    public function uploadProfilePhoto(Request $request)
+    /**
+     * Upload a profile photo (multipart).
+     *
+     * A profile photo identifies a child or a member of staff, so it is stored
+     * on the private disk and has no public URL. It previously went to the
+     * public uploads disk under a path containing the user's id, which made it
+     * readable by anyone who obtained or guessed the URL.
+     *
+     * `mimetypes:` rather than `mimes:` because the latter trusts the client's
+     * filename extension. SVG is excluded: it is an XML document that can carry
+     * script.
+     */
+    public function uploadProfilePhoto(Request $request, PrivateFileVault $vault)
     {
         $request->validate([
-            'photo' => 'required|file|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'photo' => array_merge(['required'], PrivateFileVault::rulesFor('profile-photo')),
         ]);
+
         $user = $request->user();
-        $uploads = Storage::disk(config('filesystems.uploads_disk'));
-        // Remove previous file when present
-        if ($user->photo_path) {
-            $uploads->delete($user->photo_path);
-        }
-        $path = $uploads->putFile("profile-photos/{$user->id}", $request->file('photo'), 'public');
+        $previous = $user->photo_path;
+
+        $path = $vault->store($request->file('photo'), 'profile-photo');
         $user->update(['photo_path' => $path]);
+
+        // Only after the new object is safely written.
+        $vault->delete($previous);
 
         return response()->json([
             'message' => 'Photo updated',
             'photo_path' => $path,
-            'photo_url' => $uploads->url($path),
+            // An authorized endpoint, not a storage URL. Browsers send the
+            // session cookie with an <img> request to the same site; native
+            // clients send their bearer token.
+            'photo_url' => url('/api/files/profile-photo/'.$user->id),
             'user' => $user->fresh(),
         ]);
     }

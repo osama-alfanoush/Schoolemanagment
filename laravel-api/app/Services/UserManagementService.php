@@ -454,7 +454,15 @@ class UserManagementService
             'sidebar_style' => 'sometimes|in:white,gradient,dark',
             'border_radius' => 'sometimes|in:sharp,medium,rounded',
             'font_style' => 'sometimes|in:modern,classic,friendly',
-            'school_logo' => 'nullable|image|max:2048',
+            // The school logo is the one genuinely public upload: the login
+            // screen renders it before anyone has authenticated, and it
+            // identifies an institution rather than a person.
+            //
+            // `image` alone permitted SVG, which is an XML document that can
+            // carry script — a stored cross-site scripting vector once served
+            // from a URL. Raster types only, checked by content rather than by
+            // the client's filename extension.
+            'school_logo' => 'nullable|file|mimetypes:image/jpeg,image/png,image/webp|max:2048',
             'remove_school_logo' => 'sometimes|boolean',
         ]);
 

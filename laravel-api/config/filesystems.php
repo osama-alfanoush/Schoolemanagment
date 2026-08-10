@@ -19,8 +19,21 @@ return [
     | Public user uploads use a dedicated disk so staging/production replicas
     | can write to object storage while local development keeps the familiar
     | storage/app/public behavior.
+    |
+    | ONLY genuinely public, non-personal assets belong here — currently just the
+    | school logo, which the login screen renders before anyone has
+    | authenticated. Anything that identifies a student or a member of staff goes
+    | on the private disk below and is served exclusively through an endpoint
+    | that has checked school scope, record ownership and role.
     */
     'uploads_disk' => env('UPLOADS_DISK', 'uploads'),
+
+    /*
+    | Private user uploads: profile photos, assignment submissions, teacher
+    | attachments and generated personal documents. Never web-readable and never
+    | given a public URL.
+    */
+    'private_uploads_disk' => env('PRIVATE_UPLOADS_DISK', 'private_uploads'),
 
     /*
     |--------------------------------------------------------------------------
@@ -63,6 +76,26 @@ return [
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('UPLOADS_AWS_BUCKET', env('AWS_BUCKET')),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => true,
+            'report' => true,
+        ],
+
+        /*
+         * Private uploads. visibility=private means an S3 object is written
+         * with no public ACL, so learning the key is not enough to read it.
+         * The local driver keeps files under storage/app/private/uploads, a
+         * path nginx never maps to a URL.
+         */
+        'private_uploads' => [
+            'driver' => env('PRIVATE_UPLOADS_DRIVER', 'local'),
+            'root' => storage_path('app/private/uploads'),
+            'visibility' => 'private',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('PRIVATE_UPLOADS_AWS_BUCKET', env('AWS_BUCKET')),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => true,
