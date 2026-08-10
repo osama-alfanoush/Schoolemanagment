@@ -82,6 +82,8 @@ class ProductionHardeningTest extends TestCase
             'queue.default' => 'redis',
             'session.driver' => 'redis',
             'filesystems.uploads_disk' => 's3',
+            'database.connections.pgsql.host' => 'pgbouncer',
+            'database.connections.pgsql_direct.host' => 'postgres',
             'services.payment.stripe.secret_key' => null,
             'services.payment.stripe.webhook_secret' => null,
         ];
@@ -117,6 +119,7 @@ class ProductionHardeningTest extends TestCase
             'same site none without secure' => [['web-auth.same_site' => 'none', 'web-auth.secure' => false]],
             'debug enabled' => [['app.debug' => true]],
             'debug forced off at boot' => [['app.debug_forced_off' => true]],
+            'migrations have no direct database route' => [['database.connections.pgsql_direct.host' => '']],
             'card payments without a webhook secret' => [[
                 'services.payment.stripe.secret_key' => 'stripe-key-is-present',
                 'services.payment.stripe.webhook_secret' => null,
@@ -131,6 +134,82 @@ class ProductionHardeningTest extends TestCase
     public function test_preflight_fails_closed_on_unsafe_configuration(array $overrides): void
     {
         $this->assertSame(1, $this->runPreflight($overrides + $this->safeConfig()));
+    }
+
+    /**
+     * Uploads on a container filesystem are destroyed by the next redeploy.
+     * That is data loss, not a warning, so it must stop the boot unless the
+     * operator explicitly states a durable volume is mounted.
+     */
+    public function test_a_local_uploads_disk_fails_the_boot_by_default(): void
+    {
+        $exit = $this->runPreflight(['filesystems.uploads_disk' => 'local'] + $this->safeConfig());
+
+        $this->assertSame(1, $exit);
+        $this->assertStringContainsString('destroyed by every redeploy', $this->lastOutput);
+    }
+
+    public function test_a_local_uploads_disk_is_allowed_when_a_durable_volume_is_acknowledged(): void
+    {
+        putenv('UPLOADS_LOCAL_PERSISTENT=true');
+
+        try {
+            $exit = $this->runPreflight(['filesystems.uploads_disk' => 'local'] + $this->safeConfig());
+        } finally {
+            putenv('UPLOADS_LOCAL_PERSISTENT');
+        }
+
+        $this->assertSame(0, $exit, $this->lastOutput);
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: int}>
+     */
+    public static function trustedProxyValues(): array
+    {
+        return [
+            'private ranges (compose)' => ['10.0.0.0/8,172.16.0.0/12,192.168.0.0/16', 0],
+            'wildcard (railway)' => ['*', 0],
+            'single host address' => ['100.64.0.1', 0],
+            'empty' => ['', 1],
+            'hostname pattern' => ['*.fly.dev', 1],
+            'mixed valid and hostname' => ['10.0.0.0/8,*.example.com', 1],
+        ];
+    }
+
+    /**
+     * A hostname pattern such as the '*.fly.dev' this project used to carry is
+     * never evaluated by the proxy middleware: it silently trusts nothing, and
+     * the app then emits insecure cookies behind a TLS-terminating edge.
+     */
+    #[DataProvider('trustedProxyValues')]
+    public function test_trusted_proxy_configuration_is_validated(string $value, int $expected): void
+    {
+        putenv('TRUSTED_PROXIES='.$value);
+
+        try {
+            $exit = $this->runPreflight($this->safeConfig());
+        } finally {
+            putenv('TRUSTED_PROXIES');
+        }
+
+        $this->assertSame($expected, $exit, $this->lastOutput);
+    }
+
+    /**
+     * php-fpm opens a database backend per request. Without a pooler that
+     * churn is the dominant database cost, and raising max_connections makes
+     * it worse rather than better.
+     */
+    public function test_missing_connection_pooling_is_reported(): void
+    {
+        $exit = $this->runPreflight([
+            'database.connections.pgsql.host' => 'postgres',
+            'database.connections.pgsql_direct.host' => 'postgres',
+        ] + $this->safeConfig());
+
+        $this->assertSame(0, $exit, 'pooling is a warning, not a hard failure');
+        $this->assertStringContainsString('No connection pooler', $this->lastOutput);
     }
 
     /**

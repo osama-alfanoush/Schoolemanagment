@@ -58,13 +58,28 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle' => ThrottleRequests::class,
         ]);
 
-        // Trusted proxies for HTTPS awareness behind load balancers
-        $middleware->trustProxies(at: [
-            '10.0.0.0/8',
-            '172.16.0.0/12',
-            '192.168.0.0/16',
-            '*.fly.dev',
-        ]);
+        // Trusted proxies. TLS terminates at the edge, so X-Forwarded-Proto is
+        // what makes isSecure(), secure-cookie emission and generated URLs
+        // correct; X-Forwarded-For is what makes rate limiting and audit logs
+        // attribute a request to the real client rather than to the proxy.
+        //
+        // Trusting the wrong thing is a real vulnerability: a client that can
+        // reach the app directly could spoof either header. The value therefore
+        // depends on the deployment and is configured per environment:
+        //
+        //   compose  private ranges — the only peer is the nginx container
+        //   Railway  '*' — the container has no public route, every request
+        //            necessarily arrives through the platform edge, and the
+        //            proxy's address is neither stable nor documented
+        //
+        // '*.fly.dev' was removed: nothing deploys to Fly, and a stale pattern
+        // in this list is exactly the kind of thing that quietly becomes true
+        // again later. ops:preflight-env rejects an empty or malformed value in
+        // production so this can never silently fall back to trusting nothing.
+        $proxies = trim((string) env('TRUSTED_PROXIES', '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'));
+        $middleware->trustProxies(at: $proxies === '*'
+            ? '*'
+            : array_values(array_filter(array_map('trim', explode(',', $proxies)))));
 
         // Apply security headers to all API routes
         $middleware->api(prepend: [
