@@ -227,6 +227,72 @@ jobs:
           path: school-web/playwright-report/
           retention-days: 7
 
+  images:
+    name: Container images build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Both production paths must keep building. Dockerfile.prod is php-fpm
+      # behind the compose nginx; Dockerfile.railway packages the same runtime
+      # with nginx and supervisord in one container. Neither may regress to
+      # `php artisan serve`.
+      - name: Build the compose runtime image
+        run: docker build -f laravel-api/Dockerfile.prod -t school-api:ci laravel-api
+
+      - name: Build the single-container runtime image
+        run: |
+          docker build -f laravel-api/Dockerfile.railway             --build-arg APP_RELEASE=${{ github.sha }}             -t school-railway:ci laravel-api
+
+      - name: Build the PgBouncer image
+        run: docker build -t school-pgbouncer:ci laravel-api/deploy/pgbouncer
+
+      # A development server in a production image is a release blocker.
+      - name: Assert no development server in any production path
+        run: |
+          set -euo pipefail
+          # Comment lines are excluded: both files explain in prose why the
+          # development server was removed, and that documentation should not
+          # trip the guard. Only an executable occurrence is a failure.
+          hits=$(grep -rn "artisan serve" \
+                   laravel-api/Dockerfile.prod \
+                   laravel-api/Dockerfile.railway \
+                   laravel-api/docker/railway-entrypoint.sh \
+                 | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::'php artisan serve' is a development server and must not appear in a production path."
+            exit 1
+          fi
+          echo "No development server in any production entrypoint."
+
+      - name: Assert the release stamp reaches the image
+        run: |
+          set -euo pipefail
+          release=$(docker run --rm school-railway:ci sh -c 'echo "$APP_RELEASE"')
+          echo "APP_RELEASE=$release"
+          test "$release" = "${{ github.sha }}"
+
+      - name: Assert every process role is dispatchable
+        run: |
+          set -euo pipefail
+          for role in web worker scheduler; do
+            docker run --rm school-railway:ci               sh -c "grep -q '^  ${role})' docker/railway-entrypoint.sh"
+            echo "role ${role}: present"
+          done
+
+      - name: Validate nginx configuration
+        run: |
+          set -euo pipefail
+          docker run --rm --add-host api1:127.0.0.1 --add-host api2:127.0.0.1             -v "$PWD/laravel-api/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro"             nginx:1.27-alpine nginx -t
+
+      - name: Validate compose files
+        run: |
+          set -euo pipefail
+          cp laravel-api/.env.prod.example laravel-api/.env.prod
+          docker compose --env-file laravel-api/.env.prod             -f laravel-api/docker-compose.prod.yml config --quiet
+          rm laravel-api/.env.prod
+
   security-scan:
     name: Dependency & secret scanning
     runs-on: ubuntu-latest

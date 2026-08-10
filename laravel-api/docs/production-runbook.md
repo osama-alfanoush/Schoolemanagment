@@ -15,27 +15,75 @@ Every named role below is a **placeholder** until
 
 | Component | Role | Notes |
 |---|---|---|
-| nginx | TLS termination is upstream; nginx serves the SPA and proxies `/api/` to php-fpm | `nginx/prod.conf` |
-| api1, api2 | php-fpm application replicas | `Dockerfile.prod` |
-| queue worker | `queue:work` — notifications, mail, outbox | **Required.** Without it, nothing queued is ever delivered |
-| scheduler | `schedule:work` / `schedule:run` every minute | **Required.** Drives contract checks, reminders, outbox, token pruning, audit retention |
-| PostgreSQL 16 | System of record | `max_connections` default 100 |
+| nginx | Terminates the container's HTTP port and proxies to php-fpm | `nginx/prod.conf` (compose) or `docker/nginx-railway.conf.template` (single container). TLS terminates upstream. |
+| php-fpm | The PHP runtime. **Never `php artisan serve`** | `PM_MAX_CHILDREN` bounds concurrent PHP requests per replica |
+| queue worker | `queue:work` — notifications, mail, outbox | **Required.** Without it nothing queued is ever delivered |
+| scheduler | `schedule:work` | **Required.** Drives contract checks, reminders, outbox, token pruning, audit retention |
+| PgBouncer | Transaction-pooled connections in front of PostgreSQL | `deploy/pgbouncer/`. Application traffic only |
+| PostgreSQL 16 | System of record | Reached directly only for migrations and maintenance |
 | Redis 7 | Cache, sessions, queue, locks | `maxmemory-policy noeviction` so queued jobs are never evicted |
-| S3-compatible object storage | Private documents + public uploads | Local disk must not be used in production |
+| S3-compatible object storage | Private documents + public uploads | Local disk is refused in production unless a durable volume is acknowledged |
 
-On a platform that runs one process per service (Railway, Fly, Render), deploy
-the **same image three times** and set `PROCESS_ROLE`:
+### 1.1 Why php-fpm and not `artisan serve`
 
-```
-PROCESS_ROLE=web        # default; runs migrations then serves HTTP
-PROCESS_ROLE=worker     # queue:work
-PROCESS_ROLE=scheduler  # schedule:work
-```
+The Railway image previously served production traffic with PHP's built-in
+development server. It is single-threaded per worker, has no request queueing,
+no slow-client protection and no graceful reload, and both PHP and Laravel
+document it as unsuitable for production. Both deployment paths now run the same
+php-fpm runtime; the only difference is packaging.
 
-A deployment with only the `web` service is incomplete: reminders, contract
-alerts, outbox delivery and queued mail will silently never run.
+### 1.2 Why PgBouncer, and why not just raise `max_connections`
 
----
+php-fpm has no persistent connection pool: every request opens a PostgreSQL
+connection and closes it, and a PostgreSQL backend is a forked OS process. Under
+the 500-VU load run PostgreSQL consumed roughly 7.4 of 16 CPU cores while
+serving only ~157 req/s of otherwise cheap queries (10-24 statements, 15-26 ms
+of database time per request, 99.999% buffer cache hit ratio). That cost is
+connection churn, not query work.
+
+Raising `max_connections` is the wrong lever — it multiplies backend processes
+and their memory and scheduler footprint. PgBouncer in transaction mode keeps a
+small warm set of server connections and multiplexes every application
+connection onto it.
+
+Sizing: `PGB_MAX_CLIENT_CONN` must cover
+`(web replicas x PM_MAX_CHILDREN) + queue workers + scheduler + headroom`.
+`PGB_DEFAULT_POOL_SIZE` is how many real backends that collapses into and must
+stay well below the server's `max_connections`.
+
+Transaction pooling is safe here because nothing depends on session state
+across statements: `migrate --isolated` locks through Redis rather than
+PostgreSQL advisory locks, and migrations run on the `pgsql_direct` connection
+which bypasses the pooler entirely.
+
+### 1.3 One image, three services
+
+Deploy the **same immutable image** three times and set `PROCESS_ROLE`:
+
+| Service | `PROCESS_ROLE` | Config file | Restart policy | Health check |
+|---|---|---|---|---|
+| API | `web` | `railway.json` | `ON_FAILURE` | `/api/healthz` |
+| Worker | `worker` | `railway.worker.json` | `ALWAYS` | none — it serves no HTTP |
+| Scheduler | `scheduler` | `railway.scheduler.json` | `ALWAYS` | none |
+
+Only the web role runs migrations, and it runs them under `--isolated` so a
+scaled-out service or an overlapping redeploy applies them exactly once.
+
+**Every role must share an identical `REDIS_PREFIX`.** It otherwise defaults to
+a slug of `APP_NAME`; if the services' names differ at all, the worker polls a
+queue nobody writes to. Nothing errors, nothing is marked failed — mail and
+notifications simply stop. This was reproduced during Phase 1 verification.
+
+### 1.4 Failure behaviour, by design
+
+| Condition | Behaviour |
+|---|---|
+| Redis unavailable | Requests that touch cache or the rate limiter return 500. The limiter **fails closed** — it cannot be disabled by knocking Redis out |
+| Redis unavailable, worker | Worker exits non-zero so the platform restarts it, rather than idling silently |
+| Redis unavailable, migrations | `migrate --isolated` refuses to run without its lock |
+| Liveness probe | `/api/healthz` stays 200 while the process is alive. It deliberately does **not** flap on dependency loss — that is what the authenticated `/api/health` and `ops:smoke` are for |
+| php-fpm or nginx dies | supervisord brings the container down so the platform replaces it, rather than serving 502s |
+| SIGTERM | supervisord stops both children gracefully (verified: ~0.9 s, exit 0). The worker traps SIGTERM itself and finishes the job in flight (verified: ~0.55 s, exit 0) |
 
 ## 2. Deploy
 
