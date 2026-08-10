@@ -11,6 +11,7 @@ use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\VerifyWebCsrfToken;
 use App\Http\Middleware\WebCookieAuthentication;
 use App\Providers\AuthServiceProvider;
+use App\Services\ErrorReporter;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -95,6 +96,15 @@ return Application::configure(basePath: dirname(__DIR__))
         AuthServiceProvider::class,
     ])
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Every unhandled exception is reported with the environment, the
+        // release SHA and the request's correlation id attached, so a support
+        // ticket quoting that id lands on the exact request. The payload is
+        // scrubbed of credentials and personal data first, and reporting can
+        // never itself throw.
+        $exceptions->report(function (Throwable $e) {
+            app(ErrorReporter::class)->report($e, app()->bound('request') ? app('request') : null);
+        });
+
         $exceptions->shouldRenderJsonWhen(function (Request $request) {
             return $request->is('api/*') || $request->expectsJson();
         });

@@ -1,8 +1,10 @@
 <?php
 
+use App\Console\Commands\MonitorOperations;
 use App\Services\OutboxProcessor;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -33,3 +35,14 @@ Artisan::command('outbox:retry {eventId}', function (string $eventId, OutboxProc
 })->purpose('Retry one dead-lettered outbox event');
 
 Schedule::command('outbox:work --limit=100')->everyMinute()->withoutOverlapping();
+
+// Scheduler heartbeat. Written on every scheduler tick; ops:monitor alerts when
+// it goes stale, which is the only way to notice that reminders, contract
+// checks and outbox delivery have silently stopped.
+Schedule::call(function () {
+    Cache::put(MonitorOperations::HEARTBEAT_KEY, now()->toIso8601String(), now()->addDay());
+})->everyMinute()->name('scheduler-heartbeat')->withoutOverlapping();
+
+// Operational monitors: dependencies, queue, scheduler, database, Redis,
+// backups and payment webhooks. Alerts route to the owners in config/alerting.
+Schedule::command('ops:monitor')->everyFiveMinutes()->withoutOverlapping();
