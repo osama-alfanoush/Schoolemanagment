@@ -15,6 +15,11 @@ import App from "./App";
 import "@/lib/i18n";
 import "./index.css";
 import "./styles/globals.css";
+import { installErrorReporting } from "@/lib/errorReporting";
+
+// Global handlers for uncaught errors and unhandled rejections. Off unless
+// VITE_ERROR_REPORTING_ENABLED and a DSN are set; scrubbed either way.
+installErrorReporting();
 
 createRoot(document.getElementById("root")!).render(
   <SchoolThemeProvider>

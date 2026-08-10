@@ -347,24 +347,50 @@ Configure per `uptime-robot.md`. Alert if two consecutive checks fail.
 `GET /api/health` requires an admin token and reports database, Redis, storage,
 cache, queue and environment. Never expose it publicly.
 
-### 6.3 Alert thresholds
+### 6.3 Alert thresholds and monitors
 
-| Signal | Warning | Critical |
-|---|---|---|
-| Liveness failures | 1 check | 2 consecutive checks |
-| API 5xx rate | > 0.5% over 5 min | > 2% over 5 min |
-| API read p95 | > 750 ms over 10 min | > 1.5 s over 10 min |
-| Critical write p95 | > 1.5 s over 10 min | > 3 s over 10 min |
-| Failed jobs | any new | > 10 in 15 min, or sustained growth |
-| Outbox pending | > 100 for 15 min | > 500, or growing for 30 min |
-| Scheduler | no run in 5 min | no run in 15 min |
-| PostgreSQL connections | > 70% of `max_connections` | > 90% |
-| Redis memory | > 70% of `maxmemory` | > 90% (`noeviction` ⇒ writes start failing) |
-| Disk / object storage | > 75% | > 90% |
-| Backup | no success in 26 h | no success in 48 h, or checksum mismatch |
-| Restore drill | none in 30 days | none in 45 days |
-| Payment webhooks | any `failed` row in `payment_webhook_events` | > 3 in 1 h |
-| Release stamp | `/api/health` reports `release: unknown` | — |
+`php artisan ops:monitor` evaluates seven monitors every five minutes (see
+`routes/console.php`) and dispatches on breach. Thresholds live in
+`config/alerting.php` so they can be tuned without a deploy. Every monitor is
+fail-safe: a monitor that cannot run reports **critical**, because "the monitor
+is broken" and "the thing being monitored is broken" must not look the same.
+
+| Monitor | Warning | Critical | Owner |
+|---|---|---|---|
+| `dependencies` | — | database, cache or private storage unreachable | platform |
+| `queue` | 1 failed job, or 100 pending outbox | 10 failed jobs, or 500 pending outbox | platform |
+| `scheduler` | no heartbeat for 5 min | no heartbeat for 15 min | platform |
+| `database` | >70% of `max_connections` | >90% | data |
+| `redis` | >70% of `maxmemory` | >90% (policy is `noeviction`, so writes start failing) | platform |
+| `backup` | last success >26 h | >48 h, or never | data |
+| `payments` | 1 webhook failure in an hour | 3 failures, or any stuck >15 min | finance |
+
+Run it by hand during an incident:
+
+```bash
+php artisan ops:monitor --json            # all monitors, machine readable
+php artisan ops:monitor --only=queue      # one monitor
+php artisan ops:monitor --no-alert        # evaluate without paging anyone
+```
+
+Exit status is non-zero only on **critical**, so a warning does not fail a cron
+wrapper or a deploy gate.
+
+The scheduler heartbeat is written every minute by a scheduled closure. If the
+scheduler dies, nothing else notices — reminders, contract checks and outbox
+delivery simply stop — so this monitor is the only thing standing between that
+and a parent complaint weeks later.
+
+### 6.3.1 Alert delivery
+
+Alerts go to, in order: the collected log stream (**always**, so a dead
+monitoring tool cannot take the record of the incident with it), the webhook in
+`ALERT_WEBHOOK_URL`, and the addresses in `ALERT_MAIL_TO` when mail is enabled.
+Delivery failure is logged and never fatal.
+
+Owners are placeholders until real rotas are recorded in
+`production-policy-owners.md`. **Alerts fire regardless** — a placeholder is a
+routing gap, not a silence.
 
 ### 6.4 What must never reach logs or an error reporter
 
@@ -375,13 +401,39 @@ enforces this for the audit trail; keep any error-reporter integration to
 
 ### 6.5 Error reporting
 
-`APP_RELEASE` is stamped at build time and attached to every log line alongside
-`request_id`. To add Sentry (or equivalent): install the SDK, set `SENTRY_DSN`
-as a platform secret, set `release` to `config('app.release')`, and enable the
-default PII scrubbing **plus** an explicit deny-list matching §6.4. No DSN is
-committed to this repository.
+Backend (`App\Services\ErrorReporter`) and frontend
+(`school-web/src/lib/errorReporting.ts`) are provider-agnostic and **off by
+default**. Every event carries `environment`, `release` (the commit SHA) and
+`request_id` — the same correlation id the API echoes in `X-Request-Id` — so a
+support ticket quoting that id lands on the exact request, and a browser error
+joins to the API error that caused it.
 
----
+With no DSN configured the event still reaches the collected log stream, so
+nothing is lost. To enable a provider: set `ERROR_REPORTING_ENABLED=true` and
+`ERROR_REPORTING_DSN` (backend) and `VITE_ERROR_REPORTING_ENABLED` /
+`VITE_ERROR_REPORTING_DSN` (frontend). The payload shape is Sentry-compatible.
+
+Both sides scrub before sending, and both are built from an allow-list rather
+than by serialising whatever is to hand: never the request body, never headers,
+never cookies, identity by user id and role only — never a name or an email.
+
+### 6.6 Integration switches
+
+Every external provider is off until somebody has verified it end to end.
+
+| Integration | Default | Fails | Why |
+|---|---|---|---|
+| `MAIL_ENABLED` | on | open | In-app notifications still work; a bounced message must not break a request |
+| `PAYMENTS_ENABLED` | **off** | **closed** | A payment path that silently no-ops can record money that was never taken. Manual receipts work without it |
+| `PUSH_ENABLED` | **off** | open | Push is an enhancement over in-app and email, never the only channel |
+| `ERROR_REPORTING_ENABLED` | **off** | open | Sending telemetry to a third party is a data-protection decision |
+
+`MAIL_ALLOWED_RECIPIENTS` is a comma-separated allow-list that prevents a pilot
+deployment from mailing real families. Leave it empty in full production.
+
+Enabled-but-unconfigured is **always** an error, never a silent skip: somebody
+switched it on believing it worked. `php artisan ops:smoke` and
+`ops:preflight-env` both report integration status without printing secrets.
 
 ## 7. Launch-day checklist
 
