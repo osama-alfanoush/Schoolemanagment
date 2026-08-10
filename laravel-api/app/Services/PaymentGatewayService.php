@@ -24,11 +24,26 @@ class PaymentGatewayService
     }
 
     /**
-     * Initialize Stripe client
+     * Initialize Stripe client.
+     *
+     * Every path to the provider goes through here, so this is where a disabled
+     * or half-configured integration is stopped. Payments fail closed by
+     * design: a payment path that silently no-ops can record money that was
+     * never taken.
      */
     protected function getStripeClient(): StripeClient
     {
-        return new StripeClient(config('services.payment.stripe.secret_key'));
+        app(IntegrationGate::class)->ensureAvailable(IntegrationGate::PAYMENTS);
+
+        $client = ['api_key' => config('services.payment.stripe.secret_key')];
+
+        // Points the SDK at a local stripe-mock during verification. Ignored
+        // unless explicitly set, so production always reaches the real API.
+        if (filled($base = config('services.payment.stripe.api_base'))) {
+            $client['api_base'] = $base;
+        }
+
+        return new StripeClient($client);
     }
 
     /**

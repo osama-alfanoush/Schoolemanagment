@@ -230,13 +230,20 @@ class NotificationService
         }
 
         try {
-            $serverKey = config('services.fcm.server_key');
-
-            if (! $serverKey) {
-                $delivery->markAsFailed('FCM server key not configured');
+            // Push is an enhancement over in-app and email delivery, never the
+            // only channel, so a disabled or unconfigured provider is recorded
+            // on the delivery row rather than raised — the notification still
+            // reaches the user by the other channels.
+            $gate = app(IntegrationGate::class);
+            if (! $gate->enabled(IntegrationGate::PUSH)) {
+                $delivery->markAsFailed(
+                    $gate->missingRequirement(IntegrationGate::PUSH) ?? 'Push notifications are disabled.'
+                );
 
                 return;
             }
+
+            $serverKey = config('services.fcm.server_key');
 
             // Send to all device tokens
             $response = Http::withHeaders([
