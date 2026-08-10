@@ -13,7 +13,16 @@ x-app: &app
     LOG_CHANNEL: stderr
     FILESYSTEM_DISK: s3
     UPLOADS_DRIVER: s3
+    # Application traffic is pooled; schema changes are not. pgsql_direct
+    # bypasses PgBouncer because transaction pooling breaks session-scoped
+    # statements and CREATE INDEX CONCURRENTLY needs its own connection.
+    DB_HOST: pgbouncer
+    DB_PORT: "6432"
+    DB_DIRECT_HOST: postgres
+    DB_DIRECT_PORT: "5432"
   depends_on:
+    pgbouncer:
+      condition: service_healthy
     postgres:
       condition: service_healthy
     redis:
@@ -103,6 +112,27 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+  pgbouncer:
+    build:
+      context: ./deploy/pgbouncer
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      # Sized for this stack: 2 api replicas x 20 php-fpm children + 2 workers
+      # + scheduler + headroom, collapsing onto 25 real PostgreSQL backends.
+      PGB_MAX_CLIENT_CONN: "200"
+      PGB_DEFAULT_POOL_SIZE: "25"
+      PGB_MIN_POOL_SIZE: "5"
+      PGB_RESERVE_POOL_SIZE: "5"
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - staging_net
