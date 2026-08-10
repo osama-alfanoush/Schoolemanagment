@@ -1,37 +1,57 @@
 # syntax=docker/dockerfile:1
 #
-# Railway deployment image — single standalone container that serves HTTP
-# directly on $PORT (Railway injects PORT at runtime). Unlike Dockerfile.prod
-# (php-fpm behind the compose nginx), this uses Laravel's built-in server via
-# `php artisan serve`, which is the simplest reliable option for Railway's
-# one-process-per-service model and is plenty for a free-tier instance.
-# PHP_CLI_SERVER_WORKERS gives it a small worker pool for concurrency.
+# Railway deployment image — one immutable release, three roles.
+#
+# Railway runs one container per service, so the same image is deployed three
+# times and PROCESS_ROLE selects behaviour:
+#
+#   PROCESS_ROLE=web        nginx + php-fpm under supervisord (this file's CMD)
+#   PROCESS_ROLE=worker     php artisan queue:work
+#   PROCESS_ROLE=scheduler  php artisan schedule:work
+#
+# This previously served traffic with `php artisan serve`, PHP's built-in
+# development server. That is single-threaded per worker, has no request
+# queueing, no slow-client protection, no graceful reload and is documented by
+# PHP and Laravel as unsuitable for production. It is replaced by php-fpm behind
+# nginx — the same runtime Dockerfile.prod uses, packaged for a platform that
+# gives one container per service instead of a compose network.
+#
+# The PHP layer below is intentionally identical to Dockerfile.prod. Change one
+# and change the other; CI builds both.
 
 ##############################################################################
 # Stage 1 — builder: resolve Composer dependencies against the same PHP ABI  #
 # as the runtime so compiled-extension platform requirements match exactly.  #
 ##############################################################################
-FROM php:8.2-cli-alpine AS builder
+FROM php:8.2-fpm-alpine AS builder
 
-# libpq-dev (not postgresql-dev): pdo_pgsql only needs libpq, and the full
-# postgresql-dev meta-package drags in llvm/clang (~300 MB) for server JIT.
-RUN apk add --no-cache libpq-dev libzip-dev zip unzip && \
-    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache
+ARG PHPREDIS_VERSION=6.2.0
+ARG PHPREDIS_SHA256=470333b27cbf9485d36b610b81300c06491a6575f22c6801a9cefc55285ed123
+
+RUN apk add --no-cache postgresql-dev libzip-dev libxml2-dev curl-dev zip unzip $PHPIZE_DEPS && \
+    curl -fsSL "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" -o /tmp/phpredis.tar.gz && \
+    echo "${PHPREDIS_SHA256}  /tmp/phpredis.tar.gz" | sha256sum -c - && \
+    mkdir /tmp/phpredis && \
+    tar -xzf /tmp/phpredis.tar.gz -C /tmp/phpredis --strip-components=1 && \
+    cd /tmp/phpredis && phpize && ./configure && make -j"$(nproc)" && make install && \
+    docker-php-ext-enable redis && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache simplexml curl && \
+    rm -rf /tmp/phpredis /tmp/phpredis.tar.gz
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Install vendor deps first, keyed only on the manifests, for better layer
-# caching (source changes don't invalidate the dependency layer).
+# Dependencies first, keyed only on the manifests, so source changes do not
+# invalidate the vendor layer.
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist \
     --no-scripts --no-autoloader
 
 COPY . .
 # The repo's .gitignore excludes bootstrap/cache and parts of storage/, so a
-# clean git checkout (Railway's build context) lacks them — recreate the full
-# runtime tree before artisan runs (package:discover requires bootstrap/cache).
+# clean checkout (Railway's build context) lacks them — recreate the runtime
+# tree before artisan runs, because package discovery needs bootstrap/cache.
 RUN mkdir -p bootstrap/cache \
              storage/framework/cache/data \
              storage/framework/sessions \
@@ -42,33 +62,94 @@ RUN mkdir -p bootstrap/cache \
     composer run-script post-autoload-dump --no-interaction
 
 ##############################################################################
-# Stage 2 — runtime: lean CLI image, no Composer, runs as www-data.          #
+# Stage 2 — runtime: php-fpm + nginx + supervisord, no toolchain, no Composer #
 ##############################################################################
-FROM php:8.2-cli-alpine AS runtime
+FROM php:8.2-fpm-alpine AS runtime
 
-RUN apk add --no-cache libpq libzip && \
-    apk add --no-cache --virtual .build-deps libpq-dev libzip-dev && \
-    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache && \
+ARG PHPREDIS_VERSION=6.2.0
+ARG PHPREDIS_SHA256=470333b27cbf9485d36b610b81300c06491a6575f22c6801a9cefc55285ed123
+
+RUN apk add --no-cache postgresql-libs libzip libxml2 curl nginx supervisor gettext && \
+    apk add --no-cache --virtual .build-deps postgresql-dev libzip-dev libxml2-dev curl-dev $PHPIZE_DEPS && \
+    curl -fsSL "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" -o /tmp/phpredis.tar.gz && \
+    echo "${PHPREDIS_SHA256}  /tmp/phpredis.tar.gz" | sha256sum -c - && \
+    mkdir /tmp/phpredis && \
+    tar -xzf /tmp/phpredis.tar.gz -C /tmp/phpredis --strip-components=1 && \
+    cd /tmp/phpredis && phpize && ./configure && make -j"$(nproc)" && make install && \
+    docker-php-ext-enable redis && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache simplexml curl && \
+    rm -rf /tmp/phpredis /tmp/phpredis.tar.gz && \
     apk del .build-deps
 
-# OPcache for the CLI server (enable_cli is required — the built-in server
-# runs under the CLI SAPI). Timestamps not validated: image code is immutable.
+# OPcache tuned for production — timestamps are not validated because the code
+# in the image is immutable (invalidated only by a new deploy).
 RUN { \
       echo "opcache.enable=1"; \
       echo "opcache.enable_cli=1"; \
-      echo "opcache.memory_consumption=192"; \
+      echo "opcache.memory_consumption=256"; \
       echo "opcache.max_accelerated_files=20000"; \
       echo "opcache.validate_timestamps=0"; \
       echo "opcache.interned_strings_buffer=16"; \
     } > /usr/local/etc/php/conf.d/opcache.ini
 
-# Never advertise the exact PHP build in HTTP responses; X-Powered-By hands an
-# attacker the precise patch level to look up CVEs against. Also keep runtime
-# errors out of responses regardless of what the framework does.
-RUN {       echo "expose_php=Off";       echo "display_errors=Off";       echo "display_startup_errors=Off";       echo "log_errors=On";     } > /usr/local/etc/php/conf.d/zz-hardening.ini
+# Never advertise the exact PHP build in HTTP responses, and never render an
+# error into a response regardless of what the framework does.
+RUN { \
+      echo "expose_php=Off"; \
+      echo "display_errors=Off"; \
+      echo "display_startup_errors=Off"; \
+      echo "log_errors=On"; \
+      echo "error_log=/dev/stderr"; \
+      echo "memory_limit=256M"; \
+      echo "upload_max_filesize=20M"; \
+      echo "post_max_size=21M"; \
+    } > /usr/local/etc/php/conf.d/zz-hardening.ini
 
-# Worker pool for the built-in server (artisan serve passes this through).
-ENV PHP_CLI_SERVER_WORKERS=8
+# PHP-FPM pool. PM_MAX_CHILDREN is the ceiling on concurrent PHP requests for
+# this replica and therefore on this replica's database connections; it is sized
+# together with the PgBouncer pool, not independently. Errors go to the
+# container's stderr so Railway collects them.
+RUN { \
+      echo "[www]"; \
+      echo "listen = 127.0.0.1:9000"; \
+      echo "pm = dynamic"; \
+      echo "pm.max_children = \${PM_MAX_CHILDREN}"; \
+      echo "pm.start_servers = \${PM_START_SERVERS}"; \
+      echo "pm.min_spare_servers = \${PM_MIN_SPARE}"; \
+      echo "pm.max_spare_servers = \${PM_MAX_SPARE}"; \
+      echo "pm.max_requests = 500"; \
+      echo "pm.status_path = /fpm-status"; \
+      echo "request_terminate_timeout = 60s"; \
+      echo "catch_workers_output = yes"; \
+      echo "decorate_workers_output = no"; \
+      echo "clear_env = no"; \
+      echo "access.log = /dev/null"; \
+    } > /usr/local/etc/php-fpm.d/zz-pool.conf
+
+ENV PM_MAX_CHILDREN=20 \
+    PM_START_SERVERS=4 \
+    PM_MIN_SPARE=2 \
+    PM_MAX_SPARE=6 \
+    PROCESS_ROLE=web
+
+WORKDIR /var/www
+
+COPY --from=builder --chown=www-data:www-data /var/www /var/www
+COPY --chown=www-data:www-data docker/nginx-railway-http.conf /etc/nginx/nginx.conf
+COPY --chown=www-data:www-data docker/nginx-railway.conf.template /etc/nginx/templates/default.conf.template
+COPY --chown=www-data:www-data docker/supervisord-web.conf /etc/supervisor/supervisord.conf
+
+# Paths the unprivileged user must be able to write: nginx temp/pid dirs, the
+# rendered server block, and Laravel's runtime tree.
+# nginx opens its compiled-in default error log before it parses a config, so
+# /var/lib/nginx/logs must exist and be writable or every message emitted during
+# startup — including the reason a bad config was rejected — is silently
+# discarded. Symlinking it to stderr keeps those lines in the container log.
+RUN mkdir -p /tmp/nginx /etc/nginx/http.d /var/lib/nginx/logs && \
+    ln -sf /dev/stderr /var/lib/nginx/logs/error.log && \
+    chown -R www-data:www-data /tmp/nginx /etc/nginx/http.d /var/lib/nginx && \
+    chmod +x docker/railway-entrypoint.sh && \
+    chmod -R 775 storage bootstrap/cache
 
 # Immutable release identity, stamped by CI with the commit SHA. Surfaces in
 # log lines, /api/health and any error reporter so an incident can be traced to
@@ -76,16 +157,9 @@ ENV PHP_CLI_SERVER_WORKERS=8
 ARG APP_RELEASE=unknown
 ENV APP_RELEASE=${APP_RELEASE}
 
-WORKDIR /var/www
-
-COPY --from=builder --chown=www-data:www-data /var/www /var/www
-
-RUN chmod +x docker/railway-entrypoint.sh && \
-    chmod -R 775 storage bootstrap/cache
-
+# Drop root. nginx binds $PORT, which Railway sets above 1024.
 USER www-data
 
-# Local default; Railway overrides via the PORT env var.
 EXPOSE 8080
 
 CMD ["sh", "docker/railway-entrypoint.sh"]
