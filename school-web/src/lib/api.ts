@@ -325,6 +325,25 @@ export function mediaUrl(path?: string | null): string {
   return new URL(`/${storagePath}`, apiRoot || window.location.origin).toString();
 }
 
+/**
+ * URL for a user's profile photo.
+ *
+ * Profile photos are personal data and no longer live on the public storage
+ * disk, so there is no storage URL to build. This points at an API endpoint
+ * that checks school scope, the viewer's relationship to the subject and their
+ * role before streaming a single byte.
+ *
+ * An <img> to a same-site URL under /api sends the session cookie, so the
+ * browser client needs no extra handling; native clients attach their bearer
+ * token. A viewer who is not permitted to see the photo gets 403 and the
+ * component falls back to initials.
+ */
+export function profilePhotoUrl(userId?: number | null): string {
+  if (!userId) return "";
+
+  return `${API_BASE_URL.replace(/\/$/, "")}/files/profile-photo/${userId}`;
+}
+
 /** Request timeout in milliseconds. */
 const REQUEST_TIMEOUT_MS = Number(
   import.meta.env.VITE_API_TIMEOUT_MS || 15000,

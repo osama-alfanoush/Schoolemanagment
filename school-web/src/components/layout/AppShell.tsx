@@ -44,7 +44,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { mediaUrl, Messaging, Role } from "@/lib/api";
+import { mediaUrl, Messaging, Role, profilePhotoUrl } from "@/lib/api";
 import NotificationBell from "@/components/layout/NotificationBell";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -217,7 +217,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
           >
             <Avatar className="h-8 w-8 border border-sidebar-border">
-              <AvatarImage src={mediaUrl(user.photo_path)} alt={user.name} />
+              <AvatarImage src={profilePhotoUrl(user.id)} alt={user.name} />
               <AvatarFallback className="text-xs bg-sidebar-primary/20 text-sidebar-primary font-semibold">
                 {user.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
@@ -278,7 +278,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ms-1">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={mediaUrl(user.photo_path)} alt={user.name} />
+                    <AvatarImage src={profilePhotoUrl(user.id)} alt={user.name} />
                     <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Button>

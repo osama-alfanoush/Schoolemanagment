@@ -74,7 +74,49 @@ a slug of `APP_NAME`; if the services' names differ at all, the worker polls a
 queue nobody writes to. Nothing errors, nothing is marked failed — mail and
 notifications simply stop. This was reproduced during Phase 1 verification.
 
-### 1.4 Failure behaviour, by design
+### 1.4 File storage: what is public and what is not
+
+Two disks, and the split is deliberate.
+
+| Disk | Contents | Reachable how |
+|---|---|---|
+| `uploads` (public) | **School logo only.** Institutional branding, rendered by the login screen before anyone authenticates, identifies no person | Direct storage URL |
+| `private_uploads` (private) | Profile photos, assignment submissions, teacher attachments, and any generated personal document | `GET /api/files/*` only, after authorization |
+
+Nothing on the private disk has a storage URL. `visibility: private` means an S3
+object carries no public ACL, so learning the key is not enough; the local
+driver keeps files under `storage/app/private/uploads`, which nginx never maps.
+
+Storage keys are `{schoolId}/{category}/{ULID}.{ext}` and are generated, never
+derived from client input:
+
+- no original filename — that is where personal data hides
+  ("ahmed-al-fulani-medical.pdf");
+- no database id — an incrementing id in a URL invites enumeration;
+- the extension comes from the **detected** MIME type, so "photo.php" cannot
+  become a `.php` object;
+- SVG is refused everywhere, including for the logo: it is an XML document that
+  can carry script, and a stored SVG served from an origin is stored XSS.
+
+Every download is `Content-Disposition: attachment` with
+`Content-Security-Policy: default-src 'none'; sandbox` and `nosniff`, so stored
+bytes can never execute in the application's origin even if validation is one
+day bypassed.
+
+Authorization for `/api/files/*`:
+
+| Category | Who may read it |
+|---|---|
+| Profile photo | The owner; an admin or HR member of the same school; a teacher who teaches that pupil; a parent of that pupil |
+| Assignment attachment | Pupils in the class and their parents; the assigning teacher or a teacher of that class; admins |
+| Submission | The submitting pupil and their parents; the assigning teacher or a teacher of that class; admins. **Not classmates** |
+
+Two independent checks apply: the tenant global scope on the record, and a
+re-check of the storage key's tenant prefix inside the vault. A row that somehow
+carries another school's key — a pre-tenancy record, a bad import — still cannot
+be read.
+
+### 1.5 Failure behaviour, by design
 
 | Condition | Behaviour |
 |---|---|
