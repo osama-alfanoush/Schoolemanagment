@@ -155,7 +155,11 @@ class PayrollController extends Controller
             $run = PayrollRun::lockForUpdate()->findOrFail($id);
             $this->schools->authorize($request->user(), (int) $run->school_id);
             $this->states->assertAllowed($run, 'approve');
-            if (($run->created_by ?? $run->processed_by) === $request->user()->id) {
+            // Segregation of duty. Enforced by default; a school with a single
+            // finance user may switch it off, which is a business decision
+            // recorded in docs/decision-register.md rather than a code change.
+            if (config('policy.payroll.creator_cannot_approve', true)
+                && ($run->created_by ?? $run->processed_by) === $request->user()->id) {
                 abort(422, 'You cannot approve a payroll run you drafted. Another authorised user must review it.');
             }
             $journalId = $this->accounting->postAccrual($run, $request->user()->id);

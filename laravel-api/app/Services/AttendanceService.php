@@ -20,7 +20,7 @@ class AttendanceService
 
     public function markAttendance(array $data, int $teacherId, string $idempotencyKey): AttendanceSubmissionBatch
     {
-        $windowHours = (int) config('school.attendance_edit_window_hours', 48);
+        $windowHours = (int) config('policy.attendance.edit_window_hours', config('school.attendance_edit_window_hours', 48));
         $targetDate = Carbon::parse($data['date'])->endOfDay();
         if ($targetDate->diffInHours(now(), false) > $windowHours) {
             throw new \InvalidArgumentException("Attendance for {$data['date']} is locked (past the {$windowHours}h edit window). Ask an administrator to override.");
