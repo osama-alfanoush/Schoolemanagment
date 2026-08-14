@@ -41,7 +41,7 @@ class PayrollController extends Controller
             $q->where('status', $status);
         }
 
-        return response()->json($q->orderByDesc('year')->orderByDesc('month')->paginate(min(100, $request->integer('per_page', 20))));
+        return response()->json($q->orderByDesc('year')->orderByDesc('month')->paginate($this->perPage($request, 20)));
     }
 
     public function showRun(Request $request, int $id)

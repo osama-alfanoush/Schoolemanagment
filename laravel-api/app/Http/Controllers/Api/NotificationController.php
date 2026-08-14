@@ -41,7 +41,7 @@ class NotificationController extends Controller
             $query->ofCategory($category);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     /**

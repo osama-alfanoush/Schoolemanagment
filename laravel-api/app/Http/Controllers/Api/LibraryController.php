@@ -26,7 +26,9 @@ class LibraryController extends Controller
             $query->where('category', $category);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        // Capped: an uncapped client-supplied page size lets one request
+        // materialise the whole table.
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function myBorrowings(Request $request)
@@ -151,7 +153,7 @@ class LibraryController extends Controller
             $query->search($search);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function updateBook(Request $request, int $id)
@@ -252,14 +254,14 @@ class LibraryController extends Controller
             $query->where('is_returned', false);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function overdueBooks(Request $request)
     {
         $overdue = LibraryBorrowing::overdue()
             ->with(['book', 'student'])
-            ->paginate($request->query('per_page', 20));
+            ->paginate($this->perPage($request, 20));
 
         return response()->json($overdue);
     }

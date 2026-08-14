@@ -72,7 +72,7 @@ class AccountingController extends Controller
         }
 
         return response()->json($query->latest('entry_date')->latest('id')
-            ->paginate(min((int) $request->query('per_page', 20), 100)));
+            ->paginate($this->perPage($request, 20)));
     }
 
     public function showJournalBatch(Request $request, int $id)
@@ -273,7 +273,9 @@ class AccountingController extends Controller
         }
 
         return response()->json([
-            'data' => $q->latest()->paginate((int) $request->query('per_page', 20)),
+            // Capped: an uncapped client-supplied page size lets one request
+            // materialise the whole table.
+            'data' => $q->latest()->paginate($this->perPage($request, 20)),
         ]);
     }
 }

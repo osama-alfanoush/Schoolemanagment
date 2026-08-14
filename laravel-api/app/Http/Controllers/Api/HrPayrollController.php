@@ -71,7 +71,7 @@ class HrPayrollController extends Controller
         }
 
         return response()->json($q->orderByRaw('case when end_date is null then 1 else 0 end')->orderBy('end_date')
-            ->paginate(min(100, $request->integer('per_page', 20))));
+            ->paginate($this->perPage($request, 20)));
     }
 
     public function contractHistory(Request $request, int $userId)
@@ -119,7 +119,7 @@ class HrPayrollController extends Controller
             $q->where('staff_profile_id', $staff);
         }
 
-        return response()->json($q->latest('issued_date')->paginate(min(100, $request->integer('per_page', 20))));
+        return response()->json($q->latest('issued_date')->paginate($this->perPage($request, 20)));
     }
 
     public function showWarning(Request $request, int $id)
@@ -200,7 +200,7 @@ class HrPayrollController extends Controller
             $q->where('staff_profile_id', $staff);
         }
 
-        return response()->json($q->latest()->paginate(min(100, $request->integer('per_page', 20))));
+        return response()->json($q->latest()->paginate($this->perPage($request, 20)));
     }
 
     public function showAdvance(Request $request, int $id)
@@ -322,7 +322,7 @@ class HrPayrollController extends Controller
 
     public function report(Request $request, string $type)
     {
-        $perPage = min(100, $request->integer('per_page', 25));
+        $perPage = $this->perPage($request, 25);
         $schoolId = $this->schools->forUser($request->user());
 
         return match ($type) {

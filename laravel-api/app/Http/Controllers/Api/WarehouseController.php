@@ -46,7 +46,7 @@ class WarehouseController extends Controller
     public function indexItems(Request $request)
     {
         $q = WarehouseItem::with('category');
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($categoryId = $request->query('category_id')) {
             $q->where('category_id', (int) $categoryId);
@@ -135,7 +135,7 @@ class WarehouseController extends Controller
     public function indexMovements(Request $request)
     {
         $q = StockMovement::with(['item', 'performedBy:id,name']);
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($itemId = $request->query('item_id')) {
             $q->where('item_id', (int) $itemId);
@@ -184,7 +184,7 @@ class WarehouseController extends Controller
     public function indexPurchaseRequests(Request $request)
     {
         $q = PurchaseRequest::with(['item', 'requestedBy:id,name', 'reviewedBy:id,name']);
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($status = $request->query('status')) {
             $q->where('status', $status);
@@ -264,7 +264,7 @@ class WarehouseController extends Controller
     public function indexCounts(Request $request)
     {
         $q = InventoryCount::with(['item', 'countedBy:id,name']);
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($type = $request->query('count_type')) {
             $q->where('count_type', $type);

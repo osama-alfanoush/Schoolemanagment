@@ -38,7 +38,7 @@ class ProcurementFinanceController extends Controller
             $q->whereIn('status', ['pending', 'partial'])->where('due_date', '<', now()->toDateString());
         }
 
-        return response()->json($q->latest('invoice_date')->paginate((int) $request->query('per_page', 20)));
+        return response()->json($q->latest('invoice_date')->paginate($this->perPage($request, 20)));
     }
 
     public function storeInvoice(Request $request)

@@ -61,7 +61,7 @@ class FinancialWorkspaceController extends Controller
         }
 
         return response()->json($query->latest('receipt_date')->latest('id')
-            ->paginate(min((int) $request->query('per_page', 25), 100)));
+            ->paginate($this->perPage($request, 25)));
     }
 
     public function storeReceipt(Request $request)
@@ -110,7 +110,7 @@ class FinancialWorkspaceController extends Controller
             }
         }
 
-        return response()->json($query->latest()->paginate(min((int) $request->query('per_page', 25), 100)));
+        return response()->json($query->latest()->paginate($this->perPage($request, 25)));
     }
 
     public function storeAdjustment(Request $request)
@@ -135,7 +135,7 @@ class FinancialWorkspaceController extends Controller
 
     public function report(Request $request, string $type)
     {
-        $perPage = min((int) $request->query('per_page', 25), 100);
+        $perPage = $this->perPage($request, 25);
         $schoolId = $this->currentSchool->id();
         $invoiceTotals = DB::table('invoices')->where('school_id', $schoolId)
             ->selectRaw('student_user_id, SUM(amount) gross_fees')->groupBy('student_user_id');

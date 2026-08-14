@@ -38,7 +38,7 @@ class ProcurementController extends Controller
             $q->where('is_active', $request->boolean('is_active'));
         }
 
-        return response()->json($q->orderBy('name')->paginate((int) $request->query('per_page', 20)));
+        return response()->json($q->orderBy('name')->paginate($this->perPage($request, 20)));
     }
 
     public function storeSupplier(Request $request)
@@ -129,7 +129,7 @@ class ProcurementController extends Controller
             $supplier->account->transactions()
                 ->with('performedBy:id,name')
                 ->latest('transaction_date')
-                ->paginate((int) $request->query('per_page', 20))
+                ->paginate($this->perPage($request, 20))
         );
     }
 
@@ -151,7 +151,7 @@ class ProcurementController extends Controller
             $q->where('order_date', '<=', $to);
         }
 
-        return response()->json($q->latest()->paginate((int) $request->query('per_page', 20)));
+        return response()->json($q->latest()->paginate($this->perPage($request, 20)));
     }
 
     public function storePurchaseOrder(Request $request)
@@ -395,7 +395,7 @@ class ProcurementController extends Controller
             $q->where('purchase_order_id', $poId);
         }
 
-        return response()->json($q->latest('received_at')->paginate((int) $request->query('per_page', 20)));
+        return response()->json($q->latest('received_at')->paginate($this->perPage($request, 20)));
     }
 
     public function showGoodsReceipt(int $id)

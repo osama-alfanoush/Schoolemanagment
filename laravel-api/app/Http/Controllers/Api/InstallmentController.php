@@ -39,7 +39,9 @@ class InstallmentController extends Controller
             $q->where('student_user_id', $studentId);
         }
 
-        return response()->json($q->latest()->paginate((int) $request->query('per_page', 20)));
+        // Capped: an uncapped client-supplied page size lets one request
+        // materialise the whole table.
+        return response()->json($q->latest()->paginate($this->perPage($request, 20)));
     }
 
     public function storePlan(Request $request)

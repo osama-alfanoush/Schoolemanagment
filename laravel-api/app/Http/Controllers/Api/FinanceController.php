@@ -228,24 +228,36 @@ class FinanceController extends Controller
 
     public function sendReminders(Request $request)
     {
-        $unpaid = Invoice::whereIn('status', ['pending', 'partial', 'overdue'])
-            ->where('due_date', '<=', now()->addDays(3))->get();
+        $schoolId = $this->schools->forUser($request->user());
+        $reminded = 0;
 
-        // Pre-fetch all parent links for the affected students in ONE query.
-        $parentsByStudent = \DB::table('parent_student')
-            ->where('school_id', $this->schools->forUser($request->user()))
-            ->whereIn('student_user_id', $unpaid->pluck('student_user_id')->unique())
-            ->get()
-            ->groupBy('student_user_id');
+        // Chunked rather than loaded whole. This previously did ->get() on
+        // every unpaid invoice in the school and held the entire result set,
+        // plus every parent link for it, in memory at once — memory that grows
+        // with the school and with each term's backlog. Chunking bounds the
+        // working set to one page regardless of how much is outstanding.
+        Invoice::whereIn('status', ['pending', 'partial', 'overdue'])
+            ->where('due_date', '<=', now()->addDays(3))
+            ->orderBy('id')
+            ->chunkById(200, function ($invoices) use ($schoolId, &$reminded) {
+                // One parent-link query per chunk, not per invoice.
+                $parentsByStudent = \DB::table('parent_student')
+                    ->where('school_id', $schoolId)
+                    ->whereIn('student_user_id', $invoices->pluck('student_user_id')->unique())
+                    ->get()
+                    ->groupBy('student_user_id');
 
-        foreach ($unpaid as $inv) {
-            foreach ($parentsByStudent->get($inv->student_user_id, collect()) as $link) {
-                Notifier::send($link->parent_user_id, 'fee_reminder', 'Fee reminder', "Invoice {$inv->invoice_no} due {$inv->due_date->format('Y-m-d')}");
-            }
-        }
-        AuditLogger::log($request, 'send_fee_reminders', 'invoice', null, ['reminded' => $unpaid->count()]);
+                foreach ($invoices as $inv) {
+                    foreach ($parentsByStudent->get($inv->student_user_id, collect()) as $link) {
+                        Notifier::send($link->parent_user_id, 'fee_reminder', 'Fee reminder', "Invoice {$inv->invoice_no} due {$inv->due_date->format('Y-m-d')}");
+                    }
+                    $reminded++;
+                }
+            });
 
-        return response()->json(['reminded' => $unpaid->count()]);
+        AuditLogger::log($request, 'send_fee_reminders', 'invoice', null, ['reminded' => $reminded]);
+
+        return response()->json(['reminded' => $reminded]);
     }
 
     public function outstandingByStudent()

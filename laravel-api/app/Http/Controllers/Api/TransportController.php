@@ -183,6 +183,6 @@ class TransportController extends Controller
             $query->where('route_id', $routeId);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 }

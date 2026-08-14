@@ -98,7 +98,7 @@ class HrController extends Controller
         if ($days = $request->integer('contract_expires_within')) {
             $q->whereHas('staffProfile.currentContract', fn ($contract) => $contract->whereBetween('end_date', [now()->toDateString(), now()->addDays($days)->toDateString()]));
         }
-        $page = $q->orderBy('name')->paginate(min(100, $request->integer('per_page', 50)));
+        $page = $q->orderBy('name')->paginate($this->perPage($request, 50));
         if (! $request->user()->hasPermission('hr.salary.view')) {
             $page->getCollection()->each(function ($user) {
                 $user->staffProfile?->makeHidden(['base_salary', 'bank_account', 'bank_name', 'payment_method']);
