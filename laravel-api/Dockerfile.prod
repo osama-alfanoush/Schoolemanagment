@@ -78,11 +78,31 @@ RUN {       echo "expose_php=Off";       echo "display_errors=Off";       echo "
 # PHP-FPM process-manager tuning.
 RUN { \
       echo "pm = dynamic"; \
-      echo "pm.max_children = 20"; \
-      echo "pm.start_servers = 4"; \
-      echo "pm.min_spare_servers = 2"; \
-      echo "pm.max_spare_servers = 6"; \
+      echo "pm.max_children = \${PM_MAX_CHILDREN}"; \
+      echo "pm.start_servers = \${PM_START_SERVERS}"; \
+      echo "pm.min_spare_servers = \${PM_MIN_SPARE}"; \
+      echo "pm.max_spare_servers = \${PM_MAX_SPARE}"; \
+      echo "pm.max_requests = 500"; \
+      echo "request_terminate_timeout = 60s"; \
+      echo "catch_workers_output = yes"; \
+      echo "decorate_workers_output = no"; \
+      echo "clear_env = no"; \
+      echo "access.log = /dev/null"; \
+      \
+      # Without this there is no way to see how many workers are actually busy,
+      # so "is the pool saturated?" can only be guessed at from latency. The
+      # path is served only to the local nginx, never publicly.
+      echo "pm.status_path = /fpm-status"; \
     } >> /usr/local/etc/php-fpm.d/www.conf
+
+# Sized from measurement, not habit — see docs/capacity-and-performance.md.
+# PM_MAX_CHILDREN is the ceiling on concurrent PHP requests for one replica and
+# therefore on that replica's share of the PgBouncer client pool; the two are
+# sized together.
+ENV PM_MAX_CHILDREN=20 \
+    PM_START_SERVERS=4 \
+    PM_MIN_SPARE=2 \
+    PM_MAX_SPARE=6
 
 WORKDIR /var/www
 

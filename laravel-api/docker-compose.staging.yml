@@ -13,11 +13,18 @@ x-app: &app
     LOG_CHANNEL: stderr
     FILESYSTEM_DISK: s3
     UPLOADS_DRIVER: s3
+    # php-fpm pool, overridable so capacity experiments do not need a rebuild.
+    PM_MAX_CHILDREN: "${PM_MAX_CHILDREN:-20}"
+    PM_START_SERVERS: "${PM_START_SERVERS:-4}"
+    PM_MIN_SPARE: "${PM_MIN_SPARE:-2}"
+    PM_MAX_SPARE: "${PM_MAX_SPARE:-6}"
     # Application traffic is pooled; schema changes are not. pgsql_direct
     # bypasses PgBouncer because transaction pooling breaks session-scoped
     # statements and CREATE INDEX CONCURRENTLY needs its own connection.
-    DB_HOST: pgbouncer
-    DB_PORT: "6432"
+    # Overridable so the pooler can be bypassed for an A/B measurement or to
+    # rule it out during an incident. Defaults to the pooled path.
+    DB_HOST: "${DB_APP_HOST:-pgbouncer}"
+    DB_PORT: "${DB_APP_PORT:-6432}"
     DB_DIRECT_HOST: postgres
     DB_DIRECT_PORT: "5432"
   depends_on:
