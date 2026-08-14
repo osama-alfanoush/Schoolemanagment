@@ -25,11 +25,11 @@ still open and exits non-zero while a blocking one remains.
 
 | Decision | Register § | Accountable role | Blocks |
 |---|---|---|---|
-| Backup RPO/RTO | §1 | Platform + school operations | **PILOT** |
-| Backup encryption, location, access | §2 | Platform + privacy | **PILOT** |
-| Record retention schedule | §3 | Privacy + legal (+ finance, registrar) | **PROD** |
+| Backup RPO/RTO | §1 | Platform + school operations | decided 2026-08-15 |
+| Backup encryption, location, access | §2 | Platform + privacy | **PILOT** — decided, implementation outstanding |
+| Record retention schedule | §3 | Privacy + legal (+ finance, registrar) | **PROD** — pilot answer recorded: keep everything |
 | Erasure, anonymisation, legal hold | §4 | Privacy + legal | **PROD** |
-| Payroll creator/approver separation | §5 | Finance | **USE** |
+| Payroll creator/approver separation | §5 | Finance | decided 2026-08-15 — keep enforced |
 | Payroll cancellation semantics | §6 | Finance / school accountant | **USE** |
 | Attendance correction window | §7 | Attendance officer | **USE** |
 | Grade change after publication | §8 | Academic registrar | **USE** |
@@ -45,7 +45,7 @@ still open and exits non-zero while a blocking one remains.
 | Item | Where | Status |
 |---|---|---|
 | Expo build-tool advisories EX-2026-001 | `security-exceptions.md` | Pending security owner; **expired 2026-08-15** — re-approve or remediate |
-| Retention schedule | `decision-register.md` §3 | Not approved; nothing expires, which is the safe state |
+| Retention schedule | `decision-register.md` §3 | Deliberately not approved for the pilot; nothing expires. Required before general production |
 | MFA recovery two-person rule | implemented and enforced | Confirm it matches the school's help-desk process |
 
 ## How to record a decision

@@ -1,8 +1,19 @@
 # Decision register — business policy, privacy and ownership
 
-Status: **awaiting owner decisions**. Last reviewed 2026-08-15.
+Status: **4 of 14 decided; 10 open**. Last reviewed 2026-08-15.
 
-Nothing in this register has been decided by engineering. Each entry records
+| Decided | Decision | Approved by | Date |
+|---|---|---|---|
+| §1 | RPO 24 h / RTO 4 h for the pilot | Project owner | 2026-08-15 |
+| §2 | Encrypt backups before they leave the host; store off-host | Project owner | 2026-08-15 |
+| §3 | Retain everything; no expiry until a schedule is approved | Project owner | 2026-08-15 |
+| §5 | Keep payroll creator/approver separation enforced | Project owner | 2026-08-15 |
+
+§2 is **decided but not yet implemented** — the backup script still does not
+encrypt and still writes beside the database. The pilot remains blocked on that
+implementation, not on the decision.
+
+Engineering decided none of these. Each entry records
 what the software does **today**, what goes wrong if the question stays open,
 what the realistic options are, and the safest default to adopt if no other
 answer is forthcoming. A recommendation is not a decision — it is what
@@ -30,7 +41,8 @@ before that specific module is used in anger; `—` — no launch dependency.
 | **Options** | (a) Daily dump — RPO ≈ 24 h, no extra cost. (b) Continuous WAL archiving / PITR — RPO minutes, needs archive storage and a managed or self-run PITR setup. (c) Managed provider with built-in PITR — lowest effort, highest running cost. |
 | **Recommended default** | RPO 24 h and RTO 4 h **for the pilot only**, because the measured restore is far inside it. For general production with live fee collection, (b) or (c) — a day of lost payment records is not recoverable by re-keying. |
 | **Owner** | Platform owner + school operations owner |
-| **Blocks** | **PILOT** |
+| **DECIDED 2026-08-15** | RPO 24 h, RTO 4 h, for the pilot only. Revisit before general production with live fee collection. |
+| **Blocks** | resolved for pilot |
 
 ## 2. Backup retention, encryption, location and access
 
@@ -41,7 +53,8 @@ before that specific module is used in anger; `—` — no launch dependency.
 | **Options** | (a) Encrypted object storage off-host with versioning and a separate credential (age/gpg or provider-side SSE). (b) Provider-managed encrypted backups. (c) Status quo — accepted only for a pilot on synthetic data. |
 | **Recommended default** | (a). Encrypt before it leaves the host, store off-host, restrict read access to the database owner role, and record who may restore. |
 | **Owner** | Platform owner (execution) + privacy officer (access rules) |
-| **Blocks** | **PILOT** — a pilot with real family data must not run on unencrypted co-located backups. |
+| **DECIDED 2026-08-15** | Option (a): encrypt before leaving the host, store off-host with versioning and a separate credential. |
+| **Blocks** | **PILOT — implementation outstanding.** The decision is made; the script does not yet encrypt or copy off-host. |
 
 ## 3. Student, staff, audit and financial record retention
 
@@ -52,7 +65,8 @@ before that specific module is used in anger; `—` — no launch dependency.
 | **Options** | Per class of record, a statutory minimum then deletion or anonymisation. Typical shapes: education records retained years past leaving age; financial records to the tax statute; audit logs long enough to cover an investigation window. **The actual numbers are jurisdiction-specific and engineering cannot supply them.** |
 | **Recommended default** | Keep indefinitely until a schedule is approved — the current behaviour. Approve per class, not globally. |
 | **Owner** | Privacy officer + legal reviewer; finance owner for financial records; registrar for education records |
-| **Blocks** | **PROD** (indefinite retention is tenable for a time-boxed pilot) |
+| **DECIDED 2026-08-15** | Keep everything; retention stays unapproved so nothing expires. Sufficient for a time-boxed pilot. |
+| **Blocks** | **PROD** — a schedule is still required before general production. |
 
 ## 4. Deletion, anonymisation and legal hold
 
@@ -74,7 +88,8 @@ before that specific module is used in anger; `—` — no launch dependency.
 | **Options** | (a) Keep enforced; the school must nominate a second approver (an administrator qualifies). (b) Allow self-approval for named single-user schools. |
 | **Recommended default** | (a). This is a standard segregation of duty over money leaving the organisation; relaxing it should be an explicit, recorded exception. |
 | **Owner** | Finance owner |
-| **Blocks** | **USE** (payroll) — confirm a second approver exists before the first run. |
+| **DECIDED 2026-08-15** | Keep enforced. The school nominates a second approver; an administrator qualifies. |
+| **Blocks** | resolved — confirm the nominated approver exists before the first run. |
 
 ## 6. Payroll cancellation and reversal semantics
 
@@ -181,11 +196,12 @@ before that specific module is used in anger; `—` — no launch dependency.
 
 Before a pilot with real data:
 
-1. **§2** backup encryption, off-host location and access rules
-2. **§1** RPO/RTO confirmation
-3. **§12** breach-notification owner, regulator and deadline
-4. **§13** named owners for the four alert roles
-5. **§14** support and escalation contacts
+1. **§2** backup encryption and off-host copy — *decided, implementation outstanding*
+2. **§12** breach-notification owner, regulator and statutory deadline — **open**
+3. **§13** real names behind the four alert placeholders — **open**
+4. **§14** support and escalation contacts — **open**
+
+~~§1 RPO/RTO~~ — decided 2026-08-15.
 
 Additionally before general production: **§3** retention schedule, **§4** erasure
 and legal-hold behaviour, **§11** subject-access process.
