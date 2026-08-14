@@ -457,17 +457,46 @@ switched it on believing it worked. `php artisan ops:smoke` and
 
 ## 8. Open business decisions
 
-These are **not** engineering defaults to be invented. Each needs an owner and a
-recorded decision in `production-policy-owners.md`:
+These are not engineering defaults waiting to be tidied up — they are decisions
+that belong to the school, and the software deliberately does nothing
+irreversible while they are open.
 
-- Recovery point objective. Daily dumps imply up to 24 h of loss; PITR costs more.
-- Backup encryption and off-host destination, and who may read a dump.
-- Retention periods for student records, audit logs, financial documents and
-  backups, under the applicable education and privacy regulations.
-- Whether the payroll rule "the creator of a run may not approve it" is the
-  organisation's intended segregation of duty (it is currently enforced).
-- Payroll cancellation semantics — only `reversed` exists today.
-- Grading rules, attendance correction windows, and who may reissue a report card.
-- Behaviour for a user assigned to more than one school; the system currently
-  fails closed and denies access.
-- Breach notification duties and timelines.
+The full register, with current behaviour, risk, options, recommendation and
+owner for each, is in **`decision-register.md`**. Ownership is in
+**`production-policy-owners.md`**.
+
+Check status at any time:
+
+```bash
+php artisan policy:status --stage=pilot        # exits 1 while a pilot blocker is open
+php artisan policy:status --stage=production
+php artisan policy:status --json
+```
+
+Blocking a pilot with real data:
+
+1. Backup encryption, off-host location and who may restore (§2)
+2. RPO and RTO confirmation (§1)
+3. Breach-notification owner, regulator and statutory deadline (§12)
+4. Real names behind the four alert owner placeholders (§13)
+5. Pilot support and escalation contacts (§14)
+
+Blocking general production, in addition: the retention schedule (§3), erasure
+and legal-hold behaviour (§4), and a subject-access process (§11).
+
+Blocking first use of a module: payroll approval and cancellation semantics
+(§5, §6), the attendance correction window (§7), and grade-change and reissue
+authority (§8, §9).
+
+### Retention is off, on purpose
+
+`audit:clean` runs nightly but **deletes nothing** until
+`RETENTION_POLICY_APPROVED=true` and a period is set. It previously hard-deleted
+audit entries older than 90 days on a framework default, which contradicted this
+project's own retention inventory and destroyed exactly the evidence an
+investigation would need. Over-retention is a conversation; premature deletion
+is not recoverable.
+
+To enable expiry after approval, set `RETENTION_POLICY_APPROVED`,
+`RETENTION_POLICY_APPROVED_BY` and the relevant `RETENTION_*_DAYS` values, then
+record the approval in the register.
