@@ -34,7 +34,20 @@ RUN composer install --no-dev --no-interaction --prefer-dist \
 # Bring in the application source, then build the optimized autoloader and run
 # package discovery (post-autoload-dump) now that the full app is present.
 COPY . .
-RUN composer dump-autoload --no-dev --optimize --classmap-authoritative && \
+# .gitignore excludes bootstrap/cache and parts of storage/, so a clean checkout
+# — CI, a fresh clone, or a rollback rebuilt from a tag — does not contain them
+# and package:discover fails at PackageManifest.php line 179. Every build until
+# now only succeeded because it used a working directory that happened to have
+# these directories already. Dockerfile.railway created them from the start;
+# this one did not, so the compose image could not be built from source.
+RUN mkdir -p bootstrap/cache \
+             storage/framework/cache/data \
+             storage/framework/sessions \
+             storage/framework/views \
+             storage/logs \
+             storage/app/public \
+             storage/app/private && \
+    composer dump-autoload --no-dev --optimize --classmap-authoritative && \
     composer run-script post-autoload-dump --no-interaction
 
 ##############################################################################
@@ -103,6 +116,14 @@ ENV PM_MAX_CHILDREN=20 \
     PM_START_SERVERS=4 \
     PM_MIN_SPARE=2 \
     PM_MAX_SPARE=6
+
+# Immutable release identity, stamped by the deploy with the commit SHA.
+# Dockerfile.railway carried this from the start; the compose path did not, so
+# a compose deployment reported release "unknown" in /api/health, in every log
+# line and in every error event — meaning an incident could not be traced back
+# to the build that caused it.
+ARG APP_RELEASE=unknown
+ENV APP_RELEASE=${APP_RELEASE}
 
 WORKDIR /var/www
 

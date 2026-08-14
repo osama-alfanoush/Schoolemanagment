@@ -5,12 +5,15 @@ x-app: &app
   build:
     context: .
     dockerfile: Dockerfile.prod
+    args:
+      APP_RELEASE: "${APP_RELEASE:-unknown}"
   env_file:
     - ${STAGING_ENV_FILE:-.env.staging}
   environment:
     APP_ENV: staging
     APP_DEBUG: "false"
     LOG_CHANNEL: stderr
+    APP_RELEASE: "${APP_RELEASE:-unknown}"
     FILESYSTEM_DISK: s3
     UPLOADS_DRIVER: s3
     # php-fpm pool, overridable so capacity experiments do not need a rebuild.
