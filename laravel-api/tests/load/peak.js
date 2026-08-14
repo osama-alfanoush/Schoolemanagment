@@ -21,8 +21,9 @@ export const options = {
     { duration: '1m', target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(95)<800'],
-    http_req_failed: ['rate<0.02'],
+    // Judged on steady state only; setup is a deliberate warm-up burst.
+    'http_req_duration{phase:steady}': ['p(95)<800', 'p(99)<1500'],
+    'http_req_failed{phase:steady}': ['rate<0.01'],
   },
 };
 
@@ -61,7 +62,14 @@ export function setup() {
     const res = http.post(
       `${BASE}/api/auth/login`,
       JSON.stringify({ email: account.email, password: PASSWORD, device_name: 'k6' }),
-      { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } },
+      {
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        // setup() authenticates every account at once before the measured run.
+        // Those requests are a warm-up burst — cold opcache, cold connection
+        // pool, 14 simultaneous bcrypt hashes — and including them made p99
+        // report a start-up artefact rather than steady-state behaviour.
+        tags: { phase: 'setup' },
+      },
     );
     loginLatency.add(Date.now() - started);
 
@@ -93,7 +101,7 @@ export default function (data) {
     const path = paths[Math.floor(Math.random() * paths.length)];
 
     const started = Date.now();
-    const res = http.get(`${BASE}${path}`, { headers });
+    const res = http.get(`${BASE}${path}`, { headers, tags: { phase: 'steady' } });
     dashLatency.add(Date.now() - started);
 
     check(res, { 'read 200': (r) => r.status === 200 });

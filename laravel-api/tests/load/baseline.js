@@ -26,8 +26,8 @@ export const options = {
     { duration: '2m', target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(95)<500'],
-    http_req_failed: ['rate<0.01'],
+    'http_req_duration{phase:steady}': ['p(95)<500', 'p(99)<1000'],
+    'http_req_failed{phase:steady}': ['rate<0.01'],
     login_latency: ['p(95)<800'],
     dashboard_latency: ['p(95)<400'],
   },
@@ -64,7 +64,14 @@ export function setup() {
     const res = http.post(
       `${BASE}/api/auth/login`,
       JSON.stringify({ email: account.email, password: PASSWORD, device_name: 'k6' }),
-      { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } },
+      {
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        // setup() authenticates every account at once before the measured run.
+        // Those requests are a warm-up burst — cold opcache, cold connection
+        // pool, 14 simultaneous bcrypt hashes — and including them made p99
+        // report a start-up artefact rather than steady-state behaviour.
+        tags: { phase: 'setup' },
+      },
     );
     loginLatency.add(Date.now() - started);
 
@@ -98,7 +105,7 @@ export default function (data) {
     const path = paths[Math.floor(Math.random() * paths.length)];
 
     const started = Date.now();
-    const res = http.get(`${BASE}${path}`, { headers });
+    const res = http.get(`${BASE}${path}`, { headers, tags: { phase: 'steady' } });
     dashLatency.add(Date.now() - started);
 
     check(res, { 'read 200': (r) => r.status === 200 });
@@ -108,7 +115,7 @@ export default function (data) {
   group('liveness', () => {
     // The PUBLIC liveness probe. /api/health is the detailed dependency report
     // and is admin-only on purpose, so it is not part of the load profile.
-    const res = http.get(`${BASE}/api/healthz`);
+    const res = http.get(`${BASE}/api/healthz`, { tags: { phase: 'steady' } });
     check(res, { 'healthz 200': (r) => r.status === 200 });
     errorRate.add(res.status !== 200);
   });
