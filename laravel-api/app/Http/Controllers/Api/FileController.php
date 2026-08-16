@@ -55,7 +55,9 @@ class FileController extends Controller
         abort_unless($this->canSeeProfilePhotoOf($viewer, $target), 403, 'Not authorised to view this photo.');
         abort_unless((bool) $target->photo_path, 404);
 
-        return $this->vault->stream($target->photo_path, 'profile-photo.jpg');
+        // Avatars are rendered in an <img>, so this one caller opts into an
+        // inline image response. Attachments and submissions stay downloads.
+        return $this->vault->stream($target->photo_path, 'profile-photo.jpg', allowInlineImage: true);
     }
 
     /**

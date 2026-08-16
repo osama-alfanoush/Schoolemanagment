@@ -179,25 +179,56 @@ class PrivateFileAccessTest extends TestCase
     {
         $user = $this->withPhoto($this->loginAs('student'));
 
+        // An avatar is displayed, so it is served as the image type the vault
+        // recorded at upload. Serving it as application/octet-stream -- which
+        // this endpoint used to do -- meant nosniff forbade the browser from
+        // rendering it and every avatar in the application was broken.
         $this->actingAs($user)->get('/api/files/profile-photo/'.$user->id)
             ->assertOk()
-            ->assertHeader('Content-Type', 'application/octet-stream')
+            ->assertHeader('Content-Type', 'image/jpeg')
             ->assertHeader('X-Content-Type-Options', 'nosniff');
     }
 
     /**
-     * A downloaded file must never be rendered in the application's origin: an
-     * attachment disposition plus a null CSP means stored HTML cannot execute.
+     * Personal files must never EXECUTE in the application's origin.
+     *
+     * Images are the one exception to being served as an opaque attachment, and
+     * only because rendering an image is not executing one. The protections that
+     * make that safe are asserted here rather than assumed: the declared type is
+     * a raster image, nosniff forbids the browser from sniffing its way to
+     * anything else, the CSP denies every fetch and sandboxes the document, and
+     * nothing is cached.
      */
-    public function test_a_download_can_never_render_in_the_application_origin(): void
+    public function test_an_inlined_photo_still_cannot_execute_in_the_origin(): void
     {
         $user = $this->withPhoto($this->loginAs('student'));
 
         $response = $this->actingAs($user)->get('/api/files/profile-photo/'.$user->id)->assertOk();
 
-        $this->assertStringStartsWith('attachment;', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringStartsWith('inline;', (string) $response->headers->get('Content-Disposition'));
+        $this->assertSame('image/jpeg', $response->headers->get('Content-Type'));
+        $this->assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
         $this->assertStringContainsString("default-src 'none'", (string) $response->headers->get('Content-Security-Policy'));
+        $this->assertStringContainsString('sandbox', (string) $response->headers->get('Content-Security-Policy'));
         $this->assertStringContainsString('no-store', (string) $response->headers->get('Cache-Control'));
+    }
+
+    /**
+     * The inline path is opt-in and confined to images. Anything that could
+     * carry an active content model -- a document, an archive, a submission of
+     * unknown shape -- stays an opaque attachment.
+     */
+    public function test_documents_are_never_inlined(): void
+    {
+        ['student' => $student, 'submission' => $submission] = $this->seedClassWork();
+
+        $response = $this->actingAs($student)
+            ->get('/api/files/submission/'.$submission->id)
+            ->assertOk();
+
+        $this->assertStringStartsWith('attachment;', (string) $response->headers->get('Content-Disposition'));
+        $this->assertSame('application/octet-stream', $response->headers->get('Content-Type'));
+        $this->assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
     }
 
     public function test_a_student_cannot_read_another_students_photo(): void

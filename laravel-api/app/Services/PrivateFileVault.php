@@ -90,6 +90,28 @@ final class PrivateFileVault
         'application/zip' => 'zip',
     ];
 
+    /**
+     * The only types that may be served inline, keyed by the extension this
+     * vault assigned at upload time from an already-validated MIME.
+     *
+     * Profile photos exist to be displayed. Forcing every response to
+     * `application/octet-stream; attachment` meant an <img> tag could never
+     * render one -- the browser refuses, correctly, because nosniff forbids it
+     * from guessing. Every avatar in the application was a broken image.
+     *
+     * Inlining is confined to three raster formats. SVG is absent from
+     * EXTENSIONS entirely, so it cannot reach this map, and neither can HTML,
+     * PDF or anything else with an active content model. Combined with nosniff
+     * (the browser must honour the declared type) and the unchanged
+     * `default-src 'none'; sandbox` policy, an inlined response has no way to
+     * execute in this origin.
+     */
+    private const INLINE_TYPES = [
+        'jpg' => 'image/jpeg',
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+    ];
+
     public function __construct(private readonly CurrentSchool $currentSchool) {}
 
     /**
@@ -161,17 +183,39 @@ final class PrivateFileVault
      * method only guarantees that the key cannot escape the tenant prefix and
      * that the response cannot be rendered as active content in this origin.
      */
-    public function stream(string $key, string $downloadName): StreamedResponse
+    public function stream(string $key, string $downloadName, bool $allowInlineImage = false): StreamedResponse
     {
         $this->assertKeyIsWithinTenant($key);
 
         abort_unless($this->disk()->exists($key), 404);
 
+        $safeName = $this->safeDownloadName($downloadName);
+
+        // Default posture is unchanged: an attachment of unknown type cannot
+        // execute in this origin even if the stored bytes turn out to be HTML.
+        $disposition = 'attachment';
+        $contentType = 'application/octet-stream';
+
+        // Callers that render the file (avatars) may opt in, and only the three
+        // raster types survive the lookup. The extension is the one this vault
+        // assigned from a validated MIME at upload, not anything user supplied.
+        if ($allowInlineImage) {
+            $extension = strtolower(pathinfo($key, PATHINFO_EXTENSION));
+
+            if (isset(self::INLINE_TYPES[$extension])) {
+                $disposition = 'inline';
+                $contentType = self::INLINE_TYPES[$extension];
+                $safeName = $this->safeDownloadName(
+                    pathinfo($safeName, PATHINFO_FILENAME).'.'.$extension
+                );
+            }
+        }
+
         return $this->disk()->download($key, $downloadName, [
-            // Never inline: an attachment cannot execute in this origin even if
-            // the stored bytes turn out to be HTML or SVG.
-            'Content-Disposition' => 'attachment; filename="'.$this->safeDownloadName($downloadName).'"',
-            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => $disposition.'; filename="'.$safeName.'"',
+            'Content-Type' => $contentType,
+            // Retained deliberately. The browser must honour the declared type
+            // rather than sniffing its way to something executable.
             'X-Content-Type-Options' => 'nosniff',
             'Content-Security-Policy' => "default-src 'none'; sandbox",
             'Cache-Control' => 'private, no-store, max-age=0',
