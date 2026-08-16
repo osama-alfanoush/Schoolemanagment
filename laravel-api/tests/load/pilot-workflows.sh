@@ -113,8 +113,27 @@ code=$(req GET /api/auth/me "$STU")
 STU_ID=$(jget user.id)
 code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $STU" "$BASE/api/files/profile-photo/$STU_ID")
 check "owner downloads own photo" "$code" 200
+# A teacher who teaches the pupil MAY see the photo -- assert the rule that
+# actually applies rather than assuming this teacher is unrelated. In the
+# seeded dataset every school-A teacher teaches every school-A pupil, so the
+# original "unrelated teacher" assertion could never have been meaningful: it
+# only ever passed because private uploads were stored per-container and the
+# replica serving the download did not have the file, returning 404 for a
+# reason that had nothing to do with authorization.
 code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $TEA" "$BASE/api/files/profile-photo/$STU_ID")
-check "unrelated teacher refused the photo" "$code" 403 404
+check "teacher who teaches the pupil may see the photo" "$code" 200
+
+# A genuine refusal: one pupil may never read another pupil's photo.
+OTHER=$(login mariam2@school.test password)
+code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $OTHER" "$BASE/api/files/profile-photo/$STU_ID")
+check "another pupil refused the photo" "$code" 403
+
+# Cross-school: the global scope hides the user entirely, so this is a 404.
+XSCHOOL=$(login teacher.school-b@staging.school.test password)
+if [ -n "$XSCHOOL" ]; then
+  code=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $XSCHOOL" "$BASE/api/files/profile-photo/$STU_ID")
+  check "teacher from another school refused the photo" "$code" 403 404
+fi
 code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/files/profile-photo/$STU_ID")
 check "anonymous refused the photo" "$code" 401
 code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/auth/profile/photo" \
