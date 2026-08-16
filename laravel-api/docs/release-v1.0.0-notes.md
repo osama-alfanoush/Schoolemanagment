@@ -1,7 +1,10 @@
 # Release v1.0.0-rc2 — release notes and database migration review
 
-**Candidate commit:** `a799d4e` on `chore/production-hardening-2026-08`
-**Tag:** `v1.0.0-rc2` (annotated, immutable)
+**Branch:** `chore/production-hardening-2026-08`
+**Last code change:** `a799d4e` (the backup fix in §2)
+**Tag:** `v1.0.0-rc2` — annotated and immutable; resolve the exact commit with
+`git rev-parse v1.0.0-rc2^{commit}`. The tag points at the commit that adds this
+file, so the release record travels inside the release it describes.
 **Prepared:** 2026-08-15
 **Status:** **NOT APPROVED FOR GENERAL PRODUCTION** — see *Blocking conditions*.
 
