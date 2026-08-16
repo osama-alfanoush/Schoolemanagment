@@ -1,10 +1,13 @@
-# Release v1.0.0-rc2 — release notes and database migration review
+# Release v1.0.0-rc3 — release notes and database migration review
 
 **Branch:** `chore/production-hardening-2026-08`
 **Last code change:** `a799d4e` (the backup fix in §2)
-**Tag:** `v1.0.0-rc2` — annotated and immutable; resolve the exact commit with
-`git rev-parse v1.0.0-rc2^{commit}`. The tag points at the commit that adds this
-file, so the release record travels inside the release it describes.
+**Tag:** `v1.0.0-rc3` — annotated and immutable; resolve the exact commit with
+`git rev-parse v1.0.0-rc3^{commit}`. The tag points at the commit that finalises
+this file, so the release record travels inside the release it describes. rc1
+and rc2 were cut earlier during preparation and are superseded: rc1 predates the
+backup fix, rc2 predates the corrected rollback-trigger table. Neither should be
+deployed.
 **Prepared:** 2026-08-15
 **Status:** **NOT APPROVED FOR GENERAL PRODUCTION** — see *Blocking conditions*.
 
