@@ -222,21 +222,53 @@ Verifying from the host with a different layout reports a false failure.
 
 ## 5. Rollback thresholds and responsible people
 
-### 5.1 Trigger a rollback immediately if
+### 5.1 Rollback triggers
 
-| Condition | Threshold | Source |
+Split by whether anything actually detects the condition. This distinction
+matters more than the numbers: a threshold nobody measures is a wish.
+
+**Detected automatically.** `MonitorOperations` runs these on a schedule and
+routes each to an owner. Every value below was read from `config/alerting.php`,
+not assumed.
+
+| Condition | Warning | Critical | Routed to |
+|---|---|---|---|
+| Failed jobs | 1 | 10 | platform |
+| Queue backlog | 100 | 1 000 | platform |
+| Scheduler heartbeat age | 300 s | 900 s | platform |
+| Database connection use | 70% | 90% | data |
+| Redis memory use | 70% | 90% | platform |
+| Backup age | 26 h | 48 h | data |
+| Payment webhook failures | 1 | 3 | finance |
+| Outbox backlog | 100 | 500 | platform |
+| Dependency health | — | any failure | platform |
+
+Critical on any of these is a rollback trigger unless the on-call owner can
+identify the cause within 15 minutes.
+
+**Not detected automatically — these need a person or an external check.**
+There is no monitor for any of them, and this is a gap, not an omission from
+this document:
+
+| Condition | Threshold | How it would be noticed today |
 |---|---|---|
-| Health endpoint failing | `/api/healthz` non-200 for 3 consecutive checks | `MonitorOperations` |
-| Error rate | >2% of requests returning 5xx over 5 minutes | `config/alerting.php` |
-| Latency | p95 >2 s sustained over 10 minutes | `docs/capacity-and-performance.md` |
-| Queue backlog | >1 000 pending, or any job failing repeatedly | `MonitorOperations` |
-| Authentication | login success rate below 80% | `MonitorOperations` |
-| Tenant isolation | **any** cross-school data exposure | zero tolerance — roll back first, diagnose after |
-| Financial correctness | **any** duplicated or misapplied payment | zero tolerance |
-| Data loss | any report of missing records or files | zero tolerance |
+| Health endpoint failing | non-200 for 3 consecutive checks | external uptime check only — see `docs/uptime-robot.md` |
+| HTTP error rate | >2% 5xx over 5 minutes | **nothing measures this**; would surface via error reporting volume |
+| Latency | p95 >2 s over 10 minutes | **nothing measures this** in production; the 800 ms gate exists only in the load harness |
+| Login success rate | below 80% | **nothing measures this** |
+| Tenant isolation breach | any occurrence | user report |
+| Financial correctness | any duplicated or misapplied payment | user report, or the webhook-failure monitor if the cause is upstream |
+| Data loss | any missing record or file | user report |
 
-The three zero-tolerance rows are deliberately not expressed as rates. One
-occurrence is the threshold.
+The three zero-tolerance rows at the bottom are deliberately not expressed as
+rates. One occurrence is the threshold, and one occurrence is also the only
+signal, because nothing watches for them.
+
+**Consequence for a general production launch:** the conditions most likely to
+justify an emergency rollback — errors, latency, failed logins — are precisely
+the ones with no automated detection. Request-rate and latency monitoring should
+be added before general production, and its absence is a reason on its own to
+keep the first deployment small enough that a human notices.
 
 ### 5.2 Rollback procedure
 
@@ -325,5 +357,6 @@ with the PgBouncer client pool sized against it. Method and raw numbers in
 | Backups unencrypted and on-host | **High** | Decided, not implemented. Must precede any real personal data. |
 | No named accountable people | **High** | Blocking. Cheapest item to close. |
 | Retention and erasure undecided | **High** | Blocking. The system currently keeps everything — a deliberate holding position, not a policy. |
+| No error-rate or latency monitoring | **High** | Discovered while writing §5.1. Nine infrastructure conditions are monitored; HTTP error rate, p95 latency and login success rate are not measured anywhere in production. The likeliest reasons to roll back are the ones nothing would tell us about. |
 | External providers unverified | **Medium** | Mail, payments and push are disabled and fail closed. Each needs live verification before enabling. |
 | Expo advisories EX-2026-001 | **Low** | Exception **expired 2026-08-15**. Re-approve or remediate. |
