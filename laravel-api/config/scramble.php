@@ -3,6 +3,12 @@
 use Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy;
 
 return [
+    'middleware' => ['web', \Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess::class],
+
+    'dev_tools' => [
+        'enabled' => env('SCRAMBLE_DEV_TOOLS', false),
+    ],
+
     'api_path' => 'api',
 
     'info' => [

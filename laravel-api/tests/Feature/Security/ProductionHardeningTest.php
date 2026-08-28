@@ -99,6 +99,14 @@ class ProductionHardeningTest extends TestCase
         $this->assertSame(0, $this->runCommand());
     }
 
+    public function test_api_documentation_is_forbidden_in_production(): void
+    {
+        $this->app->instance('env', 'production');
+        config(['app.env' => 'production']);
+
+        $this->get('/docs/api.json')->assertForbidden();
+    }
+
     /**
      * @return array<string, array{0: array<string, mixed>}>
      */
