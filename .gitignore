@@ -80,3 +80,6 @@ school-web/playwright-report/
 /laravel-api-staging/storage/app/private/
 /laravel-api-staging/.phpunit.cache/
 /laravel-api-staging/bootstrap/cache/
+graphify-out/
+result.md
+.codex/
