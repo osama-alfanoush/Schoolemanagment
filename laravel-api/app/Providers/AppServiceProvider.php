@@ -6,10 +6,12 @@ use App\Models\PersonalAccessToken;
 use App\Models\School;
 use App\Models\User;
 use App\Services\CurrentSchool;
+use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -42,6 +44,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (class_exists(Scramble::class)) {
+            Scramble::configure()->resolveOperationMethodsUsing(
+                fn (Route $route): array => array_values(array_filter(
+                    array_map('strtolower', $route->methods()),
+                    fn (string $method): bool => $method !== 'head',
+                )),
+            );
+        }
+
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
         $currentSchool = $this->app->make(CurrentSchool::class);
