@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { Auth, authStore, AuthUser, MfaRequiredResponse, Role } from "./api";
+import { ApiError, Auth, authStore, AuthUser, MfaRequiredResponse, Role } from "./api";
 
 export class MfaRequiredError extends Error {
   constructor(public readonly challenge: MfaRequiredResponse) {
@@ -42,9 +42,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(user);
         authStore.setSession(user);
       })
-      .catch(() => {
-        authStore.clear();
-        setUser(null);
+      .catch((error: unknown) => {
+        // Only a definitive 401 means the session is gone — apiFetch has
+        // already cleared the store by then. A network error, a timeout or a
+        // request aborted because the user navigated mid-load must leave the
+        // session intact, otherwise a slow page or a flaky connection silently
+        // signs the user out.
+        if (error instanceof ApiError && error.status === 401) {
+          authStore.clear();
+          setUser(null);
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -62,9 +69,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void Auth.me().then(({ user }) => {
         setUser(user);
         authStore.setUser(user);
-      }).catch(() => {
-        authStore.clear();
-        setUser(null);
+      }).catch((error: unknown) => {
+        // Same rule as the bootstrap probe: keep the session unless the server
+        // actually rejected it.
+        if (error instanceof ApiError && error.status === 401) {
+          authStore.clear();
+          setUser(null);
+        }
       });
     };
     window.addEventListener("school-auth-changed", syncFromStore);

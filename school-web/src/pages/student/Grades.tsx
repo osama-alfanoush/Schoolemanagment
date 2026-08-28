@@ -25,26 +25,26 @@ export default function StudentGrades() {
           columns={[
             {
               key: "component.subject.name",
-              label: "Subject",
+              label: t("studentPages.subject"),
               sortable: true,
-              render: (_, grade) => <span className="font-medium">{grade.component?.subject?.name || "Unknown Subject"}</span>,
+              render: (_, grade) => <span className="font-medium">{grade.component?.subject?.name || t("studentPages.unknownSubject")}</span>,
             },
             { key: "term", label: "Term", sortable: true },
             {
               key: "component.name",
-              label: "Component",
+              label: t("studentPages.component"),
               sortable: true,
-              render: (_, grade) => grade.component?.name || "Overall",
+              render: (_, grade) => grade.component?.name || t("studentPages.overall"),
             },
             {
               key: "score",
-              label: "Score",
+              label: t("studentPages.score"),
               sortable: true,
               render: (_, grade) => <span className="font-medium">{grade.score} / {grade.component?.max_score}</span>,
             },
             {
               key: "percentage",
-              label: "Percentage",
+              label: t("studentPages.percentage"),
               sortable: true,
               render: (_, grade) => {
                 const ratio = grade.component?.max_score ? grade.score / grade.component.max_score : 0;

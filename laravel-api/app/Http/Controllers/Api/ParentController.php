@@ -22,9 +22,59 @@ class ParentController extends Controller
 {
     public function children(Request $request)
     {
-        return ApiResponse::success(
-            $request->user()->children()->with('studentProfile.classRoom')->get()
-        );
+        $children = $request->user()->children()->with('studentProfile.classRoom')->get();
+        $ids = $children->pluck('id');
+
+        if ($ids->isEmpty()) {
+            return ApiResponse::success($children);
+        }
+
+        // The children cards summarise each student at a glance. Aggregate once
+        // per metric rather than per child so the payload costs three queries
+        // regardless of family size.
+        $attendance = AttendanceRecord::query()
+            ->whereIn('student_user_id', $ids)
+            ->selectRaw('student_user_id, count(*) as total')
+            ->selectRaw("sum(case when status in ('present', 'late') then 1 else 0 end) as attended")
+            ->groupBy('student_user_id')
+            ->get()
+            ->keyBy('student_user_id');
+
+        $grades = Grade::query()
+            ->whereIn('grades.student_user_id', $ids)
+            ->join('grade_components', 'grade_components.id', '=', 'grades.grade_component_id')
+            ->where('grade_components.max_score', '>', 0)
+            ->selectRaw('grades.student_user_id, avg(grades.score * 100.0 / grade_components.max_score) as pct')
+            ->groupBy('grades.student_user_id')
+            ->get()
+            ->keyBy('student_user_id');
+
+        // Anything still due that the student has not submitted yet.
+        $pending = $children->mapWithKeys(function (User $child) {
+            $classRoomId = $child->studentProfile?->class_room_id;
+            if (! $classRoomId) {
+                return [$child->id => 0];
+            }
+
+            return [$child->id => Assignment::query()
+                ->where('class_room_id', $classRoomId)
+                ->where('due_at', '>=', now())
+                ->whereDoesntHave('submissions', fn ($q) => $q->where('student_user_id', $child->id))
+                ->count()];
+        });
+
+        $children->each(function (User $child) use ($attendance, $grades, $pending) {
+            $row = $attendance->get($child->id);
+            $child->attendance_rate = $row && $row->total > 0
+                ? (int) round($row->attended / $row->total * 100)
+                : null;
+            $child->average_grade = $grades->has($child->id)
+                ? (int) round((float) $grades->get($child->id)->pct)
+                : null;
+            $child->pending_assignments = $pending->get($child->id, 0);
+        });
+
+        return ApiResponse::success($children);
     }
 
     public function childOverview(Request $request, int $studentId)

@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { toArray } from "@/lib/response";
 
 export default function HrEvaluations() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -27,11 +29,11 @@ export default function HrEvaluations() {
   const createMutation = useMutation({
     mutationFn: (data: any) => apiFetch("/hr/evaluations", { method: "POST", body: data }),
     onSuccess: () => {
-      toast({ title: "Success", description: "Evaluation created." });
+      toast({ title: t("hrPages.success"), description: t("hrPages.evaluationCreated") });
       setShowForm(false); setStaffId(""); setPeriod(""); setRating(3); setComments(""); setGoals("");
       void qc.invalidateQueries({ queryKey: ["hr-evaluations"] });
     },
-    onError: () => toast({ title: "Error", description: "Failed to create evaluation.", variant: "destructive" }),
+    onError: () => toast({ title: t("hrPages.error"), description: t("hrPages.evaluationFailed"), variant: "destructive" }),
   });
 
   const evalItems = toArray(evaluations);
@@ -46,15 +48,15 @@ export default function HrEvaluations() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">Performance Evaluations</h1>
+        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("hrPages.performanceEvaluations")}</h1>
         <button onClick={() => setShowForm(!showForm)} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          {showForm ? "Cancel" : "+ New Evaluation"}
+          {showForm ? t("hrPages.cancel") : `+ ${t("hrPages.newEvaluation")}`}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-6 bg-card max-w-xl">
-          <h2 className="text-lg font-semibold">Create Evaluation</h2>
+          <h2 className="text-lg font-semibold">{t("hrPages.createEvaluation")}</h2>
           <div className="space-y-2">
             <label htmlFor="evaluation-staff" className="text-sm font-medium">Staff Member</label>
             <select id="evaluation-staff" className="w-full rounded-md border bg-background px-3 py-2 text-sm" value={staffId} onChange={(e) => setStaffId(Number(e.target.value) || "")}>
@@ -63,21 +65,21 @@ export default function HrEvaluations() {
             </select>
           </div>
           <div className="space-y-2">
-            <label htmlFor="evaluation-period" className="text-sm font-medium">Period</label>
+            <label htmlFor="evaluation-period" className="text-sm font-medium">{t("hrPages.period")}</label>
             <input id="evaluation-period" className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="e.g. Q1 2026, Annual 2026" value={period} onChange={(e) => setPeriod(e.target.value)} />
           </div>
           <div className="space-y-2">
             <label htmlFor="evaluation-rating" className="text-sm font-medium">Overall Rating: {rating}/5</label>
             <input id="evaluation-rating" type="range" min={1} max={5} step={1} value={rating} onChange={(e) => setRating(Number(e.target.value))} className="w-full accent-primary" />
-            <div className="flex justify-between text-xs text-muted-foreground"><span>Poor</span><span>Below Avg</span><span>Average</span><span>Good</span><span>Excellent</span></div>
+            <div className="flex justify-between text-xs text-muted-foreground"><span>Poor</span><span>{t("hrPages.belowAvg")}</span><span>{t("hrPages.average")}</span><span>Good</span><span>{t("hrPages.excellent")}</span></div>
           </div>
           <div className="space-y-2">
-            <label htmlFor="evaluation-comments" className="text-sm font-medium">Comments</label>
-            <textarea id="evaluation-comments" className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[80px]" value={comments} onChange={(e) => setComments(e.target.value)} placeholder="Performance comments…" />
+            <label htmlFor="evaluation-comments" className="text-sm font-medium">{t("hrPages.comments")}</label>
+            <textarea id="evaluation-comments" className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[80px]" value={comments} onChange={(e) => setComments(e.target.value)} placeholder={t("hrPages.commentsPlaceholder")} />
           </div>
           <div className="space-y-2">
-            <label htmlFor="evaluation-goals" className="text-sm font-medium">Goals for Next Period</label>
-            <textarea id="evaluation-goals" className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px]" value={goals} onChange={(e) => setGoals(e.target.value)} placeholder="Goals…" />
+            <label htmlFor="evaluation-goals" className="text-sm font-medium">{t("hrPages.goalsNextPeriod")}</label>
+            <textarea id="evaluation-goals" className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px]" value={goals} onChange={(e) => setGoals(e.target.value)} placeholder={t("hrPages.goalsPlaceholder")} />
           </div>
           <button type="submit" disabled={createMutation.isPending || !staffId || !period.trim()} className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
             {createMutation.isPending ? "Creating…" : "Create Evaluation"}
@@ -87,10 +89,10 @@ export default function HrEvaluations() {
 
       <div className="rounded-lg border bg-card overflow-x-auto">
         <table className="w-full text-sm">
-          <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Staff</th><th className="text-left p-3">Period</th><th className="text-center p-3">Rating</th><th className="text-left p-3">Comments</th><th className="text-left p-3">Date</th></tr></thead>
+          <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">{t("financePages.staff")}</th><th className="text-left p-3">{t("hrPages.period")}</th><th className="text-center p-3">{t("hrPages.rating")}</th><th className="text-left p-3">{t("hrPages.comments")}</th><th className="text-left p-3">{t("warehouse.date")}</th></tr></thead>
           <tbody>
-            {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-            evalItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No evaluations yet</td></tr> :
+            {isLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("hrPages.loading")}</td></tr> :
+            evalItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("hrPages.noEvaluations")}</td></tr> :
             evalItems.map((ev: any) => (
               <tr key={ev.id} className="border-b hover:bg-muted/30">
                 <td className="p-3 font-medium">{ev.staff?.name ?? ev.staff_name ?? "—"}</td>

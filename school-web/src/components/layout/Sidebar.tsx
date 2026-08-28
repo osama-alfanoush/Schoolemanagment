@@ -179,6 +179,24 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+/**
+ * The sidebar already names every screen in the user's language, so it is also
+ * the right source for the page title in the top bar. Returns a translation key
+ * (or a literal label, which i18next passes through unchanged).
+ */
+export function navTitleKey(role: Role, path: string): string | null {
+  const items = navMap[role] ?? [];
+  const exact = items.find((item) => item.href === path);
+  if (exact) return exact.label;
+
+  // Detail routes (/parent/children/7) inherit their section's title.
+  const parent = items
+    .filter((item) => item.href !== `/${role}` && path.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+
+  return parent?.label ?? null;
+}
+
 export default function Sidebar({ collapsed, onToggle, mobileOpen = false, onClose }: SidebarProps) {
   const { t } = useTranslation();
   const { user, logout } = useAuth();

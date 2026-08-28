@@ -59,14 +59,14 @@ export default function HrRequests() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["hr", "requests"] });
       void queryClient.invalidateQueries({ queryKey: ["hr", "leave-requests"] });
-      toast({ title: "Request reviewed" });
+      toast({ title: t("hrPages.requestReviewed") });
       setOpen(null);
       setResponse("");
     },
     onError: (error: any) => {
       toast({
-        title: "Review failed",
-        description: error?.message || "Please try again.",
+        title: t("hrPages.reviewFailed"),
+        description: error?.message || t("hrPages.tryAgain"),
         variant: "destructive",
       });
     },
@@ -86,11 +86,11 @@ export default function HrRequests() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Requester</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Reason</TableHead>
+              <TableHead>{t("hrPages.requester")}</TableHead>
+              <TableHead>{t("warehouse.type")}</TableHead>
+              <TableHead>{t("teacherPages.subject")}</TableHead>
+              <TableHead>{t("hrPages.duration")}</TableHead>
+              <TableHead>{t("hrPages.reason")}</TableHead>
               <TableHead>{t("common.status")}</TableHead>
               <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
@@ -118,7 +118,7 @@ export default function HrRequests() {
                 return (
                   <TableRow key={req.id}>
                     <TableCell>
-                      <div className="font-medium">{requester?.name ?? "Unknown"}</div>
+                      <div className="font-medium">{requester?.name ?? t("hrPages.unknown")}</div>
                       {requester?.role && (
                         <div className="text-xs capitalize text-muted-foreground">
                           {requester.role}
@@ -183,10 +183,10 @@ export default function HrRequests() {
       <Dialog open={!!open} onOpenChange={(isOpen) => !isOpen && setOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Review HR request</DialogTitle>
+            <DialogTitle>{t("hrPages.reviewRequest")}</DialogTitle>
             <DialogDescription>
               {open
-                ? `${open.requester?.name ?? open.teacher?.name ?? open.staff?.name ?? "Requester"} — ${String(open.type || "").replaceAll("_", " ")}${open.subject ? " · " + open.subject : ""}`
+                ? `${open.requester?.name ?? open.teacher?.name ?? open.staff?.name ?? t("hrPages.requester")} — ${String(open.type || "").replaceAll("_", " ")}${open.subject ? " · " + open.subject : ""}`
                 : ""}
             </DialogDescription>
           </DialogHeader>
@@ -213,13 +213,13 @@ export default function HrRequests() {
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label htmlFor="hr-review-response">Response to requester</Label>
+                <Label htmlFor="hr-review-response">{t("hrPages.responseToRequester")}</Label>
                 <Textarea
                   id="hr-review-response"
                   value={response}
                   onChange={(event) => setResponse(event.target.value)}
                   rows={3}
-                  placeholder="Optional note"
+                  placeholder={t("hrPages.optionalNote")}
                 />
               </div>
             </div>

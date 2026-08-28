@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { toArray } from "@/lib/response";
 
 export default function HrRecruitment() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"jobs" | "applications">("jobs");
@@ -30,21 +32,21 @@ export default function HrRecruitment() {
   const createMutation = useMutation({
     mutationFn: (data: any) => apiFetch("/hr/jobs", { method: "POST", body: data }),
     onSuccess: () => {
-      toast({ title: "Success", description: "Job posted." });
+      toast({ title: t("hrPages.success"), description: t("hrPages.jobPosted") });
       setShowForm(false); setJobTitle(""); setDepartment(""); setDescription(""); setRequirements("");
       void qc.invalidateQueries({ queryKey: ["hr-jobs"] });
     },
-    onError: () => toast({ title: "Error", description: "Failed to post job.", variant: "destructive" }),
+    onError: () => toast({ title: t("hrPages.error"), description: t("hrPages.jobFailed"), variant: "destructive" }),
   });
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       apiFetch(`/hr/applications/${id}/status`, { method: "PATCH", body: { status } }),
     onSuccess: () => {
-      toast({ title: "Success", description: "Application status updated." });
+      toast({ title: t("hrPages.success"), description: t("hrPages.statusUpdated") });
       void qc.invalidateQueries({ queryKey: ["hr-applications"] });
     },
-    onError: () => toast({ title: "Error", description: "Failed to update status.", variant: "destructive" }),
+    onError: () => toast({ title: t("hrPages.error"), description: t("hrPages.statusFailed"), variant: "destructive" }),
   });
 
   const jobItems = toArray(jobs);
@@ -53,46 +55,46 @@ export default function HrRecruitment() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">Recruitment</h1>
+        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("hrPages.recruitment")}</h1>
         {tab === "jobs" && (
           <button onClick={() => setShowForm(!showForm)} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-            {showForm ? "Cancel" : "+ Post Job"}
+            {showForm ? t("hrPages.cancel") : `+ ${t("hrPages.postJob")}`}
           </button>
         )}
       </div>
 
       {showForm && (
         <form onSubmit={(e) => { e.preventDefault(); if (jobTitle.trim()) createMutation.mutate({ title: jobTitle.trim(), department: department.trim() || undefined, description: description.trim() || undefined, requirements: requirements.trim() || undefined, type: jobType }); }} className="space-y-4 rounded-lg border p-6 bg-card max-w-xl">
-          <h2 className="text-lg font-semibold">Post New Job</h2>
-          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Job title *" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
+          <h2 className="text-lg font-semibold">{t("hrPages.postNewJob")}</h2>
+          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("hrPages.jobTitle") + " *"} value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
           <div className="grid grid-cols-2 gap-4">
-            <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Department" value={department} onChange={(e) => setDepartment(e.target.value)} />
+            <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("hrPages.department")} value={department} onChange={(e) => setDepartment(e.target.value)} />
             <select className="w-full rounded-md border bg-background px-3 py-2 text-sm" value={jobType} onChange={(e) => setJobType(e.target.value)}>
-              <option value="full_time">Full Time</option>
-              <option value="part_time">Part Time</option>
-              <option value="contract">Contract</option>
+              <option value="full_time">{t("hrPages.fullTime")}</option>
+              <option value="part_time">{t("hrPages.partTime")}</option>
+              <option value="contract">{t("hrPages.contract")}</option>
             </select>
           </div>
-          <textarea className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[80px]" placeholder="Job description" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <textarea className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px]" placeholder="Requirements" value={requirements} onChange={(e) => setRequirements(e.target.value)} />
+          <textarea className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[80px]" placeholder={t("hrPages.jobDescription")} value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px]" placeholder={t("hrPages.requirements")} value={requirements} onChange={(e) => setRequirements(e.target.value)} />
           <button type="submit" disabled={createMutation.isPending} className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-            {createMutation.isPending ? "Posting…" : "Post Job"}
+            {createMutation.isPending ? t("hrPages.posting") : t("hrPages.postJob")}
           </button>
         </form>
       )}
 
       <div className="flex gap-1 rounded-lg bg-muted p-1">
-        {(["jobs", "applications"] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${tab === t ? "bg-background shadow-sm" : "hover:bg-background/50"}`}>
-            {t === "jobs" ? "💼 Job Postings" : "📄 Applications"}
+        {(["jobs", "applications"] as const).map((key) => (
+          <button key={key} onClick={() => setTab(key)} className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${tab === key ? "bg-background shadow-sm" : "hover:bg-background/50"}`}>
+            {key === "jobs" ? `💼 ${t("hrPages.jobPostings")}` : `📄 ${t("hrPages.applications")}`}
           </button>
         ))}
       </div>
 
       {tab === "jobs" && (
         <div className="space-y-3">
-          {jobsLoading ? <div className="p-8 text-center text-muted-foreground">Loading…</div> :
-          jobItems.length === 0 ? <div className="p-8 text-center border rounded-md text-muted-foreground">No job postings</div> :
+          {jobsLoading ? <div className="p-8 text-center text-muted-foreground">{t("hrPages.loading")}</div> :
+          jobItems.length === 0 ? <div className="p-8 text-center border rounded-md text-muted-foreground">{t("hrPages.noJobPostings")}</div> :
           jobItems.map((j: any) => (
             <div key={j.id} className="rounded-lg border p-4 bg-card space-y-2">
               <div className="flex items-center justify-between">
@@ -111,10 +113,10 @@ export default function HrRecruitment() {
       {tab === "applications" && (
         <div className="rounded-lg border bg-card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Applicant</th><th className="text-left p-3">Position</th><th className="text-left p-3">Applied</th><th className="text-center p-3">Status</th><th className="text-center p-3">Actions</th></tr></thead>
+            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">{t("hrPages.applicant")}</th><th className="text-left p-3">{t("hrPages.position")}</th><th className="text-left p-3">{t("hrPages.applied")}</th><th className="text-center p-3">{t("common.status")}</th><th className="text-center p-3">{t("hrPages.actions")}</th></tr></thead>
             <tbody>
-              {appsLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-              appItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No applications</td></tr> :
+              {appsLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("hrPages.loading")}</td></tr> :
+              appItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("hrPages.noApplications")}</td></tr> :
               appItems.map((a: any) => (
                 <tr key={a.id} className="border-b hover:bg-muted/30">
                   <td className="p-3 font-medium">{a.applicant_name ?? a.name ?? "—"}</td>
@@ -128,8 +130,8 @@ export default function HrRecruitment() {
                   <td className="p-3 text-center space-x-1">
                     {(a.status === "pending" || a.status === "reviewing") && (
                       <>
-                        <button onClick={() => statusMutation.mutate({ id: a.id, status: "shortlisted" })} className="text-xs rounded bg-blue-500/10 text-blue-600 px-2 py-1 hover:bg-blue-500/20">Shortlist</button>
-                        <button onClick={() => statusMutation.mutate({ id: a.id, status: "rejected" })} className="text-xs rounded bg-red-500/10 text-red-600 px-2 py-1 hover:bg-red-500/20">Reject</button>
+                        <button onClick={() => statusMutation.mutate({ id: a.id, status: "shortlisted" })} className="text-xs rounded bg-blue-500/10 text-blue-600 px-2 py-1 hover:bg-blue-500/20">{t("hrPages.shortlist")}</button>
+                        <button onClick={() => statusMutation.mutate({ id: a.id, status: "rejected" })} className="text-xs rounded bg-red-500/10 text-red-600 px-2 py-1 hover:bg-red-500/20">{t("hrPages.reject")}</button>
                       </>
                     )}
                   </td>

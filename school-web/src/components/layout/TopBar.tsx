@@ -56,7 +56,7 @@ export default function TopBar({ title, onMenuClick }: TopBarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30">
-              <BrandAvatar src={profilePhotoUrl(user.id)} name={user.name} variant={user.role} size="sm" />
+              <BrandAvatar src={profilePhotoUrl(user.id, user.photo_path)} name={user.name} variant={user.role} size="sm" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

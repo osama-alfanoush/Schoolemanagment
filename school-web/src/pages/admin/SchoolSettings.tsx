@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next";
 import type { ChangeEvent, ReactNode, RefObject } from "react"
 import {
   Check,
@@ -113,6 +114,7 @@ function unwrapSettings(data: SchoolSettingsResponse): SchoolSettingsResponse {
 
 
 export default function SchoolSettings() {
+  const { t } = useTranslation();
   const { theme, setTheme, updatePrimaryColor, updateAccentColor, applyThemeToCss, resetToDefault } = useTheme()
 
 
@@ -243,12 +245,12 @@ export default function SchoolSettings() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      toast({ title: "Unsupported file", description: "Use a PNG, JPG, or WebP logo.", variant: "destructive" })
+      toast({ title: t("profileSettings.unsupportedFile"), description: "Use a PNG, JPG, or WebP logo.", variant: "destructive" })
       e.target.value = ""
       return
     }
     if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "Logo too large", description: "Logo must be under 2MB.", variant: "destructive" })
+      toast({ title: t("adminPages.logoTooLarge"), description: "Logo must be under 2MB.", variant: "destructive" })
       e.target.value = ""
       return
     }
@@ -287,7 +289,7 @@ export default function SchoolSettings() {
     setSidebarStyle(DEFAULT_THEME.sidebar_style)
     setBorderRadius(DEFAULT_THEME.border_radius)
     setFontStyle(DEFAULT_THEME.font_style)
-    toast({ title: "Reset to default theme" })
+    toast({ title: t("adminPages.resetTheme") })
   }
 
 
@@ -349,9 +351,9 @@ export default function SchoolSettings() {
       if (fileInputRef.current) fileInputRef.current.value = ""
 
 
-      toast({ title: "School settings saved" })
+      toast({ title: t("adminPages.success") })
     } catch (error) {
-      toast({ title: "Failed to save settings", description: validationMessage(error), variant: "destructive" })
+      toast({ title: t("adminPages.settingsSaveFailed"), description: validationMessage(error), variant: "destructive" })
     } finally {
       setIsSaving(false)
     }
@@ -372,8 +374,8 @@ export default function SchoolSettings() {
       <div>
         <PageHeader
           icon="S"
-          title="School Settings"
-          subtitle="Customize your school's identity and brand theme"
+          title={t("common.settings")}
+          subtitle={t("adminPages.settingsSubtitle")}
         />
         <BrandCard>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -400,19 +402,19 @@ export default function SchoolSettings() {
     <div>
       <PageHeader
         icon="S"
-        title="School Settings"
-        subtitle="Customize your school's identity and brand theme"
+        title={t("common.settings")}
+        subtitle={t("adminPages.settingsSubtitle")}
       />
 
 
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <BrandCard>
-            <SectionTitle icon={<School className="h-5 w-5" />} title="School Identity" />
+            <SectionTitle icon={<School className="h-5 w-5" />} title={t("adminPages.schoolIdentity")} />
 
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Field label="School Name" required error={!schoolName.trim() ? "School name is required." : ""}>
+              <Field label={t("adminPages.schoolName")} required error={!schoolName.trim() ? "School name is required." : ""}>
                 <input
                   value={schoolName}
                   onChange={(e) => setSchoolName(e.target.value)}
@@ -421,7 +423,7 @@ export default function SchoolSettings() {
               </Field>
 
 
-              <Field label="Academic Year">
+              <Field label={t("adminPages.academicYear")}>
                 <input
                   value={academicYear}
                   onChange={(e) => setAcademicYear(e.target.value)}
@@ -431,7 +433,7 @@ export default function SchoolSettings() {
               </Field>
 
 
-              <Field label="School Motto" className="md:col-span-2">
+              <Field label={t("adminPages.schoolMotto")} className="md:col-span-2">
                 <input
                   value={motto}
                   onChange={(e) => setMotto(e.target.value)}
@@ -441,7 +443,7 @@ export default function SchoolSettings() {
               </Field>
 
 
-              <Field label="School Address" className="md:col-span-2">
+              <Field label={t("adminPages.schoolAddress")} className="md:col-span-2">
                 <textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -473,7 +475,7 @@ export default function SchoolSettings() {
                     <div className="flex items-center gap-4">
                       <img
                         src={logoPreview}
-                        alt="Logo preview"
+                        alt={t("adminPages.logoPreview")}
                         className="h-16 w-16 rounded-xl border border-gray-100 bg-white object-contain shadow-sm"
                       />
                       <div className="min-w-0 flex-1 text-left">
@@ -491,7 +493,7 @@ export default function SchoolSettings() {
                           handleRemoveLogo()
                         }}
                         className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/50"
-                        aria-label="Remove logo"
+                        aria-label={t("adminPages.removeLogo")}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -518,10 +520,10 @@ export default function SchoolSettings() {
 
 
           <BrandCard>
-            <SectionTitle icon={<Palette className="h-5 w-5" />} title="Brand Colors" />
+            <SectionTitle icon={<Palette className="h-5 w-5" />} title={t("adminPages.brandColors")} />
             <ColorEditor
-              label="Primary Color"
-              description="Buttons, active nav, links, and gradients"
+              label={t("adminPages.primaryColor")}
+              description={t("adminPages.primaryColorHint")}
               value={primaryColor}
               presets={PRIMARY_PRESETS}
               inputRef={primaryInputRef}
@@ -530,8 +532,8 @@ export default function SchoolSettings() {
             />
             <div className="my-5 border-t border-border" />
             <ColorEditor
-              label="Accent Color"
-              description="Hero banners, highlights, secondary elements"
+              label={t("adminPages.accentColor")}
+              description={t("adminPages.accentColorHint")}
               value={accentColor}
               presets={ACCENT_PRESETS}
               inputRef={accentInputRef}
@@ -542,9 +544,9 @@ export default function SchoolSettings() {
 
             <div className="mt-5 grid grid-cols-3 gap-3">
               {[
-                { label: "Main Gradient", bg: "var(--gradient-main)" },
-                { label: "Hero Gradient", bg: "var(--gradient-hero)" },
-                { label: "Combined", bg: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` },
+                { label: t("adminPages.mainGradient"), bg: "var(--gradient-main)" },
+                { label: t("adminPages.heroGradient"), bg: "var(--gradient-hero)" },
+                { label: t("adminPages.combined"), bg: `linear-gradient(135deg, ${primaryColor}, ${accentColor})` },
               ].map((item) => (
                 <div key={item.label}>
                   <div className="h-10 rounded-xl" style={{ background: item.bg }} />
@@ -556,11 +558,11 @@ export default function SchoolSettings() {
 
 
           <BrandCard>
-            <SectionTitle icon={<Sparkles className="h-5 w-5" />} title="UI Style Preferences" />
+            <SectionTitle icon={<Sparkles className="h-5 w-5" />} title={t("adminPages.uiStyle")} />
 
 
             <OptionGrid<BorderRadius>
-              title="Corner Style"
+              title={t("adminPages.cornerStyle")}
               options={BORDER_RADII}
               value={borderRadius}
               onChange={setBorderRadius}
@@ -635,7 +637,7 @@ export default function SchoolSettings() {
                         : "bg-[#0D1B2E] border border-gray-700 text-gray-200"
                     )}>
                       <span>{mode === "light" ? "☀️" : "🌙"}</span>
-                      <span>{mode === "light" ? "Light" : "Dark"}</span>
+                      <span>{mode === "light" ? t("common.light") : t("common.dark")}</span>
                     </div>
                     <p className="mt-2 text-xs font-medium capitalize text-muted-foreground">{mode}</p>
                     {uiMode === mode && (
@@ -700,8 +702,8 @@ export default function SchoolSettings() {
 
 
           <div className="mt-3 border border-border bg-card p-3" style={{ borderRadius: "var(--radius-base, 0.75rem)" }}>
-            <ColorSummary label="Primary" value={primaryColor} />
-            <ColorSummary label="Accent" value={accentColor} className="mt-2" />
+            <ColorSummary label={t("adminPages.primary")} value={primaryColor} />
+            <ColorSummary label={t("adminPages.accent")} value={accentColor} className="mt-2" />
           </div>
         </aside>
       </div>
@@ -901,6 +903,7 @@ function PreviewApp({
   schoolName: string
   sidebarStyle: SidebarStyle
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex h-full w-full bg-[var(--surface-bg,#F8F7FF)]" style={{ fontFamily: FONT_FAMILIES[fontStyle] }}>
       <div
@@ -926,7 +929,7 @@ function PreviewApp({
               sidebarStyle === "gradient" || sidebarStyle === "dark" ? "text-white" : "text-gray-800",
             )}
           >
-            {schoolName || "School Name"}
+            {schoolName || t("adminPages.schoolName")}
           </span>
         </div>
 

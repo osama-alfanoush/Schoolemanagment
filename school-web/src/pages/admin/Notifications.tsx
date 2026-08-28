@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Messaging, apiFetch } from "@/lib/api";
 import { renderDate } from "@/lib/tableHelpers";
@@ -22,19 +24,22 @@ function typeStyle(type?: string) {
   return TYPE_STYLES[type ?? ""] ?? { bg: "bg-muted/50", icon: "N" };
 }
 
-const FILTER_TABS: { key: Filter; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "unread", label: "Unread" },
-  { key: "read", label: "Read" },
+// Built per render so the labels follow a language switch, rather than being
+// frozen at module-evaluation time.
+const filterTabs = (t: TFunction): { key: Filter; label: string }[] => [
+  { key: "all", label: t("notificationsPage.all") },
+  { key: "unread", label: t("notificationsPage.unread") },
+  { key: "read", label: t("notificationsPage.read") },
 ];
 
-const EMPTY_MSG: Record<Filter, { title: string; subtitle: string }> = {
-  all: { title: "No notifications", subtitle: "You're all caught up!" },
-  unread: { title: "No unread notifications", subtitle: "You're all caught up!" },
-  read: { title: "No read notifications yet", subtitle: "Mark some as read to see them here." },
-};
+const emptyMsg = (t: TFunction): Record<Filter, { title: string; subtitle: string }> => ({
+  all: { title: t("notificationsPage.none"), subtitle: t("notificationsPage.allCaughtUp") },
+  unread: { title: t("notificationsPage.noUnread"), subtitle: t("notificationsPage.allCaughtUp") },
+  read: { title: t("notificationsPage.noRead"), subtitle: t("notificationsPage.markSomeRead") },
+});
 
 export default function AdminNotifications() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [filter, setFilter] = useState<Filter>("all");
@@ -66,7 +71,7 @@ export default function AdminNotifications() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader icon="UI" title="Notifications" subtitle="Your alerts and updates" />
+        <PageHeader icon="UI" title={t("notificationsPage.title")} subtitle="Your alerts and updates" />
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-start gap-4 p-4 animate-pulse">
@@ -86,7 +91,7 @@ export default function AdminNotifications() {
     <div className="space-y-6">
       <PageHeader
         icon="UI"
-        title="Notifications"
+        title={t("notificationsPage.title")}
         subtitle="Your alerts and updates"
         actions={
           <BrandButton variant="ghost" size="sm" onClick={() => markAllRead.mutate()}>
@@ -96,7 +101,7 @@ export default function AdminNotifications() {
       />
 
       <div className="flex gap-2">
-        {FILTER_TABS.map((tab) => (
+        {filterTabs(t).map((tab) => (
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
@@ -111,7 +116,7 @@ export default function AdminNotifications() {
       </div>
 
       {notifications.length === 0 ? (
-        <BrandEmptyState icon="UI" title={EMPTY_MSG[filter].title} subtitle={EMPTY_MSG[filter].subtitle} />
+        <BrandEmptyState icon="UI" title={emptyMsg(t)[filter].title} subtitle={emptyMsg(t)[filter].subtitle} />
       ) : (
         <div className="flex flex-col gap-2">
           {notifications.map((n: any) => {

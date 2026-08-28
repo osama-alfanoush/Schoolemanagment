@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Accounting, BudgetPlan } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
@@ -10,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { toArray } from "@/lib/response";
 
 export default function Budget() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -23,9 +25,9 @@ export default function Budget() {
     mutationFn: () => Accounting.syncBudgetActuals({ fiscal_year: selectedYear }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["budgets", selectedYear] });
-      toast({ title: "Budget actuals synced successfully" });
+      toast({ title: t("accountingPages.syncedOk") });
     },
-    onError: (e: unknown) => toast({ variant: "destructive", title: "Sync failed", description: (e as Error)?.message }),
+    onError: (e: unknown) => toast({ variant: "destructive", title: t("accountingPages.syncFailed"), description: (e as Error)?.message }),
   });
 
   const budgets = toArray<BudgetPlan>(data);
@@ -34,20 +36,20 @@ export default function Budget() {
     <div className="space-y-6">
       <PageHeader
         icon="UI"
-        title="Budget Management"
-        subtitle="Plan and track departmental budgets"
+        title={t("accountingPages.budgetTitle")}
+        subtitle={t("accountingPages.budgetSubtitle")}
         actions={
           <div className="flex gap-2">
             <BrandButton variant="secondary" onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending}>
-              {syncMutation.isPending ? "Syncing..." : "Sync Actuals"}
+              {syncMutation.isPending ? t("accountingPages.syncing") : t("accountingPages.syncActuals")}
             </BrandButton>
-            <BrandButton variant="primary">+ New Budget</BrandButton>
+            <BrandButton variant="primary">+ {t("accountingPages.newBudget")}</BrandButton>
           </div>
         }
       />
 
       <div className="flex items-center gap-2 mb-4">
-        <label htmlFor="budget-year" className="text-sm font-medium text-muted-foreground">Year:</label>
+        <label htmlFor="budget-year" className="text-sm font-medium text-muted-foreground">{t("months.year")}</label>
         <select
           id="budget-year"
           value={selectedYear}
@@ -61,21 +63,21 @@ export default function Budget() {
       </div>
 
       <DataTable
-        title="Budget Lines"
+        title={t("accountingPages.budgetLines")}
         columns={[
-          { key: "category", label: "Category", sortable: true },
+          { key: "category", label: t("accountingPages.category"), sortable: true },
           {
-            key: "account_name", label: "Account",
+            key: "account_name", label: t("accountingPages.account"),
             render: (v, row) => (
               <span className="text-sm text-muted-foreground">
                 <span className="font-mono text-xs">{row.account_code}</span> {v}
               </span>
             ),
           },
-          { key: "budgeted_amount", label: "Budgeted", render: (v) => renderCurrency(v ?? 0), align: "right" as const, sortable: true },
-          { key: "actual_amount", label: "Actual", render: (v) => renderCurrency(v ?? 0), align: "right" as const, sortable: true },
+          { key: "budgeted_amount", label: t("accountingPages.budgeted"), render: (v) => renderCurrency(v ?? 0), align: "right" as const, sortable: true },
+          { key: "actual_amount", label: t("accountingPages.actual"), render: (v) => renderCurrency(v ?? 0), align: "right" as const, sortable: true },
           {
-            key: "variance", label: "Variance", align: "right" as const,
+            key: "variance", label: t("accountingPages.variance"), align: "right" as const,
             render: (v, row) => {
               const diff = (row.budgeted_amount ?? 0) - (row.actual_amount ?? 0);
               return (
@@ -87,7 +89,7 @@ export default function Budget() {
             },
           },
           {
-            key: "utilization", label: "Utilization",
+            key: "utilization", label: t("accountingPages.utilization"),
             render: (v, row) => {
               const pct = row.budgeted_amount ? Math.round((row.actual_amount / row.budgeted_amount) * 100) : 0;
               return renderProgress(pct, 100);
@@ -97,9 +99,9 @@ export default function Budget() {
         data={budgets}
         isLoading={isLoading}
         rowActions={[
-          { label: "Edit", icon: <PencilIcon />, onClick: () => {} },
+          { label: t("accountingPages.edit"), icon: <PencilIcon />, onClick: () => {} },
         ]}
-        emptyMessage="No budget lines found."
+        emptyMessage={t("accountingPages.noBudgetLines")}
       />
     </div>
   );

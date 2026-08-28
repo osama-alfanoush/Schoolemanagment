@@ -149,10 +149,9 @@ class User extends Authenticatable
         return $this->hasMany(Submission::class, 'student_user_id');
     }
 
-    /** Personal device push tokens. */
-    public function pushTokens(): HasMany
+    public function devices(): HasMany
     {
-        return $this->hasMany(PushToken::class);
+        return $this->hasMany(UserDevice::class);
     }
 
     private function relationshipSchoolId(): ?int

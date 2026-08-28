@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Admin } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminTransport() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -47,25 +49,25 @@ export default function AdminTransport() {
   const createRoute = useMutation({
     mutationFn: (data: any) => Admin.createTransportRoute(data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Route created." });
+      toast({ title: t("adminPages.success"), description: t("adminPages.routeCreated") });
       setShowForm(false);
       setRoute({ name: "", description: "", departure_time: "07:00", return_time: "15:00", fee: "", capacity: "" });
       void qc.invalidateQueries({ queryKey: ["admin-transport-routes"] });
     },
     onError: (e: any) =>
-      toast({ title: "Error", description: e?.data?.message ?? "Failed to create route.", variant: "destructive" }),
+      toast({ title: t("adminPages.error"), description: e?.data?.message ?? t("adminPages.routeFailed"), variant: "destructive" }),
   });
 
   const createVehicle = useMutation({
     mutationFn: (data: any) => Admin.createTransportVehicle(data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Vehicle added." });
+      toast({ title: t("adminPages.success"), description: t("adminPages.vehicleAdded") });
       setShowForm(false);
       setVehicle({ registration_number: "", model: "", type: "bus", capacity: "" });
       void qc.invalidateQueries({ queryKey: ["admin-transport-vehicles"] });
     },
     onError: (e: any) =>
-      toast({ title: "Error", description: e?.data?.message ?? "Failed to add vehicle.", variant: "destructive" }),
+      toast({ title: t("adminPages.error"), description: e?.data?.message ?? t("adminPages.vehicleFailed"), variant: "destructive" }),
   });
 
   const routeItems = Array.isArray(routes) ? routes : (routes as any)?.data ?? [];
@@ -107,32 +109,32 @@ export default function AdminTransport() {
             onClick={() => setShowForm((v) => !v)}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            {showForm ? "Cancel" : tab === "routes" ? "+ Add Route" : "+ Add Vehicle"}
+            {showForm ? t("adminPages.cancel") : tab === "routes" ? "+ Add Route" : "+ Add Vehicle"}
           </button>
         )}
       </div>
 
       {showForm && tab === "routes" && (
         <form onSubmit={submitRoute} className="space-y-4 rounded-lg border p-6 bg-card max-w-xl">
-          <h2 className="text-lg font-semibold">Create Transport Route</h2>
-          <input className={inputClass} placeholder="Route name *" value={route.name} onChange={(e) => setRoute({ ...route, name: e.target.value })} />
-          <textarea className={`${inputClass} min-h-[80px]`} placeholder="Description" value={route.description} onChange={(e) => setRoute({ ...route, description: e.target.value })} />
+          <h2 className="text-lg font-semibold">{t("adminPages.createRoute")}</h2>
+          <input className={inputClass} placeholder={t("adminPages.routeName") + " *"} value={route.name} onChange={(e) => setRoute({ ...route, name: e.target.value })} />
+          <textarea className={`${inputClass} min-h-[80px]`} placeholder={t("adminPages.description")} value={route.description} onChange={(e) => setRoute({ ...route, description: e.target.value })} />
           <div className="grid grid-cols-2 gap-3">
-            <label className="text-sm space-y-1"><span className="text-muted-foreground">Departure</span><input type="time" className={inputClass} value={route.departure_time} onChange={(e) => setRoute({ ...route, departure_time: e.target.value })} /></label>
-            <label className="text-sm space-y-1"><span className="text-muted-foreground">Return</span><input type="time" className={inputClass} value={route.return_time} onChange={(e) => setRoute({ ...route, return_time: e.target.value })} /></label>
+            <label className="text-sm space-y-1"><span className="text-muted-foreground">{t("adminPages.departure")}</span><input type="time" className={inputClass} value={route.departure_time} onChange={(e) => setRoute({ ...route, departure_time: e.target.value })} /></label>
+            <label className="text-sm space-y-1"><span className="text-muted-foreground">{t("adminPages.returnTime")}</span><input type="time" className={inputClass} value={route.return_time} onChange={(e) => setRoute({ ...route, return_time: e.target.value })} /></label>
             <label className="text-sm space-y-1"><span className="text-muted-foreground">Fee</span><input type="number" min="0" step="0.01" className={inputClass} placeholder="0.00" value={route.fee} onChange={(e) => setRoute({ ...route, fee: e.target.value })} /></label>
-            <label className="text-sm space-y-1"><span className="text-muted-foreground">Capacity</span><input type="number" min="1" className={inputClass} placeholder="e.g. 40" value={route.capacity} onChange={(e) => setRoute({ ...route, capacity: e.target.value })} /></label>
+            <label className="text-sm space-y-1"><span className="text-muted-foreground">{t("adminPages.capacity")}</span><input type="number" min="1" className={inputClass} placeholder="e.g. 40" value={route.capacity} onChange={(e) => setRoute({ ...route, capacity: e.target.value })} /></label>
           </div>
           <button type="submit" disabled={createRoute.isPending} className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-            {createRoute.isPending ? "Creating…" : "Create Route"}
+            {createRoute.isPending ? t("adminPages.creating") : t("adminPages.createRouteBtn")}
           </button>
         </form>
       )}
 
       {showForm && tab === "vehicles" && (
         <form onSubmit={submitVehicle} className="space-y-4 rounded-lg border p-6 bg-card max-w-xl">
-          <h2 className="text-lg font-semibold">Add Vehicle</h2>
-          <input className={inputClass} placeholder="Registration number *" value={vehicle.registration_number} onChange={(e) => setVehicle({ ...vehicle, registration_number: e.target.value })} />
+          <h2 className="text-lg font-semibold">{t("adminPages.addVehicle")}</h2>
+          <input className={inputClass} placeholder={t("adminPages.registrationNo") + " *"} value={vehicle.registration_number} onChange={(e) => setVehicle({ ...vehicle, registration_number: e.target.value })} />
           <input className={inputClass} placeholder="Model (e.g. Toyota Coaster)" value={vehicle.model} onChange={(e) => setVehicle({ ...vehicle, model: e.target.value })} />
           <div className="grid grid-cols-2 gap-3">
             <label className="text-sm space-y-1"><span className="text-muted-foreground">Type</span>
@@ -142,10 +144,10 @@ export default function AdminTransport() {
                 <option value="car">Car</option>
               </select>
             </label>
-            <label className="text-sm space-y-1"><span className="text-muted-foreground">Capacity</span><input type="number" min="1" className={inputClass} placeholder="e.g. 40" value={vehicle.capacity} onChange={(e) => setVehicle({ ...vehicle, capacity: e.target.value })} /></label>
+            <label className="text-sm space-y-1"><span className="text-muted-foreground">{t("adminPages.capacity")}</span><input type="number" min="1" className={inputClass} placeholder="e.g. 40" value={vehicle.capacity} onChange={(e) => setVehicle({ ...vehicle, capacity: e.target.value })} /></label>
           </div>
           <button type="submit" disabled={createVehicle.isPending} className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-            {createVehicle.isPending ? "Adding…" : "Add Vehicle"}
+            {createVehicle.isPending ? t("adminPages.adding") : t("adminPages.addVehicle")}
           </button>
         </form>
       )}
@@ -161,10 +163,10 @@ export default function AdminTransport() {
       {tab === "routes" && (
         <div className="rounded-lg border bg-card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Route Name</th><th className="text-left p-3">Description</th><th className="text-center p-3">Departure</th><th className="text-center p-3">Return</th><th className="text-center p-3">Fee</th><th className="text-center p-3">Capacity</th></tr></thead>
+            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Route Name</th><th className="text-left p-3">{t("adminPages.description")}</th><th className="text-center p-3">{t("adminPages.departure")}</th><th className="text-center p-3">{t("adminPages.returnTime")}</th><th className="text-center p-3">Fee</th><th className="text-center p-3">{t("adminPages.capacity")}</th></tr></thead>
             <tbody>
-              {routesLoading ? <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-              routeItems.length === 0 ? <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No routes</td></tr> :
+              {routesLoading ? <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{t("adminPages.loading")}</td></tr> :
+              routeItems.length === 0 ? <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{t("adminPages.noRoutes")}</td></tr> :
               routeItems.map((r: any) => (
                 <tr key={r.id} className="border-b hover:bg-muted/30">
                   <td className="p-3 font-medium">{r.name}</td>
@@ -183,10 +185,10 @@ export default function AdminTransport() {
       {tab === "vehicles" && (
         <div className="rounded-lg border bg-card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Registration</th><th className="text-left p-3">Model</th><th className="text-left p-3">Type</th><th className="text-center p-3">Capacity</th></tr></thead>
+            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">{t("adminPages.registration")}</th><th className="text-left p-3">{t("adminPages.model")}</th><th className="text-left p-3">Type</th><th className="text-center p-3">{t("adminPages.capacity")}</th></tr></thead>
             <tbody>
-              {vehiclesLoading ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-              vehicleItems.length === 0 ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No vehicles</td></tr> :
+              {vehiclesLoading ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">{t("adminPages.loading")}</td></tr> :
+              vehicleItems.length === 0 ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">{t("adminPages.noVehicles")}</td></tr> :
               vehicleItems.map((v: any) => (
                 <tr key={v.id} className="border-b hover:bg-muted/30">
                   <td className="p-3 font-medium">{v.registration_number ?? "—"}</td>
@@ -205,8 +207,8 @@ export default function AdminTransport() {
           <table className="w-full text-sm">
             <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Student</th><th className="text-left p-3">Route</th><th className="text-left p-3">Stop</th></tr></thead>
             <tbody>
-              {assignmentsLoading ? <tr><td colSpan={3} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-              assignmentItems.length === 0 ? <tr><td colSpan={3} className="p-8 text-center text-muted-foreground">No assignments</td></tr> :
+              {assignmentsLoading ? <tr><td colSpan={3} className="p-8 text-center text-muted-foreground">{t("adminPages.loading")}</td></tr> :
+              assignmentItems.length === 0 ? <tr><td colSpan={3} className="p-8 text-center text-muted-foreground">{t("adminPages.noAssignments")}</td></tr> :
               assignmentItems.map((a: any, i: number) => (
                 <tr key={i} className="border-b hover:bg-muted/30">
                   <td className="p-3 font-medium">{a.student?.name ?? a.student_name ?? "—"}</td>

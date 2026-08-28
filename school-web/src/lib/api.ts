@@ -338,8 +338,12 @@ export function mediaUrl(path?: string | null): string {
  * token. A viewer who is not permitted to see the photo gets 403 and the
  * component falls back to initials.
  */
-export function profilePhotoUrl(userId?: number | null): string {
+export function profilePhotoUrl(userId?: number | null, photoPath?: string | null): string {
   if (!userId) return "";
+  // Users without an uploaded avatar have no photo to stream: requesting one
+  // guarantees a 404 on every page load. Fall straight through to the initials
+  // placeholder instead.
+  if (photoPath === null || photoPath === "") return "";
 
   return `${API_BASE_URL.replace(/\/$/, "")}/files/profile-photo/${userId}`;
 }

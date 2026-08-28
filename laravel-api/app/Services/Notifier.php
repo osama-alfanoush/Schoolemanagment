@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\AppNotification;
-use App\Models\PushToken;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -45,7 +44,8 @@ class Notifier
             return;
         }
 
-        $tokens = PushToken::where('user_id', $userId)->pluck('token')->all();
+        $user = User::query()->findOrFail($userId);
+        $tokens = app(DeviceRegistry::class)->pushTokensForUser($user);
         if (empty($tokens)) {
             return;
         }

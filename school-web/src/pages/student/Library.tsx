@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/lib/api";
 import { renderDate, renderStatus } from "@/lib/tableHelpers";
@@ -13,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 type Tab = "browse" | "borrowings";
 
 export default function StudentLibrary() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("browse");
   const [search, setSearch] = useState("");
   const { toast } = useToast();
@@ -40,18 +42,18 @@ export default function StudentLibrary() {
 
   const borrow = useMutation({
     mutationFn: (id: number) => Student.borrowBook(id),
-    onSuccess: () => { toast({ title: "Book borrowed", description: "Due in 14 days." }); refresh(); },
-    onError: (e: any) => toast({ variant: "destructive", title: "Could not borrow", description: e?.data?.message ?? e?.message }),
+    onSuccess: () => { toast({ title: t("studentPages.bookBorrowed"), description: "Due in 14 days." }); refresh(); },
+    onError: (e: any) => toast({ variant: "destructive", title: t("studentPages.couldNotBorrow"), description: e?.data?.message ?? e?.message }),
   });
   const returnBook = useMutation({
     mutationFn: (id: number) => Student.returnBook(id),
-    onSuccess: () => { toast({ title: "Book returned" }); refresh(); },
-    onError: (e: any) => toast({ variant: "destructive", title: "Could not return", description: e?.data?.message ?? e?.message }),
+    onSuccess: () => { toast({ title: t("studentPages.bookReturned") }); refresh(); },
+    onError: (e: any) => toast({ variant: "destructive", title: t("studentPages.couldNotReturn"), description: e?.data?.message ?? e?.message }),
   });
 
   return (
     <div className="space-y-6">
-      <PageHeader icon="UI" title="Library" subtitle="Browse books and manage your borrowings" />
+      <PageHeader icon="UI" title={t("studentPages.libraryTitle")} subtitle={t("studentPages.librarySubtitle")} />
 
       <div className="flex gap-2">
         <button
@@ -61,7 +63,7 @@ export default function StudentLibrary() {
           }`}
           style={tab === "browse" ? { background: "var(--gradient-main)" } : undefined}
         >
-          Browse Books
+          {t("studentPages.browseBooks")}
         </button>
         <button
           onClick={() => setTab("borrowings")}
@@ -70,20 +72,20 @@ export default function StudentLibrary() {
           }`}
           style={tab === "borrowings" ? { background: "var(--gradient-main)" } : undefined}
         >
-          My Borrowings
+          {t("studentPages.myBorrowings")}
         </button>
       </div>
 
       {tab === "browse" && (
         <>
           <SearchAndFilter
-            placeholder="Search books by title, author..."
+            placeholder={t("studentPages.searchBooks")}
             value={search}
             onChange={setSearch}
           />
 
           {books.length === 0 && !booksLoading ? (
-            <BrandEmptyState icon="UI" title="No books found" subtitle="Try a different search term." />
+            <BrandEmptyState icon="UI" title={t("studentPages.noBooks")} subtitle={t("studentPages.tryDifferent")} />
           ) : booksLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -117,7 +119,7 @@ export default function StudentLibrary() {
                     disabled={book.available_copies <= 0 || (borrow.isPending && borrow.variables === book.id)}
                     onClick={() => borrow.mutate(book.id)}
                   >
-                    {book.available_copies > 0 ? "Borrow" : "Unavailable"}
+                    {book.available_copies > 0 ? t("studentPages.borrow") : t("studentPages.unavailable")}
                   </BrandButton>
                 </BrandCard>
               ))}
@@ -141,9 +143,9 @@ export default function StudentLibrary() {
                 </div>
               ),
             },
-            { key: "borrowed_date", label: "Borrowed", sortable: true, render: (v: any) => renderDate(v) },
-            { key: "due_date", label: "Due Date", sortable: true, render: (v: any) => renderDate(v) },
-            { key: "status", label: "Status", render: (v: any) => renderStatus(v) },
+            { key: "borrowed_date", label: t("studentPages.borrowed"), sortable: true, render: (v: any) => renderDate(v) },
+            { key: "due_date", label: t("studentPages.dueDate"), sortable: true, render: (v: any) => renderDate(v) },
+            { key: "status", label: t("common.status"), render: (v: any) => renderStatus(v) },
             {
               key: "fine",
               label: "Fine",
@@ -155,7 +157,7 @@ export default function StudentLibrary() {
               label: "",
               render: (_: any, row: any) =>
                 row.is_returned ? (
-                  <span className="text-xs text-muted-foreground/50">Returned</span>
+                  <span className="text-xs text-muted-foreground/50">{t("studentPages.returned")}</span>
                 ) : (
                   <BrandButton
                     size="sm"
@@ -168,7 +170,7 @@ export default function StudentLibrary() {
                 ),
             },
           ]}
-          emptyMessage="No borrowing history"
+          emptyMessage={t("studentPages.noBorrowing")}
           emptyIcon="UI"
         />
       )}

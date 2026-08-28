@@ -1,19 +1,22 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Parent } from "@/lib/api";
 import { renderUser, renderDate, renderStatus } from "@/lib/tableHelpers";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import BrandEmptyState from "@/components/ui/BrandEmptyState";
+import { toArray } from "@/lib/response";
 
 export default function ParentAttendance() {
+  const { t } = useTranslation();
   const [selectedChild, setSelectedChild] = useState<number | "all">("all");
 
   const { data: childrenData } = useQuery({
     queryKey: ["parent-children"],
     queryFn: () => Parent.children(),
   }) as any;
-  const children = Array.isArray(childrenData) ? childrenData : childrenData?.data ?? [];
+  const children = toArray<any>(childrenData);
 
   const { data: attendanceData, isLoading } = useQuery({
     queryKey: ["parent-attendance", selectedChild],
@@ -24,7 +27,10 @@ export default function ParentAttendance() {
     },
     enabled: children.length > 0,
   }) as any;
-const attendance = Array.isArray(attendanceData) ? attendanceData : attendanceData?.data ?? [];
+  // This endpoint answers with a paginator nested under `records`, so unwrapping
+  // only `.data` left the table permanently empty. toArray knows every envelope
+  // the API uses.
+  const attendance = toArray<any>(attendanceData);
 
   const presentCount = attendance.filter((a: any) => a.status === "present").length;
   const absentCount = attendance.filter((a: any) => a.status === "absent").length;
@@ -34,7 +40,7 @@ const attendance = Array.isArray(attendanceData) ? attendanceData : attendanceDa
 
   return (
     <div className="space-y-6">
-      <PageHeader icon="UI" title="Children's Attendance" subtitle="Daily attendance records for your children" />
+      <PageHeader icon="UI" title={t("parentPages.attendanceTitle")} subtitle={t("parentPages.attendanceSubtitle")} />
 
       {children.length > 1 && (
         <div className="flex gap-2 flex-wrap">
@@ -45,7 +51,7 @@ const attendance = Array.isArray(attendanceData) ? attendanceData : attendanceDa
             }`}
             style={selectedChild === "all" ? { background: "var(--gradient-main)" } : undefined}
           >
-            All Children
+            {t("parentPages.allChildren")}
           </button>
           {children.map((c: any) => (
             <button
@@ -65,34 +71,34 @@ const attendance = Array.isArray(attendanceData) ? attendanceData : attendanceDa
       {attendance.length > 0 && (
         <div className="flex gap-3 flex-wrap">
           <span className="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-sm font-medium">
-            Done {presentCount} Present
+            {t("status.present")} {presentCount}
           </span>
           <span className="bg-red-50 text-red-700 px-3 py-1.5 rounded-full text-sm font-medium">
-            Absent {absentCount} Absent
+            {t("status.absent")} {absentCount}
           </span>
           <span className="bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-sm font-medium">
-            Late {lateCount} Late
+            {t("status.late")} {lateCount}
           </span>
         </div>
       )}
 
       {attendance.length === 0 && !isLoading ? (
-        <BrandEmptyState icon="UI" title="No attendance records" subtitle="No attendance records found." />
+        <BrandEmptyState icon="UI" title={t("parentPages.noAttendance")} subtitle={t("parentPages.noAttendanceHint")} />
       ) : (
         <DataTable
           data={attendance}
           isLoading={isLoading}
           columns={[
             ...(showStudentColumn
-              ? [{ key: "student", label: "Student", render: (_: any, row: any) => renderUser(row.student_name ?? "-", "") }]
+              ? [{ key: "student", label: t("parentPages.student"), render: (_: any, row: any) => renderUser(row.student_name ?? "-", "") }]
               : []
             ),
-            { key: "date", label: "Date", sortable: true, render: (v: any) => renderDate(v) },
-            { key: "subject", label: "Subject", render: (_: any, row: any) => row.subject?.name ?? row.class_name ?? "-" },
-            { key: "status", label: "Status", render: (v: any) => renderStatus(v) },
-            { key: "notes", label: "Notes", hide: "md", render: (v: any) => v ? <span className="italic text-sm">{v}</span> : "-" },
+            { key: "date", label: t("parentPages.date"), sortable: true, render: (v: any) => renderDate(v) },
+            { key: "subject", label: t("parentPages.subject"), render: (_: any, row: any) => row.subject?.name ?? row.class_name ?? "-" },
+            { key: "status", label: t("common.status"), render: (v: any) => renderStatus(v) },
+            { key: "notes", label: t("parentPages.notes"), hide: "md", render: (v: any) => v ? <span className="italic text-sm">{v}</span> : "-" },
           ]}
-          emptyMessage="No attendance records."
+          emptyMessage={t("parentPages.noAttendanceHint")}
         />
       )}
     </div>

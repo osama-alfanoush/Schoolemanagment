@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { localeTree } from "./i18n.strings";
 
 type Translations = Record<string, Record<string, any>>;
 
@@ -575,9 +576,20 @@ const ar: Translations = {
   },
 };
 
+/** Namespaces added as `[en, ar]` pairs merge on top of the per-language trees. */
+function merge(base: Record<string, any>, extra: Record<string, any>): Record<string, any> {
+  const out: Record<string, any> = { ...base };
+  for (const [key, value] of Object.entries(extra)) {
+    out[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? merge((base[key] as Record<string, any>) ?? {}, value as Record<string, any>)
+      : value;
+  }
+  return out;
+}
+
 const resources = {
-  en: { translation: en },
-  ar: { translation: ar },
+  en: { translation: merge(en, localeTree(0)) },
+  ar: { translation: merge(ar, localeTree(1)) },
 };
 
 const STORAGE_KEY = "sm_locale";

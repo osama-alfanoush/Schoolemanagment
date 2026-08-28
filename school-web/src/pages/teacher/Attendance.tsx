@@ -58,12 +58,12 @@ export default function TeacherAttendance() {
         queryKey: ["teacher"]
       });
       toast({
-        title: "Attendance saved"
+        title: t("teacherPages.attendanceSaved")
       });
     },
     onError: (e: any) => toast({
       variant: "destructive",
-      title: "Failed",
+      title: t("teacherPages.failed"),
       description: e?.message
     })
   });
@@ -78,7 +78,7 @@ export default function TeacherAttendance() {
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3 max-w-2xl">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>Class</Label>
+            <Label>{t("teacherPages.class")}</Label>
             <div className="flex flex-wrap gap-2">
               {classes.length === 0 ? <span className="text-sm text-muted-foreground">
                   {t("common.empty")}
@@ -99,13 +99,13 @@ export default function TeacherAttendance() {
 
       {classId ? <BrandCard className="shadow-academic border-surface-border">
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className="text-base">Students</CardTitle>
+            <CardTitle className="text-base">{t("teacherPages.students")}</CardTitle>
             <div className="flex gap-2">
               <BrandButton size="sm" variant="outline" onClick={() => markAll("present")}>
-                All present
+                {t("teacherPages.allPresent")}
               </BrandButton>
               <BrandButton size="sm" variant="outline" onClick={() => markAll("absent")}>
-                All absent
+                {t("teacherPages.allAbsent")}
               </BrandButton>
               <BrandButton size="sm" onClick={() => submit.mutate()} disabled={submit.isPending || Object.keys(marks).length === 0}>
                 {submit.isPending ? t("common.loading") : t("common.save")}
@@ -116,7 +116,7 @@ export default function TeacherAttendance() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
+                  <TableHead>{t("teacherPages.student")}</TableHead>
                   <TableHead className="text-right">{t("common.status")}</TableHead>
                 </TableRow>
               </TableHeader>

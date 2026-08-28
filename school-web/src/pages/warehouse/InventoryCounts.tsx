@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Warehouse, InventoryCount, WarehouseItem } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
@@ -12,6 +13,7 @@ import { renderDate } from "@/lib/tableHelpers";
 import { toArray } from "@/lib/response";
 
 export default function InventoryCounts() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
@@ -46,12 +48,12 @@ export default function InventoryCounts() {
     }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["warehouse-inventory-counts"] });
-      toast({ title: "Inventory count saved" });
+      toast({ title: t("warehouse.countSaved") });
       setOpen(false);
       setForm({ count_type: "monthly", count_date: today, item_id: "", physical_qty: "", notes: "" });
     },
     onError: (e: unknown) =>
-      toast({ variant: "destructive", title: "Save failed", description: (e as Error)?.message }),
+      toast({ variant: "destructive", title: t("warehouse.saveFailed"), description: (e as Error)?.message }),
   });
 
   const counts = toArray<InventoryCount>(data);
@@ -60,53 +62,53 @@ export default function InventoryCounts() {
     <div className="space-y-6">
       <PageHeader
         icon="IC"
-        title="Inventory Counts"
-        subtitle="Record physical stock counts and audit history"
-        actions={<BrandButton variant="primary" onClick={() => setOpen(true)}>New Count</BrandButton>}
+        title={t("warehouse.countsTitle")}
+        subtitle={t("warehouse.countsSubtitle")}
+        actions={<BrandButton variant="primary" onClick={() => setOpen(true)}>{t("warehouse.newCount")}</BrandButton>}
       />
 
       <DataTable<InventoryCount>
-        title="Count Sessions"
+        title={t("warehouse.countSessions")}
         columns={[
-          { key: "count_ref", label: "Reference", render: (v, row) => v ?? `COUNT-${row.id}` },
-          { key: "count_type", label: "Type", sortable: true },
-          { key: "item", label: "Item", render: (_, row) => row.item?.name ?? `#${row.item_id}` },
-          { key: "system_qty", label: "System", align: "center" as const, render: (v) => Number(v ?? 0) },
-          { key: "physical_qty", label: "Physical", align: "center" as const, render: (v) => Number(v ?? 0) },
-          { key: "variance", label: "Variance", align: "center" as const, render: (_, row) => {
+          { key: "count_ref", label: t("warehouse.reference"), render: (v, row) => v ?? `COUNT-${row.id}` },
+          { key: "count_type", label: t("warehouse.type"), sortable: true },
+          { key: "item", label: t("warehouse.item"), render: (_, row) => row.item?.name ?? `#${row.item_id}` },
+          { key: "system_qty", label: t("warehouse.systemQty"), align: "center" as const, render: (v) => Number(v ?? 0) },
+          { key: "physical_qty", label: t("warehouse.physicalQty"), align: "center" as const, render: (v) => Number(v ?? 0) },
+          { key: "variance", label: t("warehouse.variance"), align: "center" as const, render: (_, row) => {
             const diff = Number(row.physical_qty ?? 0) - Number(row.system_qty ?? 0);
             return <span className={diff === 0 ? "text-muted-foreground" : diff > 0 ? "text-green-600" : "text-red-600"}>{diff > 0 ? "+" : ""}{diff}</span>;
           }},
-          { key: "count_date", label: "Date", render: (v) => renderDate(v), sortable: true },
+          { key: "count_date", label: t("warehouse.date"), render: (v) => renderDate(v), sortable: true },
         ]}
         data={counts}
         isLoading={isLoading}
         error={(error as Error)?.message}
-        emptyMessage="No inventory counts recorded."
+        emptyMessage={t("warehouse.noCounts")}
       />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New Inventory Count</DialogTitle>
-            <DialogDescription>Start with one counted item. More lines can be added from item detail workflows later.</DialogDescription>
+            <DialogTitle>{t("warehouse.newCountTitle")}</DialogTitle>
+            <DialogDescription>{t("warehouse.newCountHint")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Type</Label>
+                <Label>{t("warehouse.type")}</Label>
                 <select
                   className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={form.count_type}
                   onChange={(e) => setForm({ ...form, count_type: e.target.value as typeof form.count_type })}
                 >
-                  <option value="monthly">Monthly</option>
-                  <option value="annual">Annual</option>
-                  <option value="spot">Spot</option>
+                  <option value="monthly">{t("warehouse.monthly")}</option>
+                  <option value="annual">{t("warehouse.annual")}</option>
+                  <option value="spot">{t("warehouse.spot")}</option>
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label>Date</Label>
+                <Label>{t("warehouse.date")}</Label>
                 <Input
                   type="date"
                   value={form.count_date}
@@ -116,7 +118,7 @@ export default function InventoryCounts() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Item</Label>
+                <Label>{t("warehouse.item")}</Label>
                 <select
                   className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={form.item_id}

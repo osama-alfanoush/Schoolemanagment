@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { FinanceWorkspace } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
@@ -18,6 +19,7 @@ const reportTypes = [
 ] as const;
 
 export default function FinanceReports() {
+  const { t } = useTranslation();
   const [type, setType] = useState<(typeof reportTypes)[number][0]>("student-balances");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -39,7 +41,7 @@ export default function FinanceReports() {
   }
 
   return <div className="space-y-6" dir="rtl">
-    <PageHeader title="مركز التقارير المالية" subtitle="تقارير مفلترة من نفس حركات السندات والقيود" icon="📊" actions={<BrandButton variant="outline" disabled={!rows.length} onClick={downloadCsv}><Download className="h-4 w-4" /> Excel CSV</BrandButton>} />
+    <PageHeader title="مركز التقارير المالية" subtitle="تقارير مفلترة من نفس حركات السندات والقيود" icon="📊" actions={<BrandButton variant="outline" disabled={!rows.length} onClick={downloadCsv}><Download className="h-4 w-4" /> {t("financePages.excelCsv")}</BrandButton>} />
     <BrandCard className="p-4"><div className="grid gap-3 md:grid-cols-4">
       <label className="text-sm"><span className="mb-1 block font-medium">التقرير</span><select value={type} onChange={(e) => { setType(e.target.value as typeof type); setPage(1); }} className="w-full rounded-lg border p-2.5">{reportTypes.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <label className="text-sm"><span className="mb-1 block font-medium">من تاريخ</span><input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-full rounded-lg border p-2.5" /></label>

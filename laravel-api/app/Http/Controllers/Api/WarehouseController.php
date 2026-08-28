@@ -55,7 +55,9 @@ class WarehouseController extends Controller
             $q->whereColumn('current_qty', '<=', 'min_stock_qty');
         }
         if ($search = $request->query('search')) {
-            $safe = str_replace(['%', '_'], ['\\%', '\\_'], substr($search, 0, 100));
+            // mb_substr keeps the truncation from cutting a multibyte character
+            // in half, which PostgreSQL rejects as an invalid byte sequence.
+            $safe = str_replace(['%', '_'], ['\\%', '\\_'], mb_substr($search, 0, 100, 'UTF-8'));
             $q->where(function ($query) use ($safe) {
                 $query->where('name', 'like', "%{$safe}%")
                     ->orWhere('sku', 'like', "%{$safe}%");
@@ -81,7 +83,11 @@ class WarehouseController extends Controller
 
         if (empty($data['sku'])) {
             $category = WarehouseCategory::findOrFail($data['category_id']);
-            $prefix = strtoupper(substr($category->name, 0, 3));
+            // Multibyte-safe: a byte-wise substr() splits an Arabic (or any
+            // non-ASCII) category name mid-character, which produces invalid
+            // UTF-8, poisons the stored SKU and then fails every JSON response
+            // that includes the item. ASCII names are unaffected by the switch.
+            $prefix = mb_strtoupper(mb_substr($category->name, 0, 3, 'UTF-8'), 'UTF-8');
             $year = date('Y');
             $count = WarehouseItem::where('category_id', $data['category_id'])
                 ->whereYear('created_at', $year)->count() + 1;

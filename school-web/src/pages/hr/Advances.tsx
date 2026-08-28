@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, Banknote, Eye, HandCoins, Plus, Send } from "lucide-react";
 import { Hr } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { hasPermission } from "@/lib/permissions";
 import { HrAdvancesApi } from "@/lib/hrPayrollApi";
 import { paginationMeta, toArray } from "@/lib/response";
 import type { EmployeeAdvance } from "@/types/hrPayroll.types";
@@ -19,9 +21,15 @@ const money = (value: unknown) => new Intl.NumberFormat("ar", { minimumFractionD
 
 export default function HrAdvances() {
   const { toast } = useToast(); const qc = useQueryClient();
+  const { user } = useAuth();
+  // Finance reviews advances (approve/disburse/settle) but only HR raises them,
+  // and the employee directory behind the picker is HR-only. Without this gate
+  // the finance portal renders a request dialog it cannot submit and fires a
+  // guaranteed 403 at /hr/staff on every visit.
+  const canRequest = hasPermission(user, "hr.advances.request");
   const [page, setPage] = useState(1); const [open, setOpen] = useState(false); const [selected, setSelected] = useState<EmployeeAdvance | null>(null); const [form, setForm] = useState(blank);
   const query = useQuery({ queryKey: ["hr-advances", page], queryFn: () => HrAdvancesApi.list({ page, per_page: 20 }) });
-  const staffQuery = useQuery({ queryKey: ["hr", "staff", "advance-picker"], queryFn: () => Hr.staff() });
+  const staffQuery = useQuery({ queryKey: ["hr", "staff", "advance-picker"], queryFn: () => Hr.staff(), enabled: canRequest });
   const staff = useMemo(() => toArray<any>(staffQuery.data).filter(row => row.staffProfile || row.staff_profile), [staffQuery.data]);
   const refresh = () => void qc.invalidateQueries({ queryKey: ["hr-advances"] });
   const create = useMutation({ mutationFn: () => HrAdvancesApi.create({ ...form, staff_profile_id: Number(form.staff_profile_id), original_amount: Number(form.original_amount), installment_count: Number(form.installment_count) }), onSuccess: advance => { refresh(); setOpen(false); setForm(blank); toast({ title: `تم إنشاء ${advance.advance_no} كمسودة` }); }, onError: (e: Error) => toast({ variant: "destructive", title: "تعذر إنشاء السلفة", description: e.message }) });
@@ -30,7 +38,7 @@ export default function HrAdvances() {
   const openDetail = async (id: number) => { try { setSelected(await HrAdvancesApi.show(id)); } catch (e) { toast({ variant: "destructive", title: "تعذر تحميل جدول الأقساط", description: (e as Error).message }); } };
 
   return <div className="space-y-6" dir="rtl">
-    <PageHeader title="سلف الموظفين" subtitle="من الطلب والاعتماد والصرف إلى التحصيل والتسوية" icon="💳" actions={<BrandButton onClick={() => setOpen(true)}><Plus className="h-4 w-4" /> طلب سلفة</BrandButton>} />
+    <PageHeader title="سلف الموظفين" subtitle="من الطلب والاعتماد والصرف إلى التحصيل والتسوية" icon="💳" actions={canRequest ? <BrandButton onClick={() => setOpen(true)}><Plus className="h-4 w-4" /> طلب سلفة</BrandButton> : undefined} />
     <DataTable<EmployeeAdvance> data={toArray(query.data)} isLoading={query.isLoading} error={(query.error as Error)?.message}
       columns={[
         { key: "advance_no", label: "رقم السلفة", render: value => <span className="font-semibold">{value}</span> },

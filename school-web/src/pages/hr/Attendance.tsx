@@ -30,11 +30,11 @@ export default function HrAttendance() {
     mutationFn: (recs: { staff_user_id: number; status: "present" | "absent" | "late" }[]) =>
       Hr.markStaffAttendance(recs),
     onSuccess: () => {
-      toast({ title: "Success", description: "Staff attendance saved." });
+      toast({ title: t("hrPages.success"), description: t("hrPages.attendanceSaved") });
       setRecords({});
       void qc.invalidateQueries({ queryKey: ["hr-staff-attendance"] });
     },
-    onError: () => toast({ title: "Error", description: "Failed to save attendance.", variant: "destructive" }),
+    onError: () => toast({ title: t("hrPages.error"), description: t("hrPages.attendanceFailed"), variant: "destructive" }),
   });
 
   const staffItems = toArray(staffList);
@@ -46,7 +46,8 @@ export default function HrAttendance() {
     mutation.mutate(recs);
   };
 
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    .map((key) => t(`months.${key}`));
 
   return (
     <div className="space-y-6">
@@ -55,7 +56,7 @@ export default function HrAttendance() {
       {/* Filters */}
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <label htmlFor="hr-attendance-year" className="text-sm font-medium">Year</label>
+          <label htmlFor="hr-attendance-year" className="text-sm font-medium">{t("months.year")}</label>
           <select id="hr-attendance-year" className="rounded-md border bg-background px-3 py-2 text-sm" value={year} onChange={(e) => setYear(Number(e.target.value))}>
             {[now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1].map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -63,7 +64,7 @@ export default function HrAttendance() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label htmlFor="hr-attendance-month" className="text-sm font-medium">Month</label>
+          <label htmlFor="hr-attendance-month" className="text-sm font-medium">{t("hrPages.month")}</label>
           <select id="hr-attendance-month" className="rounded-md border bg-background px-3 py-2 text-sm" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
             {months.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
@@ -75,29 +76,29 @@ export default function HrAttendance() {
       {/* Mark Attendance */}
       <div className="rounded-lg border bg-card">
         <div className="flex items-center justify-between border-b p-4">
-          <h2 className="font-semibold">Mark Today's Attendance</h2>
+          <h2 className="font-semibold">{t("hrPages.markToday")}</h2>
           <button
             onClick={handleSave}
             disabled={mutation.isPending || Object.keys(records).length === 0}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {mutation.isPending ? "Saving…" : "Save Attendance"}
+            {mutation.isPending ? t("hrPages.saving") : t("hrPages.saveAttendance")}
           </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left p-3">Staff Member</th>
-                <th className="text-left p-3">Role</th>
-                <th className="text-center p-3">Present</th>
-                <th className="text-center p-3">Absent</th>
-                <th className="text-center p-3">Late</th>
+                <th className="text-left p-3">{t("hrPages.staffMember")}</th>
+                <th className="text-left p-3">{t("common.role")}</th>
+                <th className="text-center p-3">{t("status.present")}</th>
+                <th className="text-center p-3">{t("status.absent")}</th>
+                <th className="text-center p-3">{t("status.late")}</th>
               </tr>
             </thead>
             <tbody>
               {staffItems.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No staff data</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("hrPages.noStaffData")}</td></tr>
               ) : (
                 staffItems.map((s: any) => {
                   const id = s.id ?? s.user_id;
@@ -128,22 +129,22 @@ export default function HrAttendance() {
 
       {/* Summary */}
       {isLoading ? (
-        <div className="p-8 text-center text-muted-foreground">Loading attendance data…</div>
+        <div className="p-8 text-center text-muted-foreground">{t("hrPages.loadingAttendance")}</div>
       ) : todayRecords.length > 0 ? (
         <div className="rounded-lg border bg-card p-4">
           <h2 className="font-semibold mb-3">Attendance Records ({month}/{year})</h2>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="rounded-md bg-green-500/10 p-3">
               <div className="text-2xl font-bold text-green-600">{todayRecords.filter((r: any) => r.status === "present").length}</div>
-              <div className="text-xs text-muted-foreground">Present</div>
+              <div className="text-xs text-muted-foreground">{t("status.present")}</div>
             </div>
             <div className="rounded-md bg-red-500/10 p-3">
               <div className="text-2xl font-bold text-red-600">{todayRecords.filter((r: any) => r.status === "absent").length}</div>
-              <div className="text-xs text-muted-foreground">Absent</div>
+              <div className="text-xs text-muted-foreground">{t("status.absent")}</div>
             </div>
             <div className="rounded-md bg-yellow-500/10 p-3">
               <div className="text-2xl font-bold text-yellow-600">{todayRecords.filter((r: any) => r.status === "late").length}</div>
-              <div className="text-xs text-muted-foreground">Late</div>
+              <div className="text-xs text-muted-foreground">{t("status.late")}</div>
             </div>
           </div>
         </div>

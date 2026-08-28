@@ -3,19 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\DeviceToken;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
 use App\Models\NotificationTemplate;
 use App\Models\User;
 use App\Services\CurrentSchool;
+use App\Services\DeviceRegistry;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function __construct(private CurrentSchool $currentSchool) {}
+    public function __construct(
+        private CurrentSchool $currentSchool,
+        private DeviceRegistry $devices,
+    ) {}
 
     /**
      * Get user's notifications
@@ -146,25 +149,25 @@ class NotificationController extends Controller
     public function registerDevice(Request $request)
     {
         $data = $request->validate([
+            'device_id' => 'required|string|max:255',
             'token' => 'required|string',
             'platform' => 'required|in:ios,android,web',
-            'device_name' => 'nullable|string',
-            'app_version' => 'nullable|string',
+            'app_version' => 'nullable|string|max:100',
+            'os_version' => 'nullable|string|max:100',
         ]);
 
-        $device = DeviceToken::register(
-            $request->user()->id,
-            $data['token'],
-            $data['platform'],
-            [
-                'device_name' => $data['device_name'] ?? null,
-                'app_version' => $data['app_version'] ?? null,
-            ]
-        );
+        $device = $this->devices->register($request, $request->user(), [
+            'device_id' => $data['device_id'],
+            'platform' => $data['platform'],
+            'push_token' => $data['token'],
+            'app_version' => $data['app_version'] ?? null,
+            'os_version' => $data['os_version'] ?? null,
+        ]);
 
         return response()->json([
             'message' => 'Device registered successfully',
-            'device_id' => $device->id,
+            'id' => $device->id,
+            'device_id' => $device->device_id,
         ]);
     }
 
@@ -173,9 +176,11 @@ class NotificationController extends Controller
      */
     public function unregisterDevice(Request $request)
     {
-        $data = $request->validate(['token' => 'required|string']);
+        $data = $request->validate(['device_id' => 'required|string|max:255']);
 
-        DeviceToken::remove($request->user()->id, $data['token']);
+        if (! $this->devices->revoke($request, $request->user(), $data['device_id'])) {
+            return response()->json(['message' => 'Device not found'], 404);
+        }
 
         return response()->json(['message' => 'Device unregistered']);
     }
@@ -185,9 +190,7 @@ class NotificationController extends Controller
      */
     public function getDevices(Request $request)
     {
-        $devices = DeviceToken::where('user_id', $request->user()->id)
-            ->orderBy('last_used_at', 'desc')
-            ->get();
+        $devices = $this->devices->forUser($request->user());
 
         return response()->json($devices);
     }

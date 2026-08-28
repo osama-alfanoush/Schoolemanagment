@@ -44,7 +44,7 @@ export default function TeacherAssignments() {
         queryKey: ["teacher"]
       });
       toast({
-        title: "Assignment created"
+        title: t("teacherPages.assignmentCreated")
       });
       setCreateFor(null);
       setForm({
@@ -57,7 +57,7 @@ export default function TeacherAssignments() {
     },
     onError: (e: any) => toast({
       variant: "destructive",
-      title: "Failed",
+      title: t("teacherPages.failed"),
       description: e?.message
     })
   });
@@ -123,35 +123,35 @@ export default function TeacherAssignments() {
       <Dialog open={!!createFor} onOpenChange={o => !o && setCreateFor(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New assignment</DialogTitle>
+            <DialogTitle>{t("teacherPages.newAssignment")}</DialogTitle>
             <DialogDescription>
               {createFor?.name ?? "Class"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="t">Title</Label>
+              <Label htmlFor="t">{t("teacherPages.title")}</Label>
               <Input id="t" value={form.title} onChange={e => setForm({
               ...form,
               title: e.target.value
             })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="d">Description</Label>
+              <Label htmlFor="d">{t("teacherPages.description")}</Label>
               <Textarea id="d" rows={3} value={form.description} onChange={e => setForm({
               ...form,
               description: e.target.value
             })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="due">Due date</Label>
+              <Label htmlFor="due">{t("teacherPages.dueDate")}</Label>
               <Input id="due" type="datetime-local" value={form.due_date} onChange={e => setForm({
               ...form,
               due_date: e.target.value
             })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="sub">Subject ID</Label>
+              <Label htmlFor="sub">{t("teacherPages.subjectId")}</Label>
               <Input id="sub" type="number" value={form.subject_id} onChange={e => setForm({
               ...form,
               subject_id: e.target.value

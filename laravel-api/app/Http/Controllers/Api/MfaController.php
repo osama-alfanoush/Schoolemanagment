@@ -68,8 +68,10 @@ class MfaController extends Controller
                 'mfa_recovery_codes' => $hashedCodes,
             ])->save();
 
+            $limitedToken = $request->user()->currentAccessToken();
+            $deviceId = $limitedToken instanceof PersonalAccessToken ? $limitedToken->device_id : null;
             $this->revokeLimitedFamily($request);
-            $tokens = $this->tokenIssuer->pair($user, $data['device_name'] ?? 'web');
+            $tokens = $this->tokenIssuer->pair($user, $data['device_name'] ?? 'web', null, $deviceId);
 
             return [$user, $tokens, $plainCodes];
         });
@@ -127,9 +129,11 @@ class MfaController extends Controller
                 throw ValidationException::withMessages(['code' => ['Invalid authentication or recovery code.']]);
             }
 
+            $limitedToken = $request->user()->currentAccessToken();
+            $deviceId = $limitedToken instanceof PersonalAccessToken ? $limitedToken->device_id : null;
             $this->revokeLimitedFamily($request);
 
-            return [$user, $this->tokenIssuer->pair($user, $data['device_name'] ?? 'web'), $usedRecovery];
+            return [$user, $this->tokenIssuer->pair($user, $data['device_name'] ?? 'web', null, $deviceId), $usedRecovery];
         });
 
         [$user, $tokens, $usedRecovery] = $result;

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Events\NotificationReceived;
 use App\Mail\NotificationEmail;
-use App\Models\DeviceToken;
 use App\Models\Notification;
 use App\Models\NotificationDelivery;
 use App\Models\NotificationPreference;
@@ -212,7 +211,9 @@ class NotificationService
      */
     protected static function deliverPush(Notification $notification): void
     {
-        $tokens = DeviceToken::getTokensForUser($notification->user_id);
+        $user = User::query()->findOrFail($notification->user_id);
+        $registry = app(DeviceRegistry::class);
+        $tokens = $registry->pushTokensForUser($user);
 
         if (empty($tokens)) {
             return;
@@ -292,7 +293,7 @@ class NotificationService
                 if (isset($result['results'])) {
                     foreach ($result['results'] as $index => $resultItem) {
                         if (isset($resultItem['error']) && $resultItem['error'] === 'InvalidRegistration') {
-                            DeviceToken::remove($notification->user_id, $tokens[$index]);
+                            $registry->clearInvalidPushToken($user, $tokens[$index]);
                         }
                     }
                 }

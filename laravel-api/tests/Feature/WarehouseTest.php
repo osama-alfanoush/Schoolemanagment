@@ -70,6 +70,34 @@ class WarehouseTest extends TestCase
         ]);
     }
 
+    public function test_generated_sku_stays_valid_utf8_for_a_non_ascii_category()
+    {
+        // A byte-wise substr() on an Arabic category name cut a character in
+        // half, so the generated SKU was invalid UTF-8: the item was written
+        // but every JSON response carrying it then failed with a 500.
+        $auth = $this->loginWarehouse();
+        $category = WarehouseCategory::create(['name' => 'قرطاسية ومستلزمات مكتبية']);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$auth['token'])
+            ->postJson('/api/warehouse/items', [
+                'name' => 'ورق طباعة A4',
+                'category_id' => $category->id,
+                'unit' => 'رزمة',
+                'min_stock_qty' => 20,
+            ]);
+
+        $response->assertStatus(201);
+
+        $sku = WarehouseItem::where('name', 'ورق طباعة A4')->value('sku');
+        $this->assertTrue(mb_check_encoding($sku, 'UTF-8'), "generated SKU is not valid UTF-8: {$sku}");
+        $this->assertStringStartsWith('قرط-', $sku);
+
+        // The listing is the endpoint that actually 500'd on the bad byte.
+        $this->withHeader('Authorization', 'Bearer '.$auth['token'])
+            ->getJson('/api/warehouse/items')
+            ->assertOk();
+    }
+
     public function test_stock_movement_in_increases_qty()
     {
         $auth = $this->loginWarehouse();

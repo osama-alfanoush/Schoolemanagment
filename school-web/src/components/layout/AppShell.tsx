@@ -217,7 +217,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
           >
             <Avatar className="h-8 w-8 border border-sidebar-border">
-              <AvatarImage src={profilePhotoUrl(user.id)} alt={user.name} />
+              <AvatarImage src={profilePhotoUrl(user.id, user.photo_path)} alt={user.name} />
               <AvatarFallback className="text-xs bg-sidebar-primary/20 text-sidebar-primary font-semibold">
                 {user.name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
@@ -278,7 +278,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ms-1">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={profilePhotoUrl(user.id)} alt={user.name} />
+                    <AvatarImage src={profilePhotoUrl(user.id, user.photo_path)} alt={user.name} />
                     <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Button>

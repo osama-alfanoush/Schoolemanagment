@@ -33,15 +33,15 @@ export default function FinancePayroll() {
     mutationFn: () => Finance.processPayroll(year, month),
     onSuccess: (res: any) => {
       invalidate();
-      toast({ title: "Payroll processed", description: `${res?.processed ?? 0} records.` });
+      toast({ title: t("financePages.payrollProcessed"), description: `${res?.processed ?? 0} records.` });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.data?.message ?? e?.message }),
+    onError: (e: any) => toast({ variant: "destructive", title: t("financePages.failed"), description: e?.data?.message ?? e?.message }),
   });
 
   const markPaid = useMutation({
     mutationFn: (id: number) => Finance.markPayrollPaid(id),
-    onSuccess: () => { invalidate(); toast({ title: "Marked as paid" }); },
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.data?.message ?? e?.message }),
+    onSuccess: () => { invalidate(); toast({ title: t("financePages.markedPaid") }); },
+    onError: (e: any) => toast({ variant: "destructive", title: t("financePages.failed"), description: e?.data?.message ?? e?.message }),
   });
 
   const selectClass = "rounded-md border bg-background px-3 py-2 text-sm";
@@ -58,7 +58,7 @@ export default function FinancePayroll() {
           </select>
           <BrandButton onClick={() => { if (confirm(`Process payroll for ${MONTHS[month - 1]} ${year}?`)) process.mutate(); }} disabled={process.isPending}>
             <Play className="me-2 h-4 w-4" />
-            {process.isPending ? t("common.loading") : "Process Payroll"}
+            {process.isPending ? t("common.loading") : t("financePages.processPayroll")}
           </BrandButton>
         </div>
       </div>
@@ -67,12 +67,12 @@ export default function FinancePayroll() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Staff</TableHead>
+              <TableHead>{t("financePages.staff")}</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Base Salary</TableHead>
-              <TableHead>Deductions</TableHead>
-              <TableHead>Net Pay</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("financePages.baseSalary")}</TableHead>
+              <TableHead>{t("financePages.deductions")}</TableHead>
+              <TableHead>{t("financePages.netPay")}</TableHead>
+              <TableHead>{t("common.status")}</TableHead>
               <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -84,7 +84,7 @@ export default function FinancePayroll() {
               </TableRow> : payrolls.map((pr: any) => {
                   const deductions = Number(pr.deductions ?? 0) + Number(pr.advance_deduction ?? 0);
                   return <TableRow key={pr.id}>
-                  <TableCell className="font-medium">{pr.staff?.name || "Unknown"}</TableCell>
+                  <TableCell className="font-medium">{pr.staff?.name || t("financePages.unknown")}</TableCell>
                   <TableCell className="capitalize">{pr.staff?.role || "-"}</TableCell>
                   <TableCell>${Number(pr.base_salary ?? 0).toFixed(2)}</TableCell>
                   <TableCell className="text-destructive">${deductions.toFixed(2)}</TableCell>

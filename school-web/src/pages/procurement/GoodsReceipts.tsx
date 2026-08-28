@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
 import { Procurement, type GoodsReceipt } from "@/lib/api";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { dateText, money, StatusBadge } from "./shared";
 
 export default function GoodsReceipts() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [selected, setSelected] = useState<GoodsReceipt | null>(null);
   const [page, setPage] = useState(1);
@@ -19,25 +21,25 @@ export default function GoodsReceipts() {
 
   const openDetail = async (row: GoodsReceipt) => {
     try { setSelected(await Procurement.goodsReceipt(row.id)); }
-    catch (e) { toast({ variant: "destructive", title: "Could not load receipt", description: (e as Error).message }); }
+    catch (e) { toast({ variant: "destructive", title: t("procurementPages.couldNotLoadReceipt"), description: (e as Error).message }); }
   };
   const lines = selected?.items ?? [];
   const total = lines.reduce((sum, line) => sum + Number(line.quantity_received) * Number(line.unit_cost), 0);
 
   return <div className="space-y-6">
-    <PageHeader icon="GR" title="Goods receipts" subtitle="Deliveries posted against purchase orders — each receipt updated inventory automatically" />
-    <DataTable<GoodsReceipt> title="Receipts" data={toArray<GoodsReceipt>(data)} isLoading={isLoading} error={(error as Error)?.message}
+    <PageHeader icon="GR" title={t("procurementPages.goodsReceipts")} subtitle="Deliveries posted against purchase orders — each receipt updated inventory automatically" />
+    <DataTable<GoodsReceipt> title={t("procurementPages.receipts")} data={toArray<GoodsReceipt>(data)} isLoading={isLoading} error={(error as Error)?.message}
       columns={[
-        { key: "grn_no", label: "GRN number", sortable: true, render: v => <span className="font-semibold">{v}</span> },
-        { key: "purchase_order.po_no", label: "Purchase order" },
-        { key: "purchase_order.supplier.name", label: "Supplier", hide: "sm" },
-        { key: "received_at", label: "Received", sortable: true, render: dateText },
-        { key: "received_by.name", label: "Received by", hide: "md" },
-        { key: "status", label: "Status", render: v => <StatusBadge status={v} /> },
+        { key: "grn_no", label: t("procurementPages.grnNumber"), sortable: true, render: v => <span className="font-semibold">{v}</span> },
+        { key: "purchase_order.po_no", label: t("procurementPages.purchaseOrder") },
+        { key: "purchase_order.supplier.name", label: t("procurementPages.supplier"), hide: "sm" },
+        { key: "received_at", label: t("procurementPages.received"), sortable: true, render: dateText },
+        { key: "received_by.name", label: t("procurementPages.receivedBy"), hide: "md" },
+        { key: "status", label: t("common.status"), render: v => <StatusBadge status={v} /> },
       ]}
-      rowActions={[{ label: "View lines", icon: <Eye className="h-4 w-4" />, onClick: row => void openDetail(row) }]}
+      rowActions={[{ label: t("procurementPages.viewLines"), icon: <Eye className="h-4 w-4" />, onClick: row => void openDetail(row) }]}
       pagination={{ currentPage: page, lastPage: meta.last_page ?? 1, total: meta.total ?? 0, perPage: 20, onPageChange: setPage }}
-      emptyMessage="No goods receipts yet. Receive an approved purchase order to create one." />
+      emptyMessage={t("procurementPages.noReceipts")} />
 
     <Dialog open={!!selected} onOpenChange={open => !open && setSelected(null)}>
       <DialogContent className="max-w-2xl">
@@ -64,7 +66,7 @@ export default function GoodsReceipts() {
           {selected?.notes && <p className="text-sm text-muted-foreground">Notes: {selected.notes}</p>}
           <div className="flex justify-end text-lg font-bold">Total: {money(total)}</div>
         </div>
-        <DialogFooter><BrandButton variant="ghost" onClick={() => setSelected(null)}>Close</BrandButton></DialogFooter>
+        <DialogFooter><BrandButton variant="ghost" onClick={() => setSelected(null)}>{t("procurementPages.close")}</BrandButton></DialogFooter>
       </DialogContent>
     </Dialog>
   </div>;

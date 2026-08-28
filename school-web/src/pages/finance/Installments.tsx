@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Banknote, BellRing, Eye, Plus, X } from "lucide-react";
 import { Finance, Installments, type CreatePaymentPlanRequest, type InstallmentRow, type Invoice, type PayInstallmentRequest, type PaymentPlan } from "@/lib/api";
@@ -20,6 +21,7 @@ const EMPTY_PLAN: CreatePaymentPlanRequest = {
 const EMPTY_PAYMENT: PayInstallmentRequest = { amount: 0, method: "cash" };
 
 export default function FinanceInstallments() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -56,18 +58,18 @@ export default function FinanceInstallments() {
 
   const create = useMutation({
     mutationFn: () => Installments.createPlan(form),
-    onSuccess: () => { refresh(); setCreateOpen(false); setForm({ ...EMPTY_PLAN }); toast({ title: "Payment plan created" }); },
-    onError: (e: Error) => toast({ variant: "destructive", title: "Could not create plan", description: e.message }),
+    onSuccess: () => { refresh(); setCreateOpen(false); setForm({ ...EMPTY_PLAN }); toast({ title: t("financePages.planCreated") }); },
+    onError: (e: Error) => toast({ variant: "destructive", title: t("financePages.planCreateFailed"), description: e.message }),
   });
   const cancelPlan = useMutation({
     mutationFn: (id: number) => Installments.cancelPlan(id),
-    onSuccess: () => { refresh(); setSelected(null); toast({ title: "Plan cancelled" }); },
-    onError: (e: Error) => toast({ variant: "destructive", title: "Could not cancel plan", description: e.message }),
+    onSuccess: () => { refresh(); setSelected(null); toast({ title: t("financePages.planCancelled") }); },
+    onError: (e: Error) => toast({ variant: "destructive", title: t("financePages.planCancelFailed"), description: e.message }),
   });
   const waive = useMutation({
     mutationFn: (id: number) => Installments.waive(id),
-    onSuccess: async () => { refresh(); if (selected) await reloadDetail(selected.id); toast({ title: "Installment waived" }); },
-    onError: (e: Error) => toast({ variant: "destructive", title: "Could not waive", description: e.message }),
+    onSuccess: async () => { refresh(); if (selected) await reloadDetail(selected.id); toast({ title: t("financePages.waived") }); },
+    onError: (e: Error) => toast({ variant: "destructive", title: t("financePages.waiveFailed"), description: e.message }),
   });
   const pay = useMutation({
     mutationFn: () => Installments.pay(paying!.id, payment),
@@ -76,14 +78,14 @@ export default function FinanceInstallments() {
       setPaying(null);
       setPayment({ ...EMPTY_PAYMENT });
       if (selected) await reloadDetail(selected.id);
-      toast({ title: "Installment payment recorded" });
+      toast({ title: t("financePages.paymentRecorded") });
     },
-    onError: (e: Error) => toast({ variant: "destructive", title: "Payment failed", description: e.message }),
+    onError: (e: Error) => toast({ variant: "destructive", title: t("financePages.paymentFailed"), description: e.message }),
   });
   const remind = useMutation({
     mutationFn: () => Installments.sendReminders(),
-    onSuccess: (res) => toast({ title: "Reminders sent", description: `${res.reminders_sent} notification(s) queued.` }),
-    onError: (e: Error) => toast({ variant: "destructive", title: "Could not send reminders", description: e.message }),
+    onSuccess: (res) => toast({ title: t("financePages.remindersSent"), description: `${res.reminders_sent} notification(s) queued.` }),
+    onError: (e: Error) => toast({ variant: "destructive", title: t("financePages.reminderFailed"), description: e.message }),
   });
 
   const pickInvoice = (id: number) => {
@@ -99,29 +101,29 @@ export default function FinanceInstallments() {
   const outstanding = (row: InstallmentRow) => Number(row.amount) - Number(row.paid_amount);
 
   return <div className="space-y-6">
-    <PageHeader icon="📅" title="Installments" subtitle="Student payment plans, schedules, and reminders"
+    <PageHeader icon="📅" title={t("financePages.installments")} subtitle={t("financePages.installmentsSubtitle")}
       actions={<div className="flex gap-2">
-        {canEdit && <BrandButton variant="secondary" leftIcon={<BellRing className="h-4 w-4" />} isLoading={remind.isPending} onClick={() => remind.mutate()}>Send reminders</BrandButton>}
-        {canCreate && <BrandButton leftIcon={<Plus className="h-4 w-4" />} onClick={() => setCreateOpen(true)}>New plan</BrandButton>}
+        {canEdit && <BrandButton variant="secondary" leftIcon={<BellRing className="h-4 w-4" />} isLoading={remind.isPending} onClick={() => remind.mutate()}>{t("financePages.sendReminders")}</BrandButton>}
+        {canCreate && <BrandButton leftIcon={<Plus className="h-4 w-4" />} onClick={() => setCreateOpen(true)}>{t("financePages.newPlan")}</BrandButton>}
       </div>} />
 
-    <DataTable<PaymentPlan> title="Payment plans" data={toArray<PaymentPlan>(plansQuery.data)} isLoading={plansQuery.isLoading} error={(plansQuery.error as Error)?.message}
-      toolbar={<div className="max-w-xs"><Label htmlFor="plan-status" className="sr-only">Filter by status</Label><select id="plan-status" className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}><option value="">All statuses</option>{["active", "completed", "defaulted", "cancelled"].map(s => <option key={s} value={s}>{s}</option>)}</select></div>}
+    <DataTable<PaymentPlan> title={t("financePages.paymentPlans")} data={toArray<PaymentPlan>(plansQuery.data)} isLoading={plansQuery.isLoading} error={(plansQuery.error as Error)?.message}
+      toolbar={<div className="max-w-xs"><Label htmlFor="plan-status" className="sr-only">{t("filters.byStatus")}</Label><select id="plan-status" className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}><option value="">{t("filters.allStatuses")}</option>{["active", "completed", "defaulted", "cancelled"].map(s => <option key={s} value={s}>{t(`status.${s}`, { defaultValue: s })}</option>)}</select></div>}
       columns={[
-        { key: "plan_no", label: "Plan", sortable: true, render: v => <span className="font-semibold">{v}</span> },
-        { key: "student.name", label: "Student", sortable: true },
-        { key: "invoice.invoice_no", label: "Invoice", render: v => v ?? "—", hide: "md" },
-        { key: "total_amount", label: "Total", align: "right", render: money },
-        { key: "num_installments", label: "Installments", align: "center", hide: "sm" },
-        { key: "start_date", label: "Starts", render: dateText, hide: "md" },
-        { key: "status", label: "Status", render: v => <StatusBadge status={v} /> },
+        { key: "plan_no", label: t("financePages.plan"), sortable: true, render: v => <span className="font-semibold">{v}</span> },
+        { key: "student.name", label: t("financePages.student"), sortable: true },
+        { key: "invoice.invoice_no", label: t("financePages.invoice"), render: v => v ?? "—", hide: "md" },
+        { key: "total_amount", label: t("financePages.total"), align: "right", render: money },
+        { key: "num_installments", label: t("financePages.installments"), align: "center", hide: "sm" },
+        { key: "start_date", label: t("financePages.starts"), render: dateText, hide: "md" },
+        { key: "status", label: t("common.status"), render: v => <StatusBadge status={v} /> },
       ]}
       rowActions={[
-        { label: "View schedule", icon: <Eye className="h-4 w-4" />, onClick: row => void reloadDetail(row.id) },
-        { label: "Cancel plan", icon: <X className="h-4 w-4" />, variant: "danger", show: row => canApprove && row.status === "active", onClick: row => cancelPlan.mutate(row.id) },
+        { label: t("financePages.viewSchedule"), icon: <Eye className="h-4 w-4" />, onClick: row => void reloadDetail(row.id) },
+        { label: t("financePages.cancelPlan"), icon: <X className="h-4 w-4" />, variant: "danger", show: row => canApprove && row.status === "active", onClick: row => cancelPlan.mutate(row.id) },
       ]}
       pagination={{ currentPage: page, lastPage: meta.last_page ?? 1, total: meta.total ?? 0, perPage: 20, onPageChange: setPage }}
-      emptyMessage="No payment plans yet." />
+      emptyMessage={t("financePages.noPlans")} />
 
     <Dialog open={createOpen} onOpenChange={setCreateOpen}><DialogContent className="max-w-2xl"><DialogHeader><DialogTitle>New payment plan</DialogTitle><DialogDescription>Pick an open invoice — the student and outstanding amount fill in automatically, then choose the schedule.</DialogDescription></DialogHeader>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -132,11 +134,11 @@ export default function FinanceInstallments() {
             {invoices.map(inv => <option key={inv.id} value={inv.id}>{inv.invoice_no} — {inv.student?.name} ({money(Number(inv.amount) - Number(inv.paid_amount))} outstanding)</option>)}
           </select>
         </div>
-        <Field label="Total amount"><Input type="number" min="0.01" step="0.01" value={form.total_amount || ""} onChange={e => setForm({ ...form, total_amount: Number(e.target.value) })} /></Field>
-        <Field label="Down payment"><Input type="number" min="0" step="0.01" value={form.down_payment ?? ""} onChange={e => setForm({ ...form, down_payment: e.target.value ? Number(e.target.value) : undefined })} /></Field>
-        <Field label="Number of installments"><Input type="number" min="1" max="36" value={form.num_installments} onChange={e => setForm({ ...form, num_installments: Number(e.target.value) })} /></Field>
-        <Field label="Frequency"><select className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={form.frequency} onChange={e => setForm({ ...form, frequency: e.target.value as CreatePaymentPlanRequest["frequency"] })}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option></select></Field>
-        <Field label="First due date"><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></Field>
+        <Field label={t("financePages.totalAmount")}><Input type="number" min="0.01" step="0.01" value={form.total_amount || ""} onChange={e => setForm({ ...form, total_amount: Number(e.target.value) })} /></Field>
+        <Field label={t("financePages.downPayment")}><Input type="number" min="0" step="0.01" value={form.down_payment ?? ""} onChange={e => setForm({ ...form, down_payment: e.target.value ? Number(e.target.value) : undefined })} /></Field>
+        <Field label={t("financePages.numberOfInstallments")}><Input type="number" min="1" max="36" value={form.num_installments} onChange={e => setForm({ ...form, num_installments: Number(e.target.value) })} /></Field>
+        <Field label={t("financePages.frequency")}><select className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={form.frequency} onChange={e => setForm({ ...form, frequency: e.target.value as CreatePaymentPlanRequest["frequency"] })}><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option></select></Field>
+        <Field label={t("financePages.firstDueDate")}><Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} /></Field>
       </div>
       <DialogFooter><BrandButton variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</BrandButton><BrandButton isLoading={create.isPending} disabled={!form.student_user_id || form.total_amount <= 0 || form.num_installments < 1} onClick={() => create.mutate()}>Create plan</BrandButton></DialogFooter>
     </DialogContent></Dialog>
@@ -160,9 +162,9 @@ export default function FinanceInstallments() {
 
     <Dialog open={!!paying} onOpenChange={open => !open && setPaying(null)}><DialogContent><DialogHeader><DialogTitle>Pay installment #{paying?.sequence_no}</DialogTitle><DialogDescription>Outstanding: {money(paying ? outstanding(paying) : 0)}. Payments post to the linked invoice when one exists.</DialogDescription></DialogHeader>
       <div className="space-y-3">
-        <Field label="Amount"><Input type="number" min="0.01" step="0.01" max={paying ? outstanding(paying) : undefined} value={payment.amount || ""} onChange={e => setPayment({ ...payment, amount: Number(e.target.value) })} /></Field>
-        <Field label="Method"><select className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={payment.method} onChange={e => setPayment({ ...payment, method: e.target.value as PayInstallmentRequest["method"] })}><option value="cash">Cash</option><option value="bank_transfer">Bank transfer</option><option value="card">Card</option><option value="online">Online</option></select></Field>
-        <Field label="Reference"><Input value={payment.reference ?? ""} onChange={e => setPayment({ ...payment, reference: e.target.value || undefined })} /></Field>
+        <Field label={t("financePages.amount")}><Input type="number" min="0.01" step="0.01" max={paying ? outstanding(paying) : undefined} value={payment.amount || ""} onChange={e => setPayment({ ...payment, amount: Number(e.target.value) })} /></Field>
+        <Field label={t("financePages.method")}><select className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm" value={payment.method} onChange={e => setPayment({ ...payment, method: e.target.value as PayInstallmentRequest["method"] })}><option value="cash">Cash</option><option value="bank_transfer">Bank transfer</option><option value="card">Card</option><option value="online">Online</option></select></Field>
+        <Field label={t("financePages.reference")}><Input value={payment.reference ?? ""} onChange={e => setPayment({ ...payment, reference: e.target.value || undefined })} /></Field>
       </div>
       <DialogFooter><BrandButton variant="ghost" onClick={() => setPaying(null)}>Cancel</BrandButton><BrandButton isLoading={pay.isPending} disabled={payment.amount <= 0} onClick={() => pay.mutate()}>Record payment</BrandButton></DialogFooter>
     </DialogContent></Dialog>

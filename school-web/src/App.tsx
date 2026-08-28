@@ -166,14 +166,9 @@ function Portal({
   Component: ComponentType<any>;
   path: string;
 }) {
-  const segments = path.split("/").filter(Boolean);
-  const title = segments.length <= 1
-    ? "Dashboard"
-    : segments.slice(1).map(s => s.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase())).join(" — ");
-
   return (
     <RoleGuard roles={roles}>
-      <AppLayout title={title}>
+      <AppLayout path={path}>
         <SuspenseWrapper>
           <Component />
         </SuspenseWrapper>

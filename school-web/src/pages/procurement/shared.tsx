@@ -1,5 +1,6 @@
 import BrandBadge from "@/components/ui/BrandBadge";
-import type { AuthUser } from "@/lib/api";
+
+export { hasPermission } from "@/lib/permissions";
 
 export const money = (value: number | string | null | undefined) =>
   new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(Number(value ?? 0));
@@ -16,10 +17,6 @@ export function StatusBadge({ status }: { status: string }) {
         ? "warning"
         : "default";
   return <BrandBadge variant={variant}>{status.replaceAll("_", " ")}</BrandBadge>;
-}
-
-export function hasPermission(user: AuthUser | null, key: string) {
-  return user?.role === "admin" || user?.permissions?.includes("*") || user?.permissions?.includes(key) || false;
 }
 
 export const fieldClass = "space-y-1.5";

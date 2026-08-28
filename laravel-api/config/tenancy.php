@@ -83,6 +83,7 @@ use App\Models\TransportRoute;
 use App\Models\TransportStop;
 use App\Models\TransportVehicle;
 use App\Models\UserPermission;
+use App\Models\UserDevice;
 use App\Models\WarehouseCategory;
 use App\Models\WarehouseItem;
 
@@ -171,6 +172,7 @@ return [
         TransportRoute::class,
         TransportStop::class,
         TransportVehicle::class,
+        UserDevice::class,
         UserPermission::class,
         WarehouseCategory::class,
         WarehouseItem::class,

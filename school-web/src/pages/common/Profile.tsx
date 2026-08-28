@@ -7,7 +7,7 @@ import { Camera, Loader2, Save, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Auth, ApiError, mediaUrl } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { setLocale } from "@/lib/i18n";
+import i18n, { setLocale } from "@/lib/i18n";
 import { toast } from "@/hooks/use-toast";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,7 +22,8 @@ function errorMessage(error: unknown): string {
     const first = data?.errors ? Object.values(data.errors).flat()[0] : undefined;
     return first || data?.message || error.message;
   }
-  return "Something went wrong. Please try again.";
+  // Module-level helper, so it reads the i18n singleton rather than the hook.
+  return i18n.t("profileSettings.genericError");
 }
 export default function Profile() {
   const {
@@ -69,12 +70,12 @@ export default function Profile() {
     onSuccess: async () => {
       await refreshProfile();
       toast({
-        title: "Profile saved"
+        title: t("profileSettings.profileSaved")
       });
     },
     onError: error => {
       toast({
-        title: "Failed to save profile",
+        title: t("profileSettings.profileSaveFailed"),
         description: errorMessage(error),
         variant: "destructive"
       });
@@ -86,12 +87,12 @@ export default function Profile() {
       setPhotoPreview(mediaUrl(result.photo_url || result.user?.photo_path));
       await refreshProfile();
       toast({
-        title: "Profile photo updated"
+        title: t("profileSettings.photoUpdated")
       });
     },
     onError: error => {
       toast({
-        title: "Photo upload failed",
+        title: t("profileSettings.photoUploadFailed"),
         description: errorMessage(error),
         variant: "destructive"
       });
@@ -108,12 +109,12 @@ export default function Profile() {
       setNewPassword("");
       setConfirmPassword("");
       toast({
-        title: "Password updated"
+        title: t("profileSettings.passwordUpdated")
       });
     },
     onError: error => {
       toast({
-        title: "Failed to update password",
+        title: t("profileSettings.passwordUpdateFailed"),
         description: errorMessage(error),
         variant: "destructive"
       });
@@ -124,8 +125,8 @@ export default function Profile() {
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
       toast({
-        title: "Unsupported file",
-        description: "Use a JPG, PNG, or WebP image.",
+        title: t("profileSettings.unsupportedFile"),
+        description: t("profileSettings.useImageFormat"),
         variant: "destructive"
       });
       event.target.value = "";
@@ -133,8 +134,8 @@ export default function Profile() {
     }
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "Photo too large",
-        description: "Profile photo must be under 5MB.",
+        title: t("profileSettings.photoTooLarge"),
+        description: t("profileSettings.photoMaxSize"),
         variant: "destructive"
       });
       event.target.value = "";
@@ -146,7 +147,7 @@ export default function Profile() {
   const handleSaveProfile = () => {
     if (!name.trim()) {
       toast({
-        title: "Name is required",
+        title: t("profileSettings.nameRequired"),
         variant: "destructive"
       });
       return;
@@ -156,14 +157,14 @@ export default function Profile() {
   const handleChangePassword = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast({
-        title: "Fill all password fields",
+        title: t("profileSettings.fillPasswordFields"),
         variant: "destructive"
       });
       return;
     }
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Passwords do not match",
+        title: t("profileSettings.passwordsDoNotMatch"),
         variant: "destructive"
       });
       return;

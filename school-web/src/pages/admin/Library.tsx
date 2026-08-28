@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Admin } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLibrary() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -36,12 +38,12 @@ export default function AdminLibrary() {
   const createMutation = useMutation({
     mutationFn: (data: any) => Admin.createLibraryBook(data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Book added to library." });
+      toast({ title: t("adminPages.success"), description: t("adminPages.bookAdded") });
       setShowForm(false);
       setTitle(""); setAuthor(""); setIsbn(""); setCopies(1); setCategory("");
       void qc.invalidateQueries({ queryKey: ["admin-library-books"] });
     },
-    onError: () => toast({ title: "Error", description: "Failed to add book.", variant: "destructive" }),
+    onError: () => toast({ title: t("adminPages.error"), description: t("adminPages.bookFailed"), variant: "destructive" }),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,24 +59,24 @@ export default function AdminLibrary() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">Library Management</h1>
+        <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("adminPages.libraryManagement")}</h1>
         <button onClick={() => setShowForm(!showForm)} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          {showForm ? "Cancel" : "+ Add Book"}
+          {showForm ? t("adminPages.cancel") : "+ Add Book"}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-6 bg-card max-w-xl">
-          <h2 className="text-lg font-semibold">Add Book</h2>
-          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Title *" value={title} onChange={(e) => setTitle(e.target.value)} />
-          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Author *" value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <h2 className="text-lg font-semibold">{t("adminPages.addBook")}</h2>
+          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("adminPages.bookTitle") + " *"} value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("adminPages.author") + " *"} value={author} onChange={(e) => setAuthor(e.target.value)} />
           <div className="grid grid-cols-2 gap-4">
-            <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="ISBN" value={isbn} onChange={(e) => setIsbn(e.target.value)} />
-            <input type="number" min={1} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Copies" value={copies} onChange={(e) => setCopies(Number(e.target.value))} />
+            <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("adminPages.isbn")} value={isbn} onChange={(e) => setIsbn(e.target.value)} />
+            <input type="number" min={1} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("adminPages.copies")} value={copies} onChange={(e) => setCopies(Number(e.target.value))} />
           </div>
-          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
+          <input className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder={t("adminPages.category")} value={category} onChange={(e) => setCategory(e.target.value)} />
           <button type="submit" disabled={createMutation.isPending} className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-            {createMutation.isPending ? "Adding…" : "Add Book"}
+            {createMutation.isPending ? t("adminPages.adding") : t("adminPages.addBook")}
           </button>
         </form>
       )}
@@ -91,10 +93,10 @@ export default function AdminLibrary() {
       {tab === "books" && (
         <div className="rounded-lg border bg-card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Title</th><th className="text-left p-3">Author</th><th className="text-left p-3">ISBN</th><th className="text-center p-3">Copies</th><th className="text-center p-3">Available</th></tr></thead>
+            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Title</th><th className="text-left p-3">{t("adminPages.author")}</th><th className="text-left p-3">ISBN</th><th className="text-center p-3">{t("adminPages.copies")}</th><th className="text-center p-3">{t("adminPages.available")}</th></tr></thead>
             <tbody>
-              {booksLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-              booksItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No books yet</td></tr> :
+              {booksLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("adminPages.loading")}</td></tr> :
+              booksItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("adminPages.noBooksYet")}</td></tr> :
               booksItems.map((b: any) => (
                 <tr key={b.id} className="border-b hover:bg-muted/30">
                   <td className="p-3 font-medium">{b.title}</td>
@@ -112,10 +114,10 @@ export default function AdminLibrary() {
       {tab === "borrowings" && (
         <div className="rounded-lg border bg-card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Book</th><th className="text-left p-3">Borrower</th><th className="text-left p-3">Borrowed</th><th className="text-left p-3">Due</th><th className="text-center p-3">Status</th></tr></thead>
+            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Book</th><th className="text-left p-3">{t("adminPages.borrower")}</th><th className="text-left p-3">{t("studentPages.borrowed")}</th><th className="text-left p-3">Due</th><th className="text-center p-3">Status</th></tr></thead>
             <tbody>
-              {borrowingsLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
-              borrowingItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No borrowings</td></tr> :
+              {borrowingsLoading ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("adminPages.loading")}</td></tr> :
+              borrowingItems.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">{t("adminPages.noBorrowings")}</td></tr> :
               borrowingItems.map((b: any) => (
                 <tr key={b.id} className="border-b hover:bg-muted/30">
                   <td className="p-3 font-medium">{b.book?.title ?? b.book_title ?? "—"}</td>
@@ -133,9 +135,9 @@ export default function AdminLibrary() {
       {tab === "overdue" && (
         <div className="rounded-lg border bg-card overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Book</th><th className="text-left p-3">Borrower</th><th className="text-left p-3">Due Date</th><th className="text-center p-3">Days Overdue</th></tr></thead>
+            <thead><tr className="border-b bg-muted/50"><th className="text-left p-3">Book</th><th className="text-left p-3">{t("adminPages.borrower")}</th><th className="text-left p-3">{t("studentPages.dueDate")}</th><th className="text-center p-3">{t("adminPages.daysOverdue")}</th></tr></thead>
             <tbody>
-              {overdueLoading ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">Loading…</td></tr> :
+              {overdueLoading ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">{t("adminPages.loading")}</td></tr> :
               overdueItems.length === 0 ? <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No overdue books 🎉</td></tr> :
               overdueItems.map((b: any) => (
                 <tr key={b.id} className="border-b hover:bg-muted/30">

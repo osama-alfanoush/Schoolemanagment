@@ -54,12 +54,12 @@ export default function TeacherGrades() {
         queryKey: ["teacher"]
       });
       toast({
-        title: "Grade saved"
+        title: t("teacherPages.gradeSaved")
       });
     },
     onError: (e: any) => toast({
       variant: "destructive",
-      title: "Failed",
+      title: t("teacherPages.failed"),
       description: e?.message
     })
   });
@@ -83,7 +83,7 @@ export default function TeacherGrades() {
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3 max-w-3xl">
           <div className="space-y-1.5 sm:col-span-3">
-            <Label>Class</Label>
+            <Label>{t("teacherPages.class")}</Label>
             <div className="flex flex-wrap gap-2">
               {classes.length === 0 ? <span className="text-sm text-muted-foreground">
                   {t("common.empty")}
@@ -93,7 +93,7 @@ export default function TeacherGrades() {
             </div>
           </div>
           <div className="space-y-1.5 sm:col-span-1">
-            <Label htmlFor="subj">Subject</Label>
+            <Label htmlFor="subj">{t("teacherPages.subject")}</Label>
             <select
               id="subj"
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
@@ -101,14 +101,14 @@ export default function TeacherGrades() {
               onChange={e => { setSubjectId(e.target.value); setComponentId(""); }}
               disabled={!classId}
             >
-              <option value="">Select subject...</option>
+              <option value="">{t("teacherPages.selectSubject")}</option>
               {availableSubjects.map((s: any) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           </div>
           <div className="space-y-1.5 sm:col-span-1">
-            <Label htmlFor="comp">Grade Component</Label>
+            <Label htmlFor="comp">{t("teacherPages.gradeComponent")}</Label>
             <select
               id="comp"
               className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
@@ -116,7 +116,7 @@ export default function TeacherGrades() {
               onChange={e => setComponentId(e.target.value)}
               disabled={!subjectId}
             >
-              <option value="">Select component...</option>
+              <option value="">{t("teacherPages.selectComponent")}</option>
               {components.map((c: any) => (
                 <option key={c.id} value={c.id}>{c.name} (Max {c.max_score})</option>
               ))}
@@ -134,14 +134,14 @@ export default function TeacherGrades() {
 
       {classId ? <BrandCard className="shadow-academic border-surface-border">
           <CardHeader>
-            <CardTitle className="text-base">Students</CardTitle>
+            <CardTitle className="text-base">{t("teacherPages.students")}</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead className="text-right w-32">Score</TableHead>
+                  <TableHead>{t("teacherPages.student")}</TableHead>
+                  <TableHead className="text-right w-32">{t("teacherPages.score")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

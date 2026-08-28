@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\AccountLockout;
 use App\Models\PersonalAccessToken;
-use App\Models\PushToken;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\CurrentSchool;
+use App\Services\DeviceRegistry;
 use App\Services\PrivateFileVault;
 use App\Services\SchoolContext;
 use App\Services\TokenIssuer;
@@ -30,6 +30,7 @@ class AuthController extends Controller
         private readonly TokenIssuer $tokenIssuer,
         private readonly SchoolContext $schools,
         private readonly CurrentSchool $currentSchool,
+        private readonly DeviceRegistry $devices,
     ) {}
 
     public function csrfCookie(): JsonResponse
@@ -53,6 +54,7 @@ class AuthController extends Controller
             'email' => 'required|email:rfc,strict',
             'password' => 'required',
             'device_name' => 'nullable|string',
+            'device_id' => 'nullable|string|max:255',
         ]);
 
         $data['email'] = Str::lower(trim($data['email']));
@@ -88,7 +90,7 @@ class AuthController extends Controller
             $enrollmentRequired = ! $user->mfa_confirmed_at;
             $ability = $enrollmentRequired ? 'mfa-enroll' : 'mfa-challenge';
             $minutes = (int) config($enrollmentRequired ? 'mfa.enrollment_minutes' : 'mfa.challenge_minutes');
-            $limited = $this->tokenIssuer->limited($user, $ability, $deviceName, $minutes);
+            $limited = $this->tokenIssuer->limited($user, $ability, $deviceName, $minutes, $data['device_id'] ?? null);
 
             $this->currentSchool->run($schoolId, fn () => AuditLogger::log(
                 $request,
@@ -108,7 +110,7 @@ class AuthController extends Controller
             ], 202)->header('Cache-Control', 'no-store');
         }
 
-        $tokens = $this->tokenIssuer->pair($user, $deviceName);
+        $tokens = $this->tokenIssuer->pair($user, $deviceName, null, $data['device_id'] ?? null);
 
         $this->currentSchool->run($schoolId, fn () => AuditLogger::log(
             $request,
@@ -168,9 +170,10 @@ class AuthController extends Controller
 
         $user = $request->user();
         $deviceName = $token->device_name ?: (Str::after($token->name, ':') ?: 'web');
+        $deviceId = $token->device_id;
         $reused = false;
 
-        $tokens = DB::transaction(function () use ($token, $user, $deviceName, &$reused) {
+        $tokens = DB::transaction(function () use ($token, $user, $deviceName, $deviceId, &$reused) {
             /** @var PersonalAccessToken|null $lockedToken */
             $lockedToken = PersonalAccessToken::query()->lockForUpdate()->find($token->id);
             if (! $lockedToken || $lockedToken->rotated_at || $lockedToken->revoked_at) {
@@ -200,7 +203,7 @@ class AuthController extends Controller
                 'revoked_at' => now(),
             ])->save();
 
-            return $this->tokenIssuer->pair($user, $deviceName, $family);
+            return $this->tokenIssuer->pair($user, $deviceName, $family, $deviceId);
         });
 
         if ($reused || $tokens === null) {
@@ -346,15 +349,16 @@ class AuthController extends Controller
         $deviceName = $currentToken instanceof PersonalAccessToken
             ? ($currentToken->device_name ?: Str::after($currentToken->name, ':'))
             : 'web';
+        $deviceId = $currentToken instanceof PersonalAccessToken ? $currentToken->device_id : null;
 
-        $tokens = DB::transaction(function () use ($user, $data, $deviceName) {
+        $tokens = DB::transaction(function () use ($user, $data, $deviceName, $deviceId) {
             $user->update([
                 'password' => Hash::make($data['new_password']),
                 'must_change_password' => false,
             ]);
             $user->tokens()->delete();
 
-            return $this->tokenIssuer->pair($user, $deviceName ?: 'web');
+            return $this->tokenIssuer->pair($user, $deviceName ?: 'web', null, $deviceId);
         });
 
         AuditLogger::log($request, 'password_changed', 'user', $user->id, [], $user->id);
@@ -431,15 +435,21 @@ class AuthController extends Controller
     public function registerPushToken(Request $request)
     {
         $data = $request->validate([
+            'device_id' => 'required|string|max:255',
             'token' => 'required|string',
             'platform' => 'required|in:ios,android,web',
+            'app_version' => 'nullable|string|max:100',
+            'os_version' => 'nullable|string|max:100',
         ]);
-        PushToken::updateOrCreate(
-            ['user_id' => $request->user()->id, 'token' => $data['token']],
-            ['platform' => $data['platform']]
-        );
+        $device = $this->devices->register($request, $request->user(), [
+            'device_id' => $data['device_id'],
+            'platform' => $data['platform'],
+            'push_token' => $data['token'],
+            'app_version' => $data['app_version'] ?? null,
+            'os_version' => $data['os_version'] ?? null,
+        ]);
 
-        return response()->json(['message' => 'Token registered']);
+        return response()->json(['message' => 'Token registered', 'device_id' => $device->device_id]);
     }
 
     private function usesWebCookies(Request $request): bool
