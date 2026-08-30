@@ -7,6 +7,8 @@ environment:
   sdk: ^3.13.2
 
 dependencies:
+  built_collection: 5.1.1
+  built_value: 8.12.7
   dio: 5.11.0
   drift: 2.34.3
   flutter:
@@ -18,15 +20,19 @@ dependencies:
   go_router: 18.0.0
   intl: 0.20.3
   local_auth: 3.0.2
+  one_of: 1.5.0
+  one_of_serializer: 1.5.0
   path_provider: 2.1.6
   sqlite3_flutter_libs: 0.6.0+eol
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: 6.0.0
   build_runner: 2.16.0
+  built_value_generator: 8.12.7
   drift_dev: 2.34.5
+  flutter_lints: 6.0.0
+  openapi_generator_cli: 7.0.0
 
 flutter:
   uses-material-design: true

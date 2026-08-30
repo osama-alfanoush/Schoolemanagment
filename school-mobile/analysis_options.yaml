@@ -4,6 +4,9 @@ analyzer:
   exclude:
     - build/**
     - android/**
+    # Machine-generated OpenAPI client: not held to the hand-written lint rules.
+    # Still type-checked whenever compiled (see test/generated_client_test.dart).
+    - lib/generated/**
 
 linter:
   rules:
