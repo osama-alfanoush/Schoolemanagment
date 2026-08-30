@@ -1,0 +1,30 @@
+name: Mobile
+
+on:
+  push:
+    paths:
+      - "school-mobile/**"
+      - ".github/workflows/mobile.yml"
+  pull_request:
+    paths:
+      - "school-mobile/**"
+      - ".github/workflows/mobile.yml"
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: school-mobile
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.2"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --fatal-infos --fatal-warnings
+      - run: flutter test
+      - run: flutter build apk --flavor dev
