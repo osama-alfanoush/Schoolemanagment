@@ -23,6 +23,7 @@ dependencies:
   one_of: 1.5.0
   one_of_serializer: 1.5.0
   path_provider: 2.1.6
+  sqlite3: 3.5.2
   sqlite3_flutter_libs: 0.6.0+eol
 
 dev_dependencies:
@@ -33,6 +34,14 @@ dev_dependencies:
   drift_dev: 2.34.5
   flutter_lints: 6.0.0
   openapi_generator_cli: 7.0.0
+
+# Selects the SQLCipher build of package:sqlite3 for every platform, including
+# the host used by `flutter test`. This is what actually provides `PRAGMA key`;
+# see lib/core/db/encrypted_database.dart.
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlcipher
 
 flutter:
   uses-material-design: true
