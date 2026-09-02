@@ -24,7 +24,6 @@ dependencies:
   one_of_serializer: 1.5.0
   path_provider: 2.1.6
   sqlite3: 3.5.2
-  sqlite3_flutter_libs: 0.6.0+eol
 
 dev_dependencies:
   flutter_test:

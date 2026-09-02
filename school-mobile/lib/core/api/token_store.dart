@@ -1,11 +1,10 @@
 /// Storage for the credentials the API layer needs.
 ///
-/// This is an interface only. A secure-storage implementation is a later work
-/// order; [InMemoryTokenStore] exists so the HTTP layer can be tested without
-/// one.
-///
 /// Tokens are bound to a device on the server, so [readDeviceId] travels with
-/// them.
+/// them. The device id is an *identifier*, not a credential: it grants nothing
+/// on its own, and the server keys a refresh-token family to it. That is why
+/// clearing credentials and forgetting the device are separate operations, and
+/// every implementation must draw the line in the same place.
 abstract class TokenStore {
   Future<String?> readAccessToken();
 
@@ -19,11 +18,23 @@ abstract class TokenStore {
 
   Future<void> writeDeviceId(String deviceId);
 
-  /// Drops every stored credential. Called when refresh fails.
+  /// Drops the credentials — access and refresh token — and **keeps the
+  /// device id**. Called when a refresh fails.
+  ///
+  /// The device identity survives a lost session on purpose: minting a new one
+  /// on every failed refresh would make each recovered session look like a
+  /// brand new device to the server, defeating the reuse detection that relies
+  /// on a stable token family.
+  ///
+  /// Dropping the device id as well is a separate, explicit "forget this
+  /// device" operation, which each implementation exposes as `forgetDevice()`.
   Future<void> clear();
 }
 
 /// Non-persistent [TokenStore] for tests and for the pre-login window.
+///
+/// Matches `SecureTokenStore`'s semantics exactly: [clear] keeps the device id,
+/// and [forgetDevice] removes it.
 class InMemoryTokenStore implements TokenStore {
   InMemoryTokenStore({
     String? accessToken,
@@ -61,6 +72,12 @@ class InMemoryTokenStore implements TokenStore {
   Future<void> clear() async {
     _accessToken = null;
     _refreshToken = null;
+  }
+
+  /// Everything [clear] drops, plus the device id. The explicit
+  /// "forget this device", mirroring `SecureTokenStore.forgetDevice`.
+  Future<void> forgetDevice() async {
+    await clear();
     _deviceId = null;
   }
 }
