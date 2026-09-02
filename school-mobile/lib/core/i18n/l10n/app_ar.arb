@@ -1,0 +1,47 @@
+{
+  "@@locale": "ar",
+  "appTitle": "سويت المدرسة",
+  "@appTitle": {
+    "description": "Application title shown in the app bar."
+  },
+  "activeFlavor": "النكهة النشطة",
+  "@activeFlavor": {
+    "description": "Label for the active build flavour."
+  },
+  "apiBaseUrl": "عنوان واجهة البرمجة",
+  "@apiBaseUrl": {
+    "description": "Label for the compile-time API base URL."
+  },
+  "currentLocale": "اللغة الحالية",
+  "@currentLocale": {
+    "description": "Label for the active locale code."
+  },
+  "notConfigured": "غير محدد",
+  "@notConfigured": {
+    "description": "Placeholder shown when a value was not supplied at build time."
+  },
+  "sampleAmount": "مبلغ تجريبي",
+  "@sampleAmount": {
+    "description": "Label for the sample money amount on the verification screen."
+  },
+  "sampleDate": "التاريخ",
+  "@sampleDate": {
+    "description": "Label for the sample formatted date."
+  },
+  "digitShape": "شكل الأرقام",
+  "@digitShape": {
+    "description": "Label for the active digit shape preference."
+  },
+  "digitShapeWestern": "غربي",
+  "@digitShapeWestern": {
+    "description": "Name of the Western digit shape (0123)."
+  },
+  "digitShapeArabicIndic": "عربي هندي",
+  "@digitShapeArabicIndic": {
+    "description": "Name of the Arabic-Indic digit shape (٠١٢٣)."
+  },
+  "textDirection": "اتجاه النص",
+  "@textDirection": {
+    "description": "Label for the active text direction."
+  }
+}

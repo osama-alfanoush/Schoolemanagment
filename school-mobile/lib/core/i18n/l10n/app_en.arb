@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "appTitle": "School Suite",
+  "activeFlavor": "Active flavour",
+  "apiBaseUrl": "API base URL",
+  "currentLocale": "Current language",
+  "notConfigured": "Not configured",
+  "sampleAmount": "Sample amount",
+  "sampleDate": "Date",
+  "digitShape": "Digit shape",
+  "digitShapeWestern": "Western",
+  "digitShapeArabicIndic": "Arabic-Indic",
+  "textDirection": "Text direction"
+}

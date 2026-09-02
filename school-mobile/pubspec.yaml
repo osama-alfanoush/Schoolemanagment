@@ -18,6 +18,7 @@ dependencies:
   flutter_riverpod: 2.6.1
   flutter_secure_storage: 10.0.0
   go_router: 18.0.0
+  hijri: 3.0.1
   intl: 0.20.3
   local_auth: 3.0.2
   one_of: 1.5.0
@@ -44,6 +45,7 @@ hooks:
 
 flutter:
   uses-material-design: true
+  generate: true
   fonts:
     - family: Tajawal
       fonts:
