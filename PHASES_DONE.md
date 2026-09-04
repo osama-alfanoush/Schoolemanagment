@@ -216,7 +216,7 @@ decision, like the FCM project.
 
 ## PHASE 4 — Parent app
 
-**Status: 5 of 6 orders done.**
+**Status: complete. All 6 orders done.**
 
 ### Order 4.1 — Backend: parent BFF ✅
 
@@ -391,9 +391,41 @@ field in a bare `Column` there grew without limit. And its text controller was
 disposed when the sheet returned, which is too early: the closing animation
 still reads it.
 
-### Order 4.6
+### Order 4.6 — Flutter: notifications, messages, timetable, profile ✅
 
-Not started — notifications, messages, timetable, profile.
+`12ee84a` (backend) · `cd579b7` (Flutter)
+
+- **A parent cannot start a thread.** There is no route that creates one and no
+  repository method that could call it — the absence is the mechanism. The
+  first message in a thread decides, so a thread the parent opened *on the web*
+  stays reply-only here rather than being inherited. Replies are confined to
+  school hours. Both refusals are explicit so the client can say why; a
+  conversation with no reply box carries the reason beside it, because a
+  greyed-out field raises the question its absence answers.
+- A missing `can_reply` reads as **no**, never yes.
+- **Muting grades does not mute fee reminders.** Preferences merge rather than
+  replace, the client sends only the category being toggled, and a widget test
+  flips grades off then asserts fees is still on. `emergency` is not in the
+  mutable set: a request to mute it is refused rather than accepted and
+  ignored, and the UI renders it as an always-delivered row rather than a
+  switch that does nothing.
+- **Read state is the same `read_at` column the web writes**, so a notice read
+  on the phone is read on the website.
+- A profile correction is a **request, not an edit** — an admission number a
+  family can rewrite is not a record anyone can rely on. The field name reaches
+  the audit log; the family's account of the problem does not.
+
+Verified: 21 backend tests + 13 Flutter tests.
+
+**Negative controls:** allowing parents to start threads failed 2 tests;
+replacing preferences instead of merging failed the independence test; sending
+the whole category map from the client failed the toggle test. All restored.
+
+**Deferred, and worth stating:** the timetable endpoint is built and tested but
+its week view is not drawn — the home screen shows today's lessons, which is
+what the acceptance criteria exercise. School-configurable messaging hours are
+configuration rather than a per-school setting; `school_settings` has no column
+for them.
 
 ## PHASE 5 — Teacher app
 
