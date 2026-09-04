@@ -621,5 +621,105 @@
         "type": "int"
       }
     }
+  },
+  "feesTitle": "الرسوم",
+  "@feesTitle": {
+    "description": "Title of the fees screen."
+  },
+  "feesBalance": "الرصيد المستحق",
+  "@feesBalance": {
+    "description": "Label for the outstanding balance."
+  },
+  "feesBilled": "إجمالي الرسوم",
+  "@feesBilled": {
+    "description": "Label for the total billed."
+  },
+  "feesPaid": "المدفوع",
+  "@feesPaid": {
+    "description": "Label for the total paid."
+  },
+  "feesNothingDue": "لا توجد رسوم مستحقة",
+  "@feesNothingDue": {
+    "description": "Shown when a family owes nothing."
+  },
+  "feesSchedule": "جدول الأقساط",
+  "@feesSchedule": {
+    "description": "Heading for the installment schedule."
+  },
+  "feesScheduleMismatch": "مجموع الأقساط لا يطابق إجمالي الخطة. تواصل مع إدارة المدرسة.",
+  "@feesScheduleMismatch": {
+    "description": "Shown when a plan's installments do not sum to its total."
+  },
+  "payAction": "ادفع",
+  "@payAction": {
+    "description": "Starts a payment."
+  },
+  "payConfirmTitle": "تأكيد الدفع",
+  "@payConfirmTitle": {
+    "description": "Title of the payment confirmation sheet."
+  },
+  "payConfirmAction": "تأكيد الدفع",
+  "@payConfirmAction": {
+    "description": "Confirms and creates the payment intent."
+  },
+  "payOfflineTitle": "الدفع يحتاج اتصالًا بالإنترنت",
+  "@payOfflineTitle": {
+    "description": "Title shown when a payment is attempted offline."
+  },
+  "payOfflineBody": "لا يمكن حفظ الدفع للإرسال لاحقًا. تحقّق من اتصالك ثم حاول مرة أخرى.",
+  "@payOfflineBody": {
+    "description": "Explains that payments are never queued."
+  },
+  "payFailed": "تعذّر إتمام الدفع. حاول مرة أخرى.",
+  "@payFailed": {
+    "description": "Shown when creating a payment intent fails."
+  },
+  "payAlreadySettled": "تم سداد هذا القسط.",
+  "@payAlreadySettled": {
+    "description": "Shown when the installment has nothing outstanding."
+  },
+  "payStarted": "تم بدء عملية الدفع",
+  "@payStarted": {
+    "description": "Shown when the intent was created."
+  },
+  "paymentReference": "رقم العملية",
+  "@paymentReference": {
+    "description": "Label for the payment reference."
+  },
+  "invoiceTitle": "الفاتورة",
+  "@invoiceTitle": {
+    "description": "Title of the invoice detail screen."
+  },
+  "invoicesTitle": "الفواتير",
+  "@invoicesTitle": {
+    "description": "Title of the invoice list."
+  },
+  "invoicesEmpty": "لا توجد فواتير.",
+  "@invoicesEmpty": {
+    "description": "Empty state for the invoice list."
+  },
+  "clearanceTitle": "حالة الفوترة الإلكترونية",
+  "@clearanceTitle": {
+    "description": "Heading for the e-invoicing clearance block."
+  },
+  "clearancePending": "قيد المعالجة — لم تصدر بعد",
+  "@clearancePending": {
+    "description": "The invoice has not been cleared by the authority."
+  },
+  "clearanceCleared": "معتمدة",
+  "@clearanceCleared": {
+    "description": "The invoice has been cleared by the authority."
+  },
+  "clearanceRejected": "مرفوضة",
+  "@clearanceRejected": {
+    "description": "The authority rejected the invoice."
+  },
+  "clearanceNoQrYet": "يظهر رمز الاستجابة السريعة بعد اعتماد الفاتورة من الدائرة.",
+  "@clearanceNoQrYet": {
+    "description": "Explains why no QR is shown until cleared."
+  },
+  "downloadReceipt": "تنزيل الإيصال",
+  "@downloadReceipt": {
+    "description": "Downloads the receipt PDF."
   }
 }

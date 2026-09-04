@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:school_mobile/core/auth/secure_store.dart';
+import 'package:school_mobile/core/db/app_database.dart';
 import 'package:school_mobile/features/auth/auth.dart';
 import 'package:school_mobile/main.dart';
 
@@ -38,19 +40,30 @@ MockReply _reply(RequestOptionsPath path) => switch (path) {
           },
           'permissions': <String>[],
         }),
+      RequestOptionsPath.parentHome => const MockReply(body: <String, Object?>{
+          'data': <String, Object?>{
+            'children': <Object?>[],
+            'unread_count': 0,
+            'generated_at': '2026-09-04T08:00:00+00:00',
+          },
+        }),
       RequestOptionsPath.other => const MockReply(statusCode: 404),
     };
 
-enum RequestOptionsPath { login, me, other }
+enum RequestOptionsPath { login, me, parentHome, other }
 
 RequestOptionsPath _classify(String path) => switch (path) {
       '/auth/login' => RequestOptionsPath.login,
       '/auth/me' => RequestOptionsPath.me,
+      '/mobile/v1/parent/home' => RequestOptionsPath.parentHome,
       _ => RequestOptionsPath.other,
     };
 
 void main() {
   setUpAll(initializeDateFormatting);
+
+  // Each launch opens its own in-memory database.
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
   /// Runs the real app over an in-memory keystore and a mocked transport.
   ///
@@ -86,6 +99,9 @@ void main() {
       httpClientAdapter: adapter,
       baseUrl: 'https://api.test',
       biometricGate: FakeBiometricGate(),
+      // The real database lives behind path_provider, a platform channel no
+      // test host provides.
+      database: AppDatabase.memory(),
     ));
     await tester.pumpAndSettle();
 

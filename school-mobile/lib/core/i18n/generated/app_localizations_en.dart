@@ -529,4 +529,82 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get feesTitle => 'Fees';
+
+  @override
+  String get feesBalance => 'Outstanding balance';
+
+  @override
+  String get feesBilled => 'Total billed';
+
+  @override
+  String get feesPaid => 'Paid';
+
+  @override
+  String get feesNothingDue => 'Nothing due';
+
+  @override
+  String get feesSchedule => 'Installment schedule';
+
+  @override
+  String get feesScheduleMismatch =>
+      'The installments do not add up to the plan total. Contact the school office.';
+
+  @override
+  String get payAction => 'Pay';
+
+  @override
+  String get payConfirmTitle => 'Confirm payment';
+
+  @override
+  String get payConfirmAction => 'Confirm payment';
+
+  @override
+  String get payOfflineTitle => 'Paying needs a connection';
+
+  @override
+  String get payOfflineBody =>
+      'A payment cannot be saved to send later. Check your connection and try again.';
+
+  @override
+  String get payFailed => 'The payment could not be started. Try again.';
+
+  @override
+  String get payAlreadySettled => 'This installment is already settled.';
+
+  @override
+  String get payStarted => 'Payment started';
+
+  @override
+  String get paymentReference => 'Payment reference';
+
+  @override
+  String get invoiceTitle => 'Invoice';
+
+  @override
+  String get invoicesTitle => 'Invoices';
+
+  @override
+  String get invoicesEmpty => 'No invoices.';
+
+  @override
+  String get clearanceTitle => 'E-invoicing status';
+
+  @override
+  String get clearancePending => 'Pending — not issued yet';
+
+  @override
+  String get clearanceCleared => 'Cleared';
+
+  @override
+  String get clearanceRejected => 'Rejected';
+
+  @override
+  String get clearanceNoQrYet =>
+      'The QR code appears once the authority has cleared the invoice.';
+
+  @override
+  String get downloadReceipt => 'Download receipt';
 }

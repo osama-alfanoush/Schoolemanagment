@@ -540,4 +540,82 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get feesTitle => 'الرسوم';
+
+  @override
+  String get feesBalance => 'الرصيد المستحق';
+
+  @override
+  String get feesBilled => 'إجمالي الرسوم';
+
+  @override
+  String get feesPaid => 'المدفوع';
+
+  @override
+  String get feesNothingDue => 'لا توجد رسوم مستحقة';
+
+  @override
+  String get feesSchedule => 'جدول الأقساط';
+
+  @override
+  String get feesScheduleMismatch =>
+      'مجموع الأقساط لا يطابق إجمالي الخطة. تواصل مع إدارة المدرسة.';
+
+  @override
+  String get payAction => 'ادفع';
+
+  @override
+  String get payConfirmTitle => 'تأكيد الدفع';
+
+  @override
+  String get payConfirmAction => 'تأكيد الدفع';
+
+  @override
+  String get payOfflineTitle => 'الدفع يحتاج اتصالًا بالإنترنت';
+
+  @override
+  String get payOfflineBody =>
+      'لا يمكن حفظ الدفع للإرسال لاحقًا. تحقّق من اتصالك ثم حاول مرة أخرى.';
+
+  @override
+  String get payFailed => 'تعذّر إتمام الدفع. حاول مرة أخرى.';
+
+  @override
+  String get payAlreadySettled => 'تم سداد هذا القسط.';
+
+  @override
+  String get payStarted => 'تم بدء عملية الدفع';
+
+  @override
+  String get paymentReference => 'رقم العملية';
+
+  @override
+  String get invoiceTitle => 'الفاتورة';
+
+  @override
+  String get invoicesTitle => 'الفواتير';
+
+  @override
+  String get invoicesEmpty => 'لا توجد فواتير.';
+
+  @override
+  String get clearanceTitle => 'حالة الفوترة الإلكترونية';
+
+  @override
+  String get clearancePending => 'قيد المعالجة — لم تصدر بعد';
+
+  @override
+  String get clearanceCleared => 'معتمدة';
+
+  @override
+  String get clearanceRejected => 'مرفوضة';
+
+  @override
+  String get clearanceNoQrYet =>
+      'يظهر رمز الاستجابة السريعة بعد اعتماد الفاتورة من الدائرة.';
+
+  @override
+  String get downloadReceipt => 'تنزيل الإيصال';
 }

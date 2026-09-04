@@ -985,6 +985,156 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{days, plural, =1{متأخر يوم} =2{متأخر يومان} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يوم}}'**
   String daysOverdue(int days);
+
+  /// Title of the fees screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسوم'**
+  String get feesTitle;
+
+  /// Label for the outstanding balance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرصيد المستحق'**
+  String get feesBalance;
+
+  /// Label for the total billed.
+  ///
+  /// In ar, this message translates to:
+  /// **'إجمالي الرسوم'**
+  String get feesBilled;
+
+  /// Label for the total paid.
+  ///
+  /// In ar, this message translates to:
+  /// **'المدفوع'**
+  String get feesPaid;
+
+  /// Shown when a family owes nothing.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد رسوم مستحقة'**
+  String get feesNothingDue;
+
+  /// Heading for the installment schedule.
+  ///
+  /// In ar, this message translates to:
+  /// **'جدول الأقساط'**
+  String get feesSchedule;
+
+  /// Shown when a plan's installments do not sum to its total.
+  ///
+  /// In ar, this message translates to:
+  /// **'مجموع الأقساط لا يطابق إجمالي الخطة. تواصل مع إدارة المدرسة.'**
+  String get feesScheduleMismatch;
+
+  /// Starts a payment.
+  ///
+  /// In ar, this message translates to:
+  /// **'ادفع'**
+  String get payAction;
+
+  /// Title of the payment confirmation sheet.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الدفع'**
+  String get payConfirmTitle;
+
+  /// Confirms and creates the payment intent.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الدفع'**
+  String get payConfirmAction;
+
+  /// Title shown when a payment is attempted offline.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدفع يحتاج اتصالًا بالإنترنت'**
+  String get payOfflineTitle;
+
+  /// Explains that payments are never queued.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن حفظ الدفع للإرسال لاحقًا. تحقّق من اتصالك ثم حاول مرة أخرى.'**
+  String get payOfflineBody;
+
+  /// Shown when creating a payment intent fails.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إتمام الدفع. حاول مرة أخرى.'**
+  String get payFailed;
+
+  /// Shown when the installment has nothing outstanding.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم سداد هذا القسط.'**
+  String get payAlreadySettled;
+
+  /// Shown when the intent was created.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم بدء عملية الدفع'**
+  String get payStarted;
+
+  /// Label for the payment reference.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقم العملية'**
+  String get paymentReference;
+
+  /// Title of the invoice detail screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفاتورة'**
+  String get invoiceTitle;
+
+  /// Title of the invoice list.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفواتير'**
+  String get invoicesTitle;
+
+  /// Empty state for the invoice list.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد فواتير.'**
+  String get invoicesEmpty;
+
+  /// Heading for the e-invoicing clearance block.
+  ///
+  /// In ar, this message translates to:
+  /// **'حالة الفوترة الإلكترونية'**
+  String get clearanceTitle;
+
+  /// The invoice has not been cleared by the authority.
+  ///
+  /// In ar, this message translates to:
+  /// **'قيد المعالجة — لم تصدر بعد'**
+  String get clearancePending;
+
+  /// The invoice has been cleared by the authority.
+  ///
+  /// In ar, this message translates to:
+  /// **'معتمدة'**
+  String get clearanceCleared;
+
+  /// The authority rejected the invoice.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوضة'**
+  String get clearanceRejected;
+
+  /// Explains why no QR is shown until cleared.
+  ///
+  /// In ar, this message translates to:
+  /// **'يظهر رمز الاستجابة السريعة بعد اعتماد الفاتورة من الدائرة.'**
+  String get clearanceNoQrYet;
+
+  /// Downloads the receipt PDF.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنزيل الإيصال'**
+  String get downloadReceipt;
 }
 
 class _AppLocalizationsDelegate

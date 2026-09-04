@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show LazyDatabase;
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -9,7 +12,9 @@ import 'core/api/api.dart';
 import 'core/auth/secure_store.dart';
 import 'core/auth/secure_token_store.dart';
 import 'core/auth/session_wipe.dart';
+import 'core/db/app_database.dart';
 import 'core/db/database_key_provider.dart';
+import 'core/db/encrypted_database.dart';
 import 'core/i18n/i18n.dart';
 import 'core/lock/lock.dart';
 import 'core/router/router.dart';
@@ -18,6 +23,7 @@ import 'core/theme/theme.dart';
 import 'features/auth/auth.dart';
 import 'features/diagnostics/verification_screen.dart';
 import 'features/onboarding/onboarding.dart';
+import 'features/parent/parent.dart';
 import 'features/security/security.dart';
 
 /// Where the API lives. Injected at build time; there is no default and no
@@ -38,6 +44,7 @@ class SchoolSuiteApp extends StatefulWidget {
     this.httpClientAdapter,
     this.baseUrl,
     this.biometricGate,
+    this.database,
   });
 
   /// Credential storage. Defaults to the platform keystore.
@@ -58,6 +65,11 @@ class SchoolSuiteApp extends StatefulWidget {
   /// rules can be exercised without a fingerprint reader.
   final BiometricGate? biometricGate;
 
+  /// Local storage. Defaults to the encrypted file in the app's documents
+  /// directory, which is reached through a platform channel no test host
+  /// provides — hence the seam.
+  final AppDatabase? database;
+
   @override
   State<SchoolSuiteApp> createState() => _SchoolSuiteAppState();
 }
@@ -75,6 +87,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
 
   late final SecureStore _secureStore;
   late final SecureTokenStore _tokenStore;
+  late final DatabaseKeyProvider _databaseKeyProvider;
   late final SessionWipe _sessionWipe;
   late final ApiClient _apiClient;
   late final AuthRepository _auth;
@@ -82,6 +95,9 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final AppLockController _appLock;
   late final DeviceListController _devices;
   late final ActivationController _activation;
+  late final AppDatabase _database;
+  late final ParentHomeController _parentHome;
+  late final ParentFeesController _parentFees;
   late final SessionController _session;
   late final GoRouter _router;
   StreamSubscription<void>? _unauthenticated;
@@ -92,9 +108,10 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
 
     _secureStore = widget.secureStore ?? FlutterSecureStore();
     _tokenStore = SecureTokenStore(store: _secureStore);
+    _databaseKeyProvider = DatabaseKeyProvider(store: _secureStore);
     _sessionWipe = SessionWipe(
       tokenStore: _tokenStore,
-      databaseKeyProvider: DatabaseKeyProvider(store: _secureStore),
+      databaseKeyProvider: _databaseKeyProvider,
     );
 
     _session = SessionController(
@@ -130,6 +147,32 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       lock: _appLock,
     );
 
+    // One encrypted database for every cache-first screen.
+    //
+    // Opened lazily: the key comes from the keystore, which is asynchronous,
+    // and initState is not. LazyDatabase defers the open to the first query,
+    // so the controllers below can be constructed synchronously and the router
+    // can name their screens before any of it has touched the disk.
+    _database = widget.database ??
+        AppDatabase(LazyDatabase(() async => encryptedExecutor(
+          file: File(
+            '${(await getApplicationDocumentsDirectory()).path}/school_mobile.db',
+          ),
+          key: await _databaseKeyProvider.key(),
+        )));
+    _parentHome = ParentHomeController(
+      repository: ParentHomeRepository(
+        dio: _apiClient.dio,
+        database: _database,
+      ),
+    );
+    _parentFees = ParentFeesController(
+      repository: ParentFinanceRepository(
+        dio: _apiClient.dio,
+        database: _database,
+      ),
+    );
+
     _devices = DeviceListController(
       api: DeviceApi(dio: _apiClient.dio),
       tokenStore: _tokenStore,
@@ -152,6 +195,23 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
               activationBuilder: (onCancel) => ActivationScreen(
                 controller: _activation,
                 onCancel: onCancel,
+              ),
+            ),
+        AppRoute.parentHome: (context, state) =>
+            ParentHomeScreen(controller: _parentHome),
+        AppRoute.parentFinance: (context, state) =>
+            ParentFeesScreen(controller: _parentFees),
+        // Reached by deep link from a fee notification. The controller is
+        // built per invoice rather than held, so opening a second invoice
+        // cannot show the first one's numbers while it loads.
+        AppRoute.parentInvoice: (context, state) => InvoiceDetailScreen(
+              controller: InvoiceDetailController(
+                repository: ParentFinanceRepository(
+                  dio: _apiClient.dio,
+                  database: _database,
+                ),
+                invoiceId:
+                    int.tryParse(state.pathParameters['invoiceId'] ?? '') ?? 0,
               ),
             ),
         AppRoute.devices: (context, state) =>
@@ -189,6 +249,9 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
     _changePassword.dispose();
+    _parentFees.dispose();
+    _parentHome.dispose();
+    unawaited(_database.close());
     _activation.dispose();
     _devices.dispose();
     _appLock.dispose();
