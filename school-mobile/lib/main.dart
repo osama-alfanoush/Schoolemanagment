@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/i18n/i18n.dart';
+import 'core/router/router.dart';
+import 'core/session/session.dart';
 import 'core/theme/theme.dart';
 
 Future<void> main() async {
@@ -24,6 +27,49 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   /// screen switches it and every number on screen follows.
   DigitShape _digitShape = DigitShape.western;
 
+  /// Build version the upgrade gate compares against `min_supported_version`.
+  /// Kept as a define so a release build states its own version rather than
+  /// inheriting whatever was hard-coded last.
+  static const String _appVersion =
+      String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0');
+
+  late final SessionController _session;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _session = SessionController(
+      currentVersion: AppVersion.tryParse(_appVersion) ?? const AppVersion(0, 1, 0),
+    );
+
+    _router = buildAppRouter(
+      controller: _session,
+      screens: const AppScreens().withScreen(
+        // Until the login order lands, the sign-in slot holds the on-device
+        // verification screen: it is what proves theming, localization, money
+        // and dates are wired up on a real handset. It grants nothing — there
+        // is no session behind it, so no shell is reachable from here.
+        AppRoute.signIn,
+        (context, state) => VerificationScreen(
+          onToggleDigitShape: _toggleDigitShape,
+        ),
+      ),
+    );
+
+    // No token layer is wired yet, so the app resolves straight to signed out.
+    // The login order replaces this with a read of `SecureTokenStore`.
+    _session.signedOut();
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _session.dispose();
+    super.dispose();
+  }
+
   void _toggleDigitShape() {
     setState(() {
       _digitShape = _digitShape == DigitShape.western
@@ -34,7 +80,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
@@ -43,6 +89,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       // Anything that is not a language we ship resolves to Arabic.
       localeResolutionCallback: AppLocales.resolve,
+      routerConfig: _router,
       builder: (context, child) {
         final locale = Localizations.localeOf(context);
         return AppI18nScope(
@@ -53,7 +100,6 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
           child: child ?? const SizedBox.shrink(),
         );
       },
-      home: VerificationScreen(onToggleDigitShape: _toggleDigitShape),
     );
   }
 }

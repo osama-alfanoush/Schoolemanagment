@@ -163,6 +163,174 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'اتجاه النص'**
   String get textDirection;
+
+  /// Title of the blocking force-upgrade screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'يجب تحديث التطبيق'**
+  String get upgradeRequiredTitle;
+
+  /// Body of the blocking force-upgrade screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذه النسخة من التطبيق لم تعد مدعومة. حدّث التطبيق من متجر Play للمتابعة.'**
+  String get upgradeRequiredBody;
+
+  /// Soft-upgrade banner text.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتوفر إصدار أحدث من التطبيق.'**
+  String get upgradeRecommendedBody;
+
+  /// Action that re-checks the version policy.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحقّق مرة أخرى'**
+  String get upgradeCheckAgain;
+
+  /// Dismisses a non-blocking prompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'لاحقًا'**
+  String get later;
+
+  /// Title shown for an unrecognised route or deep link.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصفحة غير موجودة'**
+  String get notFoundTitle;
+
+  /// Body shown for an unrecognised route or deep link.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرابط الذي فتحته غير صالح أو لم يعد متاحًا.'**
+  String get notFoundBody;
+
+  /// Action returning the user to their role's home screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'العودة إلى الرئيسية'**
+  String get goHome;
+
+  /// Title of the role switcher for multi-role users.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبديل الحساب'**
+  String get switchRoleTitle;
+
+  /// Explanation on the role switcher.
+  ///
+  /// In ar, this message translates to:
+  /// **'لديك أكثر من دور في المدرسة. اختر الدور الذي تريد عرضه.'**
+  String get switchRoleBody;
+
+  /// Name of the parent role.
+  ///
+  /// In ar, this message translates to:
+  /// **'ولي أمر'**
+  String get roleParent;
+
+  /// Name of the teacher role.
+  ///
+  /// In ar, this message translates to:
+  /// **'معلّم'**
+  String get roleTeacher;
+
+  /// Name of the student role.
+  ///
+  /// In ar, this message translates to:
+  /// **'طالب'**
+  String get roleStudent;
+
+  /// Title of the sign-in screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول'**
+  String get signInTitle;
+
+  /// Title shown to a signed-in user whose roles have no mobile app.
+  ///
+  /// In ar, this message translates to:
+  /// **'التطبيق غير متاح لحسابك'**
+  String get noMobileRoleTitle;
+
+  /// Body shown to a signed-in user whose roles have no mobile app.
+  ///
+  /// In ar, this message translates to:
+  /// **'تطبيق الجوال مخصّص لأولياء الأمور والمعلّمين والطلاب. استخدم لوحة التحكم على المتصفح.'**
+  String get noMobileRoleBody;
+
+  /// Title of the placeholder screen shown where a feature is not built yet.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذه الشاشة قيد الإنشاء'**
+  String get screenNotBuiltTitle;
+
+  /// Body of the placeholder screen shown where a feature is not built yet.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يتم بناء هذه الشاشة بعد.'**
+  String get screenNotBuiltBody;
+
+  /// Bottom navigation label for the home tab.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرئيسية'**
+  String get navHome;
+
+  /// Bottom navigation label for the fees and payments tab.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسوم'**
+  String get navFees;
+
+  /// Bottom navigation label for attendance and grades.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدراسة'**
+  String get navAcademics;
+
+  /// Bottom navigation label for messages.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسائل'**
+  String get navMessages;
+
+  /// Bottom navigation label for the profile tab.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحساب'**
+  String get navProfile;
+
+  /// Bottom navigation label for a teacher's day.
+  ///
+  /// In ar, this message translates to:
+  /// **'اليوم'**
+  String get navToday;
+
+  /// Bottom navigation label for a teacher's classes.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصفوف'**
+  String get navClasses;
+
+  /// Bottom navigation label for the timetable.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول'**
+  String get navTimetable;
+
+  /// Bottom navigation label for assignments.
+  ///
+  /// In ar, this message translates to:
+  /// **'الواجبات'**
+  String get navAssignments;
+
+  /// Bottom navigation label for grades.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجات'**
+  String get navGrades;
 }
 
 class _AppLocalizationsDelegate

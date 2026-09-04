@@ -43,5 +43,117 @@
   "textDirection": "اتجاه النص",
   "@textDirection": {
     "description": "Label for the active text direction."
+  },
+  "upgradeRequiredTitle": "يجب تحديث التطبيق",
+  "@upgradeRequiredTitle": {
+    "description": "Title of the blocking force-upgrade screen."
+  },
+  "upgradeRequiredBody": "هذه النسخة من التطبيق لم تعد مدعومة. حدّث التطبيق من متجر Play للمتابعة.",
+  "@upgradeRequiredBody": {
+    "description": "Body of the blocking force-upgrade screen."
+  },
+  "upgradeRecommendedBody": "يتوفر إصدار أحدث من التطبيق.",
+  "@upgradeRecommendedBody": {
+    "description": "Soft-upgrade banner text."
+  },
+  "upgradeCheckAgain": "تحقّق مرة أخرى",
+  "@upgradeCheckAgain": {
+    "description": "Action that re-checks the version policy."
+  },
+  "later": "لاحقًا",
+  "@later": {
+    "description": "Dismisses a non-blocking prompt."
+  },
+  "notFoundTitle": "الصفحة غير موجودة",
+  "@notFoundTitle": {
+    "description": "Title shown for an unrecognised route or deep link."
+  },
+  "notFoundBody": "الرابط الذي فتحته غير صالح أو لم يعد متاحًا.",
+  "@notFoundBody": {
+    "description": "Body shown for an unrecognised route or deep link."
+  },
+  "goHome": "العودة إلى الرئيسية",
+  "@goHome": {
+    "description": "Action returning the user to their role's home screen."
+  },
+  "switchRoleTitle": "تبديل الحساب",
+  "@switchRoleTitle": {
+    "description": "Title of the role switcher for multi-role users."
+  },
+  "switchRoleBody": "لديك أكثر من دور في المدرسة. اختر الدور الذي تريد عرضه.",
+  "@switchRoleBody": {
+    "description": "Explanation on the role switcher."
+  },
+  "roleParent": "ولي أمر",
+  "@roleParent": {
+    "description": "Name of the parent role."
+  },
+  "roleTeacher": "معلّم",
+  "@roleTeacher": {
+    "description": "Name of the teacher role."
+  },
+  "roleStudent": "طالب",
+  "@roleStudent": {
+    "description": "Name of the student role."
+  },
+  "signInTitle": "تسجيل الدخول",
+  "@signInTitle": {
+    "description": "Title of the sign-in screen."
+  },
+  "noMobileRoleTitle": "التطبيق غير متاح لحسابك",
+  "@noMobileRoleTitle": {
+    "description": "Title shown to a signed-in user whose roles have no mobile app."
+  },
+  "noMobileRoleBody": "تطبيق الجوال مخصّص لأولياء الأمور والمعلّمين والطلاب. استخدم لوحة التحكم على المتصفح.",
+  "@noMobileRoleBody": {
+    "description": "Body shown to a signed-in user whose roles have no mobile app."
+  },
+  "screenNotBuiltTitle": "هذه الشاشة قيد الإنشاء",
+  "@screenNotBuiltTitle": {
+    "description": "Title of the placeholder screen shown where a feature is not built yet."
+  },
+  "screenNotBuiltBody": "لم يتم بناء هذه الشاشة بعد.",
+  "@screenNotBuiltBody": {
+    "description": "Body of the placeholder screen shown where a feature is not built yet."
+  },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "Bottom navigation label for the home tab."
+  },
+  "navFees": "الرسوم",
+  "@navFees": {
+    "description": "Bottom navigation label for the fees and payments tab."
+  },
+  "navAcademics": "الدراسة",
+  "@navAcademics": {
+    "description": "Bottom navigation label for attendance and grades."
+  },
+  "navMessages": "الرسائل",
+  "@navMessages": {
+    "description": "Bottom navigation label for messages."
+  },
+  "navProfile": "الحساب",
+  "@navProfile": {
+    "description": "Bottom navigation label for the profile tab."
+  },
+  "navToday": "اليوم",
+  "@navToday": {
+    "description": "Bottom navigation label for a teacher's day."
+  },
+  "navClasses": "الصفوف",
+  "@navClasses": {
+    "description": "Bottom navigation label for a teacher's classes."
+  },
+  "navTimetable": "الجدول",
+  "@navTimetable": {
+    "description": "Bottom navigation label for the timetable."
+  },
+  "navAssignments": "الواجبات",
+  "@navAssignments": {
+    "description": "Bottom navigation label for assignments."
+  },
+  "navGrades": "الدرجات",
+  "@navGrades": {
+    "description": "Bottom navigation label for grades."
   }
 }
