@@ -331,6 +331,96 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'الدرجات'**
   String get navGrades;
+
+  /// Shown while a screen is fetching.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ التحميل…'**
+  String get loading;
+
+  /// Title of the empty state.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد بيانات'**
+  String get emptyTitle;
+
+  /// Body of the empty state.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد ما يُعرض حاليًا.'**
+  String get emptyBody;
+
+  /// Title of the error state.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تحميل البيانات'**
+  String get errorTitle;
+
+  /// Title of the error state when the device is offline.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد اتصال بالإنترنت'**
+  String get errorOfflineTitle;
+
+  /// Body of the offline error state.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.'**
+  String get errorOfflineBody;
+
+  /// Action that retries a failed load.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة المحاولة'**
+  String get retry;
+
+  /// Label for the server request id on an error screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'رقم المرجع'**
+  String get requestIdLabel;
+
+  /// Explains why the request id is shown.
+  ///
+  /// In ar, this message translates to:
+  /// **'اذكر هذا الرقم عند التواصل مع المدرسة.'**
+  String get requestIdHint;
+
+  /// Banner shown while the device has no connectivity.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنت غير متصل. تُعرض بيانات محفوظة.'**
+  String get offlineBanner;
+
+  /// Tooltip on the pending-sync badge.
+  ///
+  /// In ar, this message translates to:
+  /// **'عناصر لم تُرسل إلى الخادم بعد'**
+  String get pendingSyncTooltip;
+
+  /// Tooltip on the failed-sync badge.
+  ///
+  /// In ar, this message translates to:
+  /// **'عناصر تعذّرت مزامنتها'**
+  String get failedSyncTooltip;
+
+  /// Count of outbox rows, shown on the sync badge.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{لا شيء بانتظار المزامنة} =1{عنصر واحد بانتظار المزامنة} =2{عنصران بانتظار المزامنة} few{{count} عناصر بانتظار المزامنة} many{{count} عنصرًا بانتظار المزامنة} other{{count} عنصر بانتظار المزامنة}}'**
+  String pendingSyncCount(int count);
+
+  /// Count of outbox rows, shown on the sync badge.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{لا شيء تعذّرت مزامنته} =1{عنصر واحد تعذّرت مزامنته} =2{عنصران تعذّرت مزامنتهما} few{{count} عناصر تعذّرت مزامنتها} many{{count} عنصرًا تعذّرت مزامنته} other{{count} عنصر تعذّرت مزامنته}}'**
+  String failedSyncCount(int count);
+
+  /// Staleness indicator on cached content.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر تحديث: {time}'**
+  String lastUpdated(String time);
 }
 
 class _AppLocalizationsDelegate

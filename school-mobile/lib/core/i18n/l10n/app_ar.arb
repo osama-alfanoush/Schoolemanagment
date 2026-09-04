@@ -155,5 +155,80 @@
   "navGrades": "الدرجات",
   "@navGrades": {
     "description": "Bottom navigation label for grades."
+  },
+  "loading": "جارٍ التحميل…",
+  "@loading": {
+    "description": "Shown while a screen is fetching."
+  },
+  "emptyTitle": "لا توجد بيانات",
+  "@emptyTitle": {
+    "description": "Title of the empty state."
+  },
+  "emptyBody": "لا يوجد ما يُعرض حاليًا.",
+  "@emptyBody": {
+    "description": "Body of the empty state."
+  },
+  "errorTitle": "تعذّر تحميل البيانات",
+  "@errorTitle": {
+    "description": "Title of the error state."
+  },
+  "errorOfflineTitle": "لا يوجد اتصال بالإنترنت",
+  "@errorOfflineTitle": {
+    "description": "Title of the error state when the device is offline."
+  },
+  "errorOfflineBody": "تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.",
+  "@errorOfflineBody": {
+    "description": "Body of the offline error state."
+  },
+  "retry": "إعادة المحاولة",
+  "@retry": {
+    "description": "Action that retries a failed load."
+  },
+  "requestIdLabel": "رقم المرجع",
+  "@requestIdLabel": {
+    "description": "Label for the server request id on an error screen."
+  },
+  "requestIdHint": "اذكر هذا الرقم عند التواصل مع المدرسة.",
+  "@requestIdHint": {
+    "description": "Explains why the request id is shown."
+  },
+  "offlineBanner": "أنت غير متصل. تُعرض بيانات محفوظة.",
+  "@offlineBanner": {
+    "description": "Banner shown while the device has no connectivity."
+  },
+  "pendingSyncTooltip": "عناصر لم تُرسل إلى الخادم بعد",
+  "@pendingSyncTooltip": {
+    "description": "Tooltip on the pending-sync badge."
+  },
+  "failedSyncTooltip": "عناصر تعذّرت مزامنتها",
+  "@failedSyncTooltip": {
+    "description": "Tooltip on the failed-sync badge."
+  },
+  "pendingSyncCount": "{count, plural, =0{لا شيء بانتظار المزامنة} =1{عنصر واحد بانتظار المزامنة} =2{عنصران بانتظار المزامنة} few{{count} عناصر بانتظار المزامنة} many{{count} عنصرًا بانتظار المزامنة} other{{count} عنصر بانتظار المزامنة}}",
+  "@pendingSyncCount": {
+    "description": "Count of outbox rows, shown on the sync badge.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "failedSyncCount": "{count, plural, =0{لا شيء تعذّرت مزامنته} =1{عنصر واحد تعذّرت مزامنته} =2{عنصران تعذّرت مزامنتهما} few{{count} عناصر تعذّرت مزامنتها} many{{count} عنصرًا تعذّرت مزامنته} other{{count} عنصر تعذّرت مزامنته}}",
+  "@failedSyncCount": {
+    "description": "Count of outbox rows, shown on the sync badge.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastUpdated": "آخر تحديث: {time}",
+  "@lastUpdated": {
+    "description": "Staleness indicator on cached content.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

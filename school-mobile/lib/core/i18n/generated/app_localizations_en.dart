@@ -130,4 +130,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navGrades => 'Grades';
+
+  @override
+  String get loading => 'Loading…';
+
+  @override
+  String get emptyTitle => 'Nothing here yet';
+
+  @override
+  String get emptyBody => 'There is nothing to show right now.';
+
+  @override
+  String get errorTitle => 'Could not load';
+
+  @override
+  String get errorOfflineTitle => 'No connection';
+
+  @override
+  String get errorOfflineBody =>
+      'Check your internet connection and try again.';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get requestIdLabel => 'Reference number';
+
+  @override
+  String get requestIdHint => 'Quote this number when you contact the school.';
+
+  @override
+  String get offlineBanner => 'You are offline. Showing saved data.';
+
+  @override
+  String get pendingSyncTooltip => 'Items not yet sent to the server';
+
+  @override
+  String get failedSyncTooltip => 'Items that could not be synced';
+
+  @override
+  String pendingSyncCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items waiting to sync',
+      one: '1 item waiting to sync',
+      zero: 'Nothing waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String failedSyncCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items could not be synced',
+      one: '1 item could not be synced',
+      zero: 'Nothing failed to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lastUpdated(String time) {
+    return 'Last updated: $time';
+  }
 }

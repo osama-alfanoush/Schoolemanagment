@@ -128,4 +128,75 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get navGrades => 'الدرجات';
+
+  @override
+  String get loading => 'جارٍ التحميل…';
+
+  @override
+  String get emptyTitle => 'لا توجد بيانات';
+
+  @override
+  String get emptyBody => 'لا يوجد ما يُعرض حاليًا.';
+
+  @override
+  String get errorTitle => 'تعذّر تحميل البيانات';
+
+  @override
+  String get errorOfflineTitle => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get errorOfflineBody => 'تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get requestIdLabel => 'رقم المرجع';
+
+  @override
+  String get requestIdHint => 'اذكر هذا الرقم عند التواصل مع المدرسة.';
+
+  @override
+  String get offlineBanner => 'أنت غير متصل. تُعرض بيانات محفوظة.';
+
+  @override
+  String get pendingSyncTooltip => 'عناصر لم تُرسل إلى الخادم بعد';
+
+  @override
+  String get failedSyncTooltip => 'عناصر تعذّرت مزامنتها';
+
+  @override
+  String pendingSyncCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عنصر بانتظار المزامنة',
+      many: '$count عنصرًا بانتظار المزامنة',
+      few: '$count عناصر بانتظار المزامنة',
+      two: 'عنصران بانتظار المزامنة',
+      one: 'عنصر واحد بانتظار المزامنة',
+      zero: 'لا شيء بانتظار المزامنة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String failedSyncCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عنصر تعذّرت مزامنته',
+      many: '$count عنصرًا تعذّرت مزامنته',
+      few: '$count عناصر تعذّرت مزامنتها',
+      two: 'عنصران تعذّرت مزامنتهما',
+      one: 'عنصر واحد تعذّرت مزامنته',
+      zero: 'لا شيء تعذّرت مزامنته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lastUpdated(String time) {
+    return 'آخر تحديث: $time';
+  }
 }
