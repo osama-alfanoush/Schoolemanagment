@@ -13,7 +13,7 @@ import 'package:school_mobile/generated/model/file_profile_photo403_response.dar
 import 'package:school_mobile/generated/model/gradebook_issue201_response.dart';
 import 'package:school_mobile/generated/model/gradebook_issue_request.dart';
 import 'package:school_mobile/generated/model/gradebook_reopen_request.dart';
-import 'package:school_mobile/generated/model/gradebook_show88200_response.dart';
+import 'package:school_mobile/generated/model/gradebook_show91200_response.dart';
 import 'package:school_mobile/generated/model/gradebook_submit200_response.dart';
 import 'package:school_mobile/generated/model/inline_object.dart';
 
@@ -301,9 +301,9 @@ class GradebookApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [GradebookShow88200Response] as data
+  /// Returns a [Future] containing a [Response] with a [GradebookShow91200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GradebookShow88200Response>> gradebookReopen({ 
+  Future<Response<GradebookShow91200Response>> gradebookReopen({ 
     required int id,
     required GradebookReopenRequest gradebookReopenRequest,
     CancelToken? cancelToken,
@@ -360,14 +360,14 @@ class GradebookApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    GradebookShow88200Response? _responseData;
+    GradebookShow91200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(GradebookShow88200Response),
-      ) as GradebookShow88200Response;
+        specifiedType: const FullType(GradebookShow91200Response),
+      ) as GradebookShow91200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -379,7 +379,7 @@ class GradebookApi {
       );
     }
 
-    return Response<GradebookShow88200Response>(
+    return Response<GradebookShow91200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -472,7 +472,7 @@ class GradebookApi {
     );
   }
 
-  /// Gradebook Show 88
+  /// Gradebook Show 100
   /// 
   ///
   /// Parameters:
@@ -484,90 +484,9 @@ class GradebookApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [GradebookShow88200Response] as data
+  /// Returns a [Future] containing a [Response] with a [GradebookShow91200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GradebookShow88200Response>> gradebookShow88({ 
-    required int id,
-    CancelToken? cancelToken,
-    Map<String, dynamic>? headers,
-    Map<String, dynamic>? extra,
-    ValidateStatus? validateStatus,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final _path = r'/teacher/gradebooks/{id}'.replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
-    final _options = Options(
-      method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
-      extra: <String, dynamic>{
-        'secure': <Map<String, String>>[
-          {
-            'type': 'http',
-            'scheme': 'bearer',
-            'name': 'http',
-          },
-        ],
-        ...?extra,
-      },
-      validateStatus: validateStatus,
-    );
-
-    final _response = await _dio.request<Object>(
-      _path,
-      options: _options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
-
-    GradebookShow88200Response? _responseData;
-
-    try {
-      final rawResponse = _response.data;
-      _responseData = rawResponse == null ? null : _serializers.deserialize(
-        rawResponse,
-        specifiedType: const FullType(GradebookShow88200Response),
-      ) as GradebookShow88200Response;
-
-    } catch (error, stackTrace) {
-      throw DioException(
-        requestOptions: _response.requestOptions,
-        response: _response,
-        type: DioExceptionType.unknown,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return Response<GradebookShow88200Response>(
-      data: _responseData,
-      headers: _response.headers,
-      isRedirect: _response.isRedirect,
-      requestOptions: _response.requestOptions,
-      redirects: _response.redirects,
-      statusCode: _response.statusCode,
-      statusMessage: _response.statusMessage,
-      extra: _response.extra,
-    );
-  }
-
-  /// Gradebook Show 97
-  /// 
-  ///
-  /// Parameters:
-  /// * [id] 
-  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
-  /// * [headers] - Can be used to add additional headers to the request
-  /// * [extras] - Can be used to add flags to the request
-  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
-  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
-  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
-  ///
-  /// Returns a [Future] containing a [Response] with a [GradebookShow88200Response] as data
-  /// Throws [DioException] if API call or serialization fails
-  Future<Response<GradebookShow88200Response>> gradebookShow97({ 
+  Future<Response<GradebookShow91200Response>> gradebookShow100({ 
     required int id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -603,14 +522,14 @@ class GradebookApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    GradebookShow88200Response? _responseData;
+    GradebookShow91200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(GradebookShow88200Response),
-      ) as GradebookShow88200Response;
+        specifiedType: const FullType(GradebookShow91200Response),
+      ) as GradebookShow91200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -622,7 +541,88 @@ class GradebookApi {
       );
     }
 
-    return Response<GradebookShow88200Response>(
+    return Response<GradebookShow91200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Gradebook Show 91
+  /// 
+  ///
+  /// Parameters:
+  /// * [id] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [GradebookShow91200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<GradebookShow91200Response>> gradebookShow91({ 
+    required int id,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/teacher/gradebooks/{id}'.replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    GradebookShow91200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(GradebookShow91200Response),
+      ) as GradebookShow91200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<GradebookShow91200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

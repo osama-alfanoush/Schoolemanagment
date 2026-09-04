@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\HrPayrollController;
 use App\Http\Controllers\Api\InstallmentController;
 use App\Http\Controllers\Api\LibraryController;
 use App\Http\Controllers\Api\MessagingController;
+use App\Http\Controllers\Api\Mobile\ParentHomeController as MobileParentHomeController;
 use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
 use App\Http\Controllers\Api\MfaController;
 use App\Http\Controllers\Api\NotificationController;
@@ -125,6 +126,23 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
         ->middleware(['role:parent,student,teacher', 'throttle:120,1'])
         ->group(function () {
             Route::get('/sync/delta', [MobileSyncController::class, 'delta']);
+
+            // Everything the app needs before its first screen. Open to every
+            // mobile role; what comes back is scoped to the roles the token
+            // actually holds.
+            Route::get('/session/bootstrap', [MobileParentHomeController::class, 'bootstrap']);
+
+            // PARENT
+            // EnsureParentOwnsChild guards the child-scoped path, and the
+            // controller repeats the ownership check: this is one route
+            // registration away from being reachable without the middleware.
+            Route::middleware(['role:parent', EnsureParentOwnsChild::class])
+                ->prefix('parent')
+                ->group(function () {
+                    Route::get('/home', [MobileParentHomeController::class, 'home']);
+                    Route::get('/children/{id}/overview', [MobileParentHomeController::class, 'childOverview'])
+                        ->whereNumber('id');
+                });
         });
 
     // STUDENT

@@ -14,7 +14,7 @@ import 'package:school_mobile/generated/model/inline_object.dart';
 import 'package:school_mobile/generated/model/library_all_borrowings200_response.dart';
 import 'package:school_mobile/generated/model/library_available_books200_response.dart';
 import 'package:school_mobile/generated/model/library_book.dart';
-import 'package:school_mobile/generated/model/library_books159_request.dart';
+import 'package:school_mobile/generated/model/library_books162_request.dart';
 import 'package:school_mobile/generated/model/library_borrowing.dart';
 import 'package:school_mobile/generated/model/library_my_borrowings200_response.dart';
 import 'package:school_mobile/generated/model/library_self_return200_response.dart';
@@ -186,7 +186,7 @@ class LibraryApi {
     );
   }
 
-  /// Library Books 158
+  /// Library Books 161
   /// 
   ///
   /// Parameters:
@@ -208,7 +208,7 @@ class LibraryApi {
   ///
   /// Returns a [Future] containing a [Response] with a [LibraryAvailableBooks200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<LibraryAvailableBooks200Response>> libraryBooks158({ 
+  Future<Response<LibraryAvailableBooks200Response>> libraryBooks161({ 
     required String title,
     required String author,
     required int totalCopies,
@@ -296,11 +296,11 @@ class LibraryApi {
     );
   }
 
-  /// Library Books 159
+  /// Library Books 162
   /// 
   ///
   /// Parameters:
-  /// * [libraryBooks159Request] 
+  /// * [libraryBooks162Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -310,8 +310,8 @@ class LibraryApi {
   ///
   /// Returns a [Future] containing a [Response] with a [LibraryAvailableBooks200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<LibraryAvailableBooks200Response>> libraryBooks159({ 
-    required LibraryBooks159Request libraryBooks159Request,
+  Future<Response<LibraryAvailableBooks200Response>> libraryBooks162({ 
+    required LibraryBooks162Request libraryBooks162Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -342,8 +342,8 @@ class LibraryApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(LibraryBooks159Request);
-      _bodyData = _serializers.serialize(libraryBooks159Request, specifiedType: _type);
+      const _type = FullType(LibraryBooks162Request);
+      _bodyData = _serializers.serialize(libraryBooks162Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
