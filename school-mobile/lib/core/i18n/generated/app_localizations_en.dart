@@ -256,4 +256,91 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get mfaTitle => 'Two-step verification';
+
+  @override
+  String get mfaBody =>
+      'Enter the verification code from your authenticator app.';
+
+  @override
+  String get mfaCodeLabel => 'Verification code';
+
+  @override
+  String get mfaRecoveryCodeLabel => 'Recovery code';
+
+  @override
+  String get mfaUseRecoveryCode => 'Use a recovery code';
+
+  @override
+  String get mfaUseAuthenticatorCode => 'Use an authenticator code';
+
+  @override
+  String get mfaVerifyAction => 'Verify';
+
+  @override
+  String get mfaCodeRequired => 'Enter the code.';
+
+  @override
+  String get mfaCodeIncomplete => 'That code is not complete.';
+
+  @override
+  String get mfaInvalidCode => 'That code is not correct. Try again.';
+
+  @override
+  String get mfaChallengeExpired =>
+      'The verification session expired. Sign in again.';
+
+  @override
+  String get mfaEnrollmentRequiredTitle => 'Two-step verification setup needed';
+
+  @override
+  String get mfaEnrollmentRequiredBody =>
+      'Your account requires two-step verification and it has not been set up yet. Complete the setup in the web dashboard, then come back to the app.';
+
+  @override
+  String get backToSignIn => 'Back to sign in';
+
+  @override
+  String get changePasswordTitle => 'You must change your password';
+
+  @override
+  String get changePasswordBody =>
+      'Your current password is temporary. Choose a new one to continue.';
+
+  @override
+  String get currentPasswordLabel => 'Current password';
+
+  @override
+  String get newPasswordLabel => 'New password';
+
+  @override
+  String get confirmPasswordLabel => 'Confirm new password';
+
+  @override
+  String get changePasswordAction => 'Save password';
+
+  @override
+  String get passwordTooShort => 'That password is too short.';
+
+  @override
+  String get passwordNeedsUppercase => 'Add at least one capital letter.';
+
+  @override
+  String get passwordNeedsDigit => 'Add at least one number.';
+
+  @override
+  String get passwordsDoNotMatch => 'Those passwords do not match.';
+
+  @override
+  String get currentPasswordIncorrect =>
+      'That current password is not correct.';
+
+  @override
+  String get accountDeactivated =>
+      'Your account has been deactivated. Contact the school office.';
+
+  @override
+  String get signOut => 'Sign out';
 }

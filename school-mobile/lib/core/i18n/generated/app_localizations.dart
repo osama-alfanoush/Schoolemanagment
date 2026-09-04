@@ -511,6 +511,168 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{minutes, plural, =0{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد قليل.} =1{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقة.} =2{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقتين.} few{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقائق.} many{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.} other{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.}}'**
   String loginAccountLocked(int minutes);
+
+  /// Two-factor challenge title.
+  ///
+  /// In ar, this message translates to:
+  /// **'التحقق بخطوتين'**
+  String get mfaTitle;
+
+  /// Two-factor challenge explanation.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز التحقق من تطبيق المصادقة على هاتفك.'**
+  String get mfaBody;
+
+  /// Label for the TOTP code field.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز التحقق'**
+  String get mfaCodeLabel;
+
+  /// Label for the recovery-code field.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز الاسترداد'**
+  String get mfaRecoveryCodeLabel;
+
+  /// Switches to recovery-code entry.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدام رمز استرداد'**
+  String get mfaUseRecoveryCode;
+
+  /// Switches back to authenticator-code entry.
+  ///
+  /// In ar, this message translates to:
+  /// **'استخدام رمز تطبيق المصادقة'**
+  String get mfaUseAuthenticatorCode;
+
+  /// Submits the two-factor challenge.
+  ///
+  /// In ar, this message translates to:
+  /// **'تحقّق'**
+  String get mfaVerifyAction;
+
+  /// Validation message for an empty code field.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل الرمز.'**
+  String get mfaCodeRequired;
+
+  /// Validation message for a short TOTP code.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز غير مكتمل.'**
+  String get mfaCodeIncomplete;
+
+  /// Shown when the server rejects the code.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز غير صحيح. حاول مرة أخرى.'**
+  String get mfaInvalidCode;
+
+  /// Shown when the short-lived challenge token has expired.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية جلسة التحقق. سجّل الدخول مرة أخرى.'**
+  String get mfaChallengeExpired;
+
+  /// Title shown when the account has never enrolled in MFA.
+  ///
+  /// In ar, this message translates to:
+  /// **'يلزم إعداد التحقق بخطوتين'**
+  String get mfaEnrollmentRequiredTitle;
+
+  /// Body shown when the account has never enrolled in MFA.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسابك يتطلّب التحقق بخطوتين ولم يتم إعداده بعد. أكمل الإعداد من لوحة التحكم على المتصفح، ثم عد إلى التطبيق.'**
+  String get mfaEnrollmentRequiredBody;
+
+  /// Returns to the sign-in form.
+  ///
+  /// In ar, this message translates to:
+  /// **'العودة إلى تسجيل الدخول'**
+  String get backToSignIn;
+
+  /// Title of the forced password-change screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'يجب تغيير كلمة المرور'**
+  String get changePasswordTitle;
+
+  /// Body of the forced password-change screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الحالية مؤقتة. اختر كلمة مرور جديدة للمتابعة.'**
+  String get changePasswordBody;
+
+  /// Label for the current-password field.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الحالية'**
+  String get currentPasswordLabel;
+
+  /// Label for the new-password field.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الجديدة'**
+  String get newPasswordLabel;
+
+  /// Label for the confirm-password field.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد كلمة المرور الجديدة'**
+  String get confirmPasswordLabel;
+
+  /// Submits the password change.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ كلمة المرور'**
+  String get changePasswordAction;
+
+  /// Validation message for a short password.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور قصيرة جدًا.'**
+  String get passwordTooShort;
+
+  /// Validation message for a password with no uppercase letter.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف حرفًا لاتينيًا كبيرًا على الأقل.'**
+  String get passwordNeedsUppercase;
+
+  /// Validation message for a password with no digit.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف رقمًا على الأقل.'**
+  String get passwordNeedsDigit;
+
+  /// Validation message when the confirmation does not match.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمتا المرور غير متطابقتين.'**
+  String get passwordsDoNotMatch;
+
+  /// Shown when the server rejects the current password.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور الحالية غير صحيحة.'**
+  String get currentPasswordIncorrect;
+
+  /// Shown when the account has been deactivated server-side.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إيقاف حسابك. تواصل مع إدارة المدرسة.'**
+  String get accountDeactivated;
+
+  /// Signs the user out.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الخروج'**
+  String get signOut;
 }
 
 class _AppLocalizationsDelegate

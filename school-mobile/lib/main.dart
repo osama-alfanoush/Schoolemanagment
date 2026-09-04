@@ -70,7 +70,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final SessionWipe _sessionWipe;
   late final ApiClient _apiClient;
   late final AuthRepository _auth;
-  late final LoginController _loginController;
+  late final ChangePasswordController _changePassword;
   late final SessionController _session;
   late final GoRouter _router;
   StreamSubscription<void>? _unauthenticated;
@@ -106,7 +106,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       tokenStore: _tokenStore,
       controller: _session,
     );
-    _loginController = LoginController(repository: _auth);
+    _changePassword = ChangePasswordController(repository: _auth);
 
     // A refresh that cannot be recovered ends the session everywhere at once:
     // the store is wiped and the router falls back to the sign-in screen.
@@ -116,8 +116,11 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     _router = buildAppRouter(
       controller: _session,
       screens: const AppScreens().withScreens(<AppRoute, RouteScreenBuilder>{
-        AppRoute.signIn: (context, state) =>
-            LoginScreen(controller: _loginController),
+        AppRoute.signIn: (context, state) => AuthGateway(repository: _auth),
+        AppRoute.changePassword: (context, state) => ChangePasswordScreen(
+              controller: _changePassword,
+              onSignOut: () => unawaited(_auth.signOut()),
+            ),
         // Interim home for the on-device verification screen, so the checks it
         // performs stay reachable once a session exists. The profile orders
         // replace these three entries; nothing under lib/core/ changes when
@@ -138,7 +141,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   void dispose() {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
-    _loginController.dispose();
+    _changePassword.dispose();
     _session.dispose();
     unawaited(_apiClient.close());
     super.dispose();

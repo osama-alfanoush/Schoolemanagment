@@ -62,6 +62,12 @@ class AuthApi {
       throw const LoginFailure(LoginFailureKind.deviceNotReady);
     }
 
+    // A new attempt supersedes whatever was there. Clearing first means the
+    // auth interceptor cannot attach a stale bearer token to the login call,
+    // and — on the MFA path — cannot shadow the challenge token that
+    // authorises the next request.
+    await tokenStore.clear();
+
     final request = AuthLoginRequest((builder) => builder
       ..email = email.trim()
       ..password = password
@@ -110,6 +116,15 @@ class AuthApi {
       }
 
       return _asMap(user);
+    } on DioException catch (error) {
+      throw _failureFrom(error);
+    }
+  }
+
+  /// Revokes this device's token pair server-side.
+  Future<void> logout() async {
+    try {
+      await dio.post<Object?>('/auth/logout');
     } on DioException catch (error) {
       throw _failureFrom(error);
     }

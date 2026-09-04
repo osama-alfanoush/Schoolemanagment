@@ -264,4 +264,88 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get mfaTitle => 'التحقق بخطوتين';
+
+  @override
+  String get mfaBody => 'أدخل رمز التحقق من تطبيق المصادقة على هاتفك.';
+
+  @override
+  String get mfaCodeLabel => 'رمز التحقق';
+
+  @override
+  String get mfaRecoveryCodeLabel => 'رمز الاسترداد';
+
+  @override
+  String get mfaUseRecoveryCode => 'استخدام رمز استرداد';
+
+  @override
+  String get mfaUseAuthenticatorCode => 'استخدام رمز تطبيق المصادقة';
+
+  @override
+  String get mfaVerifyAction => 'تحقّق';
+
+  @override
+  String get mfaCodeRequired => 'أدخل الرمز.';
+
+  @override
+  String get mfaCodeIncomplete => 'الرمز غير مكتمل.';
+
+  @override
+  String get mfaInvalidCode => 'الرمز غير صحيح. حاول مرة أخرى.';
+
+  @override
+  String get mfaChallengeExpired =>
+      'انتهت صلاحية جلسة التحقق. سجّل الدخول مرة أخرى.';
+
+  @override
+  String get mfaEnrollmentRequiredTitle => 'يلزم إعداد التحقق بخطوتين';
+
+  @override
+  String get mfaEnrollmentRequiredBody =>
+      'حسابك يتطلّب التحقق بخطوتين ولم يتم إعداده بعد. أكمل الإعداد من لوحة التحكم على المتصفح، ثم عد إلى التطبيق.';
+
+  @override
+  String get backToSignIn => 'العودة إلى تسجيل الدخول';
+
+  @override
+  String get changePasswordTitle => 'يجب تغيير كلمة المرور';
+
+  @override
+  String get changePasswordBody =>
+      'كلمة المرور الحالية مؤقتة. اختر كلمة مرور جديدة للمتابعة.';
+
+  @override
+  String get currentPasswordLabel => 'كلمة المرور الحالية';
+
+  @override
+  String get newPasswordLabel => 'كلمة المرور الجديدة';
+
+  @override
+  String get confirmPasswordLabel => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get changePasswordAction => 'حفظ كلمة المرور';
+
+  @override
+  String get passwordTooShort => 'كلمة المرور قصيرة جدًا.';
+
+  @override
+  String get passwordNeedsUppercase => 'أضف حرفًا لاتينيًا كبيرًا على الأقل.';
+
+  @override
+  String get passwordNeedsDigit => 'أضف رقمًا على الأقل.';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get currentPasswordIncorrect => 'كلمة المرور الحالية غير صحيحة.';
+
+  @override
+  String get accountDeactivated => 'تم إيقاف حسابك. تواصل مع إدارة المدرسة.';
+
+  @override
+  String get signOut => 'تسجيل الخروج';
 }

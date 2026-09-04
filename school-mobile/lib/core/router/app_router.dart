@@ -16,7 +16,9 @@ import 'shells/role_shell.dart';
 ///  2. Nobody reaches a role shell without a session, and nobody reaches a
 ///     shell for a role they do not hold — a deep link into another role's
 ///     screens lands on the user's own home instead of a blank page or a crash.
-///  3. A link opened before the token store has been read is remembered, not
+///  3. A signed-in user on a temporary password reaches nothing but the
+///     change-password screen, matching what the server already enforces.
+///  4. A link opened before the token store has been read is remembered, not
 ///     discarded, so a push tapped on a cold start still arrives.
 GoRouter buildAppRouter({
   required SessionController controller,
@@ -88,7 +90,20 @@ GoRouter buildAppRouter({
         return homeLocation();
       }
 
-      // 4. Landing paths resolve to the remembered destination, then home.
+      // 4. A temporary password blocks everything, exactly as it does on the
+      //    web: the server refuses every route but /auth/me, /auth/logout and
+      //    /auth/change-password, so letting the user into a shell would only
+      //    show them a screen of 403s.
+      if (session.mustChangePassword) {
+        return path == AppRoute.changePassword.path
+            ? null
+            : AppRoute.changePassword.path;
+      }
+      if (path == AppRoute.changePassword.path) {
+        return homeLocation();
+      }
+
+      // 5. Landing paths resolve to the remembered destination, then home.
       if (path == AppRoute.root.path || path == AppRoute.signIn.path) {
         final saved = pendingLocation;
         pendingLocation = null;
@@ -102,7 +117,7 @@ GoRouter buildAppRouter({
         return homeLocation();
       }
 
-      // 5. A shell this user does not hold. Not an error to shout about — a
+      // 6. A shell this user does not hold. Not an error to shout about — a
       //    stale push or an old link — so land them on their own home.
       final routeRole = _roleForPath(path);
       if (routeRole != null && !user.holds(routeRole)) {
@@ -136,6 +151,12 @@ GoRouter buildAppRouter({
         path: AppRoute.noMobileRole.path,
         name: AppRoute.noMobileRole.routeName,
         builder: (context, state) => const NoMobileRoleScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.changePassword.path,
+        name: AppRoute.changePassword.routeName,
+        builder: (context, state) =>
+            screens.build(AppRoute.changePassword, context, state),
       ),
       GoRoute(
         path: AppRoute.roleSwitch.path,

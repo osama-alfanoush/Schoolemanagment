@@ -295,5 +295,113 @@
         "type": "int"
       }
     }
+  },
+  "mfaTitle": "التحقق بخطوتين",
+  "@mfaTitle": {
+    "description": "Two-factor challenge title."
+  },
+  "mfaBody": "أدخل رمز التحقق من تطبيق المصادقة على هاتفك.",
+  "@mfaBody": {
+    "description": "Two-factor challenge explanation."
+  },
+  "mfaCodeLabel": "رمز التحقق",
+  "@mfaCodeLabel": {
+    "description": "Label for the TOTP code field."
+  },
+  "mfaRecoveryCodeLabel": "رمز الاسترداد",
+  "@mfaRecoveryCodeLabel": {
+    "description": "Label for the recovery-code field."
+  },
+  "mfaUseRecoveryCode": "استخدام رمز استرداد",
+  "@mfaUseRecoveryCode": {
+    "description": "Switches to recovery-code entry."
+  },
+  "mfaUseAuthenticatorCode": "استخدام رمز تطبيق المصادقة",
+  "@mfaUseAuthenticatorCode": {
+    "description": "Switches back to authenticator-code entry."
+  },
+  "mfaVerifyAction": "تحقّق",
+  "@mfaVerifyAction": {
+    "description": "Submits the two-factor challenge."
+  },
+  "mfaCodeRequired": "أدخل الرمز.",
+  "@mfaCodeRequired": {
+    "description": "Validation message for an empty code field."
+  },
+  "mfaCodeIncomplete": "الرمز غير مكتمل.",
+  "@mfaCodeIncomplete": {
+    "description": "Validation message for a short TOTP code."
+  },
+  "mfaInvalidCode": "الرمز غير صحيح. حاول مرة أخرى.",
+  "@mfaInvalidCode": {
+    "description": "Shown when the server rejects the code."
+  },
+  "mfaChallengeExpired": "انتهت صلاحية جلسة التحقق. سجّل الدخول مرة أخرى.",
+  "@mfaChallengeExpired": {
+    "description": "Shown when the short-lived challenge token has expired."
+  },
+  "mfaEnrollmentRequiredTitle": "يلزم إعداد التحقق بخطوتين",
+  "@mfaEnrollmentRequiredTitle": {
+    "description": "Title shown when the account has never enrolled in MFA."
+  },
+  "mfaEnrollmentRequiredBody": "حسابك يتطلّب التحقق بخطوتين ولم يتم إعداده بعد. أكمل الإعداد من لوحة التحكم على المتصفح، ثم عد إلى التطبيق.",
+  "@mfaEnrollmentRequiredBody": {
+    "description": "Body shown when the account has never enrolled in MFA."
+  },
+  "backToSignIn": "العودة إلى تسجيل الدخول",
+  "@backToSignIn": {
+    "description": "Returns to the sign-in form."
+  },
+  "changePasswordTitle": "يجب تغيير كلمة المرور",
+  "@changePasswordTitle": {
+    "description": "Title of the forced password-change screen."
+  },
+  "changePasswordBody": "كلمة المرور الحالية مؤقتة. اختر كلمة مرور جديدة للمتابعة.",
+  "@changePasswordBody": {
+    "description": "Body of the forced password-change screen."
+  },
+  "currentPasswordLabel": "كلمة المرور الحالية",
+  "@currentPasswordLabel": {
+    "description": "Label for the current-password field."
+  },
+  "newPasswordLabel": "كلمة المرور الجديدة",
+  "@newPasswordLabel": {
+    "description": "Label for the new-password field."
+  },
+  "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+  "@confirmPasswordLabel": {
+    "description": "Label for the confirm-password field."
+  },
+  "changePasswordAction": "حفظ كلمة المرور",
+  "@changePasswordAction": {
+    "description": "Submits the password change."
+  },
+  "passwordTooShort": "كلمة المرور قصيرة جدًا.",
+  "@passwordTooShort": {
+    "description": "Validation message for a short password."
+  },
+  "passwordNeedsUppercase": "أضف حرفًا لاتينيًا كبيرًا على الأقل.",
+  "@passwordNeedsUppercase": {
+    "description": "Validation message for a password with no uppercase letter."
+  },
+  "passwordNeedsDigit": "أضف رقمًا على الأقل.",
+  "@passwordNeedsDigit": {
+    "description": "Validation message for a password with no digit."
+  },
+  "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
+  "@passwordsDoNotMatch": {
+    "description": "Validation message when the confirmation does not match."
+  },
+  "currentPasswordIncorrect": "كلمة المرور الحالية غير صحيحة.",
+  "@currentPasswordIncorrect": {
+    "description": "Shown when the server rejects the current password."
+  },
+  "accountDeactivated": "تم إيقاف حسابك. تواصل مع إدارة المدرسة.",
+  "@accountDeactivated": {
+    "description": "Shown when the account has been deactivated server-side."
+  },
+  "signOut": "تسجيل الخروج",
+  "@signOut": {
+    "description": "Signs the user out."
   }
 }

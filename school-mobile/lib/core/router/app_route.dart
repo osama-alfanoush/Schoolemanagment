@@ -17,6 +17,9 @@ enum AppRoute {
   /// Picking between roles a multi-role user holds.
   roleSwitch('roleSwitch', '/switch-role', null),
 
+  /// Blocking screen for a temporary password that has to be replaced.
+  changePassword('changePassword', '/change-password', null),
+
   /// Signed in, but holding no role that has a phone app.
   noMobileRole('noMobileRole', '/unavailable', null),
 

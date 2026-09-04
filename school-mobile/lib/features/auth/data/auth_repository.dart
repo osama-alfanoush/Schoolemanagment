@@ -2,6 +2,8 @@ import '../../../core/api/token_store.dart';
 import '../../../core/session/session.dart';
 import '../domain/login_result.dart';
 import 'auth_api.dart';
+import 'mfa_api.dart';
+import 'password_api.dart';
 
 /// Turns an authenticated call into a [SessionController] state change.
 ///
@@ -12,9 +14,15 @@ class AuthRepository {
     required this.api,
     required this.tokenStore,
     required this.controller,
-  });
+    MfaApi? mfa,
+    PasswordApi? passwords,
+  })  : mfa = mfa ?? MfaApi(dio: api.dio, tokenStore: tokenStore),
+        passwords = passwords ??
+            PasswordApi(dio: api.dio, tokenStore: tokenStore);
 
   final AuthApi api;
+  final MfaApi mfa;
+  final PasswordApi passwords;
   final TokenStore tokenStore;
   final SessionController controller;
 
@@ -30,10 +38,66 @@ class AuthRepository {
     final result = await api.login(email: email, password: password);
 
     if (result is LoginSucceeded) {
-      controller.signedIn(sessionFrom(result.user));
+      controller.signedIn(
+        sessionFrom(result.user),
+        mustChangePassword: result.mustChangePassword,
+      );
     }
 
     return result;
+  }
+
+  /// Answers a two-factor challenge and, on success, opens the session.
+  ///
+  /// The challenge response carries tokens but no user, so the user is fetched
+  /// afterwards. Until that returns there is deliberately no session: a shell
+  /// rendered from a half-known user is how someone sees the wrong child.
+  Future<void> completeMfaChallenge({
+    required String challengeToken,
+    String? code,
+    String? recoveryCode,
+  }) async {
+    await mfa.completeChallenge(
+      challengeToken: challengeToken,
+      code: code,
+      recoveryCode: recoveryCode,
+    );
+
+    final user = await api.me();
+    controller.signedIn(
+      sessionFrom(user),
+      mustChangePassword: user['must_change_password'] == true,
+    );
+  }
+
+  /// Replaces a temporary password and unblocks the app.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await passwords.change(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+
+    controller.passwordChanged();
+  }
+
+  /// Ends the session on this device.
+  ///
+  /// The local wipe happens whether or not the server call succeeds. A user who
+  /// taps sign out on a train with no signal must still end up signed out —
+  /// leaving their child's records on screen because a request failed is the
+  /// wrong way round.
+  Future<void> signOut() async {
+    try {
+      await api.logout();
+    } on LoginFailure {
+      // Nothing to do: the local credentials go regardless.
+    }
+
+    await tokenStore.clear();
+    controller.signedOut();
   }
 
   /// Restores a session on a cold start.
@@ -51,10 +115,15 @@ class AuthRepository {
     }
 
     try {
-      controller.signedIn(sessionFrom(await api.me()));
+      final user = await api.me();
+      controller.signedIn(
+        sessionFrom(user),
+        // A deactivated account never gets here: EnsureAccountIsActive answers
+        // 401 and deletes every token, which surfaces as a LoginFailure below.
+        mustChangePassword: user['must_change_password'] == true,
+      );
     } on LoginFailure {
-      // Includes the token having been revoked from another device. The
-      // refresh coordinator has already cleared the store on a hard 401.
+      // Includes the token having been revoked from another device.
       controller.signedOut();
     }
   }

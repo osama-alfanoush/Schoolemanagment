@@ -55,6 +55,9 @@ class LoginController extends ChangeNotifier {
     _set(_state.copyWith(clearFailure: true));
   }
 
+  /// Back to a blank form: no failure, no outstanding challenge.
+  void reset() => _set(const LoginState());
+
   Future<void> submit({required String email, required String password}) async {
     if (_state.submitting) return;
 

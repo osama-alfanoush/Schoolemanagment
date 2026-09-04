@@ -24,11 +24,18 @@ class SessionState {
     this.session,
     this.upgrade = UpgradeRequirement.none,
     this.recommendedUpgradeDismissed = false,
+    this.mustChangePassword = false,
   });
 
   final SessionStatus status;
   final AppSession? session;
   final UpgradeRequirement upgrade;
+
+  /// The password in use is temporary. The server refuses every route but
+  /// `/auth/me`, `/auth/logout` and `/auth/change-password` while this holds,
+  /// so the app must block on it too rather than let the user walk into a wall
+  /// of 403s.
+  final bool mustChangePassword;
 
   /// The user has waved away the soft-upgrade prompt for this run.
   final bool recommendedUpgradeDismissed;
@@ -46,6 +53,7 @@ class SessionState {
     bool clearSession = false,
     UpgradeRequirement? upgrade,
     bool? recommendedUpgradeDismissed,
+    bool? mustChangePassword,
   }) =>
       SessionState(
         status: status ?? this.status,
@@ -53,6 +61,7 @@ class SessionState {
         upgrade: upgrade ?? this.upgrade,
         recommendedUpgradeDismissed:
             recommendedUpgradeDismissed ?? this.recommendedUpgradeDismissed,
+        mustChangePassword: mustChangePassword ?? this.mustChangePassword,
       );
 
   @override
@@ -61,11 +70,17 @@ class SessionState {
       other.status == status &&
       other.session == session &&
       other.upgrade == upgrade &&
-      other.recommendedUpgradeDismissed == recommendedUpgradeDismissed;
+      other.recommendedUpgradeDismissed == recommendedUpgradeDismissed &&
+      other.mustChangePassword == mustChangePassword;
 
   @override
-  int get hashCode =>
-      Object.hash(status, session, upgrade, recommendedUpgradeDismissed);
+  int get hashCode => Object.hash(
+        status,
+        session,
+        upgrade,
+        recommendedUpgradeDismissed,
+        mustChangePassword,
+      );
 }
 
 /// Holds [SessionState] and tells the router when it moves.
@@ -90,10 +105,19 @@ class SessionController extends ChangeNotifier {
   /// The token store has been read and there is nobody signed in.
   void signedOut() => _set(const SessionState(status: SessionStatus.signedOut));
 
-  void signedIn(AppSession session) => _set(_state.copyWith(
+  void signedIn(AppSession session, {bool mustChangePassword = false}) =>
+      _set(_state.copyWith(
         status: SessionStatus.signedIn,
         session: session,
+        mustChangePassword: mustChangePassword,
       ));
+
+  /// The temporary password has been replaced; the app is unblocked.
+  void passwordChanged() {
+    if (!_state.mustChangePassword) return;
+
+    _set(_state.copyWith(mustChangePassword: false));
+  }
 
   /// Show a different one of this user's own roles.
   ///
