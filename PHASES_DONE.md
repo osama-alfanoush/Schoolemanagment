@@ -216,7 +216,7 @@ decision, like the FCM project.
 
 ## PHASE 4 — Parent app
 
-**Status: 1 of 6 orders done.**
+**Status: 3 of 6 orders done.**
 
 ### Order 4.1 — Backend: parent BFF ✅
 
@@ -254,9 +254,79 @@ idempotent, Redocly valid, Dart client regenerated.
 one parent see another family's child and let their ETag validate the other's
 screen; restoring it fixed both.
 
-### Orders 4.2 – 4.6
+### Order 4.2 — Backend: parent finance BFF ✅
 
-Not started.
+`f292e87` · `finance/summary`, `children/{studentId}/installments`,
+`invoices`, `invoices/{invoiceId}`, `pay/{installmentId}/intent`,
+`receipts/{receiptId}/pdf`
+
+- **No float anywhere on the path.** A test walks the entire payload of every
+  endpoint and fails on any float it finds. Installments are asserted to sum to
+  the plan total exactly in fils — 100.00 split three ways is precisely where a
+  schedule stops adding up — and a plan whose parts disagree with its total
+  reports `reconciles: false` rather than quietly showing numbers that do not
+  match.
+- **Nothing about clearance is invented.** There is no e-invoicing integration
+  in this system: no JoFotara client, no submission, no authority response. So
+  the state is `pending` and there is **no `qr` key at all**. A QR is a signed
+  artefact the authority returns; generating one from the invoice's own fields
+  would produce a code that scans, looks official, and verifies against
+  nothing.
+- The payment intent is idempotent **because of a unique index**, not a check
+  followed by an insert — two requests can both pass a check, only one can win
+  an index. Five identical calls with one key produce exactly one row: the
+  first answers 201, every replay answers 200 with the same body. A key
+  replayed against a *different* installment is refused with 409.
+- A five-process race was added to the Postgres concurrency suite, where the
+  constraint can actually be raced. (Needs the Postgres harness to run; not
+  executed here.)
+- Only a **posted** receipt is downloadable. A draft is a finance clerk's
+  working document, and a parent who files one has been given something still
+  reversible.
+- Family-level allocation: three siblings under one guardian are reported
+  separately and the family total is their sum, to the fil.
+
+Verified: 23 tests, 579 backend tests green, contract regenerated and
+idempotent, Redocly valid.
+
+**Negative control:** dropping the unique index *and* the idempotent lookup
+failed 3 tests, including "five identical intents produce exactly one";
+restoring them passed all 23.
+
+**Route-naming trap worth knowing:** `EnsureParentOwnsChild` reads a bare
+`{id}` route parameter as a **student** id. An invoice or receipt id there is
+checked against the child list and always refused. The finance routes use
+`{invoiceId}` / `{receiptId}` for that reason, and `{studentId}` on the
+installments path *so that* the middleware guards it too.
+
+### Order 4.3 — Flutter: parent home ✅
+
+`a8381e9` · `school-mobile/lib/features/parent/`
+
+- **Cache first, then revalidate.** The cached copy is rendered before the
+  request is even sent; a test proves the ordering by holding the response for
+  a second and asserting the screen already has data. Network-first with the
+  cache as a fallback shows a blank screen for as long as the request takes,
+  which on 3G is the whole interaction.
+- A failed revalidate never blanks a screen that already has content, and never
+  overwrites the last good copy — a 500 that wipes the cache leaves the next
+  cold start with nothing.
+- A 304 is treated as **fresh**, not stale: the server just confirmed the copy.
+- **No child picker.** One child is one card; three siblings are three cards.
+- Unmarked attendance renders as "not recorded yet", never as a percentage. A
+  money block with the wrong shape is dropped rather than read as zero.
+
+Verified: 19 tests, both locales, 200% text scale, offline banner,
+pull-to-refresh.
+
+**Negative control:** making the screen network-first failed the cache-ordering
+test and the "failed fetch keeps showing cached data" test; restoring it passed.
+
+### Orders 4.4 – 4.6
+
+Not started. 4.4 is the fees/payments screen (the one the plan calls the screen
+that justifies the app to the school owner), 4.5 attendance/grades/report
+cards, 4.6 notifications/messages/timetable/profile.
 
 ## PHASE 5 — Teacher app
 
@@ -281,6 +351,7 @@ Not started.
 | 3 | Play policy on school fee payments vs Play Billing | Order 4.4 architecture | Product decision |
 | 4 | Under-13 student account policy | Phase 6 scope | Product decision |
 | 5 | **SMS provider** (none configured) | The OTP alternative in order 3.4 | Product/procurement decision. The invite-code path is built and does not need it. |
+| 6 | **JoFotara / e-invoicing integration** — none exists | A *cleared* invoice and its authority QR (order 4.2, and 4.4's receipt view) | Needs a real integration. Until then every invoice reports `clearance.state: pending` and carries no QR, which is the honest answer. |
 
 ## Notes carried forward
 
