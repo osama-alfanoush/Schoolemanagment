@@ -216,6 +216,46 @@ decision, like the FCM project.
 
 ## PHASE 4 — Parent app
 
+**Status: 1 of 6 orders done.**
+
+### Order 4.1 — Backend: parent BFF ✅
+
+`5f55251` · `GET /api/mobile/v1/session/bootstrap`, `/parent/home`,
+`/parent/children/{id}/overview`
+
+- **Bootstrap now reports every role the user holds**, read from
+  `school_user_roles` and merged with `users.role`. That closes the gap flagged
+  in 3.1: a teacher whose own child attends the school arrived as a teacher
+  only and could not see their child's fees.
+- Branding is translated into what the app can apply — the web stores a border
+  radius as a keyword, the app needs a number. The font stays Tajawal because
+  the web's three choices are Latin-first faces with no Arabic coverage; the
+  school's `font_style` is reported alongside rather than dropped. A school
+  that has never opened the settings screen gets defaults, not a 500.
+- `parent/home` batches every lookup across all children. A test asserts one
+  child and five cost the **same** number of queries, not merely a bounded one.
+- A grade is shown only when its gradebook is `finalized`. A component with no
+  gradebook counts as unpublished — showing a teacher's working draft to a
+  parent is the failure that cannot be undone, so the unknown case fails
+  closed.
+- A week with no register taken reports `null`, not 100%.
+- Conditional GET on all three: ETag over the payload, `private, no-cache`,
+  weakened `W/` tags from a proxy still validate, and one family's tag never
+  validates another's screen.
+- Money is integer minor units at three decimals; the outstanding balance is
+  subtracted in integers and rebuilt as a string rather than divided by 100.
+- `EnsureParentOwnsChild` **now records its refusals**. The decision is
+  unchanged; only the audit line is new.
+
+Verified: 25 tests, 556 backend tests green, contract regenerated and
+idempotent, Redocly valid, Dart client regenerated.
+
+**Negative control:** removing the guardian scope from the child-id lookup let
+one parent see another family's child and let their ETag validate the other's
+screen; restoring it fixed both.
+
+### Orders 4.2 – 4.6
+
 Not started.
 
 ## PHASE 5 — Teacher app
@@ -268,6 +308,11 @@ Not started.
   `roles` array when present, so this starts working the day
   `session/bootstrap` (order 4.1) returns one. **Order 4.1 should return
   `roles[]`.**
+- **`php artisan openapi:generate` needs more than a 128 MB `memory_limit`.**
+  It OOMs part-way through the Symfony YAML dump on this contract and leaves
+  the file untouched (so it fails loudly rather than writing a truncated spec).
+  CI is unaffected — `shivammathur/setup-php` sets `memory_limit=-1` for CLI —
+  but a local run needs `php -d memory_limit=1G artisan openapi:generate`.
 - **`flutter build apk` warns about missing `CupertinoIcons` fonts.** Material's
   platform-adaptive back button references them. Harmless on an Android-only
   app — no Cupertino glyph ships — and not worth a dependency to silence.
