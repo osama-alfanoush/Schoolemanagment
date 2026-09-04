@@ -618,4 +618,80 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get downloadReceipt => 'تنزيل الإيصال';
+
+  @override
+  String get academicsTitle => 'الدراسة';
+
+  @override
+  String get attendanceSection => 'الحضور';
+
+  @override
+  String get gradesSection => 'الدرجات';
+
+  @override
+  String get reportCardsSection => 'الشهادات';
+
+  @override
+  String get statusPresent => 'حاضر';
+
+  @override
+  String get statusAbsent => 'غائب';
+
+  @override
+  String get statusLate => 'متأخر';
+
+  @override
+  String get statusExcused => 'بعذر';
+
+  @override
+  String get attendanceEmpty => 'لم يُسجَّل حضور في هذه الفترة.';
+
+  @override
+  String get explainAbsenceAction => 'توضيح الغياب';
+
+  @override
+  String get explainAbsenceTitle => 'توضيح الغياب';
+
+  @override
+  String get explainAbsenceBody =>
+      'أرسل سبب الغياب إلى المدرسة. المدرسة وحدها تقرّر اعتبار الغياب بعذر.';
+
+  @override
+  String get explainAbsenceHint => 'سبب الغياب';
+
+  @override
+  String get explainAbsenceSubmit => 'إرسال';
+
+  @override
+  String get explainAbsenceRequired => 'اكتب سبب الغياب.';
+
+  @override
+  String get explanationFiled => 'تم إرسال التوضيح إلى المدرسة.';
+
+  @override
+  String get explanationFromSchool => 'ملاحظة المدرسة';
+
+  @override
+  String get explanationFromYou => 'توضيحك';
+
+  @override
+  String get gradesEmpty => 'لا توجد درجات منشورة بعد.';
+
+  @override
+  String get reportCardsEmpty => 'لا توجد شهادات صادرة بعد.';
+
+  @override
+  String get reportCardDownload => 'تنزيل الشهادة';
+
+  @override
+  String reportCardVersion(int version) {
+    String _temp0 = intl.Intl.pluralLogic(
+      version,
+      locale: localeName,
+      other: 'الإصدار $version',
+      two: 'الإصدار الثاني',
+      one: 'الإصدار الأول',
+    );
+    return '$_temp0';
+  }
 }

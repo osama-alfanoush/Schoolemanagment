@@ -607,4 +607,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get downloadReceipt => 'Download receipt';
+
+  @override
+  String get academicsTitle => 'Academics';
+
+  @override
+  String get attendanceSection => 'Attendance';
+
+  @override
+  String get gradesSection => 'Grades';
+
+  @override
+  String get reportCardsSection => 'Report cards';
+
+  @override
+  String get statusPresent => 'Present';
+
+  @override
+  String get statusAbsent => 'Absent';
+
+  @override
+  String get statusLate => 'Late';
+
+  @override
+  String get statusExcused => 'Excused';
+
+  @override
+  String get attendanceEmpty => 'No attendance recorded in this period.';
+
+  @override
+  String get explainAbsenceAction => 'Explain absence';
+
+  @override
+  String get explainAbsenceTitle => 'Explain absence';
+
+  @override
+  String get explainAbsenceBody =>
+      'Send the school the reason. Only the school decides whether the absence is excused.';
+
+  @override
+  String get explainAbsenceHint => 'Reason';
+
+  @override
+  String get explainAbsenceSubmit => 'Send';
+
+  @override
+  String get explainAbsenceRequired => 'Write the reason.';
+
+  @override
+  String get explanationFiled => 'Your explanation was sent to the school.';
+
+  @override
+  String get explanationFromSchool => 'School note';
+
+  @override
+  String get explanationFromYou => 'Your explanation';
+
+  @override
+  String get gradesEmpty => 'No published grades yet.';
+
+  @override
+  String get reportCardsEmpty => 'No report cards issued yet.';
+
+  @override
+  String get reportCardDownload => 'Download report card';
+
+  @override
+  String reportCardVersion(int version) {
+    String _temp0 = intl.Intl.pluralLogic(
+      version,
+      locale: localeName,
+      other: 'Version $version',
+      one: 'Version 1',
+    );
+    return '$_temp0';
+  }
 }

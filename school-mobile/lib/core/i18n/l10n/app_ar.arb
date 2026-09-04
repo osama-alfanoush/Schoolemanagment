@@ -721,5 +721,98 @@
   "downloadReceipt": "تنزيل الإيصال",
   "@downloadReceipt": {
     "description": "Downloads the receipt PDF."
+  },
+  "academicsTitle": "الدراسة",
+  "@academicsTitle": {
+    "description": "Title of the parent academics screen."
+  },
+  "attendanceSection": "الحضور",
+  "@attendanceSection": {
+    "description": "Heading for the attendance calendar."
+  },
+  "gradesSection": "الدرجات",
+  "@gradesSection": {
+    "description": "Heading for the grades breakdown."
+  },
+  "reportCardsSection": "الشهادات",
+  "@reportCardsSection": {
+    "description": "Heading for issued report cards."
+  },
+  "statusPresent": "حاضر",
+  "@statusPresent": {
+    "description": "Attendance status: present."
+  },
+  "statusAbsent": "غائب",
+  "@statusAbsent": {
+    "description": "Attendance status: absent."
+  },
+  "statusLate": "متأخر",
+  "@statusLate": {
+    "description": "Attendance status: late."
+  },
+  "statusExcused": "بعذر",
+  "@statusExcused": {
+    "description": "Attendance status: excused."
+  },
+  "attendanceEmpty": "لم يُسجَّل حضور في هذه الفترة.",
+  "@attendanceEmpty": {
+    "description": "Empty state for attendance."
+  },
+  "explainAbsenceAction": "توضيح الغياب",
+  "@explainAbsenceAction": {
+    "description": "Opens the explain-absence form."
+  },
+  "explainAbsenceTitle": "توضيح الغياب",
+  "@explainAbsenceTitle": {
+    "description": "Title of the explain-absence sheet."
+  },
+  "explainAbsenceBody": "أرسل سبب الغياب إلى المدرسة. المدرسة وحدها تقرّر اعتبار الغياب بعذر.",
+  "@explainAbsenceBody": {
+    "description": "Explains what the action does and does not do."
+  },
+  "explainAbsenceHint": "سبب الغياب",
+  "@explainAbsenceHint": {
+    "description": "Label for the reason field."
+  },
+  "explainAbsenceSubmit": "إرسال",
+  "@explainAbsenceSubmit": {
+    "description": "Submits the explanation."
+  },
+  "explainAbsenceRequired": "اكتب سبب الغياب.",
+  "@explainAbsenceRequired": {
+    "description": "Validation message for an empty reason."
+  },
+  "explanationFiled": "تم إرسال التوضيح إلى المدرسة.",
+  "@explanationFiled": {
+    "description": "Confirms the explanation was filed."
+  },
+  "explanationFromSchool": "ملاحظة المدرسة",
+  "@explanationFromSchool": {
+    "description": "Label for the teacher's own note."
+  },
+  "explanationFromYou": "توضيحك",
+  "@explanationFromYou": {
+    "description": "Label for the guardian's explanation."
+  },
+  "gradesEmpty": "لا توجد درجات منشورة بعد.",
+  "@gradesEmpty": {
+    "description": "Empty state for grades."
+  },
+  "reportCardsEmpty": "لا توجد شهادات صادرة بعد.",
+  "@reportCardsEmpty": {
+    "description": "Empty state for report cards."
+  },
+  "reportCardDownload": "تنزيل الشهادة",
+  "@reportCardDownload": {
+    "description": "Downloads an issued report card."
+  },
+  "reportCardVersion": "{version, plural, =1{الإصدار الأول} =2{الإصدار الثاني} other{الإصدار {version}}}",
+  "@reportCardVersion": {
+    "description": "Which issued version of a report card this is.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
   }
 }

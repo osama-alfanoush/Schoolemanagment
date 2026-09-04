@@ -1135,6 +1135,138 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تنزيل الإيصال'**
   String get downloadReceipt;
+
+  /// Title of the parent academics screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدراسة'**
+  String get academicsTitle;
+
+  /// Heading for the attendance calendar.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور'**
+  String get attendanceSection;
+
+  /// Heading for the grades breakdown.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجات'**
+  String get gradesSection;
+
+  /// Heading for issued report cards.
+  ///
+  /// In ar, this message translates to:
+  /// **'الشهادات'**
+  String get reportCardsSection;
+
+  /// Attendance status: present.
+  ///
+  /// In ar, this message translates to:
+  /// **'حاضر'**
+  String get statusPresent;
+
+  /// Attendance status: absent.
+  ///
+  /// In ar, this message translates to:
+  /// **'غائب'**
+  String get statusAbsent;
+
+  /// Attendance status: late.
+  ///
+  /// In ar, this message translates to:
+  /// **'متأخر'**
+  String get statusLate;
+
+  /// Attendance status: excused.
+  ///
+  /// In ar, this message translates to:
+  /// **'بعذر'**
+  String get statusExcused;
+
+  /// Empty state for attendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُسجَّل حضور في هذه الفترة.'**
+  String get attendanceEmpty;
+
+  /// Opens the explain-absence form.
+  ///
+  /// In ar, this message translates to:
+  /// **'توضيح الغياب'**
+  String get explainAbsenceAction;
+
+  /// Title of the explain-absence sheet.
+  ///
+  /// In ar, this message translates to:
+  /// **'توضيح الغياب'**
+  String get explainAbsenceTitle;
+
+  /// Explains what the action does and does not do.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسل سبب الغياب إلى المدرسة. المدرسة وحدها تقرّر اعتبار الغياب بعذر.'**
+  String get explainAbsenceBody;
+
+  /// Label for the reason field.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب الغياب'**
+  String get explainAbsenceHint;
+
+  /// Submits the explanation.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get explainAbsenceSubmit;
+
+  /// Validation message for an empty reason.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب سبب الغياب.'**
+  String get explainAbsenceRequired;
+
+  /// Confirms the explanation was filed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إرسال التوضيح إلى المدرسة.'**
+  String get explanationFiled;
+
+  /// Label for the teacher's own note.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة المدرسة'**
+  String get explanationFromSchool;
+
+  /// Label for the guardian's explanation.
+  ///
+  /// In ar, this message translates to:
+  /// **'توضيحك'**
+  String get explanationFromYou;
+
+  /// Empty state for grades.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد درجات منشورة بعد.'**
+  String get gradesEmpty;
+
+  /// Empty state for report cards.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد شهادات صادرة بعد.'**
+  String get reportCardsEmpty;
+
+  /// Downloads an issued report card.
+  ///
+  /// In ar, this message translates to:
+  /// **'تنزيل الشهادة'**
+  String get reportCardDownload;
+
+  /// Which issued version of a report card this is.
+  ///
+  /// In ar, this message translates to:
+  /// **'{version, plural, =1{الإصدار الأول} =2{الإصدار الثاني} other{الإصدار {version}}}'**
+  String reportCardVersion(int version);
 }
 
 class _AppLocalizationsDelegate
