@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\HrPayrollController;
 use App\Http\Controllers\Api\InstallmentController;
 use App\Http\Controllers\Api\LibraryController;
 use App\Http\Controllers\Api\MessagingController;
+use App\Http\Controllers\Api\Mobile\ParentAcademicsController as MobileParentAcademicsController;
 use App\Http\Controllers\Api\Mobile\ParentFinanceController as MobileParentFinanceController;
 use App\Http\Controllers\Api\Mobile\ParentHomeController as MobileParentHomeController;
 use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
@@ -166,6 +167,24 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
                     // is what makes a double tap one payment rather than two.
                     Route::post('/pay/{installmentId}/intent', [MobileParentFinanceController::class, 'payIntent'])
                         ->whereNumber('installmentId');
+
+                    // ACADEMICS. Marks appear only once their gradebook is
+                    // finalized, and a report card only once it has been
+                    // issued -- an unissued one has no row to reach.
+                    Route::get('/children/{studentId}/attendance', [MobileParentAcademicsController::class, 'attendance'])
+                        ->whereNumber('studentId');
+                    Route::get('/children/{studentId}/grades', [MobileParentAcademicsController::class, 'grades'])
+                        ->whereNumber('studentId');
+                    Route::get('/children/{studentId}/report-cards', [MobileParentAcademicsController::class, 'reportCards'])
+                        ->whereNumber('studentId');
+
+                    // Keyed on an issue id, which EnsureParentOwnsChild cannot
+                    // interpret, so ownership is checked in the controller.
+                    Route::get('/report-cards/{issueId}/pdf', [MobileParentAcademicsController::class, 'reportCardPdf'])
+                        ->whereNumber('issueId');
+
+                    Route::post('/attendance/{recordId}/explain', [MobileParentAcademicsController::class, 'explainAbsence'])
+                        ->whereNumber('recordId');
                 });
         });
 

@@ -9,7 +9,7 @@ import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
 import 'package:school_mobile/generated/api_util.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry271422_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry276422_response.dart';
 import 'package:school_mobile/generated/model/file_profile_photo403_response.dart';
 import 'package:school_mobile/generated/model/inline_object.dart';
 import 'package:school_mobile/generated/model/payment_confirm_payment200_response.dart';
