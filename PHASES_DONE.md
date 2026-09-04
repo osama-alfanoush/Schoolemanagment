@@ -216,7 +216,7 @@ decision, like the FCM project.
 
 ## PHASE 4 — Parent app
 
-**Status: 3 of 6 orders done.**
+**Status: 4 of 6 orders done.**
 
 ### Order 4.1 — Backend: parent BFF ✅
 
@@ -322,11 +322,41 @@ pull-to-refresh.
 **Negative control:** making the screen network-first failed the cache-ordering
 test and the "failed fetch keeps showing cached data" test; restoring it passed.
 
-### Orders 4.4 – 4.6
+### Order 4.4 — Flutter: fees, payments, invoices ✅
 
-Not started. 4.4 is the fees/payments screen (the one the plan calls the screen
-that justifies the app to the school owner), 4.5 attendance/grades/report
-cards, 4.6 notifications/messages/timetable/profile.
+`7a8545d` · `school-mobile/lib/features/parent/`
+
+- **Paying is two taps from this screen, three from home.** The confirmation is
+  not ceremony — it is the last point at which the amount sits beside the
+  child's name, which is what stops the wrong installment being paid.
+- **One idempotency key per attempt, reused by every retry.** There are two
+  retry layers and a test proves both reuse it: the transport retries a lost
+  connection on its own, and the parent tapping again after it gives up is a
+  second logical attempt. The key also survives an app restart mid-payment, and
+  is cleared once the payment completes so the next one is genuinely new.
+- **Payments are never queued.** Everything else that writes goes to the
+  outbox; money does not, because a payment replayed hours later against a
+  balance that has moved is a charge nobody authorised. A test asserts nothing
+  reaches the outbox.
+- The QR is rendered only when the invoice says `cleared` **and** the server
+  sent one. A QR on an uncleared invoice is ignored, and an unrecognised
+  clearance state counts as not cleared.
+- The server decides what is payable; the client does not second-guess it.
+- Amounts render at exactly three decimals in both locales.
+
+Verified: 19 tests, both locales, 200% text scale.
+
+**Negative control:** minting a fresh key per attempt failed the reuse and
+restart tests; restoring it passed.
+
+**Bug found and fixed while testing:** the installment row put an amount and a
+Pay button in a `Row`, which overflows at 200% text scale on a phone. It wraps
+now.
+
+### Orders 4.5 – 4.6
+
+Not started. 4.5 is attendance/grades/report cards, 4.6
+notifications/messages/timetable/profile.
 
 ## PHASE 5 — Teacher app
 
