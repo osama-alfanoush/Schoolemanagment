@@ -199,4 +199,69 @@ class AppLocalizationsAr extends AppLocalizations {
   String lastUpdated(String time) {
     return 'آخر تحديث: $time';
   }
+
+  @override
+  String get signInSubtitle =>
+      'سجّل الدخول بالبريد الإلكتروني وكلمة المرور التي زوّدتك بها المدرسة.';
+
+  @override
+  String get emailLabel => 'البريد الإلكتروني';
+
+  @override
+  String get passwordLabel => 'كلمة المرور';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get signInAction => 'تسجيل الدخول';
+
+  @override
+  String get emailRequired => 'أدخل البريد الإلكتروني.';
+
+  @override
+  String get emailInvalid => 'البريد الإلكتروني غير صالح.';
+
+  @override
+  String get passwordRequired => 'أدخل كلمة المرور.';
+
+  @override
+  String get loginInvalidCredentials =>
+      'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+
+  @override
+  String get loginTooManyAttempts =>
+      'محاولات كثيرة خلال وقت قصير. انتظر قليلًا ثم حاول مرة أخرى.';
+
+  @override
+  String get loginNoSchoolAccess =>
+      'لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.';
+
+  @override
+  String get loginDeviceNotReady =>
+      'تعذّر تجهيز معرّف هذا الجهاز. أعد تشغيل التطبيق ثم حاول مرة أخرى.';
+
+  @override
+  String get loginFailedGeneric => 'تعذّر تسجيل الدخول. حاول مرة أخرى.';
+
+  @override
+  String loginAccountLocked(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد $minutes دقيقة.',
+      many:
+          'تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد $minutes دقيقة.',
+      few:
+          'تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد $minutes دقائق.',
+      two: 'تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقتين.',
+      one: 'تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقة.',
+      zero: 'تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد قليل.',
+    );
+    return '$_temp0';
+  }
 }

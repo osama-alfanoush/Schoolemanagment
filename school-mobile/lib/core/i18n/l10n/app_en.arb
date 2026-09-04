@@ -53,5 +53,20 @@
   "failedSyncTooltip": "Items that could not be synced",
   "pendingSyncCount": "{count, plural, =0{Nothing waiting to sync} =1{1 item waiting to sync} other{{count} items waiting to sync}}",
   "failedSyncCount": "{count, plural, =0{Nothing failed to sync} =1{1 item could not be synced} other{{count} items could not be synced}}",
-  "lastUpdated": "Last updated: {time}"
+  "lastUpdated": "Last updated: {time}",
+  "signInSubtitle": "Sign in with the email and password the school gave you.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "signInAction": "Sign in",
+  "emailRequired": "Enter your email.",
+  "emailInvalid": "That email is not valid.",
+  "passwordRequired": "Enter your password.",
+  "loginInvalidCredentials": "That email or password is not correct.",
+  "loginTooManyAttempts": "Too many attempts in a short time. Wait a moment and try again.",
+  "loginNoSchoolAccess": "Your account has no active school assignment. Contact the school office.",
+  "loginDeviceNotReady": "This device could not be identified. Restart the app and try again.",
+  "loginFailedGeneric": "Could not sign in. Try again.",
+  "loginAccountLocked": "{minutes, plural, =0{Your account is locked after too many failed attempts. Try again shortly.} =1{Your account is locked after too many failed attempts. Try again in 1 minute.} other{Your account is locked after too many failed attempts. Try again in {minutes} minutes.}}"
 }

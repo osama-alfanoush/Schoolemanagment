@@ -9,11 +9,24 @@ class RecordedRequest {
   RecordedRequest(RequestOptions options)
       : method = options.method.toUpperCase(),
         path = options.path,
-        headers = Map<String, dynamic>.from(options.headers);
+        headers = Map<String, dynamic>.from(options.headers),
+        body = options.data;
 
   final String method;
   final String path;
   final Map<String, dynamic> headers;
+
+  /// The body as the client handed it to the adapter, before encoding.
+  ///
+  /// Captured so a test can assert a field is *present* — `device_id` is the
+  /// one that matters, because a session established without it can never be
+  /// revoked remotely.
+  final Object? body;
+
+  /// The body as a map, or an empty map when it is not one.
+  Map<String, Object?> get json => body is Map
+      ? (body! as Map).map((key, value) => MapEntry('$key', value))
+      : const <String, Object?>{};
 
   String? get authorization => header('Authorization');
 

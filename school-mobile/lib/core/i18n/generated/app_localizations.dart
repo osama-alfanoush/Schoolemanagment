@@ -421,6 +421,96 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'آخر تحديث: {time}'**
   String lastUpdated(String time);
+
+  /// Explanation under the sign-in title.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل الدخول بالبريد الإلكتروني وكلمة المرور التي زوّدتك بها المدرسة.'**
+  String get signInSubtitle;
+
+  /// Label for the email field.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني'**
+  String get emailLabel;
+
+  /// Label for the password field.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمة المرور'**
+  String get passwordLabel;
+
+  /// Toggle that reveals the password.
+  ///
+  /// In ar, this message translates to:
+  /// **'إظهار كلمة المرور'**
+  String get showPassword;
+
+  /// Toggle that hides the password.
+  ///
+  /// In ar, this message translates to:
+  /// **'إخفاء كلمة المرور'**
+  String get hidePassword;
+
+  /// Submit button on the sign-in screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسجيل الدخول'**
+  String get signInAction;
+
+  /// Validation message for an empty email field.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل البريد الإلكتروني.'**
+  String get emailRequired;
+
+  /// Validation message for a malformed email.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني غير صالح.'**
+  String get emailInvalid;
+
+  /// Validation message for an empty password field.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل كلمة المرور.'**
+  String get passwordRequired;
+
+  /// Shown when the server rejects the credentials.
+  ///
+  /// In ar, this message translates to:
+  /// **'البريد الإلكتروني أو كلمة المرور غير صحيحة.'**
+  String get loginInvalidCredentials;
+
+  /// Shown when the login rate limiter rejects the request.
+  ///
+  /// In ar, this message translates to:
+  /// **'محاولات كثيرة خلال وقت قصير. انتظر قليلًا ثم حاول مرة أخرى.'**
+  String get loginTooManyAttempts;
+
+  /// Shown when the account has no active school assignment.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.'**
+  String get loginNoSchoolAccess;
+
+  /// Shown when the device id could not be provisioned, so login was not attempted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تجهيز معرّف هذا الجهاز. أعد تشغيل التطبيق ثم حاول مرة أخرى.'**
+  String get loginDeviceNotReady;
+
+  /// Shown for an unclassified login failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر تسجيل الدخول. حاول مرة أخرى.'**
+  String get loginFailedGeneric;
+
+  /// Shown when the account is locked out, with the minutes remaining.
+  ///
+  /// In ar, this message translates to:
+  /// **'{minutes, plural, =0{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد قليل.} =1{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقة.} =2{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقتين.} few{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقائق.} many{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.} other{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.}}'**
+  String loginAccountLocked(int minutes);
 }
 
 class _AppLocalizationsDelegate

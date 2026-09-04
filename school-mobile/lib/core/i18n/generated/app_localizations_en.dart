@@ -196,4 +196,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String lastUpdated(String time) {
     return 'Last updated: $time';
   }
+
+  @override
+  String get signInSubtitle =>
+      'Sign in with the email and password the school gave you.';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get signInAction => 'Sign in';
+
+  @override
+  String get emailRequired => 'Enter your email.';
+
+  @override
+  String get emailInvalid => 'That email is not valid.';
+
+  @override
+  String get passwordRequired => 'Enter your password.';
+
+  @override
+  String get loginInvalidCredentials =>
+      'That email or password is not correct.';
+
+  @override
+  String get loginTooManyAttempts =>
+      'Too many attempts in a short time. Wait a moment and try again.';
+
+  @override
+  String get loginNoSchoolAccess =>
+      'Your account has no active school assignment. Contact the school office.';
+
+  @override
+  String get loginDeviceNotReady =>
+      'This device could not be identified. Restart the app and try again.';
+
+  @override
+  String get loginFailedGeneric => 'Could not sign in. Try again.';
+
+  @override
+  String loginAccountLocked(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other:
+          'Your account is locked after too many failed attempts. Try again in $minutes minutes.',
+      one: 'Your account is locked after too many failed attempts. Try again in 1 minute.',
+      zero: 'Your account is locked after too many failed attempts. Try again shortly.',
+    );
+    return '$_temp0';
+  }
 }

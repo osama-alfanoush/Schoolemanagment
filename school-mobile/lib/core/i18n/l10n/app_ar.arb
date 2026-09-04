@@ -230,5 +230,70 @@
         "type": "String"
       }
     }
+  },
+  "signInSubtitle": "سجّل الدخول بالبريد الإلكتروني وكلمة المرور التي زوّدتك بها المدرسة.",
+  "@signInSubtitle": {
+    "description": "Explanation under the sign-in title."
+  },
+  "emailLabel": "البريد الإلكتروني",
+  "@emailLabel": {
+    "description": "Label for the email field."
+  },
+  "passwordLabel": "كلمة المرور",
+  "@passwordLabel": {
+    "description": "Label for the password field."
+  },
+  "showPassword": "إظهار كلمة المرور",
+  "@showPassword": {
+    "description": "Toggle that reveals the password."
+  },
+  "hidePassword": "إخفاء كلمة المرور",
+  "@hidePassword": {
+    "description": "Toggle that hides the password."
+  },
+  "signInAction": "تسجيل الدخول",
+  "@signInAction": {
+    "description": "Submit button on the sign-in screen."
+  },
+  "emailRequired": "أدخل البريد الإلكتروني.",
+  "@emailRequired": {
+    "description": "Validation message for an empty email field."
+  },
+  "emailInvalid": "البريد الإلكتروني غير صالح.",
+  "@emailInvalid": {
+    "description": "Validation message for a malformed email."
+  },
+  "passwordRequired": "أدخل كلمة المرور.",
+  "@passwordRequired": {
+    "description": "Validation message for an empty password field."
+  },
+  "loginInvalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+  "@loginInvalidCredentials": {
+    "description": "Shown when the server rejects the credentials."
+  },
+  "loginTooManyAttempts": "محاولات كثيرة خلال وقت قصير. انتظر قليلًا ثم حاول مرة أخرى.",
+  "@loginTooManyAttempts": {
+    "description": "Shown when the login rate limiter rejects the request."
+  },
+  "loginNoSchoolAccess": "لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.",
+  "@loginNoSchoolAccess": {
+    "description": "Shown when the account has no active school assignment."
+  },
+  "loginDeviceNotReady": "تعذّر تجهيز معرّف هذا الجهاز. أعد تشغيل التطبيق ثم حاول مرة أخرى.",
+  "@loginDeviceNotReady": {
+    "description": "Shown when the device id could not be provisioned, so login was not attempted."
+  },
+  "loginFailedGeneric": "تعذّر تسجيل الدخول. حاول مرة أخرى.",
+  "@loginFailedGeneric": {
+    "description": "Shown for an unclassified login failure."
+  },
+  "loginAccountLocked": "{minutes, plural, =0{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد قليل.} =1{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقة.} =2{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقتين.} few{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقائق.} many{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.} other{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.}}",
+  "@loginAccountLocked": {
+    "description": "Shown when the account is locked out, with the minutes remaining.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }
