@@ -30,8 +30,8 @@ Serializers _$serializers =
           ..add(AccountingStoreAccount201Response.serializer)
           ..add(AccountingStoreAccountRequest.serializer)
           ..add(AccountingStoreAccountRequestAccountTypeEnum.serializer)
-          ..add(AccountingStoreJournalEntry259201Response.serializer)
-          ..add(AccountingStoreJournalEntry259422Response.serializer)
+          ..add(AccountingStoreJournalEntry260201Response.serializer)
+          ..add(AccountingStoreJournalEntry260422Response.serializer)
           ..add(AccountingSyncBudgetActuals200Response.serializer)
           ..add(AccountingSyncBudgetActuals200ResponseData.serializer)
           ..add(
@@ -146,6 +146,8 @@ Serializers _$serializers =
           ..add(ChartOfAccount.serializer)
           ..add(ClassRoom.serializer)
           ..add(ConductLog.serializer)
+          ..add(DeltaChangeResource.serializer)
+          ..add(DeltaPageResource.serializer)
           ..add(DisciplinaryWarning.serializer)
           ..add(EmployeeAdvance.serializer)
           ..add(EmployeeContract.serializer)
@@ -155,8 +157,8 @@ Serializers _$serializers =
           ..add(Exam.serializer)
           ..add(FeeStructure.serializer)
           ..add(FileProfilePhoto403Response.serializer)
-          ..add(FinanceFeeStructures244Request.serializer)
-          ..add(FinanceFeeStructures244RequestBillingCycleEnum.serializer)
+          ..add(FinanceFeeStructures245Request.serializer)
+          ..add(FinanceFeeStructures245RequestBillingCycleEnum.serializer)
           ..add(FinanceFinancialReports200Response.serializer)
           ..add(FinanceGenerateInvoices201Response.serializer)
           ..add(FinanceGenerateInvoicesRequest.serializer)
@@ -186,7 +188,7 @@ Serializers _$serializers =
           ..add(GradebookIssue201Response.serializer)
           ..add(GradebookIssueRequest.serializer)
           ..add(GradebookReopenRequest.serializer)
-          ..add(GradebookShow86200Response.serializer)
+          ..add(GradebookShow87200Response.serializer)
           ..add(GradebookSubmit200Response.serializer)
           ..add(HealthzGet200Response.serializer)
           ..add(HealthzGet200ResponseStatusEnum.serializer)
@@ -194,9 +196,9 @@ Serializers _$serializers =
           ..add(HrCreateEvaluationRequest.serializer)
           ..add(HrCreateEvaluationRequestCriteriaScoresInner.serializer)
           ..add(HrEvaluations200Response.serializer)
-          ..add(HrJobs325200Response.serializer)
-          ..add(HrJobs326Request.serializer)
-          ..add(HrJobs326RequestPositionTypeEnum.serializer)
+          ..add(HrJobs326200Response.serializer)
+          ..add(HrJobs327Request.serializer)
+          ..add(HrJobs327RequestPositionTypeEnum.serializer)
           ..add(HrPayrollAdvances200Response.serializer)
           ..add(HrPayrollContractHistory200Response.serializer)
           ..add(HrPayrollContractHistory200ResponseEmployment.serializer)
@@ -216,14 +218,14 @@ Serializers _$serializers =
           ..add(HrPayrollTransitionWarningRequest.serializer)
           ..add(HrPayrollWarnings200Response.serializer)
           ..add(HrRequest.serializer)
-          ..add(HrReviewRequest315Request.serializer)
-          ..add(HrReviewRequest315RequestStatusEnum.serializer)
-          ..add(HrStaffAttendance319200Response.serializer)
-          ..add(HrStaffAttendance319200ResponseAnyOf.serializer)
-          ..add(HrStaffAttendance319200ResponseAnyOfMessageEnum.serializer)
-          ..add(HrStaffAttendance319RecordsParameterInner.serializer)
-          ..add(HrStaffAttendance319RecordsParameterInnerStatusEnum.serializer)
-          ..add(HrStaffAttendance320Request.serializer)
+          ..add(HrReviewRequest316Request.serializer)
+          ..add(HrReviewRequest316RequestStatusEnum.serializer)
+          ..add(HrStaffAttendance320200Response.serializer)
+          ..add(HrStaffAttendance320200ResponseAnyOf.serializer)
+          ..add(HrStaffAttendance320200ResponseAnyOfMessageEnum.serializer)
+          ..add(HrStaffAttendance320RecordsParameterInner.serializer)
+          ..add(HrStaffAttendance320RecordsParameterInnerStatusEnum.serializer)
+          ..add(HrStaffAttendance321Request.serializer)
           ..add(HrSubmitRequest24403Response.serializer)
           ..add(HrSubmitRequest24403ResponseMessageEnum.serializer)
           ..add(HrSubmitRequest24Request.serializer)
@@ -253,7 +255,7 @@ Serializers _$serializers =
           ..add(LibraryAllBorrowings200Response.serializer)
           ..add(LibraryAvailableBooks200Response.serializer)
           ..add(LibraryBook.serializer)
-          ..add(LibraryBooks156Request.serializer)
+          ..add(LibraryBooks157Request.serializer)
           ..add(LibraryBorrowing.serializer)
           ..add(LibraryMyBorrowings200Response.serializer)
           ..add(LibrarySelfReturn200Response.serializer)
@@ -423,11 +425,14 @@ Serializers _$serializers =
           ..add(SupplierInvoice.serializer)
           ..add(SupplierPayment.serializer)
           ..add(SupplierTransaction.serializer)
+          ..add(SyncDelta200Response.serializer)
+          ..add(SyncDelta403Response.serializer)
+          ..add(SyncDelta403ResponseMessageEnum.serializer)
           ..add(TeacherAnnounceRequest.serializer)
           ..add(TeacherAssignmentSubmissions200Response.serializer)
           ..add(TeacherEnterGradeRequest.serializer)
-          ..add(TeacherGradeComponents82Request.serializer)
-          ..add(TeacherGradeComponents82RequestTypeEnum.serializer)
+          ..add(TeacherGradeComponents83Request.serializer)
+          ..add(TeacherGradeComponents83RequestTypeEnum.serializer)
           ..add(TeacherGradeSubmissionRequest.serializer)
           ..add(TeacherLogConduct403Response.serializer)
           ..add(TeacherLogConduct403ResponseMessageEnum.serializer)
@@ -444,11 +449,11 @@ Serializers _$serializers =
           ..add(TransportAllAssignments200Response.serializer)
           ..add(TransportAssignment.serializer)
           ..add(TransportRoute.serializer)
-          ..add(TransportRoutes161Request.serializer)
+          ..add(TransportRoutes162Request.serializer)
           ..add(TransportStop.serializer)
-          ..add(TransportStops165Request.serializer)
+          ..add(TransportStops166Request.serializer)
           ..add(TransportVehicle.serializer)
-          ..add(TransportVehicles163Request.serializer)
+          ..add(TransportVehicles164Request.serializer)
           ..add(User.serializer)
           ..add(UserDevice.serializer)
           ..add(WarehouseCategory.serializer)
@@ -459,7 +464,7 @@ Serializers _$serializers =
           ..add(WarehouseDashboard200ResponseTopConsumedItemsInner.serializer)
           ..add(WarehouseIndexCategories200Response.serializer)
           ..add(WarehouseIndexCounts200Response.serializer)
-          ..add(WarehouseIndexItems183200Response.serializer)
+          ..add(WarehouseIndexItems184200Response.serializer)
           ..add(WarehouseIndexMovements200Response.serializer)
           ..add(WarehouseIndexPurchaseRequests200Response.serializer)
           ..add(WarehouseInventoryReport200Response.serializer)
@@ -635,6 +640,12 @@ Serializers _$serializers =
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [
+              const FullType(DeltaChangeResource),
+            ]),
+            () => ListBuilder<DeltaChangeResource>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltList, const [
               const FullType(DisciplinaryWarning),
             ]),
             () => ListBuilder<DisciplinaryWarning>(),
@@ -742,9 +753,9 @@ Serializers _$serializers =
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [
-              const FullType(HrStaffAttendance319RecordsParameterInner),
+              const FullType(HrStaffAttendance320RecordsParameterInner),
             ]),
-            () => ListBuilder<HrStaffAttendance319RecordsParameterInner>(),
+            () => ListBuilder<HrStaffAttendance320RecordsParameterInner>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltList, const [const FullType(Installment)]),
@@ -1549,6 +1560,13 @@ Serializers _$serializers =
               const FullType(String),
             ]),
             () => MapBuilder<String, String>(),
+          )
+          ..addBuilderFactory(
+            const FullType(BuiltMap, const [
+              const FullType(String),
+              const FullType.nullable(JsonObject),
+            ]),
+            () => MapBuilder<String, JsonObject?>(),
           )
           ..addBuilderFactory(
             const FullType(BuiltMap, const [

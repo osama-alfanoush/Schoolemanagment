@@ -33,6 +33,7 @@ import 'package:school_mobile/generated/api/payroll_settings_api.dart';
 import 'package:school_mobile/generated/api/procurement_api.dart';
 import 'package:school_mobile/generated/api/procurement_finance_api.dart';
 import 'package:school_mobile/generated/api/student_api.dart';
+import 'package:school_mobile/generated/api/sync_api.dart';
 import 'package:school_mobile/generated/api/teacher_api.dart';
 import 'package:school_mobile/generated/api/transport_api.dart';
 import 'package:school_mobile/generated/api/warehouse_api.dart';
@@ -233,6 +234,12 @@ class SchoolMobile {
   /// by doing that all interceptors will not be executed
   StudentApi getStudentApi() {
     return StudentApi(dio, serializers);
+  }
+
+  /// Get SyncApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  SyncApi getSyncApi() {
+    return SyncApi(dio, serializers);
   }
 
   /// Get TeacherApi instance, base route and serializer can be overridden by a given but be careful,

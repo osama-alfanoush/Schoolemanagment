@@ -34,8 +34,8 @@ import 'package:school_mobile/generated/model/accounting_show_journal_entry200_r
 import 'package:school_mobile/generated/model/accounting_show_journal_entry404_response.dart';
 import 'package:school_mobile/generated/model/accounting_store_account201_response.dart';
 import 'package:school_mobile/generated/model/accounting_store_account_request.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry259201_response.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry259422_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry260201_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry260422_response.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response_data.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response_data_updated_inner.dart';
@@ -103,6 +103,8 @@ import 'package:school_mobile/generated/model/calendar_event.dart';
 import 'package:school_mobile/generated/model/chart_of_account.dart';
 import 'package:school_mobile/generated/model/class_room.dart';
 import 'package:school_mobile/generated/model/conduct_log.dart';
+import 'package:school_mobile/generated/model/delta_change_resource.dart';
+import 'package:school_mobile/generated/model/delta_page_resource.dart';
 import 'package:school_mobile/generated/model/disciplinary_warning.dart';
 import 'package:school_mobile/generated/model/employee_advance.dart';
 import 'package:school_mobile/generated/model/employee_contract.dart';
@@ -111,7 +113,7 @@ import 'package:school_mobile/generated/model/enrollment_transfer_request.dart';
 import 'package:school_mobile/generated/model/exam.dart';
 import 'package:school_mobile/generated/model/fee_structure.dart';
 import 'package:school_mobile/generated/model/file_profile_photo403_response.dart';
-import 'package:school_mobile/generated/model/finance_fee_structures244_request.dart';
+import 'package:school_mobile/generated/model/finance_fee_structures245_request.dart';
 import 'package:school_mobile/generated/model/finance_financial_reports200_response.dart';
 import 'package:school_mobile/generated/model/finance_generate_invoices201_response.dart';
 import 'package:school_mobile/generated/model/finance_generate_invoices_request.dart';
@@ -135,15 +137,15 @@ import 'package:school_mobile/generated/model/gradebook.dart';
 import 'package:school_mobile/generated/model/gradebook_issue201_response.dart';
 import 'package:school_mobile/generated/model/gradebook_issue_request.dart';
 import 'package:school_mobile/generated/model/gradebook_reopen_request.dart';
-import 'package:school_mobile/generated/model/gradebook_show86200_response.dart';
+import 'package:school_mobile/generated/model/gradebook_show87200_response.dart';
 import 'package:school_mobile/generated/model/gradebook_submit200_response.dart';
 import 'package:school_mobile/generated/model/healthz_get200_response.dart';
 import 'package:school_mobile/generated/model/hr_applications200_response.dart';
 import 'package:school_mobile/generated/model/hr_create_evaluation_request.dart';
 import 'package:school_mobile/generated/model/hr_create_evaluation_request_criteria_scores_inner.dart';
 import 'package:school_mobile/generated/model/hr_evaluations200_response.dart';
-import 'package:school_mobile/generated/model/hr_jobs325200_response.dart';
-import 'package:school_mobile/generated/model/hr_jobs326_request.dart';
+import 'package:school_mobile/generated/model/hr_jobs326200_response.dart';
+import 'package:school_mobile/generated/model/hr_jobs327_request.dart';
 import 'package:school_mobile/generated/model/hr_payroll_advances200_response.dart';
 import 'package:school_mobile/generated/model/hr_payroll_contract_history200_response.dart';
 import 'package:school_mobile/generated/model/hr_payroll_contract_history200_response_employment.dart';
@@ -163,11 +165,11 @@ import 'package:school_mobile/generated/model/hr_payroll_store_warning_request.d
 import 'package:school_mobile/generated/model/hr_payroll_transition_warning_request.dart';
 import 'package:school_mobile/generated/model/hr_payroll_warnings200_response.dart';
 import 'package:school_mobile/generated/model/hr_request.dart';
-import 'package:school_mobile/generated/model/hr_review_request315_request.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance319200_response.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance319200_response_any_of.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance319_records_parameter_inner.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance320_request.dart';
+import 'package:school_mobile/generated/model/hr_review_request316_request.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance320200_response.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance320200_response_any_of.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance320_records_parameter_inner.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance321_request.dart';
 import 'package:school_mobile/generated/model/hr_submit_request24403_response.dart';
 import 'package:school_mobile/generated/model/hr_submit_request24_request.dart';
 import 'package:school_mobile/generated/model/hr_update_application_status_request.dart';
@@ -190,7 +192,7 @@ import 'package:school_mobile/generated/model/length_aware_paginator.dart';
 import 'package:school_mobile/generated/model/library_all_borrowings200_response.dart';
 import 'package:school_mobile/generated/model/library_available_books200_response.dart';
 import 'package:school_mobile/generated/model/library_book.dart';
-import 'package:school_mobile/generated/model/library_books156_request.dart';
+import 'package:school_mobile/generated/model/library_books157_request.dart';
 import 'package:school_mobile/generated/model/library_borrowing.dart';
 import 'package:school_mobile/generated/model/library_my_borrowings200_response.dart';
 import 'package:school_mobile/generated/model/library_self_return200_response.dart';
@@ -319,10 +321,12 @@ import 'package:school_mobile/generated/model/supplier.dart';
 import 'package:school_mobile/generated/model/supplier_invoice.dart';
 import 'package:school_mobile/generated/model/supplier_payment.dart';
 import 'package:school_mobile/generated/model/supplier_transaction.dart';
+import 'package:school_mobile/generated/model/sync_delta200_response.dart';
+import 'package:school_mobile/generated/model/sync_delta403_response.dart';
 import 'package:school_mobile/generated/model/teacher_announce_request.dart';
 import 'package:school_mobile/generated/model/teacher_assignment_submissions200_response.dart';
 import 'package:school_mobile/generated/model/teacher_enter_grade_request.dart';
-import 'package:school_mobile/generated/model/teacher_grade_components82_request.dart';
+import 'package:school_mobile/generated/model/teacher_grade_components83_request.dart';
 import 'package:school_mobile/generated/model/teacher_grade_submission_request.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct403_response.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct_request.dart';
@@ -335,11 +339,11 @@ import 'package:school_mobile/generated/model/timetable_entry.dart';
 import 'package:school_mobile/generated/model/transport_all_assignments200_response.dart';
 import 'package:school_mobile/generated/model/transport_assignment.dart';
 import 'package:school_mobile/generated/model/transport_route.dart';
-import 'package:school_mobile/generated/model/transport_routes161_request.dart';
+import 'package:school_mobile/generated/model/transport_routes162_request.dart';
 import 'package:school_mobile/generated/model/transport_stop.dart';
-import 'package:school_mobile/generated/model/transport_stops165_request.dart';
+import 'package:school_mobile/generated/model/transport_stops166_request.dart';
 import 'package:school_mobile/generated/model/transport_vehicle.dart';
-import 'package:school_mobile/generated/model/transport_vehicles163_request.dart';
+import 'package:school_mobile/generated/model/transport_vehicles164_request.dart';
 import 'package:school_mobile/generated/model/user.dart';
 import 'package:school_mobile/generated/model/user_device.dart';
 import 'package:school_mobile/generated/model/warehouse_category.dart';
@@ -350,7 +354,7 @@ import 'package:school_mobile/generated/model/warehouse_dashboard200_response_mo
 import 'package:school_mobile/generated/model/warehouse_dashboard200_response_top_consumed_items_inner.dart';
 import 'package:school_mobile/generated/model/warehouse_index_categories200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_counts200_response.dart';
-import 'package:school_mobile/generated/model/warehouse_index_items183200_response.dart';
+import 'package:school_mobile/generated/model/warehouse_index_items184200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_movements200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_purchase_requests200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_inventory_report200_response.dart';
@@ -393,8 +397,8 @@ part 'serializers.g.dart';
   AccountingShowJournalEntry404Response,
   AccountingStoreAccount201Response,
   AccountingStoreAccountRequest,
-  AccountingStoreJournalEntry259201Response,
-  AccountingStoreJournalEntry259422Response,
+  AccountingStoreJournalEntry260201Response,
+  AccountingStoreJournalEntry260422Response,
   AccountingSyncBudgetActuals200Response,
   AccountingSyncBudgetActuals200ResponseData,
   AccountingSyncBudgetActuals200ResponseDataUpdatedInner,
@@ -462,6 +466,8 @@ part 'serializers.g.dart';
   ChartOfAccount,
   ClassRoom,
   ConductLog,
+  DeltaChangeResource,
+  DeltaPageResource,
   DisciplinaryWarning,
   EmployeeAdvance,
   EmployeeContract,
@@ -470,7 +476,7 @@ part 'serializers.g.dart';
   Exam,
   FeeStructure,
   FileProfilePhoto403Response,
-  FinanceFeeStructures244Request,
+  FinanceFeeStructures245Request,
   FinanceFinancialReports200Response,
   FinanceGenerateInvoices201Response,
   FinanceGenerateInvoicesRequest,
@@ -494,15 +500,15 @@ part 'serializers.g.dart';
   GradebookIssue201Response,
   GradebookIssueRequest,
   GradebookReopenRequest,
-  GradebookShow86200Response,
+  GradebookShow87200Response,
   GradebookSubmit200Response,
   HealthzGet200Response,
   HrApplications200Response,
   HrCreateEvaluationRequest,
   HrCreateEvaluationRequestCriteriaScoresInner,
   HrEvaluations200Response,
-  HrJobs325200Response,
-  HrJobs326Request,
+  HrJobs326200Response,
+  HrJobs327Request,
   HrPayrollAdvances200Response,
   HrPayrollContractHistory200Response,
   HrPayrollContractHistory200ResponseEmployment,
@@ -522,11 +528,11 @@ part 'serializers.g.dart';
   HrPayrollTransitionWarningRequest,
   HrPayrollWarnings200Response,
   HrRequest,
-  HrReviewRequest315Request,
-  HrStaffAttendance319200Response,
-  HrStaffAttendance319200ResponseAnyOf,
-  HrStaffAttendance319RecordsParameterInner,
-  HrStaffAttendance320Request,
+  HrReviewRequest316Request,
+  HrStaffAttendance320200Response,
+  HrStaffAttendance320200ResponseAnyOf,
+  HrStaffAttendance320RecordsParameterInner,
+  HrStaffAttendance321Request,
   HrSubmitRequest24403Response,
   HrSubmitRequest24Request,
   HrUpdateApplicationStatusRequest,
@@ -549,7 +555,7 @@ part 'serializers.g.dart';
   LibraryAllBorrowings200Response,
   LibraryAvailableBooks200Response,
   LibraryBook,
-  LibraryBooks156Request,
+  LibraryBooks157Request,
   LibraryBorrowing,
   LibraryMyBorrowings200Response,
   LibrarySelfReturn200Response,
@@ -678,10 +684,12 @@ part 'serializers.g.dart';
   SupplierInvoice,
   SupplierPayment,
   SupplierTransaction,
+  SyncDelta200Response,
+  SyncDelta403Response,
   TeacherAnnounceRequest,
   TeacherAssignmentSubmissions200Response,
   TeacherEnterGradeRequest,
-  TeacherGradeComponents82Request,
+  TeacherGradeComponents83Request,
   TeacherGradeSubmissionRequest,
   TeacherLogConduct403Response,
   TeacherLogConductRequest,
@@ -694,11 +702,11 @@ part 'serializers.g.dart';
   TransportAllAssignments200Response,
   TransportAssignment,
   TransportRoute,
-  TransportRoutes161Request,
+  TransportRoutes162Request,
   TransportStop,
-  TransportStops165Request,
+  TransportStops166Request,
   TransportVehicle,
-  TransportVehicles163Request,
+  TransportVehicles164Request,
   User,
   UserDevice,
   WarehouseCategory,
@@ -709,7 +717,7 @@ part 'serializers.g.dart';
   WarehouseDashboard200ResponseTopConsumedItemsInner,
   WarehouseIndexCategories200Response,
   WarehouseIndexCounts200Response,
-  WarehouseIndexItems183200Response,
+  WarehouseIndexItems184200Response,
   WarehouseIndexMovements200Response,
   WarehouseIndexPurchaseRequests200Response,
   WarehouseInventoryReport200Response,
@@ -730,10 +738,6 @@ part 'serializers.g.dart';
   WarehouseUpdateItemRequest,
 ])
 Serializers serializers = (_$serializers.toBuilder()
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(HrStaffAttendance319RecordsParameterInner)]),
-        () => ListBuilder<HrStaffAttendance319RecordsParameterInner>(),
-      )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(CalendarEvent)]),
         () => ListBuilder<CalendarEvent>(),
@@ -829,6 +833,10 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(Subject)]),
         () => ListBuilder<Subject>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(HrStaffAttendance320RecordsParameterInner)]),
+        () => ListBuilder<HrStaffAttendance320RecordsParameterInner>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(String)]),

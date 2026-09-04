@@ -6,6 +6,8 @@ use App\Models\PersonalAccessToken;
 use App\Models\School;
 use App\Models\User;
 use App\Services\CurrentSchool;
+use App\Services\Mobile\DeltaEntityRegistry;
+use App\Services\Mobile\SyncTombstoneRecorder;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(CurrentSchool::class);
+        $this->app->singleton(DeltaEntityRegistry::class);
 
         // A production deploy must never render stack traces, SQL or env dumps
         // because someone left APP_DEBUG=true in the platform variables. The
@@ -54,6 +57,16 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Mobile delta feed. A deleted row is invisible to a keyset scan over
+        // updated_at, so the deletion is recorded separately and outlives the
+        // row it removed. Hooked here rather than in each controller so a
+        // deletion added later is covered without anyone remembering to.
+        foreach ($this->app->make(DeltaEntityRegistry::class)->all() as $definition) {
+            $definition->modelClass::deleted(function (Model $model): void {
+                $this->app->make(SyncTombstoneRecorder::class)->record($model);
+            });
+        }
 
         $currentSchool = $this->app->make(CurrentSchool::class);
         foreach (config('tenancy.models', []) as $modelClass) {

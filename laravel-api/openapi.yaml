@@ -171,7 +171,7 @@ paths:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Accounting Indexjournalbatches'
     post:
-      operationId: accounting.storeJournalEntry_259
+      operationId: accounting.storeJournalEntry_260
       tags:
         - Accounting
       responses:
@@ -198,7 +198,7 @@ paths:
                     $ref: '#/components/schemas/JournalBatch'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Accounting Storejournalentry 259'
+      summary: 'Accounting Storejournalentry 260'
   '/accounting/journal-batches/{id}':
     get:
       operationId: accounting.showJournalBatch
@@ -393,7 +393,7 @@ paths:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Accounting Indexjournalentries'
     post:
-      operationId: accounting.storeJournalEntry_265
+      operationId: accounting.storeJournalEntry_266
       tags:
         - Accounting
       responses:
@@ -420,7 +420,7 @@ paths:
                     $ref: '#/components/schemas/JournalBatch'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Accounting Storejournalentry 265'
+      summary: 'Accounting Storejournalentry 266'
   '/accounting/journal-entries/{id}':
     get:
       operationId: accounting.showJournalEntry
@@ -1329,28 +1329,6 @@ paths:
       summary: 'Admin Bulkimportstudents'
   /admin/classes:
     get:
-      operationId: admin.classes_108
-      tags:
-        - Admin
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ClassRoom'
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClassRoom'
-        401:
-          $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Classes 108'
-    post:
       operationId: admin.classes_109
       tags:
         - Admin
@@ -1372,6 +1350,28 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Admin Classes 109'
+    post:
+      operationId: admin.classes_110
+      tags:
+        - Admin
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassRoom'
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassRoom'
+        401:
+          $ref: '#/components/responses/AuthenticationException'
+      summary: 'Admin Classes 110'
   '/admin/classes/{id}':
     patch:
       operationId: admin.updateClass
@@ -1441,35 +1441,6 @@ paths:
       summary: 'Admin Assignsubjectteacher'
   '/admin/classes/{classId}/timetable':
     get:
-      operationId: admin.timetable_113
-      tags:
-        - Admin
-      parameters:
-        -
-          name: classId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TimetableEntry'
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimetableEntry'
-        401:
-          $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Timetable 113'
-    post:
       operationId: admin.timetable_114
       tags:
         - Admin
@@ -1498,6 +1469,35 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Admin Timetable 114'
+    post:
+      operationId: admin.timetable_115
+      tags:
+        - Admin
+      parameters:
+        -
+          name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableEntry'
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableEntry'
+        401:
+          $ref: '#/components/responses/AuthenticationException'
+      summary: 'Admin Timetable 115'
   '/admin/classes/{classId}/timetable/{id}':
     delete:
       operationId: admin.deleteTimetableEntry
@@ -1524,28 +1524,6 @@ paths:
       summary: 'Admin Deletetimetableentry'
   /admin/calendar:
     get:
-      operationId: admin.calendar_116
-      tags:
-        - Admin
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CalendarEvent'
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CalendarEvent'
-        401:
-          $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Calendar 116'
-    post:
       operationId: admin.calendar_117
       tags:
         - Admin
@@ -1567,6 +1545,28 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Admin Calendar 117'
+    post:
+      operationId: admin.calendar_118
+      tags:
+        - Admin
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalendarEvent'
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarEvent'
+        401:
+          $ref: '#/components/responses/AuthenticationException'
+      summary: 'Admin Calendar 118'
   '/admin/calendar/{id}':
     patch:
       operationId: admin.updateCalendarEvent
@@ -2102,28 +2102,6 @@ paths:
       summary: 'Admin Auditlogs'
   /admin/subjects:
     get:
-      operationId: admin.subjects_129
-      tags:
-        - Admin
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Subject'
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Subject'
-        401:
-          $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Subjects 129'
-    post:
       operationId: admin.subjects_130
       tags:
         - Admin
@@ -2145,6 +2123,28 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Admin Subjects 130'
+    post:
+      operationId: admin.subjects_131
+      tags:
+        - Admin
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subject'
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subject'
+        401:
+          $ref: '#/components/responses/AuthenticationException'
+      summary: 'Admin Subjects 131'
   '/admin/subjects/{id}':
     patch:
       operationId: admin.updateSubject
@@ -2186,28 +2186,6 @@ paths:
       summary: 'Admin Deletesubject'
   /admin/exams:
     get:
-      operationId: admin.exams_133
-      tags:
-        - Admin
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Exam'
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Exam'
-        401:
-          $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Exams 133'
-    post:
       operationId: admin.exams_134
       tags:
         - Admin
@@ -2229,6 +2207,28 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Admin Exams 134'
+    post:
+      operationId: admin.exams_135
+      tags:
+        - Admin
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        401:
+          $ref: '#/components/responses/AuthenticationException'
+      summary: 'Admin Exams 135'
   '/admin/exams/{id}':
     patch:
       operationId: admin.updateExam
@@ -2270,28 +2270,6 @@ paths:
       summary: 'Admin Deleteexam'
   /admin/academic-years:
     get:
-      operationId: admin.academicYears_137
-      tags:
-        - Admin
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AcademicYear'
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AcademicYear'
-        401:
-          $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Academicyears 137'
-    post:
       operationId: admin.academicYears_138
       tags:
         - Admin
@@ -2313,6 +2291,28 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Admin Academicyears 138'
+    post:
+      operationId: admin.academicYears_139
+      tags:
+        - Admin
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcademicYear'
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+        401:
+          $ref: '#/components/responses/AuthenticationException'
+      summary: 'Admin Academicyears 139'
   '/admin/academic-years/{id}':
     patch:
       operationId: admin.updateAcademicYear
@@ -2354,7 +2354,7 @@ paths:
       summary: 'Admin Deleteacademicyear'
   /admin/school-settings:
     get:
-      operationId: admin.getSchoolSettings_141
+      operationId: admin.getSchoolSettings_142
       tags:
         - Admin
       responses:
@@ -2366,7 +2366,7 @@ paths:
                 $ref: '#/components/schemas/SchoolSetting'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Admin Getschoolsettings 141'
+      summary: 'Admin Getschoolsettings 142'
     post:
       operationId: admin.updateSchoolSettings
       tags:
@@ -3438,7 +3438,7 @@ paths:
           $ref: '#/components/responses/AuthenticationException'
   /finance/fee-structures:
     get:
-      operationId: finance.feeStructures_243
+      operationId: finance.feeStructures_244
       tags:
         - Finance
       parameters:
@@ -3497,9 +3497,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Finance Feestructures 243'
+      summary: 'Finance Feestructures 244'
     post:
-      operationId: finance.feeStructures_244
+      operationId: finance.feeStructures_245
       tags:
         - Finance
       requestBody:
@@ -3550,7 +3550,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Finance Feestructures 244'
+      summary: 'Finance Feestructures 245'
   '/finance/fee-structures/{id}':
     patch:
       operationId: finance.updateFeeStructure
@@ -4771,7 +4771,7 @@ paths:
       summary: 'Gradebook Submit'
   '/teacher/gradebooks/{id}':
     get:
-      operationId: gradebook.show_86
+      operationId: gradebook.show_87
       tags:
         - Gradebook
       parameters:
@@ -4809,7 +4809,7 @@ paths:
                   - message
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Gradebook Show 86'
+      summary: 'Gradebook Show 87'
   '/admin/gradebooks/{id}/approve':
     post:
       operationId: gradebook.approve
@@ -4839,7 +4839,7 @@ paths:
       summary: 'Gradebook Approve'
   '/admin/gradebooks/{id}':
     get:
-      operationId: gradebook.show_95
+      operationId: gradebook.show_96
       tags:
         - Gradebook
       parameters:
@@ -4877,7 +4877,7 @@ paths:
                   - message
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Gradebook Show 95'
+      summary: 'Gradebook Show 96'
   '/admin/gradebooks/{id}/return':
     post:
       operationId: gradebook.returnForCorrection
@@ -5123,7 +5123,7 @@ paths:
       summary: 'Hr Submitrequest 24'
   /teacher/hr-requests:
     post:
-      operationId: hr.submitRequest_90
+      operationId: hr.submitRequest_91
       tags:
         - Hr
       requestBody:
@@ -5188,9 +5188,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Submitrequest 90'
+      summary: 'Hr Submitrequest 91'
     get:
-      operationId: hr.myRequests_91
+      operationId: hr.myRequests_92
       tags:
         - Hr
       responses:
@@ -5204,7 +5204,7 @@ paths:
                   $ref: '#/components/schemas/HrRequest'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Myrequests 91'
+      summary: 'Hr Myrequests 92'
   /hr/staff:
     get:
       operationId: hr.staff
@@ -5583,7 +5583,7 @@ paths:
       summary: 'Hr Requests'
   '/hr/requests/{id}/review':
     patch:
-      operationId: hr.reviewRequest_315
+      operationId: hr.reviewRequest_316
       tags:
         - Hr
       parameters:
@@ -5638,7 +5638,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Reviewrequest 315'
+      summary: 'Hr Reviewrequest 316'
   /hr/leave-requests:
     get:
       operationId: hr.leaveRequests
@@ -5739,7 +5739,7 @@ paths:
       summary: 'Hr Leaverequests'
   '/hr/leave-requests/{id}/review':
     patch:
-      operationId: hr.reviewRequest_317
+      operationId: hr.reviewRequest_318
       tags:
         - Hr
       parameters:
@@ -5794,7 +5794,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Reviewrequest 317'
+      summary: 'Hr Reviewrequest 318'
   /hr/leave-balances:
     get:
       operationId: hr.leaveBalances
@@ -5814,7 +5814,7 @@ paths:
       summary: 'Hr Leavebalances'
   /hr/staff-attendance:
     get:
-      operationId: hr.staffAttendance_319
+      operationId: hr.staffAttendance_320
       tags:
         - Hr
       parameters:
@@ -5874,9 +5874,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Staffattendance 319'
+      summary: 'Hr Staffattendance 320'
     post:
-      operationId: hr.staffAttendance_320
+      operationId: hr.staffAttendance_321
       tags:
         - Hr
       requestBody:
@@ -5941,7 +5941,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Staffattendance 320'
+      summary: 'Hr Staffattendance 321'
   /hr/staff-attendance/report:
     get:
       operationId: hr.staffMonthlyReport
@@ -6151,7 +6151,7 @@ paths:
       summary: 'Hr Showevaluation'
   /hr/jobs:
     get:
-      operationId: hr.jobs_325
+      operationId: hr.jobs_326
       tags:
         - Hr
       parameters:
@@ -6304,9 +6304,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Jobs 325'
+      summary: 'Hr Jobs 326'
     post:
-      operationId: hr.jobs_326
+      operationId: hr.jobs_327
       tags:
         - Hr
       requestBody:
@@ -6445,7 +6445,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Hr Jobs 326'
+      summary: 'Hr Jobs 327'
   /hr/applications:
     get:
       operationId: hr.applications
@@ -8607,7 +8607,7 @@ paths:
           $ref: '#/components/responses/AuthenticationException'
   /admin/library/books:
     get:
-      operationId: library.books_155
+      operationId: library.books_156
       tags:
         - Library
       parameters:
@@ -8772,9 +8772,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Library Books 155'
+      summary: 'Library Books 156'
     post:
-      operationId: library.books_156
+      operationId: library.books_157
       tags:
         - Library
       requestBody:
@@ -8919,7 +8919,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Library Books 156'
+      summary: 'Library Books 157'
   '/admin/library/books/{id}':
     patch:
       operationId: library.updateBook
@@ -13972,6 +13972,78 @@ paths:
         401:
           $ref: '#/components/responses/AuthenticationException'
       summary: 'Student Performancechart'
+  /mobile/v1/sync/delta:
+    get:
+      operationId: sync.delta
+      description: |-
+        Returns everything that changed for the authenticated user since
+        `since`, plus tombstones for what was deleted, plus the cursor to
+        resume from. Omit `since` for a first full pull.
+
+        The response is scoped entirely from the token: a parent sees only their
+        own children's records, a teacher only their assigned classes, a student
+        only themselves. `types` selects from what the role already allows and
+        can only narrow that set, never widen it.
+      summary: 'Mobile delta sync'
+      tags:
+        - Sync
+      parameters:
+        -
+          name: since
+          in: query
+          schema:
+            type:
+              - string
+              - 'null'
+            maxLength: 4096.0
+        -
+          name: types
+          in: query
+          schema:
+            type:
+              - string
+              - 'null'
+            maxLength: 512.0
+        -
+          name: limit
+          in: query
+          schema:
+            type:
+              - integer
+              - 'null'
+            minimum: 1.0
+            maximum: 500.0
+      responses:
+        200:
+          description: '`DeltaPageResource`'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DeltaPageResource'
+                required:
+                  - data
+        422:
+          $ref: '#/components/responses/ValidationException'
+        403:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    const: 'This role has no mobile sync feed.'
+                  errors:
+                    type: string
+                required:
+                  - message
+                  - errors
+        401:
+          $ref: '#/components/responses/AuthenticationException'
   /teacher/classes:
     get:
       operationId: teacher.myClasses
@@ -14256,7 +14328,7 @@ paths:
       summary: 'Teacher Markattendance'
   '/teacher/grade-components/{classRoomId}/{subjectId}':
     get:
-      operationId: teacher.gradeComponents_81
+      operationId: teacher.gradeComponents_82
       tags:
         - Teacher
       parameters:
@@ -14335,9 +14407,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Teacher Gradecomponents 81'
+      summary: 'Teacher Gradecomponents 82'
     post:
-      operationId: teacher.gradeComponents_82
+      operationId: teacher.gradeComponents_83
       tags:
         - Teacher
       parameters:
@@ -14406,7 +14478,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Teacher Gradecomponents 82'
+      summary: 'Teacher Gradecomponents 83'
   /teacher/grades/export:
     get:
       operationId: teacher.exportGrades
@@ -14741,7 +14813,7 @@ paths:
       summary: 'Transport Childtransport'
   /admin/transport/routes:
     get:
-      operationId: transport.routes_160
+      operationId: transport.routes_161
       tags:
         - Transport
       parameters:
@@ -14803,9 +14875,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Transport Routes 160'
+      summary: 'Transport Routes 161'
     post:
-      operationId: transport.routes_161
+      operationId: transport.routes_162
       tags:
         - Transport
       requestBody:
@@ -14856,10 +14928,10 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Transport Routes 161'
+      summary: 'Transport Routes 162'
   /admin/transport/vehicles:
     get:
-      operationId: transport.vehicles_162
+      operationId: transport.vehicles_163
       tags:
         - Transport
       parameters:
@@ -14922,9 +14994,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Transport Vehicles 162'
+      summary: 'Transport Vehicles 163'
     post:
-      operationId: transport.vehicles_163
+      operationId: transport.vehicles_164
       tags:
         - Transport
       requestBody:
@@ -14976,10 +15048,10 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Transport Vehicles 163'
+      summary: 'Transport Vehicles 164'
   /admin/transport/stops:
     get:
-      operationId: transport.stops_164
+      operationId: transport.stops_165
       tags:
         - Transport
       parameters:
@@ -15053,9 +15125,9 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Transport Stops 164'
+      summary: 'Transport Stops 165'
     post:
-      operationId: transport.stops_165
+      operationId: transport.stops_166
       tags:
         - Transport
       requestBody:
@@ -15112,7 +15184,7 @@ paths:
           $ref: '#/components/responses/ValidationException'
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Transport Stops 165'
+      summary: 'Transport Stops 166'
   /admin/transport/assignments:
     get:
       operationId: transport.allAssignments
@@ -15213,7 +15285,7 @@ paths:
       summary: 'Transport Allassignments'
   /procurement/items:
     get:
-      operationId: warehouse.indexItems_183
+      operationId: warehouse.indexItems_184
       tags:
         - Warehouse
       parameters:
@@ -15314,7 +15386,7 @@ paths:
                   - total
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Warehouse Indexitems 183'
+      summary: 'Warehouse Indexitems 184'
   /warehouse/categories:
     get:
       operationId: warehouse.indexCategories
@@ -15375,7 +15447,7 @@ paths:
       summary: 'Warehouse Storecategory'
   /warehouse/items:
     get:
-      operationId: warehouse.indexItems_285
+      operationId: warehouse.indexItems_286
       tags:
         - Warehouse
       responses:
@@ -15470,7 +15542,7 @@ paths:
                   - total
         401:
           $ref: '#/components/responses/AuthenticationException'
-      summary: 'Warehouse Indexitems 285'
+      summary: 'Warehouse Indexitems 286'
     post:
       operationId: warehouse.storeItem
       tags:
@@ -16880,6 +16952,57 @@ components:
         - updated_at
         - school_id
       title: ConductLog
+    DeltaChangeResource:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'Entity type, e.g. `attendance_record`.'
+        id:
+          type: string
+          description: 'Server id of the entity, as a string so clients need not care about width.'
+        deleted:
+          type: boolean
+          description: 'True for a tombstone: drop this entity from the local cache.'
+        etag:
+          type:
+            - string
+            - 'null'
+          description: 'Digest of the payload, for conditional handling. Null on a tombstone.'
+        payload:
+          type: object
+          description: 'The entity itself, shaped per type. Empty on a tombstone — read `deleted`, not this.'
+          additionalProperties: {  }
+      required:
+        - type
+        - id
+        - deleted
+        - etag
+        - payload
+      title: DeltaChangeResource
+    DeltaPageResource:
+      type: object
+      properties:
+        changes:
+          type: array
+          description: 'Everything that changed, in cursor order.'
+          items:
+            $ref: '#/components/schemas/DeltaChangeResource'
+        next_cursor:
+          type: string
+          description: 'Opaque position to send back as `since` on the next call.'
+        has_more:
+          type: boolean
+          description: 'True when more changes are waiting behind `next_cursor`.'
+        types:
+          type: string
+          description: 'Entity types this page covered, comma separated.'
+      required:
+        - changes
+        - next_cursor
+        - has_more
+        - types
+      title: DeltaPageResource
     DisciplinaryWarning:
       type: object
       properties:

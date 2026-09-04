@@ -13,7 +13,7 @@ import 'package:school_mobile/generated/model/file_profile_photo403_response.dar
 import 'package:school_mobile/generated/model/gradebook_issue201_response.dart';
 import 'package:school_mobile/generated/model/gradebook_issue_request.dart';
 import 'package:school_mobile/generated/model/gradebook_reopen_request.dart';
-import 'package:school_mobile/generated/model/gradebook_show86200_response.dart';
+import 'package:school_mobile/generated/model/gradebook_show87200_response.dart';
 import 'package:school_mobile/generated/model/gradebook_submit200_response.dart';
 import 'package:school_mobile/generated/model/inline_object.dart';
 
@@ -301,9 +301,9 @@ class GradebookApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [GradebookShow86200Response] as data
+  /// Returns a [Future] containing a [Response] with a [GradebookShow87200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GradebookShow86200Response>> gradebookReopen({ 
+  Future<Response<GradebookShow87200Response>> gradebookReopen({ 
     required int id,
     required GradebookReopenRequest gradebookReopenRequest,
     CancelToken? cancelToken,
@@ -360,14 +360,14 @@ class GradebookApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    GradebookShow86200Response? _responseData;
+    GradebookShow87200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(GradebookShow86200Response),
-      ) as GradebookShow86200Response;
+        specifiedType: const FullType(GradebookShow87200Response),
+      ) as GradebookShow87200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -379,7 +379,7 @@ class GradebookApi {
       );
     }
 
-    return Response<GradebookShow86200Response>(
+    return Response<GradebookShow87200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -472,7 +472,7 @@ class GradebookApi {
     );
   }
 
-  /// Gradebook Show 86
+  /// Gradebook Show 87
   /// 
   ///
   /// Parameters:
@@ -484,9 +484,9 @@ class GradebookApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [GradebookShow86200Response] as data
+  /// Returns a [Future] containing a [Response] with a [GradebookShow87200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GradebookShow86200Response>> gradebookShow86({ 
+  Future<Response<GradebookShow87200Response>> gradebookShow87({ 
     required int id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -522,14 +522,14 @@ class GradebookApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    GradebookShow86200Response? _responseData;
+    GradebookShow87200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(GradebookShow86200Response),
-      ) as GradebookShow86200Response;
+        specifiedType: const FullType(GradebookShow87200Response),
+      ) as GradebookShow87200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -541,7 +541,7 @@ class GradebookApi {
       );
     }
 
-    return Response<GradebookShow86200Response>(
+    return Response<GradebookShow87200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -553,7 +553,7 @@ class GradebookApi {
     );
   }
 
-  /// Gradebook Show 95
+  /// Gradebook Show 96
   /// 
   ///
   /// Parameters:
@@ -565,9 +565,9 @@ class GradebookApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [GradebookShow86200Response] as data
+  /// Returns a [Future] containing a [Response] with a [GradebookShow87200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<GradebookShow86200Response>> gradebookShow95({ 
+  Future<Response<GradebookShow87200Response>> gradebookShow96({ 
     required int id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -603,14 +603,14 @@ class GradebookApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    GradebookShow86200Response? _responseData;
+    GradebookShow87200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(GradebookShow86200Response),
-      ) as GradebookShow86200Response;
+        specifiedType: const FullType(GradebookShow87200Response),
+      ) as GradebookShow87200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -622,7 +622,7 @@ class GradebookApi {
       );
     }
 
-    return Response<GradebookShow86200Response>(
+    return Response<GradebookShow87200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

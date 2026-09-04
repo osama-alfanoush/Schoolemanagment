@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\HrPayrollController;
 use App\Http\Controllers\Api\InstallmentController;
 use App\Http\Controllers\Api\LibraryController;
 use App\Http\Controllers\Api\MessagingController;
+use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
 use App\Http\Controllers\Api\MfaController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ParentController;
@@ -106,6 +107,17 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
     Route::get('/payments/status/{paymentIntentId}', [PaymentController::class, 'getStatus']);
     Route::get('/payments/methods', [PaymentController::class, 'getPaymentMethods']);
     Route::post('/payments/setup-intent', [PaymentController::class, 'createSetupIntent']);
+
+    // MOBILE (v1)
+    // The bearer-token surface the Flutter app talks to. Every route here
+    // resolves its scope from the authenticated token: nothing in the request
+    // selects a school, a child or a class. Throttled separately from the web
+    // API because a sync client polls far more often than a person clicks.
+    Route::prefix('mobile/v1')
+        ->middleware(['role:parent,student,teacher', 'throttle:120,1'])
+        ->group(function () {
+            Route::get('/sync/delta', [MobileSyncController::class, 'delta']);
+        });
 
     // STUDENT
     Route::middleware('role:student')->prefix('student')->group(function () {
