@@ -111,7 +111,108 @@ beside its label at 200%; restoring it moved the amount below.
 
 ## PHASE 3 — Authentication
 
-Not started.
+**Status: complete. All 4 orders done.**
+
+### Order 3.1 — Login ✅
+
+`724c35e` · `school-mobile/lib/features/auth/`
+
+- `device_id` travels with every login and **the request is not sent without
+  one**. `DeviceRegistry.revoke()` kills refresh-token families by that
+  binding, so a session established without it could never be revoked
+  remotely — failing the attempt beats creating one nobody can end.
+- The request body is built through the generated `AuthLoginRequest`, so its
+  shape stays bound to `openapi.yaml`. The **response** is read by hand, for
+  two reasons: the generated `authLogin` binds exactly one success type and
+  login has two (200 with tokens, 202 with an MFA challenge); and the contract
+  pins `token_type` and `expires_in` to constants, so changing the server's
+  token TTL would break deserialisation on every installed copy.
+- Failures are typed against what the server actually returns — 422 for
+  credentials (which deliberately cannot tell a wrong password from a
+  deactivated account, so the form cannot enumerate emails), 429 *with*
+  `locked_until` for a lockout, 429 *without* it for the rate limiter, 403 for
+  no school assignment. Each renders as an Arabic sentence; no status code or
+  English server string reaches the screen.
+- Cold start re-checks the stored token against `/auth/me` rather than
+  trusting it. `SchoolSuiteApp` takes an injectable keystore and transport, so
+  `app_test.dart` drives the real app end to end: launch, sign in, land in the
+  parent shell, restart, still in.
+
+Verified: 27 tests. **Negative control:** dropping `device_id` from the request
+failed the assertion; restoring it passed.
+
+### Order 3.2 — MFA, forced password change, account state ✅
+
+`76b5454`
+
+- The MFA challenge grant is **never written to the token store** — storing it
+  would make the interceptor, the refresh coordinator and the router all read
+  the app as signed in while the second factor is outstanding. A login attempt
+  clears the store first, so nothing stale can shadow it.
+- A wrong code is told apart from an expired grant: one says try again, the
+  other says start over. An account that requires MFA but never enrolled is
+  told to finish setup on the web rather than left typing codes at a screen
+  that will refuse all of them.
+- The session opens only after `/auth/me` returns — a shell rendered from a
+  half-known user is how someone sees the wrong child.
+- A temporary password pins the app to the change-password screen, matching
+  the server's own 403-on-everything rule. The rotated tokens the server
+  issues on success are stored, because it deletes the old pair.
+- A deactivated account is ejected on the next call; signing out clears
+  credentials whether or not the server is reachable, keeping the device id.
+
+Verified: 23 tests. **Negative control:** removing the router's password gate
+let a blocked teacher reach `/teacher`; restoring it pinned them.
+
+### Order 3.3 — Biometric app-lock and device management ✅
+
+`0f1f585` · `school-mobile/lib/core/lock/`, `lib/features/security/`
+
+- The lock is an **app-lock, not authentication**: unlocking reveals a session
+  that already exists, never creates one, never touches a token. No password is
+  stored to re-authenticate with.
+- Every non-success leaves the app covered — wrong finger, dismissed prompt, OS
+  lockout, and a device that has stopped being able to prompt at all. That last
+  one is the tempting bug ("we cannot ask, so let them through") and is exactly
+  what turns a removed fingerprint into a bypass.
+- The overlay sits **above the router**, so while locked the app's screens are
+  not in the tree and there is no navigation state to manipulate past it.
+- Configurable, persisted timeout; a glance at a notification does not lock the
+  app, and the transient `inactive` state is not treated as leaving.
+- Remote revocation needs no push: the server stamps `revoked_at` on every
+  token bound to that device id, the device 401s, its refresh fails, and the
+  existing unauthenticated path wipes it — proved end to end.
+- `MainActivity` is now a `FlutterFragmentActivity`; `androidx.biometric` needs
+  a FragmentActivity host or the prompt throws at runtime.
+
+Verified: 28 tests. **Negative control:** treating an unavailable prompt as a
+way in unlocked the app; restoring the guard kept it locked.
+
+### Order 3.4 — Parent onboarding without passwords ✅
+
+`d9f0b17` · `laravel-api` invite endpoints + `school-mobile/lib/features/onboarding/`
+
+- The office issues a code for one named guardian. The plaintext is in that
+  response and nowhere else — only a keyed HMAC is stored, and it never reaches
+  a log or an audit row. Issuing a new code expires the previous one.
+- Redemption is single-use and atomic: the row is claimed in a locked
+  transaction, so two devices racing one code produce one session and one
+  rejection. Unknown, spent, expired and burned-by-guessing answer identically,
+  so the endpoint cannot enumerate codes or guardians.
+- Activation replaces the temporary password staff generated with something
+  nobody holds. `device_id` is **required**, not optional as on login.
+- The "device PIN" step is the app-lock from 3.3, using the phone's own
+  credential. An app-specific PIN was deliberately not invented — it would
+  store another credential to protect a session the token already governs.
+
+Verified: 16 backend tests + 14 Flutter tests. **Negative control:** removing
+the single-use and expiry guard failed 5 tests; restoring it passed all 16.
+
+**⛔ Not built: SMS OTP.** The order allows *"invite code, **or** SMS OTP"*. No
+SMS provider is configured or chosen for this project, and an OTP that delivers
+nowhere cannot be verified against its own acceptance criterion
+(*"OTP is rate-limited and single-use"*). Choosing a provider is a procurement
+decision, like the FCM project.
 
 ## PHASE 4 — Parent app
 
@@ -139,6 +240,7 @@ Not started.
 | 2 | **FCM project + service-account key** | **Orders 2.2 and 2.3, and the Phase 2 gate** | Account owner. ~20 minutes. |
 | 3 | Play policy on school fee payments vs Play Billing | Order 4.4 architecture | Product decision |
 | 4 | Under-13 student account policy | Phase 6 scope | Product decision |
+| 5 | **SMS provider** (none configured) | The OTP alternative in order 3.4 | Product/procurement decision. The invite-code path is built and does not need it. |
 
 ## Notes carried forward
 
@@ -159,6 +261,13 @@ Not started.
   follow an owning record whose own deletion is reported, so the client drops
   the subtree from that. A cascade with no reported parent would need a
   database trigger.
+- **`/auth/login` and `/auth/me` return a single `role`.** The server can hold
+  several (`school_user_roles` is keyed on `(school_id, user_id, role)`), but
+  neither endpoint exposes them, so a teacher whose child attends the school
+  arrives as a teacher only. `AuthRepository.sessionFrom` already reads a
+  `roles` array when present, so this starts working the day
+  `session/bootstrap` (order 4.1) returns one. **Order 4.1 should return
+  `roles[]`.**
 - **`flutter build apk` warns about missing `CupertinoIcons` fonts.** Material's
   platform-adaptive back button references them. Harmless on an Android-only
   app — no Cupertino glyph ships — and not worth a dependency to silence.
