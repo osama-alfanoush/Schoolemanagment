@@ -472,4 +472,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skip => 'Skip';
+
+  @override
+  String get parentHomeTitle => 'Home';
+
+  @override
+  String get parentHomeEmpty =>
+      'No student is linked to your account yet. Contact the school office.';
+
+  @override
+  String get attendanceThisWeek => 'Attendance this week';
+
+  @override
+  String get attendanceNotRecorded => 'Attendance not recorded yet';
+
+  @override
+  String get nextPayment => 'Next payment';
+
+  @override
+  String get noPaymentDue => 'Nothing due';
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String get latestGrade => 'Latest grade';
+
+  @override
+  String get noGradeYet => 'No published grades yet';
+
+  @override
+  String get todaySchedule => 'Today\'s lessons';
+
+  @override
+  String get noLessonsToday => 'No lessons today';
+
+  @override
+  String daysRemaining(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'In $days days',
+      one: 'In 1 day',
+      zero: 'Due today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String daysOverdue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days late',
+      one: '1 day late',
+    );
+    return '$_temp0';
+  }
 }

@@ -907,6 +907,84 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تخطٍّ'**
   String get skip;
+
+  /// Title of the parent home screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرئيسية'**
+  String get parentHomeTitle;
+
+  /// Empty state when a guardian has no linked children.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يتم ربط أي طالب بحسابك بعد. تواصل مع إدارة المدرسة.'**
+  String get parentHomeEmpty;
+
+  /// Label for the weekly attendance figure.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور هذا الأسبوع'**
+  String get attendanceThisWeek;
+
+  /// Shown when no attendance was recorded this week.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُسجَّل الحضور بعد'**
+  String get attendanceNotRecorded;
+
+  /// Label for the next installment.
+  ///
+  /// In ar, this message translates to:
+  /// **'القسط القادم'**
+  String get nextPayment;
+
+  /// Shown when nothing is owed.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد أقساط مستحقة'**
+  String get noPaymentDue;
+
+  /// The installment is due today.
+  ///
+  /// In ar, this message translates to:
+  /// **'يستحق اليوم'**
+  String get dueToday;
+
+  /// Label for the most recent published grade.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر درجة'**
+  String get latestGrade;
+
+  /// Shown when no published grade exists.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد درجات منشورة بعد'**
+  String get noGradeYet;
+
+  /// Label for today's timetable.
+  ///
+  /// In ar, this message translates to:
+  /// **'حصص اليوم'**
+  String get todaySchedule;
+
+  /// Shown when today's timetable is empty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد حصص اليوم'**
+  String get noLessonsToday;
+
+  /// Days until (or since) an installment is due.
+  ///
+  /// In ar, this message translates to:
+  /// **'{days, plural, =0{يستحق اليوم} =1{بعد يوم} =2{بعد يومين} few{بعد {days} أيام} many{بعد {days} يومًا} other{بعد {days} يوم}}'**
+  String daysRemaining(int days);
+
+  /// Days until (or since) an installment is due.
+  ///
+  /// In ar, this message translates to:
+  /// **'{days, plural, =1{متأخر يوم} =2{متأخر يومان} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يوم}}'**
+  String daysOverdue(int days);
 }
 
 class _AppLocalizationsDelegate

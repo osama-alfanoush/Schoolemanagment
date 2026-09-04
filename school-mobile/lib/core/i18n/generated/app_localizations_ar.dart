@@ -477,4 +477,67 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get skip => 'تخطٍّ';
+
+  @override
+  String get parentHomeTitle => 'الرئيسية';
+
+  @override
+  String get parentHomeEmpty =>
+      'لم يتم ربط أي طالب بحسابك بعد. تواصل مع إدارة المدرسة.';
+
+  @override
+  String get attendanceThisWeek => 'الحضور هذا الأسبوع';
+
+  @override
+  String get attendanceNotRecorded => 'لم يُسجَّل الحضور بعد';
+
+  @override
+  String get nextPayment => 'القسط القادم';
+
+  @override
+  String get noPaymentDue => 'لا توجد أقساط مستحقة';
+
+  @override
+  String get dueToday => 'يستحق اليوم';
+
+  @override
+  String get latestGrade => 'آخر درجة';
+
+  @override
+  String get noGradeYet => 'لا توجد درجات منشورة بعد';
+
+  @override
+  String get todaySchedule => 'حصص اليوم';
+
+  @override
+  String get noLessonsToday => 'لا توجد حصص اليوم';
+
+  @override
+  String daysRemaining(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'بعد $days يوم',
+      many: 'بعد $days يومًا',
+      few: 'بعد $days أيام',
+      two: 'بعد يومين',
+      one: 'بعد يوم',
+      zero: 'يستحق اليوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String daysOverdue(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'متأخر $days يوم',
+      many: 'متأخر $days يومًا',
+      few: 'متأخر $days أيام',
+      two: 'متأخر يومان',
+      one: 'متأخر يوم',
+    );
+    return '$_temp0';
+  }
 }

@@ -134,5 +134,18 @@
   "activateProtectTitle": "Protect the app",
   "activateProtectBody": "Turn on the app lock so it asks for your fingerprint or device code. You can change this later under Security.",
   "activateProtectEnable": "Turn on the lock",
-  "skip": "Skip"
+  "skip": "Skip",
+  "parentHomeTitle": "Home",
+  "parentHomeEmpty": "No student is linked to your account yet. Contact the school office.",
+  "attendanceThisWeek": "Attendance this week",
+  "attendanceNotRecorded": "Attendance not recorded yet",
+  "nextPayment": "Next payment",
+  "noPaymentDue": "Nothing due",
+  "dueToday": "Due today",
+  "latestGrade": "Latest grade",
+  "noGradeYet": "No published grades yet",
+  "todaySchedule": "Today's lessons",
+  "noLessonsToday": "No lessons today",
+  "daysRemaining": "{days, plural, =0{Due today} =1{In 1 day} other{In {days} days}}",
+  "daysOverdue": "{days, plural, =1{1 day late} other{{days} days late}}"
 }
