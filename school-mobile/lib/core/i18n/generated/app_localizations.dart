@@ -1267,6 +1267,120 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{version, plural, =1{الإصدار الأول} =2{الإصدار الثاني} other{الإصدار {version}}}'**
   String reportCardVersion(int version);
+
+  /// Title of the notifications screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات'**
+  String get inboxTitle;
+
+  /// Empty state for notifications.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إشعارات.'**
+  String get notificationsEmpty;
+
+  /// Heading for the notification preference switches.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفضيلات الإشعارات'**
+  String get preferencesTitle;
+
+  /// Notification category: fees.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسوم'**
+  String get categoryFees;
+
+  /// Notification category: attendance.
+  ///
+  /// In ar, this message translates to:
+  /// **'الحضور'**
+  String get categoryAttendance;
+
+  /// Notification category: grades.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجات'**
+  String get categoryGrades;
+
+  /// Notification category: messages.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسائل'**
+  String get categoryMessages;
+
+  /// Notification category: announcements.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعلانات'**
+  String get categoryAnnouncements;
+
+  /// Notification category: emergency.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطوارئ'**
+  String get categoryEmergency;
+
+  /// Explains that a category cannot be muted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تصل دائمًا'**
+  String get categoryAlwaysOn;
+
+  /// Title of the messages screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرسائل'**
+  String get messagesTitle;
+
+  /// Empty state for messages, stating who starts a thread.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد رسائل. تبدأ المدرسة المحادثة عند الحاجة.'**
+  String get messagesEmpty;
+
+  /// Label for the reply field.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب ردك'**
+  String get messageReplyHint;
+
+  /// Sends a reply.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get messageSend;
+
+  /// Explains that a parent cannot start a thread.
+  ///
+  /// In ar, this message translates to:
+  /// **'يمكنك الرد على رسائل المدرسة فقط.'**
+  String get messageReplyOnly;
+
+  /// Explains the reply window.
+  ///
+  /// In ar, this message translates to:
+  /// **'يمكن إرسال الرسائل خلال ساعات الدوام فقط.'**
+  String get messageOutsideHours;
+
+  /// Shown when a reply fails.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إرسال الرسالة. حاول مرة أخرى.'**
+  String get messageFailed;
+
+  /// Heading for the weekly timetable.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجدول الأسبوعي'**
+  String get timetableTitle;
+
+  /// Empty state for the timetable.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد جدول لهذا الصف بعد.'**
+  String get timetableEmpty;
 }
 
 class _AppLocalizationsDelegate

@@ -814,5 +814,81 @@
         "type": "int"
       }
     }
+  },
+  "inboxTitle": "الإشعارات",
+  "@inboxTitle": {
+    "description": "Title of the notifications screen."
+  },
+  "notificationsEmpty": "لا توجد إشعارات.",
+  "@notificationsEmpty": {
+    "description": "Empty state for notifications."
+  },
+  "preferencesTitle": "تفضيلات الإشعارات",
+  "@preferencesTitle": {
+    "description": "Heading for the notification preference switches."
+  },
+  "categoryFees": "الرسوم",
+  "@categoryFees": {
+    "description": "Notification category: fees."
+  },
+  "categoryAttendance": "الحضور",
+  "@categoryAttendance": {
+    "description": "Notification category: attendance."
+  },
+  "categoryGrades": "الدرجات",
+  "@categoryGrades": {
+    "description": "Notification category: grades."
+  },
+  "categoryMessages": "الرسائل",
+  "@categoryMessages": {
+    "description": "Notification category: messages."
+  },
+  "categoryAnnouncements": "الإعلانات",
+  "@categoryAnnouncements": {
+    "description": "Notification category: announcements."
+  },
+  "categoryEmergency": "الطوارئ",
+  "@categoryEmergency": {
+    "description": "Notification category: emergency."
+  },
+  "categoryAlwaysOn": "تصل دائمًا",
+  "@categoryAlwaysOn": {
+    "description": "Explains that a category cannot be muted."
+  },
+  "messagesTitle": "الرسائل",
+  "@messagesTitle": {
+    "description": "Title of the messages screen."
+  },
+  "messagesEmpty": "لا توجد رسائل. تبدأ المدرسة المحادثة عند الحاجة.",
+  "@messagesEmpty": {
+    "description": "Empty state for messages, stating who starts a thread."
+  },
+  "messageReplyHint": "اكتب ردك",
+  "@messageReplyHint": {
+    "description": "Label for the reply field."
+  },
+  "messageSend": "إرسال",
+  "@messageSend": {
+    "description": "Sends a reply."
+  },
+  "messageReplyOnly": "يمكنك الرد على رسائل المدرسة فقط.",
+  "@messageReplyOnly": {
+    "description": "Explains that a parent cannot start a thread."
+  },
+  "messageOutsideHours": "يمكن إرسال الرسائل خلال ساعات الدوام فقط.",
+  "@messageOutsideHours": {
+    "description": "Explains the reply window."
+  },
+  "messageFailed": "تعذّر إرسال الرسالة. حاول مرة أخرى.",
+  "@messageFailed": {
+    "description": "Shown when a reply fails."
+  },
+  "timetableTitle": "الجدول الأسبوعي",
+  "@timetableTitle": {
+    "description": "Heading for the weekly timetable."
+  },
+  "timetableEmpty": "لا يوجد جدول لهذا الصف بعد.",
+  "@timetableEmpty": {
+    "description": "Empty state for the timetable."
   }
 }

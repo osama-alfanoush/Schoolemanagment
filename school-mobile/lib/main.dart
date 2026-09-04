@@ -98,6 +98,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final AppDatabase _database;
   late final ParentHomeController _parentHome;
   late final ParentFeesController _parentFees;
+  late final ParentInboxController _parentInbox;
   late final SessionController _session;
   late final GoRouter _router;
   StreamSubscription<void>? _unauthenticated;
@@ -173,6 +174,10 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       ),
     );
 
+    _parentInbox = ParentInboxController(
+      repository: ParentInboxRepository(dio: _apiClient.dio),
+    );
+
     _devices = DeviceListController(
       api: DeviceApi(dio: _apiClient.dio),
       tokenStore: _tokenStore,
@@ -201,6 +206,8 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
             ParentHomeScreen(controller: _parentHome),
         AppRoute.parentFinance: (context, state) =>
             ParentFeesScreen(controller: _parentFees),
+        AppRoute.parentMessages: (context, state) =>
+            ParentInboxScreen(controller: _parentInbox),
         // Reached by deep link from a fee notification. The controller is
         // built per invoice rather than held, so opening a second invoice
         // cannot show the first one's numbers while it loads.
@@ -249,6 +256,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
     _changePassword.dispose();
+    _parentInbox.dispose();
     _parentFees.dispose();
     _parentHome.dispose();
     unawaited(_database.close());

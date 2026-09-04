@@ -694,4 +694,62 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get inboxTitle => 'الإشعارات';
+
+  @override
+  String get notificationsEmpty => 'لا توجد إشعارات.';
+
+  @override
+  String get preferencesTitle => 'تفضيلات الإشعارات';
+
+  @override
+  String get categoryFees => 'الرسوم';
+
+  @override
+  String get categoryAttendance => 'الحضور';
+
+  @override
+  String get categoryGrades => 'الدرجات';
+
+  @override
+  String get categoryMessages => 'الرسائل';
+
+  @override
+  String get categoryAnnouncements => 'الإعلانات';
+
+  @override
+  String get categoryEmergency => 'الطوارئ';
+
+  @override
+  String get categoryAlwaysOn => 'تصل دائمًا';
+
+  @override
+  String get messagesTitle => 'الرسائل';
+
+  @override
+  String get messagesEmpty =>
+      'لا توجد رسائل. تبدأ المدرسة المحادثة عند الحاجة.';
+
+  @override
+  String get messageReplyHint => 'اكتب ردك';
+
+  @override
+  String get messageSend => 'إرسال';
+
+  @override
+  String get messageReplyOnly => 'يمكنك الرد على رسائل المدرسة فقط.';
+
+  @override
+  String get messageOutsideHours => 'يمكن إرسال الرسائل خلال ساعات الدوام فقط.';
+
+  @override
+  String get messageFailed => 'تعذّر إرسال الرسالة. حاول مرة أخرى.';
+
+  @override
+  String get timetableTitle => 'الجدول الأسبوعي';
+
+  @override
+  String get timetableEmpty => 'لا يوجد جدول لهذا الصف بعد.';
 }

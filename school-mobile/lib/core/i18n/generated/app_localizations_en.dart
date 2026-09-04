@@ -682,4 +682,64 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get inboxTitle => 'Notifications';
+
+  @override
+  String get notificationsEmpty => 'No notifications.';
+
+  @override
+  String get preferencesTitle => 'Notification settings';
+
+  @override
+  String get categoryFees => 'Fees';
+
+  @override
+  String get categoryAttendance => 'Attendance';
+
+  @override
+  String get categoryGrades => 'Grades';
+
+  @override
+  String get categoryMessages => 'Messages';
+
+  @override
+  String get categoryAnnouncements => 'Announcements';
+
+  @override
+  String get categoryEmergency => 'Emergency';
+
+  @override
+  String get categoryAlwaysOn => 'Always delivered';
+
+  @override
+  String get messagesTitle => 'Messages';
+
+  @override
+  String get messagesEmpty =>
+      'No messages. The school starts a conversation when there is something to say.';
+
+  @override
+  String get messageReplyHint => 'Your reply';
+
+  @override
+  String get messageSend => 'Send';
+
+  @override
+  String get messageReplyOnly =>
+      'You can reply to messages from the school, but you cannot start a conversation.';
+
+  @override
+  String get messageOutsideHours =>
+      'Messages can only be sent during school hours.';
+
+  @override
+  String get messageFailed => 'The message could not be sent. Try again.';
+
+  @override
+  String get timetableTitle => 'Weekly timetable';
+
+  @override
+  String get timetableEmpty => 'No timetable for this class yet.';
 }
