@@ -216,7 +216,7 @@ decision, like the FCM project.
 
 ## PHASE 4 — Parent app
 
-**Status: 4 of 6 orders done.**
+**Status: 5 of 6 orders done.**
 
 ### Order 4.1 — Backend: parent BFF ✅
 
@@ -353,10 +353,47 @@ restart tests; restoring it passed.
 Pay button in a `Row`, which overflows at 200% text scale on a phone. It wraps
 now.
 
-### Orders 4.5 – 4.6
+### Order 4.5 — Flutter: attendance, grades, report cards ✅
 
-Not started. 4.5 is attendance/grades/report cards, 4.6
-notifications/messages/timetable/profile.
+`d724e03` (backend) · `33833ec` (Flutter) ·
+`GET /children/{studentId}/attendance|grades|report-cards`,
+`GET /report-cards/{issueId}/pdf`, `POST /attendance/{recordId}/explain`
+
+- **An unpublished thing is not visible, and not merely hidden.** A mark whose
+  gradebook is not finalized and a report card that was never issued are absent
+  from the payload entirely; the Flutter type cannot even represent an unissued
+  report card.
+- Report cards read `report_card_issues` and render each from **its own
+  snapshot**. The existing web endpoint renders live grades on demand, so it
+  can produce a report card nobody issued and hand out a different document
+  under the same version number a week later. The checksum is printed so a
+  paper copy can be checked against the record. A reissue supersedes the
+  version before it rather than appearing beside it.
+- An absence explanation is a new row, never a write into
+  `attendance_records.note` — that note is the teacher's record of what they
+  observed and the parent's account of why is a different claim by a different
+  person. Filing one never changes the attendance status. Idempotent on a key
+  reused across retries.
+- A month grid starting **Sunday**, matching the Jordanian school week.
+- An unrecognised attendance status renders as unknown, never as present.
+- Cache-first with a staleness label; the three calls are cached as one payload
+  because they are read as one screen.
+
+Verified: 18 backend tests + 19 Flutter tests, both locales, 200% text scale.
+
+**Negative controls:** removing the `finalized` filter let draft marks reach a
+parent; treating an unrecognised status as present broke the guard test. Both
+restored.
+
+**Bugs found and fixed while testing:** the explain sheet is
+`isScrollControlled`, which gives its child unbounded height — a multi-line
+field in a bare `Column` there grew without limit. And its text controller was
+disposed when the sheet returned, which is too early: the closing animation
+still reads it.
+
+### Order 4.6
+
+Not started — notifications, messages, timetable, profile.
 
 ## PHASE 5 — Teacher app
 
@@ -414,6 +451,11 @@ Not started.
   the file untouched (so it fails loudly rather than writing a truncated spec).
   CI is unaffected — `shivammathur/setup-php` sets `memory_limit=-1` for CLI —
   but a local run needs `php -d memory_limit=1G artisan openapi:generate`.
+- **`test/core/sync/outbox_drainer_test.dart` "a 503 is retried" is
+  timing-sensitive.** It flaked once when the full suite ran alongside a Gradle
+  build, then passed in isolation three times and in two clean full-suite runs.
+  Worth hardening against wall-clock pressure before it wastes someone's
+  afternoon in CI.
 - **`flutter build apk` warns about missing `CupertinoIcons` fonts.** Material's
   platform-adaptive back button references them. Harmless on an Android-only
   app — no Cupertino glyph ships — and not worth a dependency to silence.
