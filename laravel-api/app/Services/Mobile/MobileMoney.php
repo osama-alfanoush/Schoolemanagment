@@ -75,6 +75,21 @@ final class MobileMoney
     }
 
     /**
+     * A relational money column as integer minor units.
+     *
+     * The one-line form of `payload()` for code that needs to add amounts up
+     * before shaping them for the wire. Arithmetic on the result is integer
+     * arithmetic; that is the point.
+     */
+    public static function minorOf(int|float|string|null $amount): int
+    {
+        return self::toMinor(
+            self::asExactDecimal($amount),
+            (int) config('mobile.currency_decimals', 3),
+        );
+    }
+
+    /**
      * Scale a decimal string to integer minor units without touching a float.
      *
      * Widening (2 stored decimals to 3 JOD decimals) pads with zeros. Narrowing

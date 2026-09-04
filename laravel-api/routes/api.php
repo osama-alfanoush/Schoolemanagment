@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\HrPayrollController;
 use App\Http\Controllers\Api\InstallmentController;
 use App\Http\Controllers\Api\LibraryController;
 use App\Http\Controllers\Api\MessagingController;
+use App\Http\Controllers\Api\Mobile\ParentFinanceController as MobileParentFinanceController;
 use App\Http\Controllers\Api\Mobile\ParentHomeController as MobileParentHomeController;
 use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
 use App\Http\Controllers\Api\MfaController;
@@ -142,6 +143,29 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
                     Route::get('/home', [MobileParentHomeController::class, 'home']);
                     Route::get('/children/{id}/overview', [MobileParentHomeController::class, 'childOverview'])
                         ->whereNumber('id');
+
+                    // FINANCE. The collection surface: what a family owes, what
+                    // they have paid, and the intent to pay the next thing.
+                    Route::get('/finance/summary', [MobileParentFinanceController::class, 'summary']);
+                    // Named {studentId} on purpose: EnsureParentOwnsChild
+                    // recognises `id` and `studentId`, so this path is guarded
+                    // by the middleware as well as by the controller.
+                    Route::get('/children/{studentId}/installments', [MobileParentFinanceController::class, 'installments'])
+                        ->whereNumber('studentId');
+                    Route::get('/invoices', [MobileParentFinanceController::class, 'invoices']);
+
+                    // NOT named {id}: EnsureParentOwnsChild reads `id` as a
+                    // *student* id, so an invoice id there would be checked
+                    // against the child list and always refused.
+                    Route::get('/invoices/{invoiceId}', [MobileParentFinanceController::class, 'invoice'])
+                        ->whereNumber('invoiceId');
+                    Route::get('/receipts/{receiptId}/pdf', [MobileParentFinanceController::class, 'receiptPdf'])
+                        ->whereNumber('receiptId');
+
+                    // Idempotency-Key is required, and the unique index on it
+                    // is what makes a double tap one payment rather than two.
+                    Route::post('/pay/{installmentId}/intent', [MobileParentFinanceController::class, 'payIntent'])
+                        ->whereNumber('installmentId');
                 });
         });
 

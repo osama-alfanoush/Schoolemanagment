@@ -17,13 +17,13 @@ import 'package:school_mobile/generated/model/file_profile_photo403_response.dar
 import 'package:school_mobile/generated/model/hr_applications200_response.dart';
 import 'package:school_mobile/generated/model/hr_create_evaluation_request.dart';
 import 'package:school_mobile/generated/model/hr_evaluations200_response.dart';
-import 'package:school_mobile/generated/model/hr_jobs331200_response.dart';
-import 'package:school_mobile/generated/model/hr_jobs332_request.dart';
+import 'package:school_mobile/generated/model/hr_jobs337200_response.dart';
+import 'package:school_mobile/generated/model/hr_jobs338_request.dart';
 import 'package:school_mobile/generated/model/hr_request.dart';
-import 'package:school_mobile/generated/model/hr_review_request321_request.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance325200_response.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance325_records_parameter_inner.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance326_request.dart';
+import 'package:school_mobile/generated/model/hr_review_request327_request.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance331200_response.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance331_records_parameter_inner.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance332_request.dart';
 import 'package:school_mobile/generated/model/hr_submit_request25403_response.dart';
 import 'package:school_mobile/generated/model/hr_submit_request25_request.dart';
 import 'package:school_mobile/generated/model/hr_update_application_status_request.dart';
@@ -303,7 +303,7 @@ class HrApi {
     );
   }
 
-  /// Hr Jobs 331
+  /// Hr Jobs 337
   /// 
   ///
   /// Parameters:
@@ -321,9 +321,9 @@ class HrApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [HrJobs331200Response] as data
+  /// Returns a [Future] containing a [Response] with a [HrJobs337200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrJobs331200Response>> hrJobs331({ 
+  Future<Response<HrJobs337200Response>> hrJobs337({ 
     required String title,
     required String description,
     required String requirements,
@@ -376,14 +376,14 @@ class HrApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    HrJobs331200Response? _responseData;
+    HrJobs337200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(HrJobs331200Response),
-      ) as HrJobs331200Response;
+        specifiedType: const FullType(HrJobs337200Response),
+      ) as HrJobs337200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -395,7 +395,7 @@ class HrApi {
       );
     }
 
-    return Response<HrJobs331200Response>(
+    return Response<HrJobs337200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -407,11 +407,11 @@ class HrApi {
     );
   }
 
-  /// Hr Jobs 332
+  /// Hr Jobs 338
   /// 
   ///
   /// Parameters:
-  /// * [hrJobs332Request] 
+  /// * [hrJobs338Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -419,10 +419,10 @@ class HrApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [HrJobs331200Response] as data
+  /// Returns a [Future] containing a [Response] with a [HrJobs337200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrJobs331200Response>> hrJobs332({ 
-    required HrJobs332Request hrJobs332Request,
+  Future<Response<HrJobs337200Response>> hrJobs338({ 
+    required HrJobs338Request hrJobs338Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -453,8 +453,8 @@ class HrApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(HrJobs332Request);
-      _bodyData = _serializers.serialize(hrJobs332Request, specifiedType: _type);
+      const _type = FullType(HrJobs338Request);
+      _bodyData = _serializers.serialize(hrJobs338Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -477,14 +477,14 @@ class HrApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    HrJobs331200Response? _responseData;
+    HrJobs337200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(HrJobs331200Response),
-      ) as HrJobs331200Response;
+        specifiedType: const FullType(HrJobs337200Response),
+      ) as HrJobs337200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -496,7 +496,7 @@ class HrApi {
       );
     }
 
-    return Response<HrJobs331200Response>(
+    return Response<HrJobs337200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -666,7 +666,7 @@ class HrApi {
     );
   }
 
-  /// Hr Myrequests 24
+  /// Hr Myrequests 102
   /// 
   ///
   /// Parameters:
@@ -679,7 +679,7 @@ class HrApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<HrRequest>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<HrRequest>>> hrMyRequests24({ 
+  Future<Response<BuiltList<HrRequest>>> hrMyRequests102({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -687,7 +687,7 @@ class HrApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/hr-requests';
+    final _path = r'/teacher/hr-requests';
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
@@ -745,7 +745,7 @@ class HrApi {
     );
   }
 
-  /// Hr Myrequests 96
+  /// Hr Myrequests 24
   /// 
   ///
   /// Parameters:
@@ -758,7 +758,7 @@ class HrApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<HrRequest>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<HrRequest>>> hrMyRequests96({ 
+  Future<Response<BuiltList<HrRequest>>> hrMyRequests24({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -766,7 +766,7 @@ class HrApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/teacher/hr-requests';
+    final _path = r'/hr-requests';
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
@@ -903,12 +903,12 @@ class HrApi {
     );
   }
 
-  /// Hr Reviewrequest 321
+  /// Hr Reviewrequest 327
   /// 
   ///
   /// Parameters:
   /// * [id] 
-  /// * [hrReviewRequest321Request] 
+  /// * [hrReviewRequest327Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -918,9 +918,9 @@ class HrApi {
   ///
   /// Returns a [Future] containing a [Response] with a [HrRequest] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrRequest>> hrReviewRequest321({ 
+  Future<Response<HrRequest>> hrReviewRequest327({ 
     required int id,
-    required HrReviewRequest321Request hrReviewRequest321Request,
+    required HrReviewRequest327Request hrReviewRequest327Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -951,8 +951,8 @@ class HrApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(HrReviewRequest321Request);
-      _bodyData = _serializers.serialize(hrReviewRequest321Request, specifiedType: _type);
+      const _type = FullType(HrReviewRequest327Request);
+      _bodyData = _serializers.serialize(hrReviewRequest327Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -1006,12 +1006,12 @@ class HrApi {
     );
   }
 
-  /// Hr Reviewrequest 323
+  /// Hr Reviewrequest 329
   /// 
   ///
   /// Parameters:
   /// * [id] 
-  /// * [hrReviewRequest321Request] 
+  /// * [hrReviewRequest327Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1021,9 +1021,9 @@ class HrApi {
   ///
   /// Returns a [Future] containing a [Response] with a [HrRequest] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrRequest>> hrReviewRequest323({ 
+  Future<Response<HrRequest>> hrReviewRequest329({ 
     required int id,
-    required HrReviewRequest321Request hrReviewRequest321Request,
+    required HrReviewRequest327Request hrReviewRequest327Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1054,8 +1054,8 @@ class HrApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(HrReviewRequest321Request);
-      _bodyData = _serializers.serialize(hrReviewRequest321Request, specifiedType: _type);
+      const _type = FullType(HrReviewRequest327Request);
+      _bodyData = _serializers.serialize(hrReviewRequest327Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -1350,7 +1350,7 @@ class HrApi {
     );
   }
 
-  /// Hr Staffattendance 325
+  /// Hr Staffattendance 331
   /// 
   ///
   /// Parameters:
@@ -1362,10 +1362,10 @@ class HrApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [HrStaffAttendance325200Response] as data
+  /// Returns a [Future] containing a [Response] with a [HrStaffAttendance331200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrStaffAttendance325200Response>> hrStaffAttendance325({ 
-    BuiltList<HrStaffAttendance325RecordsParameterInner>? records,
+  Future<Response<HrStaffAttendance331200Response>> hrStaffAttendance331({ 
+    BuiltList<HrStaffAttendance331RecordsParameterInner>? records,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1393,7 +1393,7 @@ class HrApi {
     );
 
     final _queryParameters = <String, dynamic>{
-      if (records != null) r'records': encodeCollectionQueryParameter<HrStaffAttendance325RecordsParameterInner>(_serializers, records, const FullType(BuiltList, [FullType(HrStaffAttendance325RecordsParameterInner)]), format: ListFormat.multi,),
+      if (records != null) r'records': encodeCollectionQueryParameter<HrStaffAttendance331RecordsParameterInner>(_serializers, records, const FullType(BuiltList, [FullType(HrStaffAttendance331RecordsParameterInner)]), format: ListFormat.multi,),
     };
 
     final _response = await _dio.request<Object>(
@@ -1405,14 +1405,14 @@ class HrApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    HrStaffAttendance325200Response? _responseData;
+    HrStaffAttendance331200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(HrStaffAttendance325200Response),
-      ) as HrStaffAttendance325200Response;
+        specifiedType: const FullType(HrStaffAttendance331200Response),
+      ) as HrStaffAttendance331200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -1424,7 +1424,7 @@ class HrApi {
       );
     }
 
-    return Response<HrStaffAttendance325200Response>(
+    return Response<HrStaffAttendance331200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -1436,11 +1436,11 @@ class HrApi {
     );
   }
 
-  /// Hr Staffattendance 326
+  /// Hr Staffattendance 332
   /// 
   ///
   /// Parameters:
-  /// * [hrStaffAttendance326Request] 
+  /// * [hrStaffAttendance332Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -1448,10 +1448,10 @@ class HrApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [HrStaffAttendance325200Response] as data
+  /// Returns a [Future] containing a [Response] with a [HrStaffAttendance331200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrStaffAttendance325200Response>> hrStaffAttendance326({ 
-    required HrStaffAttendance326Request hrStaffAttendance326Request,
+  Future<Response<HrStaffAttendance331200Response>> hrStaffAttendance332({ 
+    required HrStaffAttendance332Request hrStaffAttendance332Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1482,8 +1482,8 @@ class HrApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(HrStaffAttendance326Request);
-      _bodyData = _serializers.serialize(hrStaffAttendance326Request, specifiedType: _type);
+      const _type = FullType(HrStaffAttendance332Request);
+      _bodyData = _serializers.serialize(hrStaffAttendance332Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -1506,14 +1506,14 @@ class HrApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    HrStaffAttendance325200Response? _responseData;
+    HrStaffAttendance331200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(HrStaffAttendance325200Response),
-      ) as HrStaffAttendance325200Response;
+        specifiedType: const FullType(HrStaffAttendance331200Response),
+      ) as HrStaffAttendance331200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -1525,7 +1525,7 @@ class HrApi {
       );
     }
 
-    return Response<HrStaffAttendance325200Response>(
+    return Response<HrStaffAttendance331200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -1616,7 +1616,7 @@ class HrApi {
     );
   }
 
-  /// Hr Submitrequest 25
+  /// Hr Submitrequest 101
   /// 
   ///
   /// Parameters:
@@ -1630,7 +1630,7 @@ class HrApi {
   ///
   /// Returns a [Future] containing a [Response] with a [HrRequest] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrRequest>> hrSubmitRequest25({ 
+  Future<Response<HrRequest>> hrSubmitRequest101({ 
     required HrSubmitRequest25Request hrSubmitRequest25Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -1639,7 +1639,7 @@ class HrApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/hr-requests';
+    final _path = r'/teacher/hr-requests';
     final _options = Options(
       method: r'POST',
       headers: <String, dynamic>{
@@ -1717,7 +1717,7 @@ class HrApi {
     );
   }
 
-  /// Hr Submitrequest 95
+  /// Hr Submitrequest 25
   /// 
   ///
   /// Parameters:
@@ -1731,7 +1731,7 @@ class HrApi {
   ///
   /// Returns a [Future] containing a [Response] with a [HrRequest] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HrRequest>> hrSubmitRequest95({ 
+  Future<Response<HrRequest>> hrSubmitRequest25({ 
     required HrSubmitRequest25Request hrSubmitRequest25Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -1740,7 +1740,7 @@ class HrApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/teacher/hr-requests';
+    final _path = r'/hr-requests';
     final _options = Options(
       method: r'POST',
       headers: <String, dynamic>{

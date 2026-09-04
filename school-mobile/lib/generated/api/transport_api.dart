@@ -16,11 +16,11 @@ import 'package:school_mobile/generated/model/payment_create_payment_intent403_r
 import 'package:school_mobile/generated/model/transport_all_assignments200_response.dart';
 import 'package:school_mobile/generated/model/transport_assignment.dart';
 import 'package:school_mobile/generated/model/transport_route.dart';
-import 'package:school_mobile/generated/model/transport_routes167_request.dart';
+import 'package:school_mobile/generated/model/transport_routes173_request.dart';
 import 'package:school_mobile/generated/model/transport_stop.dart';
-import 'package:school_mobile/generated/model/transport_stops171_request.dart';
+import 'package:school_mobile/generated/model/transport_stops177_request.dart';
 import 'package:school_mobile/generated/model/transport_vehicle.dart';
-import 'package:school_mobile/generated/model/transport_vehicles169_request.dart';
+import 'package:school_mobile/generated/model/transport_vehicles175_request.dart';
 
 class TransportApi {
 
@@ -269,7 +269,7 @@ class TransportApi {
     );
   }
 
-  /// Transport Routes 166
+  /// Transport Routes 172
   /// 
   ///
   /// Parameters:
@@ -288,7 +288,7 @@ class TransportApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TransportRoute>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TransportRoute>>> transportRoutes166({ 
+  Future<Response<BuiltList<TransportRoute>>> transportRoutes172({ 
     required String name,
     required String departureTime,
     required String returnTime,
@@ -370,11 +370,11 @@ class TransportApi {
     );
   }
 
-  /// Transport Routes 167
+  /// Transport Routes 173
   /// 
   ///
   /// Parameters:
-  /// * [transportRoutes167Request] 
+  /// * [transportRoutes173Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -384,8 +384,8 @@ class TransportApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TransportRoute>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TransportRoute>>> transportRoutes167({ 
-    required TransportRoutes167Request transportRoutes167Request,
+  Future<Response<BuiltList<TransportRoute>>> transportRoutes173({ 
+    required TransportRoutes173Request transportRoutes173Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -416,8 +416,8 @@ class TransportApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(TransportRoutes167Request);
-      _bodyData = _serializers.serialize(transportRoutes167Request, specifiedType: _type);
+      const _type = FullType(TransportRoutes173Request);
+      _bodyData = _serializers.serialize(transportRoutes173Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -471,7 +471,7 @@ class TransportApi {
     );
   }
 
-  /// Transport Stops 170
+  /// Transport Stops 176
   /// 
   ///
   /// Parameters:
@@ -492,7 +492,7 @@ class TransportApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TransportStop>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TransportStop>>> transportStops170({ 
+  Future<Response<BuiltList<TransportStop>>> transportStops176({ 
     required int routeId,
     required String name,
     required String address,
@@ -578,11 +578,11 @@ class TransportApi {
     );
   }
 
-  /// Transport Stops 171
+  /// Transport Stops 177
   /// 
   ///
   /// Parameters:
-  /// * [transportStops171Request] 
+  /// * [transportStops177Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -592,8 +592,8 @@ class TransportApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TransportStop>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TransportStop>>> transportStops171({ 
-    required TransportStops171Request transportStops171Request,
+  Future<Response<BuiltList<TransportStop>>> transportStops177({ 
+    required TransportStops177Request transportStops177Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -624,8 +624,8 @@ class TransportApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(TransportStops171Request);
-      _bodyData = _serializers.serialize(transportStops171Request, specifiedType: _type);
+      const _type = FullType(TransportStops177Request);
+      _bodyData = _serializers.serialize(transportStops177Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -679,7 +679,7 @@ class TransportApi {
     );
   }
 
-  /// Transport Vehicles 168
+  /// Transport Vehicles 174
   /// 
   ///
   /// Parameters:
@@ -698,7 +698,7 @@ class TransportApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TransportVehicle>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TransportVehicle>>> transportVehicles168({ 
+  Future<Response<BuiltList<TransportVehicle>>> transportVehicles174({ 
     required String registrationNumber,
     required String type,
     required int capacity,
@@ -780,11 +780,11 @@ class TransportApi {
     );
   }
 
-  /// Transport Vehicles 169
+  /// Transport Vehicles 175
   /// 
   ///
   /// Parameters:
-  /// * [transportVehicles169Request] 
+  /// * [transportVehicles175Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -794,8 +794,8 @@ class TransportApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TransportVehicle>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TransportVehicle>>> transportVehicles169({ 
-    required TransportVehicles169Request transportVehicles169Request,
+  Future<Response<BuiltList<TransportVehicle>>> transportVehicles175({ 
+    required TransportVehicles175Request transportVehicles175Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -826,8 +826,8 @@ class TransportApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(TransportVehicles169Request);
-      _bodyData = _serializers.serialize(transportVehicles169Request, specifiedType: _type);
+      const _type = FullType(TransportVehicles175Request);
+      _bodyData = _serializers.serialize(transportVehicles175Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(

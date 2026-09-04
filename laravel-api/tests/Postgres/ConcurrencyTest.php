@@ -4,6 +4,7 @@ namespace Tests\Postgres;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ConcurrencyTest extends TestCase
@@ -95,6 +96,44 @@ class ConcurrencyTest extends TestCase
         $this->assertSame([0, 10], $codes);
         $this->assertSame(1, DB::table('payroll_records')->where('school_id', $this->schoolId)
             ->where('staff_user_id', $staffId)->where('year', 2026)->where('month', 8)->count());
+    }
+
+    public function test_five_concurrent_payment_intents_with_one_key_produce_one_row(): void
+    {
+        // The acceptance criterion for the mobile payment intent, run for
+        // real: five separate processes racing the same idempotency key. The
+        // SQLite suite proves the endpoint's behaviour; only this proves the
+        // constraint holds under genuine concurrency.
+        DB::table('mobile_payment_intents')->delete();
+
+        $guardianId = User::factory()->parentRole()->create()->id;
+        $planId = DB::table('payment_plans')->insertGetId([
+            'school_id' => $this->schoolId, 'plan_no' => uniqid('PLAN-'),
+            'student_user_id' => $this->studentId, 'total_amount' => 150,
+            'num_installments' => 1, 'start_date' => '2026-09-01', 'status' => 'active',
+            'created_by' => $guardianId, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $installmentId = DB::table('installments')->insertGetId([
+            'school_id' => $this->schoolId, 'payment_plan_id' => $planId, 'sequence_no' => 1,
+            'due_date' => '2026-09-01', 'amount' => 150, 'paid_amount' => 0,
+            'status' => 'pending', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $key = (string) Str::uuid();
+        $workers = [];
+        for ($i = 0; $i < 5; $i++) {
+            $workers[] = [
+                'payment_intent', $this->schoolId, $guardianId, $this->studentId,
+                $installmentId, $key, 'PAY-'.strtoupper(Str::random(10)),
+            ];
+        }
+
+        $codes = $this->runWorkers($workers);
+        sort($codes);
+
+        // One winner, four unique-violation losers.
+        $this->assertSame([0, 10, 10, 10, 10], $codes);
+        $this->assertSame(1, DB::table('mobile_payment_intents')->where('idempotency_key', $key)->count());
     }
 
     private function runWorkers(array $workerArgs): array

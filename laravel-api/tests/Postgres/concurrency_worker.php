@@ -27,6 +27,22 @@ try {
         $statement->execute(array_slice($argv, 2, 5));
         exit(0);
     }
+    if ($operation === 'payment_intent') {
+        // Five phones, one idempotency key. The unique index decides, not the
+        // application: a check-then-insert can be passed by all five.
+        [, , $schoolId, $guardianId, $studentId, $installmentId, $key, $reference] = $argv;
+        $statement = $pdo->prepare("INSERT INTO mobile_payment_intents (school_id,idempotency_key,request_hash,reference,guardian_user_id,student_user_id,installment_id,amount_minor,currency,decimals,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,150000,'JOD',3,'created',NOW(),NOW())");
+        $statement->execute([
+            (int) $schoolId,
+            $key,
+            str_repeat('a', 64),
+            $reference,
+            (int) $guardianId,
+            (int) $studentId,
+            (int) $installmentId,
+        ]);
+        exit(0);
+    }
     exit(20);
 } catch (PDOException $exception) {
     fwrite(STDERR, $exception->getCode().': '.$exception->getMessage().PHP_EOL);

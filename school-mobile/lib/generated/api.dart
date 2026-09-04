@@ -27,6 +27,7 @@ import 'package:school_mobile/generated/api/messaging_api.dart';
 import 'package:school_mobile/generated/api/mfa_api.dart';
 import 'package:school_mobile/generated/api/notification_api.dart';
 import 'package:school_mobile/generated/api/parent_api.dart';
+import 'package:school_mobile/generated/api/parent_finance_api.dart';
 import 'package:school_mobile/generated/api/parent_home_api.dart';
 import 'package:school_mobile/generated/api/parent_invite_api.dart';
 import 'package:school_mobile/generated/api/payment_api.dart';
@@ -200,6 +201,12 @@ class SchoolMobile {
   /// by doing that all interceptors will not be executed
   ParentApi getParentApi() {
     return ParentApi(dio, serializers);
+  }
+
+  /// Get ParentFinanceApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ParentFinanceApi getParentFinanceApi() {
+    return ParentFinanceApi(dio, serializers);
   }
 
   /// Get ParentHomeApi instance, base route and serializer can be overridden by a given but be careful,

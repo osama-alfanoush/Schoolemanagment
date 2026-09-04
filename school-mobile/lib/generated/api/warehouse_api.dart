@@ -16,7 +16,7 @@ import 'package:school_mobile/generated/model/warehouse_consumption_report200_re
 import 'package:school_mobile/generated/model/warehouse_dashboard200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_categories200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_counts200_response.dart';
-import 'package:school_mobile/generated/model/warehouse_index_items189200_response.dart';
+import 'package:school_mobile/generated/model/warehouse_index_items195200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_movements200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_purchase_requests200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_inventory_report200_response.dart';
@@ -459,7 +459,7 @@ class WarehouseApi {
     );
   }
 
-  /// Warehouse Indexitems 189
+  /// Warehouse Indexitems 195
   /// 
   ///
   /// Parameters:
@@ -471,9 +471,9 @@ class WarehouseApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [WarehouseIndexItems189200Response] as data
+  /// Returns a [Future] containing a [Response] with a [WarehouseIndexItems195200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<WarehouseIndexItems189200Response>> warehouseIndexItems189({ 
+  Future<Response<WarehouseIndexItems195200Response>> warehouseIndexItems195({ 
     String? lowStockOnly,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -514,14 +514,14 @@ class WarehouseApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    WarehouseIndexItems189200Response? _responseData;
+    WarehouseIndexItems195200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(WarehouseIndexItems189200Response),
-      ) as WarehouseIndexItems189200Response;
+        specifiedType: const FullType(WarehouseIndexItems195200Response),
+      ) as WarehouseIndexItems195200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -533,7 +533,7 @@ class WarehouseApi {
       );
     }
 
-    return Response<WarehouseIndexItems189200Response>(
+    return Response<WarehouseIndexItems195200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -545,7 +545,7 @@ class WarehouseApi {
     );
   }
 
-  /// Warehouse Indexitems 291
+  /// Warehouse Indexitems 297
   /// 
   ///
   /// Parameters:
@@ -556,9 +556,9 @@ class WarehouseApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [WarehouseIndexItems189200Response] as data
+  /// Returns a [Future] containing a [Response] with a [WarehouseIndexItems195200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<WarehouseIndexItems189200Response>> warehouseIndexItems291({ 
+  Future<Response<WarehouseIndexItems195200Response>> warehouseIndexItems297({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -593,14 +593,14 @@ class WarehouseApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    WarehouseIndexItems189200Response? _responseData;
+    WarehouseIndexItems195200Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(WarehouseIndexItems189200Response),
-      ) as WarehouseIndexItems189200Response;
+        specifiedType: const FullType(WarehouseIndexItems195200Response),
+      ) as WarehouseIndexItems195200Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -612,7 +612,7 @@ class WarehouseApi {
       );
     }
 
-    return Response<WarehouseIndexItems189200Response>(
+    return Response<WarehouseIndexItems195200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
