@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -12,10 +11,13 @@ import 'core/auth/secure_token_store.dart';
 import 'core/auth/session_wipe.dart';
 import 'core/db/database_key_provider.dart';
 import 'core/i18n/i18n.dart';
+import 'core/lock/lock.dart';
 import 'core/router/router.dart';
 import 'core/session/session.dart';
 import 'core/theme/theme.dart';
 import 'features/auth/auth.dart';
+import 'features/diagnostics/verification_screen.dart';
+import 'features/security/security.dart';
 
 /// Where the API lives. Injected at build time; there is no default and no
 /// host anywhere in the source.
@@ -34,6 +36,7 @@ class SchoolSuiteApp extends StatefulWidget {
     this.secureStore,
     this.httpClientAdapter,
     this.baseUrl,
+    this.biometricGate,
   });
 
   /// Credential storage. Defaults to the platform keystore.
@@ -49,6 +52,10 @@ class SchoolSuiteApp extends StatefulWidget {
 
   /// Overrides [apiBaseUrl]. Only tests pass this.
   final String? baseUrl;
+
+  /// The OS unlock prompt. Defaults to `local_auth`; injectable so the lock's
+  /// rules can be exercised without a fingerprint reader.
+  final BiometricGate? biometricGate;
 
   @override
   State<SchoolSuiteApp> createState() => _SchoolSuiteAppState();
@@ -71,6 +78,8 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final ApiClient _apiClient;
   late final AuthRepository _auth;
   late final ChangePasswordController _changePassword;
+  late final AppLockController _appLock;
+  late final DeviceListController _devices;
   late final SessionController _session;
   late final GoRouter _router;
   StreamSubscription<void>? _unauthenticated;
@@ -108,6 +117,20 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     );
     _changePassword = ChangePasswordController(repository: _auth);
 
+    _appLock = AppLockController(
+      gate: widget.biometricGate ?? LocalAuthGate(),
+      store: _secureStore,
+    )..bind();
+
+    _devices = DeviceListController(
+      api: DeviceApi(dio: _apiClient.dio),
+      tokenStore: _tokenStore,
+      // Ending the session on the device you are holding revokes the tokens
+      // server-side, so every later call would 401. Signing out at once is the
+      // honest response.
+      onOwnDeviceRevoked: _auth.signOut,
+    );
+
     // A refresh that cannot be recovered ends the session everywhere at once:
     // the store is wiped and the router falls back to the sign-in screen.
     _unauthenticated = _sessionWipe.bindTo(_apiClient.onUnauthenticated);
@@ -117,6 +140,12 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       controller: _session,
       screens: const AppScreens().withScreens(<AppRoute, RouteScreenBuilder>{
         AppRoute.signIn: (context, state) => AuthGateway(repository: _auth),
+        AppRoute.devices: (context, state) =>
+            DeviceListScreen(controller: _devices),
+        AppRoute.diagnostics: (context, state) => VerificationScreen(
+              baseUrl: widget.baseUrl ?? apiBaseUrl,
+              onToggleDigitShape: _toggleDigitShape,
+            ),
         AppRoute.changePassword: (context, state) => ChangePasswordScreen(
               controller: _changePassword,
               onSignOut: () => unawaited(_auth.signOut()),
@@ -125,15 +154,19 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
         // performs stay reachable once a session exists. The profile orders
         // replace these three entries; nothing under lib/core/ changes when
         // they do.
-        AppRoute.parentProfile: _verificationScreen,
-        AppRoute.teacherProfile: _verificationScreen,
-        AppRoute.studentProfile: _verificationScreen,
+        // Interim home for the security settings, so the app-lock and the
+        // device list are reachable. The profile orders replace these three
+        // entries; nothing under lib/core/ changes when they do.
+        AppRoute.parentProfile: _securityScreen,
+        AppRoute.teacherProfile: _securityScreen,
+        AppRoute.studentProfile: _securityScreen,
       }),
     );
 
     // Reads the token store and, if a session is still good, restores it.
     // Until this completes the router holds at the splash rather than showing
     // a login screen to someone who is already signed in.
+    unawaited(_appLock.load());
     unawaited(_auth.restore());
   }
 
@@ -142,13 +175,21 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
     _changePassword.dispose();
+    _devices.dispose();
+    _appLock.dispose();
     _session.dispose();
     unawaited(_apiClient.close());
     super.dispose();
   }
 
-  Widget _verificationScreen(BuildContext context, GoRouterState state) =>
-      VerificationScreen(onToggleDigitShape: _toggleDigitShape);
+  Widget _securityScreen(BuildContext context, GoRouterState state) =>
+      SecurityScreen(
+        lock: _appLock,
+        onOpenDevices: () => context.goNamed(AppRoute.devices.routeName),
+        onOpenDiagnostics: () =>
+            context.goNamed(AppRoute.diagnostics.routeName),
+        onSignOut: () => unawaited(_auth.signOut()),
+      );
 
   void _toggleDigitShape() {
     setState(() {
@@ -177,124 +218,16 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
             locale: locale.languageCode,
             digitShape: _digitShape,
           ),
-          child: child ?? const SizedBox.shrink(),
+          // Above the router on purpose: while the lock is engaged the app's
+          // screens are not in the tree at all, so there is no navigation
+          // state anyone could manipulate to get behind it.
+          child: AppLockOverlay(
+            controller: _appLock,
+            onSignOut: () => unawaited(_auth.signOut()),
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
-    );
-  }
-}
-
-/// Proves on a real device that theming, localization, money and dates are all
-/// wired up: every value below is produced by the layers those orders built.
-///
-/// Reachable from the profile tab once a session exists. It grants nothing and
-/// reads nothing from the server.
-class VerificationScreen extends StatelessWidget {
-  const VerificationScreen({super.key, this.onToggleDigitShape});
-
-  final VoidCallback? onToggleDigitShape;
-
-  /// 12500 fils = 12.500 JOD. A three-decimal currency, shown with three.
-  static const Money sampleAmount = Money.jod(12500);
-
-  /// Fixed so the screen renders the same on every run.
-  static final DateTime sampleDate = DateTime(2026, 9, 3);
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final formats = AppI18nScope.of(context);
-    final locale = Localizations.localeOf(context);
-    final direction = Directionality.of(context);
-
-    final flavor = appFlavor ?? l10n.notConfigured;
-    final baseUrl = apiBaseUrl.isEmpty ? l10n.notConfigured : apiBaseUrl;
-    final digitShapeName = formats.digitShape == DigitShape.western
-        ? l10n.digitShapeWestern
-        : l10n.digitShapeArabicIndic;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.appTitle)),
-      body: SafeArea(
-        // Scrollable so the content still fits when text is scaled to 200%.
-        child: SingleChildScrollView(
-          padding: const EdgeInsetsDirectional.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                l10n.appTitle,
-                textAlign: TextAlign.start,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 24),
-              _VerificationValue(label: l10n.activeFlavor, value: flavor),
-              _VerificationValue(label: l10n.apiBaseUrl, value: baseUrl),
-              _VerificationValue(
-                label: l10n.currentLocale,
-                value: locale.languageCode,
-              ),
-              _VerificationValue(
-                label: l10n.textDirection,
-                value: direction == TextDirection.rtl ? 'RTL' : 'LTR',
-              ),
-              _VerificationValue(
-                key: const Key('verification-amount'),
-                label: l10n.sampleAmount,
-                value: formats.money(sampleAmount),
-              ),
-              _VerificationValue(
-                key: const Key('verification-date'),
-                label: l10n.sampleDate,
-                value: formats.date(sampleDate),
-              ),
-              _VerificationValue(
-                key: const Key('verification-digit-shape'),
-                label: l10n.digitShape,
-                value: digitShapeName,
-              ),
-              const SizedBox(height: 24),
-              FilledButton(
-                key: const Key('toggle-digit-shape'),
-                onPressed: onToggleDigitShape,
-                child: Text(l10n.digitShape),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A labelled value, stacked rather than laid out in a row so that neither
-/// half is squeezed when the text scale grows.
-class _VerificationValue extends StatelessWidget {
-  const _VerificationValue({required this.label, required this.value, super.key});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label,
-            textAlign: TextAlign.start,
-            style: theme.textTheme.labelMedium,
-          ),
-          Text(
-            value,
-            textAlign: TextAlign.start,
-            style: theme.textTheme.bodyLarge,
-          ),
-        ],
-      ),
     );
   }
 }

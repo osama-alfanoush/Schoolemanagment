@@ -20,6 +20,12 @@ enum AppRoute {
   /// Blocking screen for a temporary password that has to be replaced.
   changePassword('changePassword', '/change-password', null),
 
+  /// The devices signed in to this account, and the way to end any of them.
+  devices('devices', '/devices', null),
+
+  /// On-device diagnostics: theme, locale, money and date formatting.
+  diagnostics('diagnostics', '/diagnostics', null),
+
   /// Signed in, but holding no role that has a phone app.
   noMobileRole('noMobileRole', '/unavailable', null),
 

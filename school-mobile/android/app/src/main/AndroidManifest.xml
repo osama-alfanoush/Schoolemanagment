@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for the app-lock prompt. USE_BIOMETRIC covers fingerprint and
+         face; the device-credential fallback (PIN, pattern) needs no permission
+         of its own. This grants no access to biometric data - the match happens
+         inside the OS and the app is told only yes or no. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"

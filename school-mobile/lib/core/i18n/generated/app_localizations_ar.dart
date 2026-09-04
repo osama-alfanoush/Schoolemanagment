@@ -348,4 +348,87 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get signOut => 'تسجيل الخروج';
+
+  @override
+  String get appLockTitle => 'التطبيق مقفل';
+
+  @override
+  String get appLockBody =>
+      'افتح القفل للمتابعة. القفل يحمي ما هو معروض على الشاشة فقط؛ جلستك لم تنتهِ.';
+
+  @override
+  String get appLockUnlockAction => 'فتح القفل';
+
+  @override
+  String get appLockReason => 'افتح قفل تطبيق المدرسة';
+
+  @override
+  String get appLockFailed =>
+      'لم يتم التعرّف عليك. حاول مرة أخرى أو سجّل الخروج.';
+
+  @override
+  String get appLockLockedOut =>
+      'تم إيقاف المحاولات مؤقتًا. انتظر قليلًا أو سجّل الخروج.';
+
+  @override
+  String get appLockUnavailable =>
+      'لا يمكن عرض طلب الفتح على هذا الجهاز. سجّل الخروج ثم ادخل من جديد.';
+
+  @override
+  String get securityTitle => 'الأمان';
+
+  @override
+  String get appLockSetting => 'قفل التطبيق';
+
+  @override
+  String get appLockSettingBody =>
+      'اطلب بصمة أو رمز الجهاز عند العودة إلى التطبيق.';
+
+  @override
+  String get appLockUnsupported =>
+      'هذا الجهاز لا يدعم قفل الشاشة. فعّل قفل الشاشة في إعدادات الجهاز أولًا.';
+
+  @override
+  String get appLockTimeoutSetting => 'القفل بعد';
+
+  @override
+  String get appLockTimeoutImmediate => 'فورًا';
+
+  @override
+  String get devicesTitle => 'الأجهزة';
+
+  @override
+  String get devicesBody => 'الأجهزة التي سجّلت الدخول إلى حسابك.';
+
+  @override
+  String get devicesEmpty => 'لا توجد أجهزة مسجّلة بعد.';
+
+  @override
+  String get deviceThisDevice => 'هذا الجهاز';
+
+  @override
+  String get deviceLastSeen => 'آخر ظهور';
+
+  @override
+  String get deviceRevoke => 'إنهاء الجلسة';
+
+  @override
+  String get deviceRevokeConfirmTitle => 'إنهاء الجلسة على هذا الجهاز؟';
+
+  @override
+  String get deviceRevokeConfirmBody =>
+      'سيُطلب تسجيل الدخول من جديد على ذلك الجهاز.';
+
+  @override
+  String get deviceRevokeSelfBody =>
+      'هذا هو الجهاز الذي تستخدمه الآن. سيتم تسجيل خروجك فورًا.';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get confirm => 'تأكيد';
+
+  @override
+  String get diagnosticsTitle => 'تشخيص';
 }

@@ -5,6 +5,7 @@ import 'package:school_mobile/core/auth/secure_store.dart';
 import 'package:school_mobile/features/auth/auth.dart';
 import 'package:school_mobile/main.dart';
 
+import 'support/fake_biometric_gate.dart';
 import 'support/mock_http_adapter.dart';
 
 final RegExp westernDigit = RegExp(r'[0-9]');
@@ -84,6 +85,7 @@ void main() {
       secureStore: keystore,
       httpClientAdapter: adapter,
       baseUrl: 'https://api.test',
+      biometricGate: FakeBiometricGate(),
     ));
     await tester.pumpAndSettle();
 
@@ -105,9 +107,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// Opens the profile tab, where the verification screen lives.
+  /// Opens the profile tab, then the diagnostics screen behind it.
   Future<void> openProfile(WidgetTester tester) async {
     await tester.tap(find.byKey(const Key('tab-parentProfile')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('open-diagnostics')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('open-diagnostics')));
     await tester.pumpAndSettle();
   }
 

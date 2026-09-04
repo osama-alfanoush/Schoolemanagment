@@ -343,4 +343,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signOut => 'Sign out';
+
+  @override
+  String get appLockTitle => 'App locked';
+
+  @override
+  String get appLockBody =>
+      'Unlock to continue. The lock only covers what is on screen; your session has not ended.';
+
+  @override
+  String get appLockUnlockAction => 'Unlock';
+
+  @override
+  String get appLockReason => 'Unlock the school app';
+
+  @override
+  String get appLockFailed =>
+      'You were not recognised. Try again, or sign out.';
+
+  @override
+  String get appLockLockedOut =>
+      'Attempts are temporarily blocked. Wait a moment, or sign out.';
+
+  @override
+  String get appLockUnavailable =>
+      'This device can no longer show the unlock prompt. Sign out and sign in again.';
+
+  @override
+  String get securityTitle => 'Security';
+
+  @override
+  String get appLockSetting => 'App lock';
+
+  @override
+  String get appLockSettingBody =>
+      'Ask for a fingerprint or the device code when you come back to the app.';
+
+  @override
+  String get appLockUnsupported =>
+      'This device has no screen lock. Turn one on in the device settings first.';
+
+  @override
+  String get appLockTimeoutSetting => 'Lock after';
+
+  @override
+  String get appLockTimeoutImmediate => 'Immediately';
+
+  @override
+  String get devicesTitle => 'Devices';
+
+  @override
+  String get devicesBody => 'The devices signed in to your account.';
+
+  @override
+  String get devicesEmpty => 'No devices registered yet.';
+
+  @override
+  String get deviceThisDevice => 'This device';
+
+  @override
+  String get deviceLastSeen => 'Last seen';
+
+  @override
+  String get deviceRevoke => 'End session';
+
+  @override
+  String get deviceRevokeConfirmTitle => 'End the session on this device?';
+
+  @override
+  String get deviceRevokeConfirmBody =>
+      'That device will have to sign in again.';
+
+  @override
+  String get deviceRevokeSelfBody =>
+      'This is the device you are using now. You will be signed out immediately.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get diagnosticsTitle => 'Diagnostics';
 }

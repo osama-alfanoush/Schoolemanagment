@@ -403,5 +403,105 @@
   "signOut": "تسجيل الخروج",
   "@signOut": {
     "description": "Signs the user out."
+  },
+  "appLockTitle": "التطبيق مقفل",
+  "@appLockTitle": {
+    "description": "Title of the app-lock screen."
+  },
+  "appLockBody": "افتح القفل للمتابعة. القفل يحمي ما هو معروض على الشاشة فقط؛ جلستك لم تنتهِ.",
+  "@appLockBody": {
+    "description": "Body of the app-lock screen."
+  },
+  "appLockUnlockAction": "فتح القفل",
+  "@appLockUnlockAction": {
+    "description": "Button that shows the OS unlock prompt."
+  },
+  "appLockReason": "افتح قفل تطبيق المدرسة",
+  "@appLockReason": {
+    "description": "Reason string the OS prompt displays."
+  },
+  "appLockFailed": "لم يتم التعرّف عليك. حاول مرة أخرى أو سجّل الخروج.",
+  "@appLockFailed": {
+    "description": "Shown after a failed unlock attempt."
+  },
+  "appLockLockedOut": "تم إيقاف المحاولات مؤقتًا. انتظر قليلًا أو سجّل الخروج.",
+  "@appLockLockedOut": {
+    "description": "Shown when the OS has locked the prompt out."
+  },
+  "appLockUnavailable": "لا يمكن عرض طلب الفتح على هذا الجهاز. سجّل الخروج ثم ادخل من جديد.",
+  "@appLockUnavailable": {
+    "description": "Shown when the device can no longer present a prompt."
+  },
+  "securityTitle": "الأمان",
+  "@securityTitle": {
+    "description": "Title of the security settings screen."
+  },
+  "appLockSetting": "قفل التطبيق",
+  "@appLockSetting": {
+    "description": "Label for the app-lock toggle."
+  },
+  "appLockSettingBody": "اطلب بصمة أو رمز الجهاز عند العودة إلى التطبيق.",
+  "@appLockSettingBody": {
+    "description": "Explanation of the app-lock toggle."
+  },
+  "appLockUnsupported": "هذا الجهاز لا يدعم قفل الشاشة. فعّل قفل الشاشة في إعدادات الجهاز أولًا.",
+  "@appLockUnsupported": {
+    "description": "Shown when the device cannot present an unlock prompt."
+  },
+  "appLockTimeoutSetting": "القفل بعد",
+  "@appLockTimeoutSetting": {
+    "description": "Label for the app-lock timeout choice."
+  },
+  "appLockTimeoutImmediate": "فورًا",
+  "@appLockTimeoutImmediate": {
+    "description": "The zero-delay app-lock timeout."
+  },
+  "devicesTitle": "الأجهزة",
+  "@devicesTitle": {
+    "description": "Title of the device list screen."
+  },
+  "devicesBody": "الأجهزة التي سجّلت الدخول إلى حسابك.",
+  "@devicesBody": {
+    "description": "Explanation on the device list screen."
+  },
+  "devicesEmpty": "لا توجد أجهزة مسجّلة بعد.",
+  "@devicesEmpty": {
+    "description": "Empty state on the device list."
+  },
+  "deviceThisDevice": "هذا الجهاز",
+  "@deviceThisDevice": {
+    "description": "Marks the current device in the list."
+  },
+  "deviceLastSeen": "آخر ظهور",
+  "@deviceLastSeen": {
+    "description": "Label for a device's last-seen time."
+  },
+  "deviceRevoke": "إنهاء الجلسة",
+  "@deviceRevoke": {
+    "description": "Revokes a device's session."
+  },
+  "deviceRevokeConfirmTitle": "إنهاء الجلسة على هذا الجهاز؟",
+  "@deviceRevokeConfirmTitle": {
+    "description": "Title of the revoke confirmation."
+  },
+  "deviceRevokeConfirmBody": "سيُطلب تسجيل الدخول من جديد على ذلك الجهاز.",
+  "@deviceRevokeConfirmBody": {
+    "description": "Body of the revoke confirmation."
+  },
+  "deviceRevokeSelfBody": "هذا هو الجهاز الذي تستخدمه الآن. سيتم تسجيل خروجك فورًا.",
+  "@deviceRevokeSelfBody": {
+    "description": "Extra warning when revoking the current device."
+  },
+  "cancel": "إلغاء",
+  "@cancel": {
+    "description": "Dismisses a dialog without acting."
+  },
+  "confirm": "تأكيد",
+  "@confirm": {
+    "description": "Confirms a dialog action."
+  },
+  "diagnosticsTitle": "تشخيص",
+  "@diagnosticsTitle": {
+    "description": "Title of the on-device diagnostics screen."
   }
 }

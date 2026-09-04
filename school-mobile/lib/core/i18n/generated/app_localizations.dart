@@ -673,6 +673,156 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تسجيل الخروج'**
   String get signOut;
+
+  /// Title of the app-lock screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'التطبيق مقفل'**
+  String get appLockTitle;
+
+  /// Body of the app-lock screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح القفل للمتابعة. القفل يحمي ما هو معروض على الشاشة فقط؛ جلستك لم تنتهِ.'**
+  String get appLockBody;
+
+  /// Button that shows the OS unlock prompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح القفل'**
+  String get appLockUnlockAction;
+
+  /// Reason string the OS prompt displays.
+  ///
+  /// In ar, this message translates to:
+  /// **'افتح قفل تطبيق المدرسة'**
+  String get appLockReason;
+
+  /// Shown after a failed unlock attempt.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يتم التعرّف عليك. حاول مرة أخرى أو سجّل الخروج.'**
+  String get appLockFailed;
+
+  /// Shown when the OS has locked the prompt out.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إيقاف المحاولات مؤقتًا. انتظر قليلًا أو سجّل الخروج.'**
+  String get appLockLockedOut;
+
+  /// Shown when the device can no longer present a prompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يمكن عرض طلب الفتح على هذا الجهاز. سجّل الخروج ثم ادخل من جديد.'**
+  String get appLockUnavailable;
+
+  /// Title of the security settings screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأمان'**
+  String get securityTitle;
+
+  /// Label for the app-lock toggle.
+  ///
+  /// In ar, this message translates to:
+  /// **'قفل التطبيق'**
+  String get appLockSetting;
+
+  /// Explanation of the app-lock toggle.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب بصمة أو رمز الجهاز عند العودة إلى التطبيق.'**
+  String get appLockSettingBody;
+
+  /// Shown when the device cannot present an unlock prompt.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الجهاز لا يدعم قفل الشاشة. فعّل قفل الشاشة في إعدادات الجهاز أولًا.'**
+  String get appLockUnsupported;
+
+  /// Label for the app-lock timeout choice.
+  ///
+  /// In ar, this message translates to:
+  /// **'القفل بعد'**
+  String get appLockTimeoutSetting;
+
+  /// The zero-delay app-lock timeout.
+  ///
+  /// In ar, this message translates to:
+  /// **'فورًا'**
+  String get appLockTimeoutImmediate;
+
+  /// Title of the device list screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأجهزة'**
+  String get devicesTitle;
+
+  /// Explanation on the device list screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الأجهزة التي سجّلت الدخول إلى حسابك.'**
+  String get devicesBody;
+
+  /// Empty state on the device list.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد أجهزة مسجّلة بعد.'**
+  String get devicesEmpty;
+
+  /// Marks the current device in the list.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الجهاز'**
+  String get deviceThisDevice;
+
+  /// Label for a device's last-seen time.
+  ///
+  /// In ar, this message translates to:
+  /// **'آخر ظهور'**
+  String get deviceLastSeen;
+
+  /// Revokes a device's session.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنهاء الجلسة'**
+  String get deviceRevoke;
+
+  /// Title of the revoke confirmation.
+  ///
+  /// In ar, this message translates to:
+  /// **'إنهاء الجلسة على هذا الجهاز؟'**
+  String get deviceRevokeConfirmTitle;
+
+  /// Body of the revoke confirmation.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيُطلب تسجيل الدخول من جديد على ذلك الجهاز.'**
+  String get deviceRevokeConfirmBody;
+
+  /// Extra warning when revoking the current device.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا هو الجهاز الذي تستخدمه الآن. سيتم تسجيل خروجك فورًا.'**
+  String get deviceRevokeSelfBody;
+
+  /// Dismisses a dialog without acting.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء'**
+  String get cancel;
+
+  /// Confirms a dialog action.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد'**
+  String get confirm;
+
+  /// Title of the on-device diagnostics screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'تشخيص'**
+  String get diagnosticsTitle;
 }
 
 class _AppLocalizationsDelegate

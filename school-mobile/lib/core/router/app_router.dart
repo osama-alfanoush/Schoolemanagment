@@ -159,6 +159,18 @@ GoRouter buildAppRouter({
             screens.build(AppRoute.changePassword, context, state),
       ),
       GoRoute(
+        path: AppRoute.devices.path,
+        name: AppRoute.devices.routeName,
+        builder: (context, state) =>
+            screens.build(AppRoute.devices, context, state),
+      ),
+      GoRoute(
+        path: AppRoute.diagnostics.path,
+        name: AppRoute.diagnostics.routeName,
+        builder: (context, state) =>
+            screens.build(AppRoute.diagnostics, context, state),
+      ),
+      GoRoute(
         path: AppRoute.roleSwitch.path,
         name: AppRoute.roleSwitch.routeName,
         builder: (context, state) {
