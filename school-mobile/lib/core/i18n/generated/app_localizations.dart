@@ -823,6 +823,90 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تشخيص'**
   String get diagnosticsTitle;
+
+  /// Title of the invite-code activation screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل الحساب'**
+  String get activateTitle;
+
+  /// Explanation on the activation screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز التفعيل الذي زوّدتك به المدرسة. لا حاجة لكلمة مرور.'**
+  String get activateBody;
+
+  /// Label for the invite-code field.
+  ///
+  /// In ar, this message translates to:
+  /// **'رمز التفعيل'**
+  String get activateCodeLabel;
+
+  /// Submits the activation code.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل'**
+  String get activateAction;
+
+  /// Validation message for an empty code field.
+  ///
+  /// In ar, this message translates to:
+  /// **'أدخل رمز التفعيل.'**
+  String get activateCodeRequired;
+
+  /// Validation message for a short code.
+  ///
+  /// In ar, this message translates to:
+  /// **'الرمز غير مكتمل.'**
+  String get activateCodeIncomplete;
+
+  /// Shown when the server refuses the code.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الرمز غير صالح أو تم استخدامه. تواصل مع إدارة المدرسة للحصول على رمز جديد.'**
+  String get activateCodeRejected;
+
+  /// Shown when the activated account has no school assignment.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.'**
+  String get activateNoSchoolAccess;
+
+  /// Prompt on the sign-in screen that leads to activation.
+  ///
+  /// In ar, this message translates to:
+  /// **'لديك رمز تفعيل من المدرسة؟'**
+  String get activateHaveCode;
+
+  /// Opens the activation screen from sign-in.
+  ///
+  /// In ar, this message translates to:
+  /// **'التفعيل برمز'**
+  String get activateOpen;
+
+  /// Title of the step that offers the app-lock after activation.
+  ///
+  /// In ar, this message translates to:
+  /// **'احمِ التطبيق'**
+  String get activateProtectTitle;
+
+  /// Explains the app-lock step after activation.
+  ///
+  /// In ar, this message translates to:
+  /// **'فعّل قفل التطبيق ليطلب بصمتك أو رمز جهازك عند فتحه. يمكنك تغيير ذلك لاحقًا من الأمان.'**
+  String get activateProtectBody;
+
+  /// Turns the app-lock on during onboarding.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل القفل'**
+  String get activateProtectEnable;
+
+  /// Skips an optional onboarding step.
+  ///
+  /// In ar, this message translates to:
+  /// **'تخطٍّ'**
+  String get skip;
 }
 
 class _AppLocalizationsDelegate

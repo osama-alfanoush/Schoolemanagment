@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
 use App\Http\Controllers\Api\MfaController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ParentController;
+use App\Http\Controllers\Api\ParentInviteController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\PayrollSettingsController;
@@ -51,6 +52,13 @@ Route::get('/auth/password/reset/{token}', fn (string $token) => response()->jso
 // Refresh has its own throttle — high limit since it's used frequently for token rotation
 Route::post('/auth/refresh', [AuthController::class, 'refresh'])
     ->middleware(['auth:sanctum', 'account.active', 'abilities:refresh', 'school.context', 'throttle:30,1']);
+
+// Guardian activation without a password. Public because the guardian has no
+// session and no password yet -- that is the point: a Jordanian parent will not
+// manage a password reset, and every failure of one becomes a phone call to the
+// school office. Throttled hard, single-use and attempt-capped in the service.
+Route::post('/mobile/v1/onboarding/activate', [ParentInviteController::class, 'activate'])
+    ->middleware('throttle:10,10');
 
 Route::middleware(['auth:sanctum', 'account.active', 'school.context', 'throttle:5,1'])->group(function () {
     Route::post('/auth/mfa/enroll', [MfaController::class, 'enroll'])->middleware('token.usable:mfa-enroll');
@@ -200,6 +208,9 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
         Route::patch('/users/{id}', [AdminController::class, 'updateUser']);
         Route::delete('/users/{id}', [AdminController::class, 'deactivateUser']);
         Route::post('/users/link-parent', [AdminController::class, 'linkParentStudent']);
+        // Issues the code the office hands to a guardian. The plaintext is in
+        // the response and nowhere else.
+        Route::post('/parent-invites', [ParentInviteController::class, 'store']);
         Route::post('/users/import-students', [AdminController::class, 'bulkImportStudents']);
         Route::post('/enrollments', [EnrollmentController::class, 'store']);
         Route::post('/enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer']);

@@ -503,5 +503,61 @@
   "diagnosticsTitle": "تشخيص",
   "@diagnosticsTitle": {
     "description": "Title of the on-device diagnostics screen."
+  },
+  "activateTitle": "تفعيل الحساب",
+  "@activateTitle": {
+    "description": "Title of the invite-code activation screen."
+  },
+  "activateBody": "أدخل رمز التفعيل الذي زوّدتك به المدرسة. لا حاجة لكلمة مرور.",
+  "@activateBody": {
+    "description": "Explanation on the activation screen."
+  },
+  "activateCodeLabel": "رمز التفعيل",
+  "@activateCodeLabel": {
+    "description": "Label for the invite-code field."
+  },
+  "activateAction": "تفعيل",
+  "@activateAction": {
+    "description": "Submits the activation code."
+  },
+  "activateCodeRequired": "أدخل رمز التفعيل.",
+  "@activateCodeRequired": {
+    "description": "Validation message for an empty code field."
+  },
+  "activateCodeIncomplete": "الرمز غير مكتمل.",
+  "@activateCodeIncomplete": {
+    "description": "Validation message for a short code."
+  },
+  "activateCodeRejected": "هذا الرمز غير صالح أو تم استخدامه. تواصل مع إدارة المدرسة للحصول على رمز جديد.",
+  "@activateCodeRejected": {
+    "description": "Shown when the server refuses the code."
+  },
+  "activateNoSchoolAccess": "لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.",
+  "@activateNoSchoolAccess": {
+    "description": "Shown when the activated account has no school assignment."
+  },
+  "activateHaveCode": "لديك رمز تفعيل من المدرسة؟",
+  "@activateHaveCode": {
+    "description": "Prompt on the sign-in screen that leads to activation."
+  },
+  "activateOpen": "التفعيل برمز",
+  "@activateOpen": {
+    "description": "Opens the activation screen from sign-in."
+  },
+  "activateProtectTitle": "احمِ التطبيق",
+  "@activateProtectTitle": {
+    "description": "Title of the step that offers the app-lock after activation."
+  },
+  "activateProtectBody": "فعّل قفل التطبيق ليطلب بصمتك أو رمز جهازك عند فتحه. يمكنك تغيير ذلك لاحقًا من الأمان.",
+  "@activateProtectBody": {
+    "description": "Explains the app-lock step after activation."
+  },
+  "activateProtectEnable": "تفعيل القفل",
+  "@activateProtectEnable": {
+    "description": "Turns the app-lock on during onboarding."
+  },
+  "skip": "تخطٍّ",
+  "@skip": {
+    "description": "Skips an optional onboarding step."
   }
 }

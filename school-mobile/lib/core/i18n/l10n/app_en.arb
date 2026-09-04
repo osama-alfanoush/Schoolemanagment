@@ -120,5 +120,19 @@
   "deviceRevokeSelfBody": "This is the device you are using now. You will be signed out immediately.",
   "cancel": "Cancel",
   "confirm": "Confirm",
-  "diagnosticsTitle": "Diagnostics"
+  "diagnosticsTitle": "Diagnostics",
+  "activateTitle": "Activate your account",
+  "activateBody": "Enter the activation code the school gave you. No password needed.",
+  "activateCodeLabel": "Activation code",
+  "activateAction": "Activate",
+  "activateCodeRequired": "Enter the activation code.",
+  "activateCodeIncomplete": "That code is not complete.",
+  "activateCodeRejected": "That code is not valid, or has already been used. Ask the school office for a new one.",
+  "activateNoSchoolAccess": "Your account has no active school assignment. Contact the school office.",
+  "activateHaveCode": "Have an activation code from the school?",
+  "activateOpen": "Activate with a code",
+  "activateProtectTitle": "Protect the app",
+  "activateProtectBody": "Turn on the app lock so it asks for your fingerprint or device code. You can change this later under Security.",
+  "activateProtectEnable": "Turn on the lock",
+  "skip": "Skip"
 }

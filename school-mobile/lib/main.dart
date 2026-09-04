@@ -17,6 +17,7 @@ import 'core/session/session.dart';
 import 'core/theme/theme.dart';
 import 'features/auth/auth.dart';
 import 'features/diagnostics/verification_screen.dart';
+import 'features/onboarding/onboarding.dart';
 import 'features/security/security.dart';
 
 /// Where the API lives. Injected at build time; there is no default and no
@@ -80,6 +81,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final ChangePasswordController _changePassword;
   late final AppLockController _appLock;
   late final DeviceListController _devices;
+  late final ActivationController _activation;
   late final SessionController _session;
   late final GoRouter _router;
   StreamSubscription<void>? _unauthenticated;
@@ -122,6 +124,12 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       store: _secureStore,
     )..bind();
 
+    _activation = ActivationController(
+      api: ActivationApi(dio: _apiClient.dio, tokenStore: _tokenStore),
+      session: _session,
+      lock: _appLock,
+    );
+
     _devices = DeviceListController(
       api: DeviceApi(dio: _apiClient.dio),
       tokenStore: _tokenStore,
@@ -139,7 +147,13 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     _router = buildAppRouter(
       controller: _session,
       screens: const AppScreens().withScreens(<AppRoute, RouteScreenBuilder>{
-        AppRoute.signIn: (context, state) => AuthGateway(repository: _auth),
+        AppRoute.signIn: (context, state) => AuthGateway(
+              repository: _auth,
+              activationBuilder: (onCancel) => ActivationScreen(
+                controller: _activation,
+                onCancel: onCancel,
+              ),
+            ),
         AppRoute.devices: (context, state) =>
             DeviceListScreen(controller: _devices),
         AppRoute.diagnostics: (context, state) => VerificationScreen(
@@ -175,6 +189,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
     _changePassword.dispose();
+    _activation.dispose();
     _devices.dispose();
     _appLock.dispose();
     _session.dispose();

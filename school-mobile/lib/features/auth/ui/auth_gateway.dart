@@ -18,9 +18,17 @@ import 'mfa_controller.dart';
 /// the redirect, and an exception in a redirect is how a bypass gets built by
 /// accident.
 class AuthGateway extends StatefulWidget {
-  const AuthGateway({required this.repository, super.key});
+  const AuthGateway({
+    required this.repository,
+    this.activationBuilder,
+    super.key,
+  });
 
   final AuthRepository repository;
+
+  /// Builds the guardian activation screen, given a callback that returns to
+  /// the sign-in form. Absent when activation is not wired up.
+  final Widget Function(VoidCallback onCancel)? activationBuilder;
 
   @override
   State<AuthGateway> createState() => _AuthGatewayState();
@@ -29,6 +37,7 @@ class AuthGateway extends StatefulWidget {
 class _AuthGatewayState extends State<AuthGateway> {
   late final LoginController _login;
   MfaController? _mfa;
+  bool _activating = false;
 
   @override
   void initState() {
@@ -70,8 +79,21 @@ class _AuthGatewayState extends State<AuthGateway> {
 
   @override
   Widget build(BuildContext context) {
+    final activation = widget.activationBuilder;
+
+    if (_activating && activation != null) {
+      return activation(() => setState(() => _activating = false));
+    }
+
     final mfa = _mfa;
-    if (mfa == null) return LoginScreen(controller: _login);
+    if (mfa == null) {
+      return LoginScreen(
+        controller: _login,
+        onActivate: activation == null
+            ? null
+            : () => setState(() => _activating = true),
+      );
+    }
 
     // An account that requires MFA but has never enrolled cannot finish here:
     // enrolling means showing a secret and a QR code, which this order does not

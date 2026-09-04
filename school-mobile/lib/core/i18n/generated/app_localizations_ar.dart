@@ -431,4 +431,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get diagnosticsTitle => 'تشخيص';
+
+  @override
+  String get activateTitle => 'تفعيل الحساب';
+
+  @override
+  String get activateBody =>
+      'أدخل رمز التفعيل الذي زوّدتك به المدرسة. لا حاجة لكلمة مرور.';
+
+  @override
+  String get activateCodeLabel => 'رمز التفعيل';
+
+  @override
+  String get activateAction => 'تفعيل';
+
+  @override
+  String get activateCodeRequired => 'أدخل رمز التفعيل.';
+
+  @override
+  String get activateCodeIncomplete => 'الرمز غير مكتمل.';
+
+  @override
+  String get activateCodeRejected =>
+      'هذا الرمز غير صالح أو تم استخدامه. تواصل مع إدارة المدرسة للحصول على رمز جديد.';
+
+  @override
+  String get activateNoSchoolAccess =>
+      'لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.';
+
+  @override
+  String get activateHaveCode => 'لديك رمز تفعيل من المدرسة؟';
+
+  @override
+  String get activateOpen => 'التفعيل برمز';
+
+  @override
+  String get activateProtectTitle => 'احمِ التطبيق';
+
+  @override
+  String get activateProtectBody =>
+      'فعّل قفل التطبيق ليطلب بصمتك أو رمز جهازك عند فتحه. يمكنك تغيير ذلك لاحقًا من الأمان.';
+
+  @override
+  String get activateProtectEnable => 'تفعيل القفل';
+
+  @override
+  String get skip => 'تخطٍّ';
 }

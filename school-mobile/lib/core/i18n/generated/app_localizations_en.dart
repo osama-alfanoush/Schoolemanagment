@@ -426,4 +426,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diagnosticsTitle => 'Diagnostics';
+
+  @override
+  String get activateTitle => 'Activate your account';
+
+  @override
+  String get activateBody =>
+      'Enter the activation code the school gave you. No password needed.';
+
+  @override
+  String get activateCodeLabel => 'Activation code';
+
+  @override
+  String get activateAction => 'Activate';
+
+  @override
+  String get activateCodeRequired => 'Enter the activation code.';
+
+  @override
+  String get activateCodeIncomplete => 'That code is not complete.';
+
+  @override
+  String get activateCodeRejected =>
+      'That code is not valid, or has already been used. Ask the school office for a new one.';
+
+  @override
+  String get activateNoSchoolAccess =>
+      'Your account has no active school assignment. Contact the school office.';
+
+  @override
+  String get activateHaveCode => 'Have an activation code from the school?';
+
+  @override
+  String get activateOpen => 'Activate with a code';
+
+  @override
+  String get activateProtectTitle => 'Protect the app';
+
+  @override
+  String get activateProtectBody =>
+      'Turn on the app lock so it asks for your fingerprint or device code. You can change this later under Security.';
+
+  @override
+  String get activateProtectEnable => 'Turn on the lock';
+
+  @override
+  String get skip => 'Skip';
 }

@@ -11,9 +11,12 @@ import 'login_controller.dart';
 /// layout to break under RTL, and everything scrollable so the form is still
 /// usable with the keyboard up at 200% text scale.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({required this.controller, super.key});
+  const LoginScreen({required this.controller, this.onActivate, super.key});
 
   final LoginController controller;
+
+  /// Opens guardian activation. Absent when the flow is not wired up.
+  final VoidCallback? onActivate;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -149,6 +152,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : Text(l10n.signInAction),
                           ),
                         ),
+                        if (widget.onActivate != null) ...<Widget>[
+                          const SizedBox(height: Dimens.gapLarge),
+                          Text(
+                            l10n.activateHaveCode,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minHeight: Dimens.minTapTarget,
+                            ),
+                            child: TextButton(
+                              key: const Key('login-activate'),
+                              onPressed: state.submitting
+                                  ? null
+                                  : widget.onActivate,
+                              child: Text(l10n.activateOpen),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
