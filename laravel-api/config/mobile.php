@@ -92,6 +92,44 @@ return [
 
     'font_family' => env('MOBILE_FONT_FAMILY', 'Tajawal'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Messaging
+    |--------------------------------------------------------------------------
+    |
+    | Threads on the mobile surface are teacher- or school-initiated only. A
+    | guardian may reply to a thread staff opened; they cannot start one.
+    | Unconstrained parent-initiated chat is how teachers come to hate the
+    | product, and staff resistance is what kills a pilot.
+    |
+    | Replies are also confined to working hours, so a message sent at 23:40 is
+    | refused rather than landing on a teacher's lock screen. The plan calls for
+    | this to be school-configurable; `school_settings` has no column for it, so
+    | it is configuration for now and a per-school setting is the follow-up.
+    |
+    */
+
+    'messaging' => [
+        'reply_from' => env('MOBILE_MESSAGING_FROM', '07:00'),
+        'reply_to' => env('MOBILE_MESSAGING_TO', '17:00'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notification categories
+    |--------------------------------------------------------------------------
+    |
+    | The categories a user may mute, each independently: muting grades must
+    | never mute fee reminders. `emergency` is deliberately absent — it is the
+    | one category that always delivers, and offering a switch that does not
+    | work is worse than offering none.
+    |
+    */
+
+    'notification_categories' => ['fees', 'attendance', 'grades', 'messages', 'announcements'],
+
+    'always_on_categories' => ['emergency'],
+
     'delta' => [
         'page_size' => (int) env('MOBILE_DELTA_PAGE_SIZE', 200),
         'max_page_size' => (int) env('MOBILE_DELTA_MAX_PAGE_SIZE', 500),

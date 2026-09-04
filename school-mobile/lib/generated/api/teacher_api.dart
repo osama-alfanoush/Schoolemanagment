@@ -22,7 +22,7 @@ import 'package:school_mobile/generated/model/submission.dart';
 import 'package:school_mobile/generated/model/teacher_announce_request.dart';
 import 'package:school_mobile/generated/model/teacher_assignment_submissions200_response.dart';
 import 'package:school_mobile/generated/model/teacher_enter_grade_request.dart';
-import 'package:school_mobile/generated/model/teacher_grade_components98_request.dart';
+import 'package:school_mobile/generated/model/teacher_grade_components107_request.dart';
 import 'package:school_mobile/generated/model/teacher_grade_submission_request.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct403_response.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct_request.dart';
@@ -693,7 +693,7 @@ class TeacherApi {
     );
   }
 
-  /// Teacher Gradecomponents 97
+  /// Teacher Gradecomponents 106
   /// 
   ///
   /// Parameters:
@@ -714,7 +714,7 @@ class TeacherApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<GradeComponent>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents97({ 
+  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents106({ 
     required int classRoomId,
     required int subjectId,
     required String name,
@@ -798,13 +798,13 @@ class TeacherApi {
     );
   }
 
-  /// Teacher Gradecomponents 98
+  /// Teacher Gradecomponents 107
   /// 
   ///
   /// Parameters:
   /// * [classRoomId] 
   /// * [subjectId] 
-  /// * [teacherGradeComponents98Request] 
+  /// * [teacherGradeComponents107Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -814,10 +814,10 @@ class TeacherApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<GradeComponent>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents98({ 
+  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents107({ 
     required int classRoomId,
     required int subjectId,
-    required TeacherGradeComponents98Request teacherGradeComponents98Request,
+    required TeacherGradeComponents107Request teacherGradeComponents107Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -848,8 +848,8 @@ class TeacherApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(TeacherGradeComponents98Request);
-      _bodyData = _serializers.serialize(teacherGradeComponents98Request, specifiedType: _type);
+      const _type = FullType(TeacherGradeComponents107Request);
+      _bodyData = _serializers.serialize(teacherGradeComponents107Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(

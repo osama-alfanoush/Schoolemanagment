@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\LibraryController;
 use App\Http\Controllers\Api\MessagingController;
 use App\Http\Controllers\Api\Mobile\ParentAcademicsController as MobileParentAcademicsController;
 use App\Http\Controllers\Api\Mobile\ParentFinanceController as MobileParentFinanceController;
+use App\Http\Controllers\Api\Mobile\ParentInboxController as MobileParentInboxController;
 use App\Http\Controllers\Api\Mobile\ParentHomeController as MobileParentHomeController;
 use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
 use App\Http\Controllers\Api\MfaController;
@@ -134,6 +135,14 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
             // actually holds.
             Route::get('/session/bootstrap', [MobileParentHomeController::class, 'bootstrap']);
 
+            // NOTIFICATIONS. Read state is the same `read_at` column the web
+            // writes, so a notice read on the phone is read on the website.
+            Route::get('/notifications', [MobileParentInboxController::class, 'notifications']);
+            Route::patch('/notifications/{notificationId}/read', [MobileParentInboxController::class, 'markRead'])
+                ->whereNumber('notificationId');
+            Route::get('/notifications/preferences', [MobileParentInboxController::class, 'preferences']);
+            Route::patch('/notifications/preferences', [MobileParentInboxController::class, 'updatePreferences']);
+
             // PARENT
             // EnsureParentOwnsChild guards the child-scoped path, and the
             // controller repeats the ownership check: this is one route
@@ -185,6 +194,20 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
 
                     Route::post('/attendance/{recordId}/explain', [MobileParentAcademicsController::class, 'explainAbsence'])
                         ->whereNumber('recordId');
+
+                    // MESSAGES. Reply-only by design: a guardian may answer a
+                    // thread staff opened and cannot start one. There is no
+                    // route here that creates a thread.
+                    Route::get('/messages', [MobileParentInboxController::class, 'threads']);
+                    Route::get('/messages/{otherId}', [MobileParentInboxController::class, 'conversation'])
+                        ->whereNumber('otherId');
+                    Route::post('/messages/{otherId}/reply', [MobileParentInboxController::class, 'reply'])
+                        ->whereNumber('otherId');
+
+                    Route::get('/children/{studentId}/timetable', [MobileParentInboxController::class, 'timetable'])
+                        ->whereNumber('studentId');
+                    Route::post('/children/{studentId}/correction', [MobileParentInboxController::class, 'requestCorrection'])
+                        ->whereNumber('studentId');
                 });
         });
 
