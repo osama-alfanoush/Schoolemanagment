@@ -25,6 +25,7 @@ import 'features/diagnostics/verification_screen.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/parent/parent.dart';
 import 'features/security/security.dart';
+import 'features/student/student.dart';
 import 'features/teacher/teacher.dart';
 
 /// Where the API lives. Injected at build time; there is no default and no
@@ -48,6 +49,7 @@ class SchoolSuiteApp extends StatefulWidget {
     this.database,
     this.guardianDialer,
     this.filePicker,
+    this.studentFilePicker,
   });
 
   /// Credential storage. Defaults to the platform keystore.
@@ -83,6 +85,9 @@ class SchoolSuiteApp extends StatefulWidget {
   /// no file picker is wired into the build yet.
   final FilePicker? filePicker;
 
+  /// The same seam on the student side, for handing work in.
+  final StudentFilePicker? studentFilePicker;
+
   @override
   State<SchoolSuiteApp> createState() => _SchoolSuiteAppState();
 }
@@ -112,6 +117,9 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final ParentHomeController _parentHome;
   late final ParentFeesController _parentFees;
   late final ParentInboxController _parentInbox;
+  late final StudentRepository _studentRepository;
+  late final StudentHomeController _studentHome;
+  late final StudentAssignmentsController _studentAssignments;
   late final TeacherRepository _teacherRepository;
   late final TeacherDayController _teacherDay;
   late final SessionController _session;
@@ -196,6 +204,16 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     // One repository and one day controller shared by the two teacher tabs.
     // They read the same payload, and two of each would eventually disagree
     // about which classes exist.
+    // The student surface. One repository, and note what it does not have:
+    // no method here takes a student id, because the server accepts none.
+    _studentRepository = StudentRepository(
+      dio: _apiClient.dio,
+      database: _database,
+    );
+    _studentHome = StudentHomeController(repository: _studentRepository);
+    _studentAssignments =
+        StudentAssignmentsController(repository: _studentRepository);
+
     _teacherRepository = TeacherRepository(
       dio: _apiClient.dio,
       database: _database,
@@ -339,6 +357,29 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
                     int.tryParse(state.uri.queryParameters['guardianId'] ?? ''),
               ),
             ),
+        AppRoute.studentHome: (context, state) => StudentHomeScreen(
+              controller: _studentHome,
+              onOpenAssignment: (_) =>
+                  context.goNamed(AppRoute.studentAssignments.routeName),
+            ),
+        AppRoute.studentTimetable: (context, state) => StudentTimetableScreen(
+              controller: StudentRecordControllers.timetable(_studentRepository),
+            ),
+        AppRoute.studentAssignments: (context, state) =>
+            StudentAssignmentsScreen(
+              controller: _studentAssignments,
+              // No file picker is wired into the build, so the attach action
+              // is absent rather than present and inert.
+              picker: widget.studentFilePicker,
+            ),
+        AppRoute.studentGrades: (context, state) => StudentGradesScreen(
+              controller: StudentRecordControllers.grades(_studentRepository),
+            ),
+        AppRoute.studentAttendance: (context, state) =>
+            StudentAttendanceScreen(
+              controller:
+                  StudentRecordControllers.attendance(_studentRepository),
+            ),
         AppRoute.devices: (context, state) =>
             DeviceListScreen(controller: _devices),
         AppRoute.diagnostics: (context, state) => VerificationScreen(
@@ -374,6 +415,8 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
     _changePassword.dispose();
+    _studentAssignments.dispose();
+    _studentHome.dispose();
     _teacherDay.dispose();
     _parentInbox.dispose();
     _parentFees.dispose();

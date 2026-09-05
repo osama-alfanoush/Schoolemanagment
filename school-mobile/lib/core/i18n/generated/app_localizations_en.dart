@@ -1018,4 +1018,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String announceWindow(String from, String to) {
     return 'Notices can be sent between $from and $to';
   }
+
+  @override
+  String get studentHomeTitle => 'My day';
+
+  @override
+  String get studentTimetableTitle => 'My timetable';
+
+  @override
+  String get studentAssignmentsTitle => 'My homework';
+
+  @override
+  String get studentGradesTitle => 'My marks';
+
+  @override
+  String get studentAttendanceTitle => 'My attendance';
+
+  @override
+  String get studentNoLessons => 'No lessons today.';
+
+  @override
+  String get studentNoAssignments => 'No homework.';
+
+  @override
+  String get studentNoGrades => 'No marks have been published yet.';
+
+  @override
+  String get studentNextDue => 'Due next';
+
+  @override
+  String get studentHandIn => 'Hand in';
+
+  @override
+  String get studentHandInText => 'Your answer';
+
+  @override
+  String get studentHandedIn => 'Handed in';
+
+  @override
+  String get studentHandedInLate => 'Handed in late';
+
+  @override
+  String get studentNotHandedIn => 'Not handed in';
+
+  @override
+  String get studentMarked => 'Marked';
+
+  @override
+  String get studentSending => 'Sending…';
+
+  @override
+  String get studentSendFailed =>
+      'The hand-in did not go through. Your work has not reached the school; try again.';
+
+  @override
+  String get studentSendRetry => 'Try again';
+
+  @override
+  String get studentSendOffline => 'Handing in needs a connection.';
+
+  @override
+  String get studentSendEmpty => 'Write an answer or attach a file.';
+
+  @override
+  String get studentLateWarning =>
+      'The deadline has passed; your hand-in will be recorded as late.';
+
+  @override
+  String get attendancePresentPercent => 'Attendance';
+
+  @override
+  String get attendanceAbsentDays => 'Days absent';
 }

@@ -641,7 +641,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get statusLate => 'متأخر';
 
   @override
-  String get statusExcused => 'غياب بعذر';
+  String get statusExcused => 'بعذر';
 
   @override
   String get attendanceEmpty => 'لم يُسجَّل حضور في هذه الفترة.';
@@ -1025,4 +1025,75 @@ class AppLocalizationsAr extends AppLocalizations {
   String announceWindow(String from, String to) {
     return 'ساعات الإرسال: $from — $to';
   }
+
+  @override
+  String get studentHomeTitle => 'يومي';
+
+  @override
+  String get studentTimetableTitle => 'جدولي';
+
+  @override
+  String get studentAssignmentsTitle => 'واجباتي';
+
+  @override
+  String get studentGradesTitle => 'درجاتي';
+
+  @override
+  String get studentAttendanceTitle => 'حضوري';
+
+  @override
+  String get studentNoLessons => 'لا توجد حصص اليوم.';
+
+  @override
+  String get studentNoAssignments => 'لا توجد واجبات.';
+
+  @override
+  String get studentNoGrades => 'لم تُعتمد أي درجات بعد.';
+
+  @override
+  String get studentNextDue => 'القادم';
+
+  @override
+  String get studentHandIn => 'تسليم';
+
+  @override
+  String get studentHandInText => 'اكتب إجابتك';
+
+  @override
+  String get studentHandedIn => 'سُلّم';
+
+  @override
+  String get studentHandedInLate => 'سُلّم متأخرًا';
+
+  @override
+  String get studentNotHandedIn => 'لم يُسلّم';
+
+  @override
+  String get studentMarked => 'مُصحّح';
+
+  @override
+  String get studentSending => 'جارٍ الإرسال…';
+
+  @override
+  String get studentSendFailed =>
+      'تعذّر التسليم. لم يصل عملك بعد، أعد المحاولة.';
+
+  @override
+  String get studentSendRetry => 'إعادة المحاولة';
+
+  @override
+  String get studentSendOffline => 'يحتاج التسليم إلى اتصال.';
+
+  @override
+  String get studentSendEmpty => 'اكتب إجابة أو أرفق ملفًا.';
+
+  @override
+  String get studentLateWarning =>
+      'انتهى موعد التسليم؛ سيُسجَّل تسليمك متأخرًا.';
+
+  @override
+  String get attendancePresentPercent => 'نسبة الحضور';
+
+  @override
+  String get attendanceAbsentDays => 'أيام الغياب';
 }

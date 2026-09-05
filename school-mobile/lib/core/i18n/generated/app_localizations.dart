@@ -1160,28 +1160,28 @@ abstract class AppLocalizations {
   /// **'الشهادات'**
   String get reportCardsSection;
 
-  /// Attendance status.
+  /// Attendance status: present.
   ///
   /// In ar, this message translates to:
   /// **'حاضر'**
   String get statusPresent;
 
-  /// Attendance status.
+  /// Attendance status: absent.
   ///
   /// In ar, this message translates to:
   /// **'غائب'**
   String get statusAbsent;
 
-  /// Attendance status.
+  /// Attendance status: late.
   ///
   /// In ar, this message translates to:
   /// **'متأخر'**
   String get statusLate;
 
-  /// Attendance status.
+  /// Attendance status: excused.
   ///
   /// In ar, this message translates to:
-  /// **'غياب بعذر'**
+  /// **'بعذر'**
   String get statusExcused;
 
   /// Empty state for attendance.
@@ -1879,6 +1879,144 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'ساعات الإرسال: {from} — {to}'**
   String announceWindow(String from, String to);
+
+  /// Title of the student home screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'يومي'**
+  String get studentHomeTitle;
+
+  /// Title of the student timetable.
+  ///
+  /// In ar, this message translates to:
+  /// **'جدولي'**
+  String get studentTimetableTitle;
+
+  /// Title of the student assignments screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'واجباتي'**
+  String get studentAssignmentsTitle;
+
+  /// Title of the student grades screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'درجاتي'**
+  String get studentGradesTitle;
+
+  /// Title of the student attendance screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'حضوري'**
+  String get studentAttendanceTitle;
+
+  /// Empty state for today's lessons.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد حصص اليوم.'**
+  String get studentNoLessons;
+
+  /// Empty state for assignments.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد واجبات.'**
+  String get studentNoAssignments;
+
+  /// Empty state for grades.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تُعتمد أي درجات بعد.'**
+  String get studentNoGrades;
+
+  /// Heading for the next assignment due.
+  ///
+  /// In ar, this message translates to:
+  /// **'القادم'**
+  String get studentNextDue;
+
+  /// Submits work for an assignment.
+  ///
+  /// In ar, this message translates to:
+  /// **'تسليم'**
+  String get studentHandIn;
+
+  /// Label for the submission text field.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب إجابتك'**
+  String get studentHandInText;
+
+  /// The student's work reached the school.
+  ///
+  /// In ar, this message translates to:
+  /// **'سُلّم'**
+  String get studentHandedIn;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'سُلّم متأخرًا'**
+  String get studentHandedInLate;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُسلّم'**
+  String get studentNotHandedIn;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُصحّح'**
+  String get studentMarked;
+
+  /// A submission in flight.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ الإرسال…'**
+  String get studentSending;
+
+  /// Submission failure, stating plainly that nothing was saved upstream.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر التسليم. لم يصل عملك بعد، أعد المحاولة.'**
+  String get studentSendFailed;
+
+  /// Retries a failed hand-in.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة المحاولة'**
+  String get studentSendRetry;
+
+  /// Submissions are not queued offline.
+  ///
+  /// In ar, this message translates to:
+  /// **'يحتاج التسليم إلى اتصال.'**
+  String get studentSendOffline;
+
+  /// Refuses an empty hand-in.
+  ///
+  /// In ar, this message translates to:
+  /// **'اكتب إجابة أو أرفق ملفًا.'**
+  String get studentSendEmpty;
+
+  /// Warns that a hand-in will be late but still accepted.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهى موعد التسليم؛ سيُسجَّل تسليمك متأخرًا.'**
+  String get studentLateWarning;
+
+  /// Label for the share of marked days a student was present.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسبة الحضور'**
+  String get attendancePresentPercent;
+
+  /// Label for the number of days a student was absent.
+  ///
+  /// In ar, this message translates to:
+  /// **'أيام الغياب'**
+  String get attendanceAbsentDays;
 }
 
 class _AppLocalizationsDelegate

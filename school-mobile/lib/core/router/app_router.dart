@@ -220,7 +220,7 @@ GoRouter buildAppRouter({
         role: AppRole.student,
         controller: controller,
         branches: <List<AppRoute>>[
-          <AppRoute>[AppRoute.studentHome],
+          <AppRoute>[AppRoute.studentHome, AppRoute.studentAttendance],
           <AppRoute>[AppRoute.studentTimetable],
           <AppRoute>[AppRoute.studentAssignments],
           <AppRoute>[AppRoute.studentGrades],

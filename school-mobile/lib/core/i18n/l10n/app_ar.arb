@@ -1004,22 +1004,6 @@
   "@attendanceMarkTitle": {
     "description": "Title of the per-student status sheet."
   },
-  "statusPresent": "حاضر",
-  "@statusPresent": {
-    "description": "Attendance status."
-  },
-  "statusAbsent": "غائب",
-  "@statusAbsent": {
-    "description": "Attendance status."
-  },
-  "statusLate": "متأخر",
-  "@statusLate": {
-    "description": "Attendance status."
-  },
-  "statusExcused": "غياب بعذر",
-  "@statusExcused": {
-    "description": "Attendance status."
-  },
   "attendanceRejectedWindow": "انتهت مهلة التعديل، فلم يُقبل هذا الإرسال.",
   "@attendanceRejectedWindow": {
     "description": "Why a queued attendance batch was rejected: past the edit window."
@@ -1259,5 +1243,97 @@
         "type": "String"
       }
     }
+  },
+  "studentHomeTitle": "يومي",
+  "@studentHomeTitle": {
+    "description": "Title of the student home screen."
+  },
+  "studentTimetableTitle": "جدولي",
+  "@studentTimetableTitle": {
+    "description": "Title of the student timetable."
+  },
+  "studentAssignmentsTitle": "واجباتي",
+  "@studentAssignmentsTitle": {
+    "description": "Title of the student assignments screen."
+  },
+  "studentGradesTitle": "درجاتي",
+  "@studentGradesTitle": {
+    "description": "Title of the student grades screen."
+  },
+  "studentAttendanceTitle": "حضوري",
+  "@studentAttendanceTitle": {
+    "description": "Title of the student attendance screen."
+  },
+  "studentNoLessons": "لا توجد حصص اليوم.",
+  "@studentNoLessons": {
+    "description": "Empty state for today's lessons."
+  },
+  "studentNoAssignments": "لا توجد واجبات.",
+  "@studentNoAssignments": {
+    "description": "Empty state for assignments."
+  },
+  "studentNoGrades": "لم تُعتمد أي درجات بعد.",
+  "@studentNoGrades": {
+    "description": "Empty state for grades."
+  },
+  "studentNextDue": "القادم",
+  "@studentNextDue": {
+    "description": "Heading for the next assignment due."
+  },
+  "studentHandIn": "تسليم",
+  "@studentHandIn": {
+    "description": "Submits work for an assignment."
+  },
+  "studentHandInText": "اكتب إجابتك",
+  "@studentHandInText": {
+    "description": "Label for the submission text field."
+  },
+  "studentHandedIn": "سُلّم",
+  "@studentHandedIn": {
+    "description": "The student's work reached the school."
+  },
+  "studentHandedInLate": "سُلّم متأخرًا",
+  "@studentHandedInLate": {
+    "description": "Submission status."
+  },
+  "studentNotHandedIn": "لم يُسلّم",
+  "@studentNotHandedIn": {
+    "description": "Submission status."
+  },
+  "studentMarked": "مُصحّح",
+  "@studentMarked": {
+    "description": "Submission status."
+  },
+  "studentSending": "جارٍ الإرسال…",
+  "@studentSending": {
+    "description": "A submission in flight."
+  },
+  "studentSendFailed": "تعذّر التسليم. لم يصل عملك بعد، أعد المحاولة.",
+  "@studentSendFailed": {
+    "description": "Submission failure, stating plainly that nothing was saved upstream."
+  },
+  "studentSendRetry": "إعادة المحاولة",
+  "@studentSendRetry": {
+    "description": "Retries a failed hand-in."
+  },
+  "studentSendOffline": "يحتاج التسليم إلى اتصال.",
+  "@studentSendOffline": {
+    "description": "Submissions are not queued offline."
+  },
+  "studentSendEmpty": "اكتب إجابة أو أرفق ملفًا.",
+  "@studentSendEmpty": {
+    "description": "Refuses an empty hand-in."
+  },
+  "studentLateWarning": "انتهى موعد التسليم؛ سيُسجَّل تسليمك متأخرًا.",
+  "@studentLateWarning": {
+    "description": "Warns that a hand-in will be late but still accepted."
+  },
+  "attendancePresentPercent": "نسبة الحضور",
+  "@attendancePresentPercent": {
+    "description": "Label for the share of marked days a student was present."
+  },
+  "attendanceAbsentDays": "أيام الغياب",
+  "@attendanceAbsentDays": {
+    "description": "Label for the number of days a student was absent."
   }
 }

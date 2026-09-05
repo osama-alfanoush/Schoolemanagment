@@ -58,6 +58,9 @@ enum AppRoute {
   studentTimetable('studentTimetable', '/student/timetable', AppRole.student),
   studentAssignments('studentAssignments', '/student/assignments', AppRole.student),
   studentGrades('studentGrades', '/student/grades', AppRole.student),
+
+  /// The student's own attendance. Reached from the home summary.
+  studentAttendance('studentAttendance', '/student/attendance', AppRole.student),
   studentProfile('studentProfile', '/student/profile', AppRole.student);
 
   const AppRoute(this.routeName, this.path, this.role);
