@@ -14,6 +14,7 @@ class AuthRepository {
     required this.api,
     required this.tokenStore,
     required this.controller,
+    this.localData,
     MfaApi? mfa,
     PasswordApi? passwords,
   })  : mfa = mfa ?? MfaApi(dio: api.dio, tokenStore: tokenStore),
@@ -25,6 +26,20 @@ class AuthRepository {
   final PasswordApi passwords;
   final TokenStore tokenStore;
   final SessionController controller;
+
+  /// Who this device's cached data belongs to.
+  ///
+  /// Optional so the auth layer can be exercised without a database, but in
+  /// the real app it is always present: without it, a school tablet carries
+  /// one family's records into the next family's session.
+  final LocalDataOwner? localData;
+
+  /// What the last sign-in did to data already on the device.
+  ///
+  /// Read by the UI after a sign-in so a discarded queue can be reported. Null
+  /// until a sign-in has happened.
+  LocalDataClaim? get lastClaim => _lastClaim;
+  LocalDataClaim? _lastClaim;
 
   /// Signs in and, on success, moves the controller to signed-in.
   ///
@@ -42,6 +57,7 @@ class AuthRepository {
         sessionFrom(result.user),
         mustChangePassword: result.mustChangePassword,
       );
+      await _claimDevice(result.user);
     }
 
     return result;
@@ -68,6 +84,7 @@ class AuthRepository {
       sessionFrom(user),
       mustChangePassword: user['must_change_password'] == true,
     );
+    await _claimDevice(user);
   }
 
   /// Replaces a temporary password and unblocks the app.
@@ -89,7 +106,17 @@ class AuthRepository {
   /// taps sign out on a train with no signal must still end up signed out —
   /// leaving their child's records on screen because a request failed is the
   /// wrong way round.
-  Future<void> signOut() async {
+  Future<void> signOut({bool discardUnsentWork = false}) async {
+    // Checked before anything is revoked. Signing out is the last moment the
+    // person who made those writes is present to be asked about them, and a
+    // register queued in a classroom with no signal is exactly the kind of
+    // work that is sitting here.
+    final owner = localData;
+    if (owner != null && !discardUnsentWork) {
+      final unsent = await owner.unsentWrites();
+      if (unsent > 0) throw UnsentWorkPending(unsent);
+    }
+
     try {
       await api.logout();
     } on LoginFailure {
@@ -97,7 +124,20 @@ class AuthRepository {
     }
 
     await tokenStore.clear();
+
+    // The cache stays. It still belongs to this user, and if they sign back in
+    // on the same device they should not pay for a cold start; the next
+    // *different* user is what clears it, at claim time.
     controller.signedOut();
+  }
+
+  /// Clears another user's data from this device, if there is any.
+  Future<void> _claimDevice(Map<String, Object?> user) async {
+    final owner = localData;
+    final userId = int.tryParse('${user['id']}');
+    if (owner == null || userId == null) return;
+
+    _lastClaim = await owner.claim(userId);
   }
 
   /// Restores a session on a cold start.
@@ -122,6 +162,9 @@ class AuthRepository {
         // 401 and deletes every token, which surfaces as a LoginFailure below.
         mustChangePassword: user['must_change_password'] == true,
       );
+      // A cold start is also a moment where the person holding the phone can
+      // have changed -- a token restored on a device someone else last used.
+      await _claimDevice(user);
     } on LoginFailure {
       // Includes the token having been revoked from another device.
       controller.signedOut();
@@ -148,4 +191,17 @@ class AuthRepository {
           : AppRole.allFromWire(<Object?>[user['role']]),
     );
   }
+}
+
+/// Raised when signing out would discard writes the server has not accepted.
+///
+/// The count, not the content: what was queued is the user's own data and does
+/// not belong in an exception, a log or a crash report.
+class UnsentWorkPending implements Exception {
+  const UnsentWorkPending(this.count);
+
+  final int count;
+
+  @override
+  String toString() => 'UnsentWorkPending($count)';
 }

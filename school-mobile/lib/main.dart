@@ -153,10 +153,28 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       adapter: widget.httpClientAdapter,
     );
 
+    // One encrypted database for every cache-first screen.
+    //
+    // Opened lazily: the key comes from the keystore, which is asynchronous,
+    // and initState is not. LazyDatabase defers the open to the first query,
+    // so the controllers below can be constructed synchronously and the router
+    // can name their screens before any of it has touched the disk.
+    _database = widget.database ??
+        AppDatabase(LazyDatabase(() async => encryptedExecutor(
+          file: File(
+            '${(await getApplicationDocumentsDirectory()).path}/school_mobile.db',
+          ),
+          key: await _databaseKeyProvider.key(),
+        )));
+
     _auth = AuthRepository(
       api: AuthApi(dio: _apiClient.dio, tokenStore: _tokenStore),
       tokenStore: _tokenStore,
       controller: _session,
+      // Signing in is where a device that belonged to someone else is
+      // cleared, and signing out is where unsent work is protected from
+      // being discarded without anyone being asked.
+      localData: LocalDataOwner(database: _database),
     );
     _changePassword = ChangePasswordController(repository: _auth);
 
@@ -171,19 +189,6 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       lock: _appLock,
     );
 
-    // One encrypted database for every cache-first screen.
-    //
-    // Opened lazily: the key comes from the keystore, which is asynchronous,
-    // and initState is not. LazyDatabase defers the open to the first query,
-    // so the controllers below can be constructed synchronously and the router
-    // can name their screens before any of it has touched the disk.
-    _database = widget.database ??
-        AppDatabase(LazyDatabase(() async => encryptedExecutor(
-          file: File(
-            '${(await getApplicationDocumentsDirectory()).path}/school_mobile.db',
-          ),
-          key: await _databaseKeyProvider.key(),
-        )));
     _parentHome = ParentHomeController(
       repository: ParentHomeRepository(
         dio: _apiClient.dio,
@@ -225,8 +230,9 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       tokenStore: _tokenStore,
       // Ending the session on the device you are holding revokes the tokens
       // server-side, so every later call would 401. Signing out at once is the
-      // honest response.
-      onOwnDeviceRevoked: _auth.signOut,
+      // honest response -- and forced, because there is no longer a session to
+      // send queued work with, so refusing would only strand the user.
+      onOwnDeviceRevoked: () => _auth.signOut(discardUnsentWork: true),
     );
 
     // A refresh that cannot be recovered ends the session everywhere at once:
@@ -388,7 +394,8 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
             ),
         AppRoute.changePassword: (context, state) => ChangePasswordScreen(
               controller: _changePassword,
-              onSignOut: () => unawaited(_auth.signOut()),
+              onSignOut: () =>
+                unawaited(_auth.signOut(discardUnsentWork: true)),
             ),
         // Interim home for the on-device verification screen, so the checks it
         // performs stay reachable once a session exists. The profile orders

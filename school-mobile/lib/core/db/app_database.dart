@@ -341,6 +341,21 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
+  /// Removes every row this device holds: cached reads and queued writes.
+  ///
+  /// Unlike the eviction passes, this is deliberately indiscriminate — it
+  /// exists for the one case where indiscriminate is correct: a different
+  /// person is about to sign in on this device, and nothing here is theirs.
+  /// Callers count the unsent writes *before* calling, because after this
+  /// there is nothing left to count and the loss has to be reportable.
+  Future<int> clearLocalData() async {
+    var removed = 0;
+    removed += await delete(localOutbox).go();
+    removed += await delete(localCache).go();
+
+    return removed;
+  }
+
   /// Runs every eviction pass. Returns the number of rows removed in total.
   Future<int> runEviction({
     EvictionPolicy policy = const EvictionPolicy(),
