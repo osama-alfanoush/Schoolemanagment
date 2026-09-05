@@ -549,7 +549,70 @@ clean, 481 Flutter tests pass, 664 backend tests pass, `flutter build apk
 
 ## PHASE 6 — Student app
 
-Not started.
+**Complete.** Two orders, both delivered.
+
+> **Scope note.** The plan restricts this phase to grade 7 and above pending
+> the school's under-13 policy (open blocker 4). Nothing here enforces a
+> minimum grade — the surface is the same for any student account the school
+> creates. Enforcing it needs the policy decision first, and then a rule about
+> which accounts may be issued at all, which belongs in account provisioning
+> rather than in the app.
+
+### Order 6.1 — Backend: student BFF ✅
+
+`c2afc50`
+
+`GET /mobile/v1/student/{home,timetable,attendance,grades,assignments}` and
+`POST /mobile/v1/student/assignments/{id}/submit`.
+
+- **Not one route accepts a student id** — not a path segment, not a query
+  parameter, not a body field. The whole access-control story is one
+  argument-free private method returning `$request->user()->id`. A parameter
+  that does not exist cannot be forged, guessed or enumerated.
+- Reads reuse `ParentAcademicsService` and `ParentInboxService`. A student's
+  attendance and their parent's view of it must be the same numbers, and the
+  rule that an unfinalized mark is invisible now holds on both surfaces because
+  it is enforced once.
+- A **draft** assignment is invisible and cannot be handed in to. Handing in
+  **late is recorded as late, not refused** — a student who cannot hand in at
+  all hands in nothing, and the teacher loses the work rather than the
+  timestamp. `submissions.idempotency_key` was added so a retried upload is
+  *answered* rather than treated as a conflict.
+- ⚠️ **The negative control earned its keep.** With `studentId()` rewired to
+  read a query parameter, all 21 tests still passed: the forged-id test was
+  asserting on the other student's *name*, which none of those payloads carry.
+  Rewritten to assert on `student_user_id` and on the other class's homework by
+  id; it then failed under the broken guard, as it should have from the start.
+
+### Order 6.2 — Flutter: student screens ✅
+
+`fa1624d`
+
+- Home, timetable, assignments, grades, attendance. Read-only except the
+  hand-in.
+- **`StudentRepository` has no method that takes a student id.** A test walks
+  every request the app can produce and asserts none carries a query string or
+  a body on a read, and a second test names the entire API surface — so adding
+  a method that reaches another student means editing that list.
+- **No classmate list, no ranking, no peer messaging.** Excluded by the plan
+  and asserted absent on both sides.
+- The hand-in is **not queued**. A student shown "handed in" for work sitting
+  on their own phone stops carrying it, and the deadline is at the school.
+  Offline says so; a failure says the work has not arrived, in those words.
+  Late is warned about and still accepted.
+- The idempotency key is minted once per hand-in and kept in the local cache
+  until the server accepts it, so a retry after the app was killed mid-upload
+  is the same hand-in rather than a second one.
+- Negative controls: key persistence removed (the reuse test fails — that is
+  the duplicate-hand-in path itself); a failed hand-in reported as accepted
+  (two tests fail, including the one asserting the screen never claims work
+  arrived when it did not).
+- Also fixed: four duplicate l10n keys introduced in 5.3. `gen-l10n` tolerated
+  them with last-wins and the two Arabic values for "excused" differed, so
+  which one rendered depended on parse order.
+
+**Phase 6 verification:** analyze clean, 496 Flutter tests pass, 686 backend
+tests pass, `flutter build apk --flavor dev` succeeds.
 
 ## PHASE 7 — Integration, hardening, release
 
