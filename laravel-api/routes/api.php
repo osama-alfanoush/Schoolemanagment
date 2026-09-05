@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Mobile\ParentAcademicsController as MobileParentAca
 use App\Http\Controllers\Api\Mobile\ParentFinanceController as MobileParentFinanceController;
 use App\Http\Controllers\Api\Mobile\ParentInboxController as MobileParentInboxController;
 use App\Http\Controllers\Api\Mobile\ParentHomeController as MobileParentHomeController;
+use App\Http\Controllers\Api\Mobile\StudentController as MobileStudentController;
 use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
 use App\Http\Controllers\Api\Mobile\TeacherController as MobileTeacherController;
 use App\Http\Controllers\Api\MfaController;
@@ -251,6 +252,29 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
                 // school's hours: one tap here reaches thirty households.
                 Route::get('/announcement-templates', [MobileTeacherController::class, 'announcementTemplates']);
                 Route::post('/announcements', [MobileTeacherController::class, 'announce']);
+            });
+
+            // STUDENT
+            // Self only. Not one route here takes a student id -- not in a
+            // path, not in a query string, not in a body. Cross-student access
+            // is the highest-risk failure on this surface, and a parameter
+            // that does not exist cannot be forged or enumerated.
+            //
+            // There is deliberately no classmate list, no ranking and no
+            // student-to-student messaging. Each is a safeguarding surface
+            // with a moderation obligation nobody here is staffed to carry.
+            Route::middleware('role:student')->prefix('student')->group(function () {
+                Route::get('/home', [MobileStudentController::class, 'home']);
+                Route::get('/timetable', [MobileStudentController::class, 'timetable']);
+                Route::get('/attendance', [MobileStudentController::class, 'attendance']);
+                Route::get('/grades', [MobileStudentController::class, 'grades']);
+                Route::get('/assignments', [MobileStudentController::class, 'assignments']);
+
+                // The one write. Idempotent, because a phone that retries an
+                // upload after a timeout must not be told its own work
+                // conflicts with itself.
+                Route::post('/assignments/{assignmentId}/submit', [MobileStudentController::class, 'submit'])
+                    ->whereNumber('assignmentId');
             });
         });
 
