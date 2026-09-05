@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    No cleartext, on any Android version this app runs on.
+
+    Android 9 and later already default to this; Android 7 and 8 do not, and
+    minSdk here is 24. Without this file the app would happily talk HTTP on
+    exactly the older, cheaper handsets a school pilot is most likely to be
+    running on — and "encrypted in transit" in the Play Data Safety
+    declaration would be false for those devices.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

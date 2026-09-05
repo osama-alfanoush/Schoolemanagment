@@ -1,0 +1,14 @@
+# Copy to android/key.properties and fill in. NEVER commit the real file:
+# it is in .gitignore, along with every .jks and .keystore.
+#
+# The upload key cannot be rotated by us. If it is lost, Play Console has to
+# reset it; if it leaks, someone else can publish an update to a school's
+# phones. Keep it in a password manager and a sealed offline backup.
+#
+# Generate one with:
+#   keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA \
+#     -keysize 2048 -validity 10000 -alias upload
+storeFile=../upload-keystore.jks
+storePassword=
+keyAlias=upload
+keyPassword=

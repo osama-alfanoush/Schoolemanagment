@@ -1,8 +1,31 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+/**
+ * Release signing, read from a file that is never committed.
+ *
+ * `android/key.properties` is in .gitignore, as is every .jks and .keystore.
+ * A build machine without it still builds -- it falls back to the debug key
+ * and says so -- which keeps `flutter run --release` and CI working for people
+ * who have no business holding the upload key.
+ *
+ * The upload key is the one credential in this project that cannot be rotated
+ * by us: if it is lost, Play Console has to reset it, and if it leaks, someone
+ * else can publish an update to a school's phones. It belongs in a password
+ * manager and a sealed backup, not in this repository.
+ */
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+val hasReleaseKey = keyProperties.getProperty("storeFile") != null
 
 android {
     namespace = "jo.schoolsuite.mobile"
@@ -51,11 +74,34 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // The upload key when this machine has it, the debug key when it
+            // does not. A build that silently produced an unsigned or
+            // debug-signed artefact *and looked like a release* is how the
+            // wrong APK reaches a store listing, so the fallback announces
+            // itself at configuration time.
+            signingConfig = if (hasReleaseKey) {
+                signingConfigs.getByName("release")
+            } else {
+                logger.lifecycle(
+                    "school-mobile: android/key.properties not found; " +
+                        "signing the release build with the DEBUG key. " +
+                        "This artefact must not be uploaded to Play."
+                )
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
