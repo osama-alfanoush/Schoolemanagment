@@ -136,6 +136,29 @@ class ConcurrencyTest extends TestCase
         $this->assertSame(1, DB::table('mobile_payment_intents')->where('idempotency_key', $key)->count());
     }
 
+    public function test_five_concurrent_grade_batches_with_one_key_produce_one_row(): void
+    {
+        // A teacher's phone draining a queued column while the app is also
+        // retrying the same send. The key is claimed before any mark is
+        // written, so the index -- not the application -- decides which
+        // attempt writes, and the losers roll back having changed nothing.
+        DB::table('teacher_grade_batches')->delete();
+
+        $teacherId = User::factory()->teacher()->create()->id;
+
+        $key = (string) Str::uuid();
+        $workers = [];
+        for ($i = 0; $i < 5; $i++) {
+            $workers[] = ['grade_batch', $this->schoolId, $teacherId, $this->classId, $this->subjectId, $key];
+        }
+
+        $codes = $this->runWorkers($workers);
+        sort($codes);
+
+        $this->assertSame([0, 10, 10, 10, 10], $codes);
+        $this->assertSame(1, DB::table('teacher_grade_batches')->where('idempotency_key', $key)->count());
+    }
+
     private function runWorkers(array $workerArgs): array
     {
         $processes = [];

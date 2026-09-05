@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Mobile\ParentFinanceController as MobileParentFinan
 use App\Http\Controllers\Api\Mobile\ParentInboxController as MobileParentInboxController;
 use App\Http\Controllers\Api\Mobile\ParentHomeController as MobileParentHomeController;
 use App\Http\Controllers\Api\Mobile\SyncController as MobileSyncController;
+use App\Http\Controllers\Api\Mobile\TeacherController as MobileTeacherController;
 use App\Http\Controllers\Api\MfaController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ParentController;
@@ -209,6 +210,24 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
                     Route::post('/children/{studentId}/correction', [MobileParentInboxController::class, 'requestCorrection'])
                         ->whereNumber('studentId');
                 });
+
+            // TEACHER
+            // Scoped to assigned classes only. The class id is a claim by the
+            // client wherever it appears -- path or body -- so the controller
+            // checks it against the assignment on every call and logs the
+            // refusal. Reading another section's roster is the one failure
+            // here a school would call a breach.
+            Route::middleware('role:teacher')->prefix('teacher')->group(function () {
+                Route::get('/today', [MobileTeacherController::class, 'today']);
+                Route::get('/roster/{classId}', [MobileTeacherController::class, 'roster'])
+                    ->whereNumber('classId');
+
+                // Both writes require Idempotency-Key: this is what an offline
+                // phone drains into, so every batch will arrive twice sooner
+                // or later.
+                Route::post('/attendance/batch', [MobileTeacherController::class, 'attendanceBatch']);
+                Route::post('/grades/batch', [MobileTeacherController::class, 'gradesBatch']);
+            });
         });
 
     // STUDENT

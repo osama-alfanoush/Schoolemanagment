@@ -43,6 +43,22 @@ try {
         ]);
         exit(0);
     }
+    if ($operation === 'grade_batch') {
+        // One teacher, one queued column, five drain attempts. The key is
+        // claimed before a single mark is written, so the index decides which
+        // attempt gets to write and the other four roll back untouched.
+        [, , $schoolId, $teacherId, $classRoomId, $subjectId, $key] = $argv;
+        $statement = $pdo->prepare("INSERT INTO teacher_grade_batches (idempotency_key,school_id,class_room_id,subject_id,submitted_by,payload_hash,record_count,result,created_at,updated_at) VALUES (?,?,?,?,?,?,1,'[]',NOW(),NOW())");
+        $statement->execute([
+            $key,
+            (int) $schoolId,
+            (int) $classRoomId,
+            (int) $subjectId,
+            (int) $teacherId,
+            str_repeat('b', 64),
+        ]);
+        exit(0);
+    }
     exit(20);
 } catch (PDOException $exception) {
     fwrite(STDERR, $exception->getCode().': '.$exception->getMessage().PHP_EOL);

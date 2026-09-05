@@ -77,6 +77,7 @@ use App\Models\SupplierAccount;
 use App\Models\SupplierInvoice;
 use App\Models\SupplierPayment;
 use App\Models\SupplierTransaction;
+use App\Models\TeacherGradeBatch;
 use App\Models\TimetableEntry;
 use App\Models\TransportAssignment;
 use App\Models\TransportRoute;
@@ -96,6 +97,7 @@ return [
         Assignment::class,
         AttendanceRecord::class,
         AttendanceSubmissionBatch::class,
+        TeacherGradeBatch::class,
         AuditLog::class,
         BudgetPlan::class,
         CalendarEvent::class,

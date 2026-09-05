@@ -18,12 +18,37 @@ class AttendanceService
 {
     public function __construct(private CurrentSchool $currentSchool) {}
 
-    public function markAttendance(array $data, int $teacherId, string $idempotencyKey): AttendanceSubmissionBatch
+    /**
+     * Whether attendance for one date can still be edited, and for how long.
+     *
+     * The window is read here and enforced by markAttendance() through this
+     * same method, so what a client is told and what the server allows cannot
+     * drift apart. A second copy of the arithmetic is how a teacher comes to
+     * see an open form that refuses the submission.
+     *
+     * @return array{open: bool, hours: int, closes_at: string, reason: ?string}
+     */
+    public function editWindow(string $date): array
     {
         $windowHours = (int) config('policy.attendance.edit_window_hours', config('school.attendance_edit_window_hours', 48));
-        $targetDate = Carbon::parse($data['date'])->endOfDay();
-        if ($targetDate->diffInHours(now(), false) > $windowHours) {
-            throw new \InvalidArgumentException("Attendance for {$data['date']} is locked (past the {$windowHours}h edit window). Ask an administrator to override.");
+        $endOfDay = Carbon::parse($date)->endOfDay();
+        $open = $endOfDay->diffInHours(now(), false) <= $windowHours;
+
+        return [
+            'open' => $open,
+            'hours' => $windowHours,
+            'closes_at' => $endOfDay->copy()->addHours($windowHours)->toIso8601String(),
+            'reason' => $open
+                ? null
+                : "Attendance for {$date} is locked (past the {$windowHours}h edit window). Ask an administrator to override.",
+        ];
+    }
+
+    public function markAttendance(array $data, int $teacherId, string $idempotencyKey): AttendanceSubmissionBatch
+    {
+        $window = $this->editWindow((string) $data['date']);
+        if (! $window['open']) {
+            throw new \InvalidArgumentException((string) $window['reason']);
         }
 
         $studentIds = collect($data['records'])->pluck('student_user_id')->all();
