@@ -18,6 +18,7 @@ import 'core/db/encrypted_database.dart';
 import 'core/i18n/i18n.dart';
 import 'core/lock/lock.dart';
 import 'core/router/router.dart';
+import 'core/security/security.dart';
 import 'core/session/session.dart';
 import 'core/theme/theme.dart';
 import 'features/auth/auth.dart';
@@ -50,6 +51,7 @@ class SchoolSuiteApp extends StatefulWidget {
     this.guardianDialer,
     this.filePicker,
     this.studentFilePicker,
+    this.screenCaptureGuard,
   });
 
   /// Credential storage. Defaults to the platform keystore.
@@ -88,6 +90,10 @@ class SchoolSuiteApp extends StatefulWidget {
   /// The same seam on the student side, for handing work in.
   final StudentFilePicker? studentFilePicker;
 
+  /// Blocks screenshots on the screens that show money or a child's record.
+  /// Defaults to the Android FLAG_SECURE channel, which no test host provides.
+  final ScreenCaptureGuard? screenCaptureGuard;
+
   @override
   State<SchoolSuiteApp> createState() => _SchoolSuiteAppState();
 }
@@ -111,6 +117,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final AuthRepository _auth;
   late final ChangePasswordController _changePassword;
   late final AppLockController _appLock;
+  late final ScreenCaptureController _screenCapture;
   late final DeviceListController _devices;
   late final ActivationController _activation;
   late final AppDatabase _database;
@@ -183,6 +190,13 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       store: _secureStore,
     )..bind();
 
+    // FLAG_SECURE, per screen. Counted rather than toggled, so opening an
+    // invoice from the fee list and closing it again does not un-protect the
+    // list still showing underneath.
+    _screenCapture = ScreenCaptureController(
+      guard: widget.screenCaptureGuard ?? const PlatformScreenCaptureGuard(),
+    );
+
     _activation = ActivationController(
       api: ActivationApi(dio: _apiClient.dio, tokenStore: _tokenStore),
       session: _session,
@@ -252,21 +266,28 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
             ),
         AppRoute.parentHome: (context, state) =>
             ParentHomeScreen(controller: _parentHome),
-        AppRoute.parentFinance: (context, state) =>
-            ParentFeesScreen(controller: _parentFees),
+        // Money on screen: blocked from screenshots, recordings and the
+        // task-switcher thumbnail.
+        AppRoute.parentFinance: (context, state) => SecureScreen(
+              controller: _screenCapture,
+              child: ParentFeesScreen(controller: _parentFees),
+            ),
         AppRoute.parentMessages: (context, state) =>
             ParentInboxScreen(controller: _parentInbox),
         // Reached by deep link from a fee notification. The controller is
         // built per invoice rather than held, so opening a second invoice
         // cannot show the first one's numbers while it loads.
-        AppRoute.parentInvoice: (context, state) => InvoiceDetailScreen(
-              controller: InvoiceDetailController(
-                repository: ParentFinanceRepository(
-                  dio: _apiClient.dio,
-                  database: _database,
+        AppRoute.parentInvoice: (context, state) => SecureScreen(
+              controller: _screenCapture,
+              child: InvoiceDetailScreen(
+                controller: InvoiceDetailController(
+                  repository: ParentFinanceRepository(
+                    dio: _apiClient.dio,
+                    database: _database,
+                  ),
+                  invoiceId:
+                      int.tryParse(state.pathParameters['invoiceId'] ?? '') ?? 0,
                 ),
-                invoiceId:
-                    int.tryParse(state.pathParameters['invoiceId'] ?? '') ?? 0,
               ),
             ),
         AppRoute.teacherToday: (context, state) => TeacherTodayScreen(
@@ -302,16 +323,20 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
             ),
         // Built per class rather than held, so opening a second roster cannot
         // show the first class's students while it loads.
-        AppRoute.teacherClassRoster: (context, state) => ClassRosterScreen(
-              controller: ClassRosterController(
-                repository: _teacherRepository,
-                classRoomId:
-                    int.tryParse(state.pathParameters['classId'] ?? '') ?? 0,
-                date: _teacherDay.date,
+        // Guardians' phone numbers are on this screen.
+        AppRoute.teacherClassRoster: (context, state) => SecureScreen(
+              controller: _screenCapture,
+              child: ClassRosterScreen(
+                controller: ClassRosterController(
+                  repository: _teacherRepository,
+                  classRoomId:
+                      int.tryParse(state.pathParameters['classId'] ?? '') ?? 0,
+                  date: _teacherDay.date,
+                ),
+                dialer: widget.guardianDialer ?? const PhoneDialer(),
+                photoUrlFor: (studentUserId) =>
+                    '${widget.baseUrl ?? apiBaseUrl}/files/profile-photo/$studentUserId',
               ),
-              dialer: widget.guardianDialer ?? const PhoneDialer(),
-              photoUrlFor: (studentUserId) =>
-                  '${widget.baseUrl ?? apiBaseUrl}/files/profile-photo/$studentUserId',
             ),
         // Keyed on class and subject: a teacher who teaches two subjects to
         // one class marks two separate sheets, and a route that named only
@@ -378,13 +403,19 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
               // is absent rather than present and inert.
               picker: widget.studentFilePicker,
             ),
-        AppRoute.studentGrades: (context, state) => StudentGradesScreen(
-              controller: StudentRecordControllers.grades(_studentRepository),
+        // A child's own record: marks and attendance.
+        AppRoute.studentGrades: (context, state) => SecureScreen(
+              controller: _screenCapture,
+              child: StudentGradesScreen(
+                controller: StudentRecordControllers.grades(_studentRepository),
+              ),
             ),
-        AppRoute.studentAttendance: (context, state) =>
-            StudentAttendanceScreen(
-              controller:
-                  StudentRecordControllers.attendance(_studentRepository),
+        AppRoute.studentAttendance: (context, state) => SecureScreen(
+              controller: _screenCapture,
+              child: StudentAttendanceScreen(
+                controller:
+                    StudentRecordControllers.attendance(_studentRepository),
+              ),
             ),
         AppRoute.devices: (context, state) =>
             DeviceListScreen(controller: _devices),

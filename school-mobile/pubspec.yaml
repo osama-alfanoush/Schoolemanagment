@@ -8,6 +8,10 @@ environment:
 
 dependencies:
   built_collection: 5.1.1
+  # Certificate pinning hashes an SPKI. Already in the lock file as a
+  # transitive dependency; named here because a direct import must be a
+  # direct dependency.
+  crypto: 3.0.6
   built_value: 8.12.7
   dio: 5.11.0
   drift: 2.34.3
