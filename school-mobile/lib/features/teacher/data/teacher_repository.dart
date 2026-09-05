@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/api/api_error.dart';
+import '../../../core/auth/secure_random.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/tables.dart';
+import '../domain/attendance_draft.dart';
 import '../domain/roster.dart';
 import '../domain/teacher_day.dart';
 
@@ -112,7 +115,7 @@ class TeacherRepository {
   ///
   /// Never merged into the pending count: a teacher has to be able to tell
   /// "still sending" from "this was rejected and nobody has it".
-  Future<List<OutboxEntry>> rejectedAttendance() async {
+  Future<List<RejectedSubmission>> rejectedAttendance() async {
     final dead = (await database.allOutbox())
         .where((entry) =>
             entry.endpoint == TeacherEndpoints.attendanceBatch &&
@@ -120,8 +123,29 @@ class TeacherRepository {
         .toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    return dead;
+    return dead.map(RejectedSubmission.of).toList();
   }
+
+  /// Queues a whole class's marks.
+  ///
+  /// Enqueue, not send. The screen never touches the network: a teacher in a
+  /// classroom with no signal must be able to finish the register and walk
+  /// away, and the drain happens whenever the phone next has a connection.
+  ///
+  /// A fresh key per submission. Re-submitting after spotting a mistake is a
+  /// correction, not a replay, and it has to reach the server as its own
+  /// batch; the queue drains in creation order and the server upserts by
+  /// student and date, so the correction lands last and wins.
+  Future<OutboxEntry> queueAttendance(AttendanceDraft draft) => database.enqueue(
+        endpoint: TeacherEndpoints.attendanceBatch,
+        method: 'POST',
+        payloadJson: jsonEncode(draft.toPayload()),
+        idempotencyKey: randomUuidV4(),
+      );
+
+  /// Whether a batch for this class and date is still owed to the server.
+  Future<bool> hasQueuedAttendance(int classRoomId, String date) async =>
+      (await queuedAttendance(date)).contains(classRoomId);
 
   static Map<String, Object?>? _decode(String payloadJson) {
     try {
@@ -201,4 +225,49 @@ class TeacherRepository {
       fetchedAt: DateTime.now(),
     );
   }
+}
+
+/// A queued write the sync engine gave up on.
+///
+/// The "what" is read from the local row rather than from the server's reply:
+/// the drainer deliberately never keeps a response body, because a body can
+/// quote the values that were submitted. The class and date come from the
+/// payload the teacher's own device wrote, and the "why" is derived from the
+/// status code — enough to act on, with nothing personal travelling through a
+/// log or an event.
+@immutable
+class RejectedSubmission {
+  const RejectedSubmission({
+    required this.outboxRowId,
+    required this.reason,
+    this.classRoomId,
+    this.date,
+    this.recordCount,
+  });
+
+  factory RejectedSubmission.of(OutboxEntry entry) {
+    final payload = TeacherRepository._decode(entry.payloadJson);
+    final records = payload?['records'];
+
+    return RejectedSubmission(
+      outboxRowId: entry.id,
+      reason: entry.lastError ?? '',
+      classRoomId: int.tryParse('${payload?['class_room_id']}'),
+      date: payload?['date'] as String?,
+      recordCount: records is Iterable ? records.length : null,
+    );
+  }
+
+  final int outboxRowId;
+
+  /// The drainer's short diagnostic, e.g. `HTTP 422`. Never a response body.
+  final String reason;
+
+  final int? classRoomId;
+  final String? date;
+  final int? recordCount;
+
+  /// The status the server answered with, where the reason carries one.
+  int? get statusCode =>
+      int.tryParse(RegExp(r'HTTP (\d{3})').firstMatch(reason)?.group(1) ?? '');
 }

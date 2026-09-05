@@ -241,12 +241,27 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
             ),
         AppRoute.teacherToday: (context, state) => TeacherTodayScreen(
               controller: _teacherDay,
+              // Straight to the register: the day screen exists so a teacher
+              // can see which period is outstanding and go and mark it.
               onOpenAttendance: (period) => context.goNamed(
-                AppRoute.teacherClassRoster.routeName,
+                AppRoute.teacherAttendance.routeName,
                 pathParameters: <String, String>{
                   'classId': '${period.classRoomId}',
                 },
               ),
+            ),
+        // Built per class, so opening a second register cannot show the first
+        // class's marks while it loads.
+        AppRoute.teacherAttendance: (context, state) => AttendanceScreen(
+              controller: AttendanceController(
+                repository: _teacherRepository,
+                classRoomId:
+                    int.tryParse(state.pathParameters['classId'] ?? '') ?? 0,
+                date: _teacherDay.date,
+              ),
+              // The day screen re-reads the queue, so the period it sent from
+              // starts saying "waiting to send" straight away.
+              onSubmitted: () => unawaited(_teacherDay.refreshPending()),
             ),
         AppRoute.teacherClasses: (context, state) => TeacherClassesScreen(
               controller: _teacherDay,

@@ -979,5 +979,73 @@
         "type": "int"
       }
     }
+  },
+  "attendanceTitle": "رصد الحضور",
+  "@attendanceTitle": {
+    "description": "Title of the attendance screen."
+  },
+  "attendanceSubmit": "حفظ وإرسال",
+  "@attendanceSubmit": {
+    "description": "Queues the class's marks."
+  },
+  "attendanceQueuedToast": "حُفظ على هذا الجهاز، وسيصل المدرسة عند توفّر الاتصال.",
+  "@attendanceQueuedToast": {
+    "description": "Confirms a queued submission without claiming it was saved upstream."
+  },
+  "attendanceAllPresent": "الجميع حاضرون",
+  "@attendanceAllPresent": {
+    "description": "Summary when no exception is marked."
+  },
+  "attendanceNoteHint": "ملاحظة (اختياري)",
+  "@attendanceNoteHint": {
+    "description": "Hint for the per-student note field."
+  },
+  "attendanceMarkTitle": "تعديل الحالة",
+  "@attendanceMarkTitle": {
+    "description": "Title of the per-student status sheet."
+  },
+  "statusPresent": "حاضر",
+  "@statusPresent": {
+    "description": "Attendance status."
+  },
+  "statusAbsent": "غائب",
+  "@statusAbsent": {
+    "description": "Attendance status."
+  },
+  "statusLate": "متأخر",
+  "@statusLate": {
+    "description": "Attendance status."
+  },
+  "statusExcused": "غياب بعذر",
+  "@statusExcused": {
+    "description": "Attendance status."
+  },
+  "attendanceRejectedWindow": "انتهت مهلة التعديل، فلم يُقبل هذا الإرسال.",
+  "@attendanceRejectedWindow": {
+    "description": "Why a queued attendance batch was rejected: past the edit window."
+  },
+  "attendanceRejectedConflict": "تغيّرت البيانات على الخادم، فلم يُقبل هذا الإرسال.",
+  "@attendanceRejectedConflict": {
+    "description": "Why a queued attendance batch was rejected: a conflict."
+  },
+  "attendanceRejectedRefused": "رفض الخادم هذا الإرسال.",
+  "@attendanceRejectedRefused": {
+    "description": "Why a queued attendance batch was rejected: any other refusal."
+  },
+  "attendanceRejectedRetry": "أعد الرصد ثم أرسله من جديد.",
+  "@attendanceRejectedRetry": {
+    "description": "What to do about a rejected attendance batch."
+  },
+  "attendanceRejectedOn": "{date} — {count} طالبًا",
+  "@attendanceRejectedOn": {
+    "description": "Identifies which rejected submission is which.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

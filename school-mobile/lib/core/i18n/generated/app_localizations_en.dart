@@ -816,4 +816,42 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get attendanceTitle => 'Attendance';
+
+  @override
+  String get attendanceSubmit => 'Save and send';
+
+  @override
+  String get attendanceQueuedToast =>
+      'Saved on this phone. It reaches the school when there is a connection.';
+
+  @override
+  String get attendanceAllPresent => 'Everyone present';
+
+  @override
+  String get attendanceNoteHint => 'Note (optional)';
+
+  @override
+  String get attendanceMarkTitle => 'Change status';
+
+  @override
+  String get attendanceRejectedWindow =>
+      'The edit window had closed, so this submission was not accepted.';
+
+  @override
+  String get attendanceRejectedConflict =>
+      'The record on the server had changed, so this submission was not accepted.';
+
+  @override
+  String get attendanceRejectedRefused => 'The server refused this submission.';
+
+  @override
+  String get attendanceRejectedRetry => 'Take the register again and send it.';
+
+  @override
+  String attendanceRejectedOn(String date, int count) {
+    return '$date — $count students';
+  }
 }

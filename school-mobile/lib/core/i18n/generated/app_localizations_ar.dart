@@ -641,7 +641,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get statusLate => 'متأخر';
 
   @override
-  String get statusExcused => 'بعذر';
+  String get statusExcused => 'غياب بعذر';
 
   @override
   String get attendanceEmpty => 'لم يُسجَّل حضور في هذه الفترة.';
@@ -827,5 +827,43 @@ class AppLocalizationsAr extends AppLocalizations {
       zero: 'لا طلاب',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get attendanceTitle => 'رصد الحضور';
+
+  @override
+  String get attendanceSubmit => 'حفظ وإرسال';
+
+  @override
+  String get attendanceQueuedToast =>
+      'حُفظ على هذا الجهاز، وسيصل المدرسة عند توفّر الاتصال.';
+
+  @override
+  String get attendanceAllPresent => 'الجميع حاضرون';
+
+  @override
+  String get attendanceNoteHint => 'ملاحظة (اختياري)';
+
+  @override
+  String get attendanceMarkTitle => 'تعديل الحالة';
+
+  @override
+  String get attendanceRejectedWindow =>
+      'انتهت مهلة التعديل، فلم يُقبل هذا الإرسال.';
+
+  @override
+  String get attendanceRejectedConflict =>
+      'تغيّرت البيانات على الخادم، فلم يُقبل هذا الإرسال.';
+
+  @override
+  String get attendanceRejectedRefused => 'رفض الخادم هذا الإرسال.';
+
+  @override
+  String get attendanceRejectedRetry => 'أعد الرصد ثم أرسله من جديد.';
+
+  @override
+  String attendanceRejectedOn(String date, int count) {
+    return '$date — $count طالبًا';
   }
 }

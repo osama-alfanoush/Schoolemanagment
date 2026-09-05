@@ -11,7 +11,7 @@ class TeacherDayView {
   const TeacherDayView({
     required this.day,
     required this.queuedClassIds,
-    required this.rejectedCount,
+    required this.rejected,
   });
 
   final TeacherDay day;
@@ -19,8 +19,11 @@ class TeacherDayView {
   /// Classes with an attendance batch sitting in the outbox for [day].
   final Set<int> queuedClassIds;
 
-  /// Batches the sync engine gave up on. Never folded into the queued set.
-  final int rejectedCount;
+  /// Batches the sync engine gave up on. Never folded into the queued set:
+  /// a teacher has to be able to tell "still sending" from "nobody has this".
+  final List<RejectedSubmission> rejected;
+
+  int get rejectedCount => rejected.length;
 
   AttendanceProgress progressOf(TeacherPeriod period) =>
       period.progressGiven(queuedClassIds);
@@ -94,7 +97,7 @@ class TeacherDayController extends ChangeNotifier {
     final view = TeacherDayView(
       day: result.value,
       queuedClassIds: await repository.queuedAttendance(_date),
-      rejectedCount: (await repository.rejectedAttendance()).length,
+      rejected: await repository.rejectedAttendance(),
     );
 
     // A teacher with no periods today still has classes, and a class list is
@@ -116,7 +119,7 @@ class TeacherDayController extends ChangeNotifier {
     _state = ScreenData<TeacherDayView>(TeacherDayView(
       day: current.value.day,
       queuedClassIds: await repository.queuedAttendance(_date),
-      rejectedCount: (await repository.rejectedAttendance()).length,
+      rejected: await repository.rejectedAttendance(),
     ));
     notifyListeners();
   }

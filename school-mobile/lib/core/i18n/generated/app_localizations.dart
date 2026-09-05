@@ -1160,28 +1160,28 @@ abstract class AppLocalizations {
   /// **'الشهادات'**
   String get reportCardsSection;
 
-  /// Attendance status: present.
+  /// Attendance status.
   ///
   /// In ar, this message translates to:
   /// **'حاضر'**
   String get statusPresent;
 
-  /// Attendance status: absent.
+  /// Attendance status.
   ///
   /// In ar, this message translates to:
   /// **'غائب'**
   String get statusAbsent;
 
-  /// Attendance status: late.
+  /// Attendance status.
   ///
   /// In ar, this message translates to:
   /// **'متأخر'**
   String get statusLate;
 
-  /// Attendance status: excused.
+  /// Attendance status.
   ///
   /// In ar, this message translates to:
-  /// **'بعذر'**
+  /// **'غياب بعذر'**
   String get statusExcused;
 
   /// Empty state for attendance.
@@ -1507,6 +1507,72 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{count, plural, =0{لا طلاب} =1{طالب واحد} =2{طالبان} few{{count} طلاب} many{{count} طالبًا} other{{count} طالب}}'**
   String studentCount(int count);
+
+  /// Title of the attendance screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'رصد الحضور'**
+  String get attendanceTitle;
+
+  /// Queues the class's marks.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ وإرسال'**
+  String get attendanceSubmit;
+
+  /// Confirms a queued submission without claiming it was saved upstream.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظ على هذا الجهاز، وسيصل المدرسة عند توفّر الاتصال.'**
+  String get attendanceQueuedToast;
+
+  /// Summary when no exception is marked.
+  ///
+  /// In ar, this message translates to:
+  /// **'الجميع حاضرون'**
+  String get attendanceAllPresent;
+
+  /// Hint for the per-student note field.
+  ///
+  /// In ar, this message translates to:
+  /// **'ملاحظة (اختياري)'**
+  String get attendanceNoteHint;
+
+  /// Title of the per-student status sheet.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الحالة'**
+  String get attendanceMarkTitle;
+
+  /// Why a queued attendance batch was rejected: past the edit window.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مهلة التعديل، فلم يُقبل هذا الإرسال.'**
+  String get attendanceRejectedWindow;
+
+  /// Why a queued attendance batch was rejected: a conflict.
+  ///
+  /// In ar, this message translates to:
+  /// **'تغيّرت البيانات على الخادم، فلم يُقبل هذا الإرسال.'**
+  String get attendanceRejectedConflict;
+
+  /// Why a queued attendance batch was rejected: any other refusal.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفض الخادم هذا الإرسال.'**
+  String get attendanceRejectedRefused;
+
+  /// What to do about a rejected attendance batch.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعد الرصد ثم أرسله من جديد.'**
+  String get attendanceRejectedRetry;
+
+  /// Identifies which rejected submission is which.
+  ///
+  /// In ar, this message translates to:
+  /// **'{date} — {count} طالبًا'**
+  String attendanceRejectedOn(String date, int count);
 }
 
 class _AppLocalizationsDelegate
