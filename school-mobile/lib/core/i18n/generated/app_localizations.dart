@@ -1675,6 +1675,210 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'مفتوح مؤقتًا'**
   String get gradebookStateReopened;
+
+  /// Title of the assignments screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الواجبات'**
+  String get assignmentsTitle;
+
+  /// Empty state for the assignments list.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد واجبات بعد.'**
+  String get assignmentsEmpty;
+
+  /// Starts a new assignment.
+  ///
+  /// In ar, this message translates to:
+  /// **'واجب جديد'**
+  String get assignmentNew;
+
+  /// Label for the assignment title field.
+  ///
+  /// In ar, this message translates to:
+  /// **'العنوان'**
+  String get assignmentTitleLabel;
+
+  /// Label for the assignment instructions field.
+  ///
+  /// In ar, this message translates to:
+  /// **'التعليمات'**
+  String get assignmentInstructionsLabel;
+
+  /// Label for the due date field.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ التسليم'**
+  String get assignmentDueLabel;
+
+  /// Saves the assignment without publishing it.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ كمسودة'**
+  String get assignmentSaveDraft;
+
+  /// An assignment students cannot see yet.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسودة'**
+  String get assignmentDraft;
+
+  /// An assignment students can see.
+  ///
+  /// In ar, this message translates to:
+  /// **'منشور'**
+  String get assignmentPublished;
+
+  /// Publishes a draft to the class.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشر'**
+  String get assignmentPublish;
+
+  /// Explains what a draft means.
+  ///
+  /// In ar, this message translates to:
+  /// **'لن يراه الطلاب حتى تنشره.'**
+  String get assignmentPublishExplained;
+
+  /// Attaches a file to an assignment.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرفاق ملف'**
+  String get assignmentAttach;
+
+  /// An assignment that has a file.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفق'**
+  String get assignmentAttached;
+
+  /// Upload in progress.
+  ///
+  /// In ar, this message translates to:
+  /// **'جارٍ الرفع…'**
+  String get assignmentUploading;
+
+  /// Upload failure, stating plainly that the assignment survived.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر رفع الملف. الواجب محفوظ، أعد المحاولة.'**
+  String get assignmentUploadFailed;
+
+  /// Retries a failed upload.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة المحاولة'**
+  String get assignmentUploadRetry;
+
+  /// Assignments are not queued offline.
+  ///
+  /// In ar, this message translates to:
+  /// **'يحتاج إنشاء واجب إلى اتصال.'**
+  String get assignmentNeedsConnection;
+
+  /// Title of the submission status screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'حالة التسليم'**
+  String get submissionsTitle;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُسلّم'**
+  String get submissionPending;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'سُلّم'**
+  String get submissionSubmitted;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'متأخر'**
+  String get submissionLate;
+
+  /// Submission status.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُصحّح'**
+  String get submissionGraded;
+
+  /// Title of the announcement screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال إشعار'**
+  String get announceTitle;
+
+  /// Label for the template picker.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع الإشعار'**
+  String get announceTemplateLabel;
+
+  /// Label for the announcement detail field.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل قصيرة'**
+  String get announceDetailLabel;
+
+  /// Sends the notice.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال'**
+  String get announceSend;
+
+  /// Confirms a sent notice.
+  ///
+  /// In ar, this message translates to:
+  /// **'أُرسل الإشعار.'**
+  String get announceSent;
+
+  /// Explains why there is no free-text field.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات من قوالب معتمدة فقط.'**
+  String get announceTemplatesOnly;
+
+  /// Explains the announcement window.
+  ///
+  /// In ar, this message translates to:
+  /// **'يمكن إرسال الإشعارات خلال ساعات الدوام فقط.'**
+  String get announceClosed;
+
+  /// Generic announcement failure.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر إرسال الإشعار.'**
+  String get announceFailed;
+
+  /// Announcements are not queued offline.
+  ///
+  /// In ar, this message translates to:
+  /// **'يحتاج إرسال الإشعار إلى اتصال.'**
+  String get announceNeedsConnection;
+
+  /// Announcement audience.
+  ///
+  /// In ar, this message translates to:
+  /// **'الصف كامل'**
+  String get audienceClass;
+
+  /// Announcement audience.
+  ///
+  /// In ar, this message translates to:
+  /// **'ولي أمر واحد'**
+  String get audienceGuardian;
+
+  /// States the hours during which notices may be sent.
+  ///
+  /// In ar, this message translates to:
+  /// **'ساعات الإرسال: {from} — {to}'**
+  String announceWindow(String from, String to);
 }
 
 class _AppLocalizationsDelegate

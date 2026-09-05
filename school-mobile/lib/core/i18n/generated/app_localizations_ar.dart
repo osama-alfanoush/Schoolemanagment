@@ -920,4 +920,109 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get gradebookStateReopened => 'مفتوح مؤقتًا';
+
+  @override
+  String get assignmentsTitle => 'الواجبات';
+
+  @override
+  String get assignmentsEmpty => 'لا توجد واجبات بعد.';
+
+  @override
+  String get assignmentNew => 'واجب جديد';
+
+  @override
+  String get assignmentTitleLabel => 'العنوان';
+
+  @override
+  String get assignmentInstructionsLabel => 'التعليمات';
+
+  @override
+  String get assignmentDueLabel => 'تاريخ التسليم';
+
+  @override
+  String get assignmentSaveDraft => 'حفظ كمسودة';
+
+  @override
+  String get assignmentDraft => 'مسودة';
+
+  @override
+  String get assignmentPublished => 'منشور';
+
+  @override
+  String get assignmentPublish => 'نشر';
+
+  @override
+  String get assignmentPublishExplained => 'لن يراه الطلاب حتى تنشره.';
+
+  @override
+  String get assignmentAttach => 'إرفاق ملف';
+
+  @override
+  String get assignmentAttached => 'مرفق';
+
+  @override
+  String get assignmentUploading => 'جارٍ الرفع…';
+
+  @override
+  String get assignmentUploadFailed =>
+      'تعذّر رفع الملف. الواجب محفوظ، أعد المحاولة.';
+
+  @override
+  String get assignmentUploadRetry => 'إعادة المحاولة';
+
+  @override
+  String get assignmentNeedsConnection => 'يحتاج إنشاء واجب إلى اتصال.';
+
+  @override
+  String get submissionsTitle => 'حالة التسليم';
+
+  @override
+  String get submissionPending => 'لم يُسلّم';
+
+  @override
+  String get submissionSubmitted => 'سُلّم';
+
+  @override
+  String get submissionLate => 'متأخر';
+
+  @override
+  String get submissionGraded => 'مُصحّح';
+
+  @override
+  String get announceTitle => 'إرسال إشعار';
+
+  @override
+  String get announceTemplateLabel => 'نوع الإشعار';
+
+  @override
+  String get announceDetailLabel => 'تفاصيل قصيرة';
+
+  @override
+  String get announceSend => 'إرسال';
+
+  @override
+  String get announceSent => 'أُرسل الإشعار.';
+
+  @override
+  String get announceTemplatesOnly => 'الإشعارات من قوالب معتمدة فقط.';
+
+  @override
+  String get announceClosed => 'يمكن إرسال الإشعارات خلال ساعات الدوام فقط.';
+
+  @override
+  String get announceFailed => 'تعذّر إرسال الإشعار.';
+
+  @override
+  String get announceNeedsConnection => 'يحتاج إرسال الإشعار إلى اتصال.';
+
+  @override
+  String get audienceClass => 'الصف كامل';
+
+  @override
+  String get audienceGuardian => 'ولي أمر واحد';
+
+  @override
+  String announceWindow(String from, String to) {
+    return 'ساعات الإرسال: $from — $to';
+  }
 }

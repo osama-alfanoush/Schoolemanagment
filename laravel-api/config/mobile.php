@@ -130,6 +130,53 @@ return [
 
     'always_on_categories' => ['emergency'],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Teacher announcements
+    |--------------------------------------------------------------------------
+    |
+    | A teacher can reach thirty families from a phone in one tap. Free text on
+    | that surface is a moderation obligation nobody here is staffed to carry,
+    | so the phone sends an approved template with a short detail filled in and
+    | nothing else. Anything longer belongs on the web, where it is reviewed.
+    |
+    | The window is the same idea as the messaging one: a notification at 23:40
+    | wakes a household, and doing that once costs the pilot more goodwill than
+    | the notice was ever worth.
+    |
+    */
+
+    'announcements' => [
+        'from' => env('MOBILE_ANNOUNCE_FROM', '07:00'),
+        'to' => env('MOBILE_ANNOUNCE_TO', '17:00'),
+
+        // Keys are stable; the text is the school's, in its own language. The
+        // client renders `title` and `body` as they arrive rather than keeping
+        // its own copy, so a wording change does not need an app release.
+        'templates' => [
+            'homework_reminder' => [
+                'title' => 'تذكير بالواجب',
+                'body' => 'يرجى متابعة إنجاز الواجب المطلوب. :detail',
+            ],
+            'bring_materials' => [
+                'title' => 'إحضار مستلزمات',
+                'body' => 'يرجى إحضار المستلزمات التالية في الحصة القادمة: :detail',
+            ],
+            'positive_note' => [
+                'title' => 'ملاحظة إيجابية',
+                'body' => 'أداء مميز في الحصة. :detail',
+            ],
+            'absence_followup' => [
+                'title' => 'متابعة غياب',
+                'body' => 'نود متابعة سبب الغياب. :detail',
+            ],
+        ],
+
+        // The detail is a sentence, not a letter. A cap here is also what keeps
+        // a template from becoming free text by another name.
+        'detail_max' => 200,
+    ],
+
     'delta' => [
         'page_size' => (int) env('MOBILE_DELTA_PAGE_SIZE', 200),
         'max_page_size' => (int) env('MOBILE_DELTA_MAX_PAGE_SIZE', 500),

@@ -47,6 +47,7 @@ class SchoolSuiteApp extends StatefulWidget {
     this.biometricGate,
     this.database,
     this.guardianDialer,
+    this.filePicker,
   });
 
   /// Credential storage. Defaults to the platform keystore.
@@ -76,6 +77,11 @@ class SchoolSuiteApp extends StatefulWidget {
   /// dialer, which is an intent and therefore another channel a test host
   /// does not have.
   final GuardianDialer? guardianDialer;
+
+  /// Chooses a file to attach to homework. Null by default, which hides the
+  /// attach action rather than offering a button that cannot do anything --
+  /// no file picker is wired into the build yet.
+  final FilePicker? filePicker;
 
   @override
   State<SchoolSuiteApp> createState() => _SchoolSuiteAppState();
@@ -295,6 +301,42 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
                       state.uri.queryParameters['subjectId'] ?? '',
                     ) ??
                     0,
+              ),
+            ),
+        // Homework for one class. Built per class so opening a second class's
+        // list cannot show the first one's drafts while it loads.
+        AppRoute.teacherAssignments: (context, state) => AssignmentsScreen(
+              controller: AssignmentsController(repository: _teacherRepository),
+              classRoomId:
+                  int.tryParse(state.pathParameters['classId'] ?? '') ?? 0,
+              subjectId:
+                  int.tryParse(state.uri.queryParameters['subjectId'] ?? '') ?? 0,
+              // No file picker is wired yet, so the attach action is absent
+              // rather than present and inert. Passing one here is the only
+              // change needed when the picker lands.
+              picker: widget.filePicker,
+              onOpenHandIns: (assignment) => context.goNamed(
+                AppRoute.teacherHandIns.routeName,
+                pathParameters: <String, String>{
+                  'classId': '${assignment.classRoomId}',
+                  'assignmentId': '${assignment.id}',
+                },
+              ),
+            ),
+        AppRoute.teacherHandIns: (context, state) => HandInsScreen(
+              controller: HandInsController(
+                repository: _teacherRepository,
+                assignmentId:
+                    int.tryParse(state.pathParameters['assignmentId'] ?? '') ?? 0,
+              ),
+            ),
+        AppRoute.teacherAnnounce: (context, state) => AnnounceScreen(
+              controller: AnnounceController(
+                repository: _teacherRepository,
+                classRoomId:
+                    int.tryParse(state.uri.queryParameters['classId'] ?? '') ?? 0,
+                guardianUserId:
+                    int.tryParse(state.uri.queryParameters['guardianId'] ?? ''),
               ),
             ),
         AppRoute.devices: (context, state) =>

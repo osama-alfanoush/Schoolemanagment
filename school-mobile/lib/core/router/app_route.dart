@@ -44,7 +44,14 @@ enum AppRoute {
   teacherClassRoster('teacherClassRoster', '/teacher/classes/:classId', AppRole.teacher),
   teacherAttendance('teacherAttendance', '/teacher/classes/:classId/attendance', AppRole.teacher),
   teacherGrades('teacherGrades', '/teacher/classes/:classId/grades', AppRole.teacher),
+
+  /// Homework for one class: drafts, published work, and hand-in status.
+  teacherAssignments('teacherAssignments', '/teacher/classes/:classId/assignments', AppRole.teacher),
+  teacherHandIns('teacherHandIns', '/teacher/classes/:classId/assignments/:assignmentId', AppRole.teacher),
   teacherMessages('teacherMessages', '/teacher/messages', AppRole.teacher),
+
+  /// One approved notice to a class or a single guardian.
+  teacherAnnounce('teacherAnnounce', '/teacher/messages/announce', AppRole.teacher),
   teacherProfile('teacherProfile', '/teacher/profile', AppRole.teacher),
 
   studentHome('studentHome', '/student', AppRole.student),

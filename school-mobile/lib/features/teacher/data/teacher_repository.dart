@@ -9,6 +9,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/db/tables.dart';
 import '../domain/attendance_draft.dart';
 import '../domain/gradebook.dart';
+import '../domain/publishing.dart';
 import '../domain/roster.dart';
 import '../domain/teacher_day.dart';
 
@@ -53,6 +54,7 @@ class TeacherRepository {
   static const String todayEntity = 'teacher_today';
   static const String rosterEntity = 'teacher_roster';
   static const String gradebookEntity = 'teacher_gradebook';
+  static const String assignmentsEntity = 'teacher_assignments';
 
   /* ---------- today ---------- */
 
@@ -153,6 +155,165 @@ class TeacherRepository {
       ..sort((a, b) => b.outboxRowId.compareTo(a.outboxRowId));
 
     return dead;
+  }
+
+  /* ---------- assignments and notices ---------- */
+
+  /// Homework for this teacher's classes, with hand-in counts.
+  ///
+  /// Cached like every other read, so the list is there in a corridor. The
+  /// *writes* below are deliberately not queued: see [createAssignment].
+  Future<Cached<List<TeacherAssignment>>?> cachedAssignments() =>
+      _cached(assignmentsEntity, 'mine', TeacherAssignment.listFrom);
+
+  Future<Cached<List<TeacherAssignment>>> refreshAssignments() => _refresh(
+        path: '/mobile/v1/teacher/assignments',
+        query: const <String, Object?>{},
+        entityType: assignmentsEntity,
+        entityId: 'mine',
+        parse: TeacherAssignment.listFrom,
+      );
+
+  /// Creates a draft.
+  ///
+  /// Not queued to the outbox, unlike attendance and grades. Those exist
+  /// because a classroom has no signal and the work cannot wait; homework can.
+  /// Queueing it would also mean an attachment with no assignment id to attach
+  /// to, and a publish that fires days later. The screen says so plainly
+  /// rather than pretending to save something it has not.
+  Future<TeacherAssignment?> createAssignment({
+    required int classRoomId,
+    required int subjectId,
+    required String title,
+    required String instructions,
+    required DateTime dueAt,
+  }) async {
+    try {
+      final response = await dio.post<Object?>(
+        '/mobile/v1/teacher/assignments',
+        data: <String, Object?>{
+          'class_room_id': classRoomId,
+          'subject_id': subjectId,
+          'title': title,
+          'instructions': instructions,
+          'due_at': dueAt.toUtc().toIso8601String(),
+        },
+        options: Options(
+          headers: <String, Object?>{'Idempotency-Key': randomUuidV4()},
+          contentType: Headers.jsonContentType,
+        ),
+      );
+
+      return TeacherAssignment.fromEnvelope(response.data);
+    } on DioException catch (error) {
+      throw apiErrorOf(error.error) ?? const UnknownError();
+    }
+  }
+
+  /// Uploads an attachment, reporting progress as it goes.
+  ///
+  /// The assignment already exists, so a failure here loses the file and
+  /// nothing else. [onProgress] is what makes the failure visible rather than
+  /// a spinner that stops: the screen shows how far it got and offers a retry.
+  Future<TeacherAssignment?> attach({
+    required int assignmentId,
+    required String filePath,
+    required String fileName,
+    void Function(int sent, int total)? onProgress,
+  }) async {
+    try {
+      final response = await dio.post<Object?>(
+        '/mobile/v1/teacher/assignments/$assignmentId/attachment',
+        data: FormData.fromMap(<String, Object?>{
+          'file': await MultipartFile.fromFile(filePath, filename: fileName),
+        }),
+        onSendProgress: onProgress,
+      );
+
+      return TeacherAssignment.fromEnvelope(response.data);
+    } on DioException catch (error) {
+      throw apiErrorOf(error.error) ?? const UnknownError();
+    }
+  }
+
+  /// Publishes a draft. The server treats a second publish as a no-op.
+  Future<TeacherAssignment?> publish(int assignmentId) async {
+    try {
+      final response = await dio.post<Object?>(
+        '/mobile/v1/teacher/assignments/$assignmentId/publish',
+      );
+
+      return TeacherAssignment.fromEnvelope(response.data);
+    } on DioException catch (error) {
+      throw apiErrorOf(error.error) ?? const UnknownError();
+    }
+  }
+
+  Future<HandInReport> handIns(int assignmentId) async {
+    try {
+      final response = await dio.get<Object?>(
+        '/mobile/v1/teacher/assignments/$assignmentId/submissions',
+      );
+
+      return HandInReport.fromJson(response.data);
+    } on DioException catch (error) {
+      throw apiErrorOf(error.error) ?? const UnknownError();
+    }
+  }
+
+  Future<AnnouncementOptions> announcementOptions() async {
+    try {
+      final response = await dio.get<Object?>(
+        '/mobile/v1/teacher/announcement-templates',
+      );
+
+      return AnnouncementOptions.fromJson(response.data);
+    } on DioException catch (error) {
+      throw apiErrorOf(error.error) ?? const UnknownError();
+    }
+  }
+
+  /// Sends one approved notice.
+  ///
+  /// Never queued. A notice queued at four in the afternoon and drained at
+  /// midnight would arrive exactly when the school's hours exist to prevent,
+  /// and the hours are the point.
+  Future<void> announce({
+    required String templateKey,
+    required String detail,
+    required String audience,
+  }) async {
+    try {
+      await dio.post<Object?>(
+        '/mobile/v1/teacher/announcements',
+        data: <String, Object?>{
+          'template_key': templateKey,
+          'detail': detail,
+          'audience': audience,
+        },
+        options: Options(
+          headers: <String, Object?>{'Idempotency-Key': randomUuidV4()},
+          contentType: Headers.jsonContentType,
+        ),
+      );
+    } on DioException catch (error) {
+      throw AnnounceFailure(_announceRefusalOf(error));
+    }
+  }
+
+  static AnnounceRefusal _announceRefusalOf(DioException error) {
+    final status = error.response?.statusCode;
+
+    if (status == 409) return AnnounceRefusal.outsideHours;
+    if (status == 422) return AnnounceRefusal.notAllowed;
+    if (status == 403) return AnnounceRefusal.notPermitted;
+
+    final mapped = apiErrorOf(error.error);
+    if (mapped is OfflineError || mapped is TimeoutError) {
+      return AnnounceRefusal.offline;
+    }
+
+    return AnnounceRefusal.failed;
   }
 
   /* ---------- outbox ---------- */

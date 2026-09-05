@@ -911,4 +911,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gradebookStateReopened => 'Reopened';
+
+  @override
+  String get assignmentsTitle => 'Assignments';
+
+  @override
+  String get assignmentsEmpty => 'No assignments yet.';
+
+  @override
+  String get assignmentNew => 'New assignment';
+
+  @override
+  String get assignmentTitleLabel => 'Title';
+
+  @override
+  String get assignmentInstructionsLabel => 'Instructions';
+
+  @override
+  String get assignmentDueLabel => 'Due date';
+
+  @override
+  String get assignmentSaveDraft => 'Save as draft';
+
+  @override
+  String get assignmentDraft => 'Draft';
+
+  @override
+  String get assignmentPublished => 'Published';
+
+  @override
+  String get assignmentPublish => 'Publish';
+
+  @override
+  String get assignmentPublishExplained =>
+      'Students cannot see it until you publish it.';
+
+  @override
+  String get assignmentAttach => 'Attach a file';
+
+  @override
+  String get assignmentAttached => 'Attached';
+
+  @override
+  String get assignmentUploading => 'Uploading…';
+
+  @override
+  String get assignmentUploadFailed =>
+      'The file could not be uploaded. The assignment is saved; try again.';
+
+  @override
+  String get assignmentUploadRetry => 'Try again';
+
+  @override
+  String get assignmentNeedsConnection =>
+      'Creating an assignment needs a connection.';
+
+  @override
+  String get submissionsTitle => 'Hand-in status';
+
+  @override
+  String get submissionPending => 'Not handed in';
+
+  @override
+  String get submissionSubmitted => 'Handed in';
+
+  @override
+  String get submissionLate => 'Late';
+
+  @override
+  String get submissionGraded => 'Marked';
+
+  @override
+  String get announceTitle => 'Send a notice';
+
+  @override
+  String get announceTemplateLabel => 'Notice';
+
+  @override
+  String get announceDetailLabel => 'Short detail';
+
+  @override
+  String get announceSend => 'Send';
+
+  @override
+  String get announceSent => 'The notice was sent.';
+
+  @override
+  String get announceTemplatesOnly => 'Notices use approved wording only.';
+
+  @override
+  String get announceClosed => 'Notices can only be sent during school hours.';
+
+  @override
+  String get announceFailed => 'The notice could not be sent.';
+
+  @override
+  String get announceNeedsConnection => 'Sending a notice needs a connection.';
+
+  @override
+  String get audienceClass => 'The whole class';
+
+  @override
+  String get audienceGuardian => 'One guardian';
+
+  @override
+  String announceWindow(String from, String to) {
+    return 'Notices can be sent between $from and $to';
+  }
 }

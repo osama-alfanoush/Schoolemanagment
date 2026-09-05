@@ -1115,5 +1115,149 @@
   "gradebookStateReopened": "مفتوح مؤقتًا",
   "@gradebookStateReopened": {
     "description": "Gradebook workflow state."
+  },
+  "assignmentsTitle": "الواجبات",
+  "@assignmentsTitle": {
+    "description": "Title of the assignments screen."
+  },
+  "assignmentsEmpty": "لا توجد واجبات بعد.",
+  "@assignmentsEmpty": {
+    "description": "Empty state for the assignments list."
+  },
+  "assignmentNew": "واجب جديد",
+  "@assignmentNew": {
+    "description": "Starts a new assignment."
+  },
+  "assignmentTitleLabel": "العنوان",
+  "@assignmentTitleLabel": {
+    "description": "Label for the assignment title field."
+  },
+  "assignmentInstructionsLabel": "التعليمات",
+  "@assignmentInstructionsLabel": {
+    "description": "Label for the assignment instructions field."
+  },
+  "assignmentDueLabel": "تاريخ التسليم",
+  "@assignmentDueLabel": {
+    "description": "Label for the due date field."
+  },
+  "assignmentSaveDraft": "حفظ كمسودة",
+  "@assignmentSaveDraft": {
+    "description": "Saves the assignment without publishing it."
+  },
+  "assignmentDraft": "مسودة",
+  "@assignmentDraft": {
+    "description": "An assignment students cannot see yet."
+  },
+  "assignmentPublished": "منشور",
+  "@assignmentPublished": {
+    "description": "An assignment students can see."
+  },
+  "assignmentPublish": "نشر",
+  "@assignmentPublish": {
+    "description": "Publishes a draft to the class."
+  },
+  "assignmentPublishExplained": "لن يراه الطلاب حتى تنشره.",
+  "@assignmentPublishExplained": {
+    "description": "Explains what a draft means."
+  },
+  "assignmentAttach": "إرفاق ملف",
+  "@assignmentAttach": {
+    "description": "Attaches a file to an assignment."
+  },
+  "assignmentAttached": "مرفق",
+  "@assignmentAttached": {
+    "description": "An assignment that has a file."
+  },
+  "assignmentUploading": "جارٍ الرفع…",
+  "@assignmentUploading": {
+    "description": "Upload in progress."
+  },
+  "assignmentUploadFailed": "تعذّر رفع الملف. الواجب محفوظ، أعد المحاولة.",
+  "@assignmentUploadFailed": {
+    "description": "Upload failure, stating plainly that the assignment survived."
+  },
+  "assignmentUploadRetry": "إعادة المحاولة",
+  "@assignmentUploadRetry": {
+    "description": "Retries a failed upload."
+  },
+  "assignmentNeedsConnection": "يحتاج إنشاء واجب إلى اتصال.",
+  "@assignmentNeedsConnection": {
+    "description": "Assignments are not queued offline."
+  },
+  "submissionsTitle": "حالة التسليم",
+  "@submissionsTitle": {
+    "description": "Title of the submission status screen."
+  },
+  "submissionPending": "لم يُسلّم",
+  "@submissionPending": {
+    "description": "Submission status."
+  },
+  "submissionSubmitted": "سُلّم",
+  "@submissionSubmitted": {
+    "description": "Submission status."
+  },
+  "submissionLate": "متأخر",
+  "@submissionLate": {
+    "description": "Submission status."
+  },
+  "submissionGraded": "مُصحّح",
+  "@submissionGraded": {
+    "description": "Submission status."
+  },
+  "announceTitle": "إرسال إشعار",
+  "@announceTitle": {
+    "description": "Title of the announcement screen."
+  },
+  "announceTemplateLabel": "نوع الإشعار",
+  "@announceTemplateLabel": {
+    "description": "Label for the template picker."
+  },
+  "announceDetailLabel": "تفاصيل قصيرة",
+  "@announceDetailLabel": {
+    "description": "Label for the announcement detail field."
+  },
+  "announceSend": "إرسال",
+  "@announceSend": {
+    "description": "Sends the notice."
+  },
+  "announceSent": "أُرسل الإشعار.",
+  "@announceSent": {
+    "description": "Confirms a sent notice."
+  },
+  "announceTemplatesOnly": "الإشعارات من قوالب معتمدة فقط.",
+  "@announceTemplatesOnly": {
+    "description": "Explains why there is no free-text field."
+  },
+  "announceClosed": "يمكن إرسال الإشعارات خلال ساعات الدوام فقط.",
+  "@announceClosed": {
+    "description": "Explains the announcement window."
+  },
+  "announceFailed": "تعذّر إرسال الإشعار.",
+  "@announceFailed": {
+    "description": "Generic announcement failure."
+  },
+  "announceNeedsConnection": "يحتاج إرسال الإشعار إلى اتصال.",
+  "@announceNeedsConnection": {
+    "description": "Announcements are not queued offline."
+  },
+  "audienceClass": "الصف كامل",
+  "@audienceClass": {
+    "description": "Announcement audience."
+  },
+  "audienceGuardian": "ولي أمر واحد",
+  "@audienceGuardian": {
+    "description": "Announcement audience."
+  },
+  "announceWindow": "ساعات الإرسال: {from} — {to}",
+  "@announceWindow": {
+    "description": "States the hours during which notices may be sent.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
   }
 }

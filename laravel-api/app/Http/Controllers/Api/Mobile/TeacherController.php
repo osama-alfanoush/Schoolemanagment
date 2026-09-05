@@ -9,10 +9,14 @@ use App\Http\Responses\ApiResponse;
 use App\Http\Responses\Mobile\CachedPayload;
 use App\Services\AttendanceService;
 use App\Services\AuditLogger;
+use App\Models\Assignment;
+use App\Services\Mobile\TeacherPublishingService;
 use App\Services\Mobile\TeacherService;
+use App\Services\PrivateFileVault;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -33,6 +37,7 @@ class TeacherController extends Controller
     public function __construct(
         private readonly TeacherService $teachers,
         private readonly AttendanceService $attendance,
+        private readonly TeacherPublishingService $publishing,
     ) {}
 
     /** The teacher's periods for a day, and which of them still need marking. */
@@ -190,6 +195,247 @@ class TeacherController extends Controller
             'record_count' => (int) $outcome['batch']->record_count,
             'committed_at' => $outcome['batch']->committed_at?->toIso8601String(),
         ] + (array) $outcome['batch']->result);
+    }
+
+    /* ---------- assignments ---------- */
+
+    /** This teacher's homework for their assigned classes, with hand-in counts. */
+    public function assignments(Request $request): JsonResponse
+    {
+        $teacherId = (int) $request->user()->id;
+
+        return CachedPayload::respond($request, [
+            'assignments' => $this->publishing->assignments(
+                $teacherId,
+                $this->teachers->assignedClassIds($teacherId, $this->schoolId($request)),
+            ),
+        ]);
+    }
+
+    /** Creates a draft. Nothing reaches a student until it is published. */
+    public function createAssignment(Request $request): JsonResponse
+    {
+        $request->merge(['idempotency_key' => $request->header('Idempotency-Key')]);
+
+        $data = $request->validate([
+            'idempotency_key' => ['required', 'uuid'],
+            'class_room_id' => ['required', 'integer'],
+            'subject_id' => ['required', 'integer'],
+            'title' => ['required', 'string', 'max:200'],
+            'instructions' => ['required', 'string', 'max:5000'],
+            'due_at' => ['required', 'date'],
+            'max_score' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $teacherId = (int) $request->user()->id;
+        $schoolId = $this->schoolId($request);
+
+        if (! $this->teachers->canTeach($teacherId, $schoolId, (int) $data['class_room_id'], (int) $data['subject_id'])) {
+            return $this->deny($request, (int) $data['class_room_id']);
+        }
+
+        $outcome = $this->publishing->createAssignment(
+            collect($data)->except('idempotency_key')->all(),
+            $teacherId,
+            (string) $data['idempotency_key'],
+        );
+
+        return ApiResponse::success(
+            $this->assignmentPayload($outcome['assignment']) + ['created' => $outcome['created']],
+            $outcome['created'] ? Response::HTTP_CREATED : Response::HTTP_OK,
+        );
+    }
+
+    /**
+     * Attaches a file to a draft.
+     *
+     * Separate from creating the assignment: an upload over a school
+     * connection is the step most likely to fail, and a failure here must not
+     * take the text with it. The assignment survives, the attachment is
+     * visibly absent, and the upload can be retried without retyping anything.
+     */
+    public function attachToAssignment(Request $request, int $assignmentId): JsonResponse
+    {
+        $assignment = $this->ownedAssignment($request, $assignmentId);
+        if ($assignment === null) {
+            return $this->deny($request, $assignmentId, 'assignment');
+        }
+
+        $request->validate([
+            'file' => PrivateFileVault::rulesFor('assignment-attachment'),
+        ]);
+
+        try {
+            $updated = $this->publishing->attach($assignment, $request->file('file'));
+        } catch (\InvalidArgumentException $e) {
+            // The type or the size. Said plainly, because a silent failure here
+            // leaves a teacher believing the file went with the homework.
+            return ApiResponse::error($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return ApiResponse::success($this->assignmentPayload($updated));
+    }
+
+    /**
+     * Publishes a draft and notifies the class.
+     *
+     * A second publish is a no-op rather than a second round of notifications
+     * to every family in the class.
+     */
+    public function publishAssignment(Request $request, int $assignmentId): JsonResponse
+    {
+        $assignment = $this->ownedAssignment($request, $assignmentId);
+        if ($assignment === null) {
+            return $this->deny($request, $assignmentId, 'assignment');
+        }
+
+        $outcome = $this->publishing->publish($assignment);
+
+        return ApiResponse::success(
+            $this->assignmentPayload($outcome['assignment'])
+            + ['published_now' => $outcome['published']],
+        );
+    }
+
+    /** Who has handed in, and who has not. */
+    public function submissions(Request $request, int $assignmentId): JsonResponse
+    {
+        $assignment = $this->ownedAssignment($request, $assignmentId);
+        if ($assignment === null) {
+            return $this->deny($request, $assignmentId, 'assignment');
+        }
+
+        return CachedPayload::respond(
+            $request,
+            $this->publishing->submissions($assignment),
+        );
+    }
+
+    /* ---------- announcements ---------- */
+
+    /** The notices a teacher may send, and when they may send them. */
+    public function announcementTemplates(Request $request): JsonResponse
+    {
+        return CachedPayload::respond($request, [
+            'templates' => $this->publishing->templates(),
+            'window' => $this->publishing->window(),
+            'open_now' => $this->publishing->withinHours(),
+        ]);
+    }
+
+    /**
+     * Sends one approved notice to a class or a single guardian.
+     *
+     * Free text is deliberately not accepted here: one tap from a phone
+     * reaches thirty households, and moderating that is not something anyone
+     * on this project is staffed to do.
+     */
+    public function announce(Request $request): JsonResponse
+    {
+        $request->merge(['idempotency_key' => $request->header('Idempotency-Key')]);
+
+        $data = $request->validate([
+            'idempotency_key' => ['required', 'uuid'],
+            'template_key' => ['required', 'string', 'max:64'],
+            'detail' => ['nullable', 'string', 'max:500'],
+            'audience' => ['required', 'string', 'regex:/^(class:\d+|guardian:\d+)$/'],
+        ]);
+
+        $teacherId = (int) $request->user()->id;
+        $schoolId = $this->schoolId($request);
+
+        if (! $this->mayAnnounceTo((string) $data['audience'], $teacherId, $schoolId)) {
+            return $this->deny($request, 0, 'announcement');
+        }
+
+        try {
+            $sent = $this->publishing->announce(
+                (string) $data['template_key'],
+                (string) ($data['detail'] ?? ''),
+                (string) $data['audience'],
+                $teacherId,
+                $schoolId,
+                (string) $data['idempotency_key'],
+            );
+        } catch (HttpException $e) {
+            return ApiResponse::error($e->getMessage(), $e->getStatusCode(), [
+                'window' => $this->publishing->window(),
+            ]);
+        }
+
+        return ApiResponse::success(
+            $sent,
+            $sent['created'] ? Response::HTTP_CREATED : Response::HTTP_OK,
+        );
+    }
+
+    /**
+     * Whether this teacher may address that audience.
+     *
+     * A class must be one they are assigned. A guardian must be the guardian of
+     * a child in one of those classes -- otherwise this endpoint is a way to
+     * message any parent in the school.
+     */
+    private function mayAnnounceTo(string $audience, int $teacherId, int $schoolId): bool
+    {
+        $classIds = $this->teachers->assignedClassIds($teacherId, $schoolId);
+
+        if (str_starts_with($audience, 'class:')) {
+            return in_array((int) substr($audience, 6), $classIds, true);
+        }
+
+        if ($classIds === []) {
+            return false;
+        }
+
+        return DB::table('parent_student')
+            ->join('student_profiles', 'student_profiles.user_id', '=', 'parent_student.student_user_id')
+            ->where('parent_student.school_id', $schoolId)
+            ->where('parent_student.parent_user_id', (int) substr($audience, strlen('guardian:')))
+            ->whereIn('student_profiles.class_room_id', $classIds)
+            ->exists();
+    }
+
+    /**
+     * The assignment, if it belongs to this teacher and an assigned class.
+     *
+     * Both checks: a teacher who leaves a class must not keep writing to its
+     * homework merely because they created it.
+     */
+    private function ownedAssignment(Request $request, int $assignmentId): ?Assignment
+    {
+        $teacherId = (int) $request->user()->id;
+        $schoolId = $this->schoolId($request);
+
+        $assignment = Assignment::query()
+            ->whereKey($assignmentId)
+            ->where('school_id', $schoolId)
+            ->where('teacher_user_id', $teacherId)
+            ->first();
+
+        if ($assignment === null) {
+            return null;
+        }
+
+        return $this->teachers->canTeach($teacherId, $schoolId, (int) $assignment->class_room_id)
+            ? $assignment
+            : null;
+    }
+
+    /** @return array<string, mixed> */
+    private function assignmentPayload(Assignment $assignment): array
+    {
+        return [
+            'id' => (int) $assignment->id,
+            'class_room_id' => (int) $assignment->class_room_id,
+            'subject_id' => (int) $assignment->subject_id,
+            'title' => $assignment->title,
+            'instructions' => $assignment->instructions,
+            'due_at' => $assignment->due_at?->toIso8601String(),
+            'published' => $assignment->isPublished(),
+            'published_at' => $assignment->published_at?->toIso8601String(),
+            'has_attachment' => $assignment->attachment_path !== null,
+        ];
     }
 
     /** Server-side, from the resolved tenant context. Never from the client. */

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Announcement extends Model
 {
-    protected $fillable = ['sender_user_id', 'audience', 'title', 'body'];
+    protected $fillable = ['sender_user_id', 'audience', 'template_key', 'title', 'body', 'idempotency_key'];
 
     public function sender(): BelongsTo
     {

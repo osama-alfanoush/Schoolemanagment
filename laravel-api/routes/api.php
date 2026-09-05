@@ -234,6 +234,23 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
                 // or later.
                 Route::post('/attendance/batch', [MobileTeacherController::class, 'attendanceBatch']);
                 Route::post('/grades/batch', [MobileTeacherController::class, 'gradesBatch']);
+
+                // ASSIGNMENTS. Created as a draft, attached to separately, and
+                // published as its own act -- nothing reaches a student until
+                // then, so an interruption mid-write costs nothing.
+                Route::get('/assignments', [MobileTeacherController::class, 'assignments']);
+                Route::post('/assignments', [MobileTeacherController::class, 'createAssignment']);
+                Route::post('/assignments/{assignmentId}/attachment', [MobileTeacherController::class, 'attachToAssignment'])
+                    ->whereNumber('assignmentId');
+                Route::post('/assignments/{assignmentId}/publish', [MobileTeacherController::class, 'publishAssignment'])
+                    ->whereNumber('assignmentId');
+                Route::get('/assignments/{assignmentId}/submissions', [MobileTeacherController::class, 'submissions'])
+                    ->whereNumber('assignmentId');
+
+                // ANNOUNCEMENTS. Approved templates only, and only inside the
+                // school's hours: one tap here reaches thirty households.
+                Route::get('/announcement-templates', [MobileTeacherController::class, 'announcementTemplates']);
+                Route::post('/announcements', [MobileTeacherController::class, 'announce']);
             });
         });
 
