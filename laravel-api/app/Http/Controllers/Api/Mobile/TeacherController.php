@@ -65,6 +65,27 @@ class TeacherController extends Controller
     }
 
     /**
+     * One class's mark sheet for one subject.
+     *
+     * Carries the gradebook's workflow state and every score's version, so the
+     * client can show a locked sheet as locked and a stale edit as stale
+     * rather than discovering either at submission time.
+     */
+    public function gradebook(Request $request, int $classId, int $subjectId): JsonResponse
+    {
+        $schoolId = $this->schoolId($request);
+
+        if (! $this->teachers->canTeach((int) $request->user()->id, $schoolId, $classId, $subjectId)) {
+            return $this->deny($request, $classId);
+        }
+
+        return CachedPayload::respond(
+            $request,
+            $this->teachers->gradebook($classId, $subjectId, $schoolId),
+        );
+    }
+
+    /**
      * A whole class's attendance in one write.
      *
      * `Idempotency-Key` is required. This is the endpoint an offline phone

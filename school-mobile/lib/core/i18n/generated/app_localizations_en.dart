@@ -854,4 +854,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String attendanceRejectedOn(String date, int count) {
     return '$date — $count students';
   }
+
+  @override
+  String get gradesTitle => 'Grades';
+
+  @override
+  String get gradesNoItems =>
+      'No assessments have been set up for this subject yet.';
+
+  @override
+  String get gradesNoGradebook =>
+      'No gradebook has been opened for this subject yet. Ask the office.';
+
+  @override
+  String get gradesSave => 'Save and send';
+
+  @override
+  String get gradesQueuedToast =>
+      'Saved on this phone. They reach the school when there is a connection.';
+
+  @override
+  String get gradesQueuedItem => 'Waiting to send';
+
+  @override
+  String get gradesInvalidEntry => 'Not a valid mark';
+
+  @override
+  String get gradesConflictTitle =>
+      'Marks refused: the server\'s copy had changed';
+
+  @override
+  String get gradesConflictBody =>
+      'The server\'s copy stands. These are the marks you tried to send; re-enter what is still needed.';
+
+  @override
+  String get gradesRefusedTitle => 'Marks refused';
+
+  @override
+  String get gradesLockedBody =>
+      'This gradebook is not open for editing in its current state.';
+
+  @override
+  String get gradebookStateDraft => 'Draft';
+
+  @override
+  String get gradebookStateSubmitted => 'Submitted';
+
+  @override
+  String get gradebookStateApproved => 'Approved';
+
+  @override
+  String get gradebookStateFinalized => 'Finalised';
+
+  @override
+  String get gradebookStateReturned => 'Returned for correction';
+
+  @override
+  String get gradebookStateReopened => 'Reopened';
 }

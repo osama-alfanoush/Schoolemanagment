@@ -308,6 +308,124 @@ final class TeacherService
         return $byStudent;
     }
 
+    /* ---------- gradebook ---------- */
+
+    /**
+     * A class's mark sheet for one subject: the workflow state, the
+     * components, and every current score with its version.
+     *
+     * The version travels with each score because the write is optimistic. A
+     * teacher who edits a column on a phone that has been offline since
+     * Tuesday must be told the head teacher already finalised it, rather than
+     * having their edit silently win or silently vanish.
+     *
+     * @return array<string, mixed>
+     */
+    public function gradebook(int $classRoomId, int $subjectId, int $schoolId): array
+    {
+        $components = GradeComponent::query()
+            ->with('gradebook')
+            ->where('school_id', $schoolId)
+            ->where('class_room_id', $classRoomId)
+            ->where('subject_id', $subjectId)
+            ->orderBy('id')
+            ->get();
+
+        $book = $this->currentGradebook($components);
+
+        $componentIds = $components->pluck('id')->all();
+
+        $scores = $componentIds === [] ? collect() : DB::table('grades')
+            ->where('school_id', $schoolId)
+            ->whereIn('grade_component_id', $componentIds)
+            ->get(['student_user_id', 'grade_component_id', 'score', 'version']);
+
+        $byStudent = [];
+        foreach ($scores as $row) {
+            $byStudent[(int) $row->student_user_id][] = [
+                'grade_component_id' => (int) $row->grade_component_id,
+                // Rendered at the column's scale, so 18.5 and 18.50 are the
+                // same mark on every screen. SQLite hands back the raw value
+                // and PostgreSQL a fixed-scale string; without this the two
+                // drivers disagree about what a grade looks like.
+                'score' => self::mark($row->score),
+                'version' => (int) $row->version,
+            ];
+        }
+
+        $students = DB::table('student_profiles')
+            ->join('users', 'users.id', '=', 'student_profiles.user_id')
+            ->where('student_profiles.school_id', $schoolId)
+            ->where('student_profiles.class_room_id', $classRoomId)
+            ->orderBy('users.name')
+            ->get(['student_profiles.user_id', 'users.name']);
+
+        return [
+            'class_room_id' => $classRoomId,
+            'subject_id' => $subjectId,
+            'gradebook' => $book === null ? null : [
+                'id' => (int) $book->id,
+                'state' => $book->state,
+                // The one thing the client must not work out for itself: the
+                // reopen window is a timestamp, and a client clock that is a
+                // day out would offer an editable sheet the server refuses.
+                'editable' => $book->isEditable(),
+                'reopened_until' => $book->reopened_until?->toIso8601String(),
+            ],
+            'components' => $components->map(static fn (GradeComponent $component): array => [
+                'id' => (int) $component->id,
+                'name' => $component->name,
+                'type' => $component->type,
+                'max_score' => self::mark($component->max_score),
+                'weight' => self::mark($component->weight),
+            ])->all(),
+            'students' => $students->map(static fn ($row): array => [
+                'student_user_id' => (int) $row->user_id,
+                'name' => $row->name,
+                'grades' => $byStudent[(int) $row->user_id] ?? [],
+            ])->all(),
+        ];
+    }
+
+    /**
+     * The gradebook a teacher is working in right now.
+     *
+     * A class and subject can have one per grading period. The current period
+     * wins; failing that, the most recent, so a sheet is never empty merely
+     * because today falls in a gap between periods.
+     *
+     * @param  Collection<int, GradeComponent>  $components
+     */
+    private function currentGradebook(Collection $components): ?Gradebook
+    {
+        $books = $components
+            ->map(static fn (GradeComponent $component): ?Gradebook => $component->gradebook)
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        if ($books->isEmpty()) {
+            return null;
+        }
+
+        $periods = DB::table('grading_periods')
+            ->whereIn('id', $books->pluck('grading_period_id')->all())
+            ->get(['id', 'start_date', 'end_date'])
+            ->keyBy('id');
+
+        $today = Carbon::today()->toDateString();
+
+        $current = $books->first(static function (Gradebook $book) use ($periods, $today): bool {
+            $period = $periods->get($book->grading_period_id);
+
+            return $period !== null
+                && $period->start_date <= $today
+                && $period->end_date >= $today;
+        });
+
+        return $current ?? $books->sortByDesc('id')->first();
+    }
+
     /* ---------- grades ---------- */
 
     /**
@@ -454,6 +572,12 @@ final class TeacherService
                 );
             }
         }
+    }
+
+    /** A mark at the column's scale, stable across drivers. */
+    private static function mark(int|float|string|null $value): string
+    {
+        return sprintf('%.2F', (float) ($value ?? 0));
     }
 
     private function assertSamePayload(TeacherGradeBatch $batch, string $payloadHash): void

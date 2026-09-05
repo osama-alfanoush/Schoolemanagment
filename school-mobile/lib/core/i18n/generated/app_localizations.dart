@@ -1573,6 +1573,108 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'{date} — {count} طالبًا'**
   String attendanceRejectedOn(String date, int count);
+
+  /// Title of the grade entry screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدرجات'**
+  String get gradesTitle;
+
+  /// Empty state when a subject has no grade components.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد عناصر تقييم لهذه المادة بعد.'**
+  String get gradesNoItems;
+
+  /// Shown when no gradebook exists, so nothing can be entered.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تُفتح دفتر درجات لهذه المادة بعد. راجع الإدارة.'**
+  String get gradesNoGradebook;
+
+  /// Queues the column of marks.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ وإرسال'**
+  String get gradesSave;
+
+  /// Confirms queued marks without claiming they were saved upstream.
+  ///
+  /// In ar, this message translates to:
+  /// **'حُفظت على هذا الجهاز، وستصل المدرسة عند توفّر الاتصال.'**
+  String get gradesQueuedToast;
+
+  /// A grade column queued but not yet sent.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار الإرسال'**
+  String get gradesQueuedItem;
+
+  /// Shown beside a cell whose value the server would refuse.
+  ///
+  /// In ar, this message translates to:
+  /// **'درجة غير صالحة'**
+  String get gradesInvalidEntry;
+
+  /// Heading for a rejected grade batch caused by a conflict.
+  ///
+  /// In ar, this message translates to:
+  /// **'رُفضت الدرجات: تغيّرت على الخادم'**
+  String get gradesConflictTitle;
+
+  /// Explains that the server wins and shows the teacher what was refused.
+  ///
+  /// In ar, this message translates to:
+  /// **'نسخة الخادم هي المعتمدة. هذه هي الدرجات التي حاولت إرسالها، أعد إدخال ما يلزم.'**
+  String get gradesConflictBody;
+
+  /// Heading for a rejected grade batch.
+  ///
+  /// In ar, this message translates to:
+  /// **'رُفضت الدرجات'**
+  String get gradesRefusedTitle;
+
+  /// Shown when the workflow state forbids entry.
+  ///
+  /// In ar, this message translates to:
+  /// **'دفتر الدرجات مغلق للتعديل في حالته الحالية.'**
+  String get gradesLockedBody;
+
+  /// Gradebook workflow state.
+  ///
+  /// In ar, this message translates to:
+  /// **'مسودة'**
+  String get gradebookStateDraft;
+
+  /// Gradebook workflow state.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُرسل للاعتماد'**
+  String get gradebookStateSubmitted;
+
+  /// Gradebook workflow state.
+  ///
+  /// In ar, this message translates to:
+  /// **'معتمد'**
+  String get gradebookStateApproved;
+
+  /// Gradebook workflow state.
+  ///
+  /// In ar, this message translates to:
+  /// **'نهائي'**
+  String get gradebookStateFinalized;
+
+  /// Gradebook workflow state.
+  ///
+  /// In ar, this message translates to:
+  /// **'مُعاد للتصحيح'**
+  String get gradebookStateReturned;
+
+  /// Gradebook workflow state.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتوح مؤقتًا'**
+  String get gradebookStateReopened;
 }
 
 class _AppLocalizationsDelegate

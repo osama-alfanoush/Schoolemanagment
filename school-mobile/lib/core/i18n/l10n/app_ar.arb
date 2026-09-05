@@ -1047,5 +1047,73 @@
         "type": "int"
       }
     }
+  },
+  "gradesTitle": "الدرجات",
+  "@gradesTitle": {
+    "description": "Title of the grade entry screen."
+  },
+  "gradesNoItems": "لا توجد عناصر تقييم لهذه المادة بعد.",
+  "@gradesNoItems": {
+    "description": "Empty state when a subject has no grade components."
+  },
+  "gradesNoGradebook": "لم تُفتح دفتر درجات لهذه المادة بعد. راجع الإدارة.",
+  "@gradesNoGradebook": {
+    "description": "Shown when no gradebook exists, so nothing can be entered."
+  },
+  "gradesSave": "حفظ وإرسال",
+  "@gradesSave": {
+    "description": "Queues the column of marks."
+  },
+  "gradesQueuedToast": "حُفظت على هذا الجهاز، وستصل المدرسة عند توفّر الاتصال.",
+  "@gradesQueuedToast": {
+    "description": "Confirms queued marks without claiming they were saved upstream."
+  },
+  "gradesQueuedItem": "بانتظار الإرسال",
+  "@gradesQueuedItem": {
+    "description": "A grade column queued but not yet sent."
+  },
+  "gradesInvalidEntry": "درجة غير صالحة",
+  "@gradesInvalidEntry": {
+    "description": "Shown beside a cell whose value the server would refuse."
+  },
+  "gradesConflictTitle": "رُفضت الدرجات: تغيّرت على الخادم",
+  "@gradesConflictTitle": {
+    "description": "Heading for a rejected grade batch caused by a conflict."
+  },
+  "gradesConflictBody": "نسخة الخادم هي المعتمدة. هذه هي الدرجات التي حاولت إرسالها، أعد إدخال ما يلزم.",
+  "@gradesConflictBody": {
+    "description": "Explains that the server wins and shows the teacher what was refused."
+  },
+  "gradesRefusedTitle": "رُفضت الدرجات",
+  "@gradesRefusedTitle": {
+    "description": "Heading for a rejected grade batch."
+  },
+  "gradesLockedBody": "دفتر الدرجات مغلق للتعديل في حالته الحالية.",
+  "@gradesLockedBody": {
+    "description": "Shown when the workflow state forbids entry."
+  },
+  "gradebookStateDraft": "مسودة",
+  "@gradebookStateDraft": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateSubmitted": "مُرسل للاعتماد",
+  "@gradebookStateSubmitted": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateApproved": "معتمد",
+  "@gradebookStateApproved": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateFinalized": "نهائي",
+  "@gradebookStateFinalized": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateReturned": "مُعاد للتصحيح",
+  "@gradebookStateReturned": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateReopened": "مفتوح مؤقتًا",
+  "@gradebookStateReopened": {
+    "description": "Gradebook workflow state."
   }
 }

@@ -8,6 +8,7 @@ import '../../../core/auth/secure_random.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/tables.dart';
 import '../domain/attendance_draft.dart';
+import '../domain/gradebook.dart';
 import '../domain/roster.dart';
 import '../domain/teacher_day.dart';
 
@@ -51,6 +52,7 @@ class TeacherRepository {
 
   static const String todayEntity = 'teacher_today';
   static const String rosterEntity = 'teacher_roster';
+  static const String gradebookEntity = 'teacher_gradebook';
 
   /* ---------- today ---------- */
 
@@ -77,6 +79,81 @@ class TeacherRepository {
         entityId: '$classId:$date',
         parse: ClassRoster.fromJson,
       );
+
+  /* ---------- gradebook ---------- */
+
+  Future<Cached<MarkSheet>?> cachedMarkSheet(int classId, int subjectId) =>
+      _cached(gradebookEntity, '$classId:$subjectId', MarkSheet.fromJson);
+
+  Future<Cached<MarkSheet>> refreshMarkSheet(int classId, int subjectId) =>
+      _refresh(
+        path: '/mobile/v1/teacher/gradebook/$classId/$subjectId',
+        query: const <String, Object?>{},
+        entityType: gradebookEntity,
+        entityId: '$classId:$subjectId',
+        parse: MarkSheet.fromJson,
+      );
+
+  /// Queues a column of marks.
+  ///
+  /// Enqueue, not send, for the same reason attendance is: a staff room with
+  /// no signal is where marks actually get entered.
+  Future<OutboxEntry> queueGrades(GradeDraft draft) => database.enqueue(
+        endpoint: TeacherEndpoints.gradesBatch,
+        method: 'POST',
+        payloadJson: jsonEncode(draft.toPayload()),
+        idempotencyKey: randomUuidV4(),
+      );
+
+  /// Grade items with a batch still owed to the server for this class.
+  ///
+  /// Read from the queue, never from a flag the screen sets: a queued mark
+  /// must not be shown as saved, and only the queue knows.
+  Future<Set<int>> queuedGradeItems(int classRoomId, int subjectId) async {
+    final queued = <int>{};
+
+    for (final entry in await database.allOutbox()) {
+      if (entry.endpoint != TeacherEndpoints.gradesBatch) continue;
+      if (entry.status == OutboxStatus.succeeded ||
+          entry.status == OutboxStatus.dead) {
+        continue;
+      }
+
+      final payload = _decode(entry.payloadJson);
+      if (payload == null) continue;
+      if (int.tryParse('${payload['class_room_id']}') != classRoomId) continue;
+      if (int.tryParse('${payload['subject_id']}') != subjectId) continue;
+
+      final grades = payload['grades'];
+      if (grades is! Iterable) continue;
+
+      for (final grade in grades) {
+        if (grade is! Map) continue;
+        final itemId = int.tryParse('${grade['grade_component_id']}');
+        if (itemId != null) queued.add(itemId);
+      }
+    }
+
+    return queued;
+  }
+
+  /// Grade batches for this class and subject the engine gave up on.
+  Future<List<RejectedSubmission>> rejectedGrades(
+    int classRoomId,
+    int subjectId,
+  ) async {
+    final dead = (await database.allOutbox())
+        .where((entry) =>
+            entry.endpoint == TeacherEndpoints.gradesBatch &&
+            entry.status == OutboxStatus.dead)
+        .map(RejectedSubmission.of)
+        .where((row) =>
+            row.classRoomId == classRoomId && row.subjectId == subjectId)
+        .toList()
+      ..sort((a, b) => b.outboxRowId.compareTo(a.outboxRowId));
+
+    return dead;
+  }
 
   /* ---------- outbox ---------- */
 
@@ -241,20 +318,26 @@ class RejectedSubmission {
     required this.outboxRowId,
     required this.reason,
     this.classRoomId,
+    this.subjectId,
     this.date,
     this.recordCount,
+    this.entries = const <Map<Object?, Object?>>[],
   });
 
   factory RejectedSubmission.of(OutboxEntry entry) {
     final payload = TeacherRepository._decode(entry.payloadJson);
-    final records = payload?['records'];
+    final records = payload?['records'] ?? payload?['grades'];
 
     return RejectedSubmission(
       outboxRowId: entry.id,
       reason: entry.lastError ?? '',
       classRoomId: int.tryParse('${payload?['class_room_id']}'),
+      subjectId: int.tryParse('${payload?['subject_id']}'),
       date: payload?['date'] as String?,
       recordCount: records is Iterable ? records.length : null,
+      entries: records is Iterable
+          ? records.whereType<Map<Object?, Object?>>().toList()
+          : const <Map<Object?, Object?>>[],
     );
   }
 
@@ -264,8 +347,15 @@ class RejectedSubmission {
   final String reason;
 
   final int? classRoomId;
+  final int? subjectId;
   final String? date;
   final int? recordCount;
+
+  /// The rows this device tried to send, so the teacher can see exactly what
+  /// was refused rather than being told only that something was. This is the
+  /// teacher's own input on the teacher's own device -- nothing here came from
+  /// the server, and nothing here is logged.
+  final List<Map<Object?, Object?>> entries;
 
   /// The status the server answered with, where the reason carries one.
   int? get statusCode =>

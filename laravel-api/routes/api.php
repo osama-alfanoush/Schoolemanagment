@@ -222,6 +222,13 @@ Route::middleware(['auth:sanctum', 'account.active', 'token.usable:access', 'pas
                 Route::get('/roster/{classId}', [MobileTeacherController::class, 'roster'])
                     ->whereNumber('classId');
 
+                // The mark sheet, with the workflow state and every score's
+                // version, so a locked gradebook reads as locked on the phone
+                // instead of at submission time.
+                Route::get('/gradebook/{classId}/{subjectId}', [MobileTeacherController::class, 'gradebook'])
+                    ->whereNumber('classId')
+                    ->whereNumber('subjectId');
+
                 // Both writes require Idempotency-Key: this is what an offline
                 // phone drains into, so every batch will arrive twice sooner
                 // or later.

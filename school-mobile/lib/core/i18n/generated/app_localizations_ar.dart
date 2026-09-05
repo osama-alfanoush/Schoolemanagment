@@ -866,4 +866,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String attendanceRejectedOn(String date, int count) {
     return '$date — $count طالبًا';
   }
+
+  @override
+  String get gradesTitle => 'الدرجات';
+
+  @override
+  String get gradesNoItems => 'لا توجد عناصر تقييم لهذه المادة بعد.';
+
+  @override
+  String get gradesNoGradebook =>
+      'لم تُفتح دفتر درجات لهذه المادة بعد. راجع الإدارة.';
+
+  @override
+  String get gradesSave => 'حفظ وإرسال';
+
+  @override
+  String get gradesQueuedToast =>
+      'حُفظت على هذا الجهاز، وستصل المدرسة عند توفّر الاتصال.';
+
+  @override
+  String get gradesQueuedItem => 'بانتظار الإرسال';
+
+  @override
+  String get gradesInvalidEntry => 'درجة غير صالحة';
+
+  @override
+  String get gradesConflictTitle => 'رُفضت الدرجات: تغيّرت على الخادم';
+
+  @override
+  String get gradesConflictBody =>
+      'نسخة الخادم هي المعتمدة. هذه هي الدرجات التي حاولت إرسالها، أعد إدخال ما يلزم.';
+
+  @override
+  String get gradesRefusedTitle => 'رُفضت الدرجات';
+
+  @override
+  String get gradesLockedBody => 'دفتر الدرجات مغلق للتعديل في حالته الحالية.';
+
+  @override
+  String get gradebookStateDraft => 'مسودة';
+
+  @override
+  String get gradebookStateSubmitted => 'مُرسل للاعتماد';
+
+  @override
+  String get gradebookStateApproved => 'معتمد';
+
+  @override
+  String get gradebookStateFinalized => 'نهائي';
+
+  @override
+  String get gradebookStateReturned => 'مُعاد للتصحيح';
+
+  @override
+  String get gradebookStateReopened => 'مفتوح مؤقتًا';
 }

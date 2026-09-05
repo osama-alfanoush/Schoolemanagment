@@ -249,5 +249,22 @@
   "attendanceRejectedConflict": "The record on the server had changed, so this submission was not accepted.",
   "attendanceRejectedRefused": "The server refused this submission.",
   "attendanceRejectedRetry": "Take the register again and send it.",
-  "attendanceRejectedOn": "{date} — {count} students"
+  "attendanceRejectedOn": "{date} — {count} students",
+  "gradesTitle": "Grades",
+  "gradesNoItems": "No assessments have been set up for this subject yet.",
+  "gradesNoGradebook": "No gradebook has been opened for this subject yet. Ask the office.",
+  "gradesSave": "Save and send",
+  "gradesQueuedToast": "Saved on this phone. They reach the school when there is a connection.",
+  "gradesQueuedItem": "Waiting to send",
+  "gradesInvalidEntry": "Not a valid mark",
+  "gradesConflictTitle": "Marks refused: the server's copy had changed",
+  "gradesConflictBody": "The server's copy stands. These are the marks you tried to send; re-enter what is still needed.",
+  "gradesRefusedTitle": "Marks refused",
+  "gradesLockedBody": "This gradebook is not open for editing in its current state.",
+  "gradebookStateDraft": "Draft",
+  "gradebookStateSubmitted": "Submitted",
+  "gradebookStateApproved": "Approved",
+  "gradebookStateFinalized": "Finalised",
+  "gradebookStateReturned": "Returned for correction",
+  "gradebookStateReopened": "Reopened"
 }

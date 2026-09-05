@@ -283,6 +283,20 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
               photoUrlFor: (studentUserId) =>
                   '${widget.baseUrl ?? apiBaseUrl}/files/profile-photo/$studentUserId',
             ),
+        // Keyed on class and subject: a teacher who teaches two subjects to
+        // one class marks two separate sheets, and a route that named only
+        // the class would silently pick one of them.
+        AppRoute.teacherGrades: (context, state) => GradeEntryScreen(
+              controller: GradeEntryController(
+                repository: _teacherRepository,
+                classRoomId:
+                    int.tryParse(state.pathParameters['classId'] ?? '') ?? 0,
+                subjectId: int.tryParse(
+                      state.uri.queryParameters['subjectId'] ?? '',
+                    ) ??
+                    0,
+              ),
+            ),
         AppRoute.devices: (context, state) =>
             DeviceListScreen(controller: _devices),
         AppRoute.diagnostics: (context, state) => VerificationScreen(

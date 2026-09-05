@@ -444,6 +444,89 @@ class TeacherBffTest extends TestCase
         ]);
     }
 
+    /* ---------- gradebook ---------- */
+
+    public function test_the_mark_sheet_carries_the_workflow_state_and_versions(): void
+    {
+        $fixture = $this->assignment(1);
+        $component = $this->gradeItem($fixture['class'], $fixture['subject']);
+
+        $this->actingAs($fixture['teacher'])
+            ->withHeader('Idempotency-Key', (string) Str::uuid())
+            ->postJson('/api/mobile/v1/teacher/grades/batch', [
+                'class_room_id' => $fixture['class']->id,
+                'subject_id' => $fixture['subject']->id,
+                'grades' => [[
+                    'grade_component_id' => $component->id,
+                    'student_user_id' => $fixture['students'][0]->id,
+                    'score' => 18.5,
+                ]],
+            ])
+            ->assertOk();
+
+        $data = $this->actingAs($fixture['teacher'])
+            ->getJson('/api/mobile/v1/teacher/gradebook/'.$fixture['class']->id.'/'.$fixture['subject']->id)
+            ->assertOk()
+            ->json('data');
+
+        $this->assertSame('draft', $data['gradebook']['state']);
+        $this->assertTrue($data['gradebook']['editable']);
+        $this->assertSame($component->id, $data['components'][0]['id']);
+
+        $grade = $data['students'][0]['grades'][0];
+        $this->assertSame($component->id, $grade['grade_component_id']);
+        $this->assertSame('18.50', $grade['score']);
+        $this->assertSame(1, $grade['version']);
+    }
+
+    public function test_a_finalized_sheet_reports_itself_as_not_editable(): void
+    {
+        // The client must not work this out for itself: the reopen window is a
+        // timestamp, and a phone clock a day out would offer an editable sheet
+        // the server refuses.
+        $fixture = $this->assignment(1);
+        $this->gradeItem($fixture['class'], $fixture['subject'], 'finalized');
+
+        $gradebook = $this->actingAs($fixture['teacher'])
+            ->getJson('/api/mobile/v1/teacher/gradebook/'.$fixture['class']->id.'/'.$fixture['subject']->id)
+            ->assertOk()
+            ->json('data.gradebook');
+
+        $this->assertSame('finalized', $gradebook['state']);
+        $this->assertFalse($gradebook['editable']);
+    }
+
+    public function test_a_teacher_cannot_read_another_subjects_mark_sheet(): void
+    {
+        $mine = $this->assignment();
+        $theirs = $this->assignment(1);
+        $this->gradeItem($theirs['class'], $theirs['subject']);
+
+        $this->actingAs($mine['teacher'])
+            ->getJson('/api/mobile/v1/teacher/gradebook/'.$theirs['class']->id.'/'.$theirs['subject']->id)
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('audit_logs', [
+            'user_id' => $mine['teacher']->id,
+            'action' => 'authorization_denied',
+            'entity_type' => 'class_room',
+            'entity_id' => $theirs['class']->id,
+        ]);
+    }
+
+    public function test_a_subject_teacher_cannot_read_a_subject_they_do_not_teach(): void
+    {
+        // Homeroom covers the class for attendance; a subject pairing does not
+        // widen to another subject's marks.
+        $fixture = $this->assignment(1);
+        $other = Subject::factory()->create();
+        $this->gradeItem($fixture['class'], $other);
+
+        $this->actingAs($fixture['teacher'])
+            ->getJson('/api/mobile/v1/teacher/gradebook/'.$fixture['class']->id.'/'.$other->id)
+            ->assertForbidden();
+    }
+
     /* ---------- grades batch ---------- */
 
     public function test_a_grade_batch_replayed_with_the_same_key_writes_once(): void
