@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    DEBUG BUILDS ONLY. Overrides the strict config in src/main.
+
+    A debug build talks to a dev server on a laptop over plain HTTP, and the
+    release rule (no cleartext, ever) makes that impossible on a real handset.
+    This file exists in the `debug` source set, so it is compiled into debug
+    variants and *cannot* reach a release build: src/main's config is what
+    ships, and the Play Data Safety declaration's "encrypted in transit" stays
+    true for every artefact a school installs.
+
+    Cleartext is permitted only for the addresses a dev server actually lives
+    on. A wildcard here would quietly re-enable HTTP to production the first
+    time someone pointed a debug build at it.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <!-- So a proxy like Charles or mitmproxy can be trusted while
+                 debugging. Debug builds only, for the same reason. -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- The emulator's alias for the host machine. -->
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <!-- `adb reverse tcp:8000 tcp:8000`, which is the reliable way to
+             reach a laptop from a physical phone. -->
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <!-- A LAN address, when adb reverse is not an option. Replace with
+             your own machine's IP; this is the common home-router range. -->
+        <domain includeSubdomains="true">192.168.1.1</domain>
+    </domain-config>
+</network-security-config>
