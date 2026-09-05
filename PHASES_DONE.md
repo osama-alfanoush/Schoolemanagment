@@ -429,7 +429,123 @@ for them.
 
 ## PHASE 5 — Teacher app
 
-Not started.
+**Complete.** Five orders, all five delivered.
+
+### Order 5.1 — Backend: teacher BFF ✅
+
+`33b73bd`
+
+`GET /mobile/v1/teacher/today`, `GET /mobile/v1/teacher/roster/{classId}`,
+`POST /mobile/v1/teacher/attendance/batch`, `POST /mobile/v1/teacher/grades/batch`.
+
+- **Scope is a class, never a child.** Assignment is homeroom or a
+  `class_subject_teacher` pairing. The class id is a claim by the client
+  wherever it appears — path or body — so it is checked on every call and the
+  refusal is written to `audit_logs`.
+- **Attendance reuses `AttendanceService::markAttendance()`**, which already
+  carries the idempotency key, the payload-hash conflict and the edit window.
+  The window arithmetic was extracted into `AttendanceService::editWindow()` so
+  the state the client is *shown* is literally the one the server *enforces*.
+- **Grades needed a batch table of their own** (`teacher_grade_batches`).
+  `Grade` carries an optimistic `version`, so replaying writes would 409 on the
+  second attempt and read to the teacher as data loss. The key is claimed
+  before a single mark is written, so a racing send rolls back having changed
+  nothing rather than double-applying and bumping every version.
+- 22 backend tests. Negative controls: `canTeach()` forced true (3 of 4 scope
+  tests fail; the fourth is the `role:teacher` middleware, a separate guard);
+  `editWindow()` forced open (both window tests fail); the idempotency lookup
+  nulled (the replay test fails on the bumped version). All restored and green.
+- `tests/Postgres/` gains a `grade_batch` worker op and a five-process one-key
+  test. **Not executed** — that harness needs a real PostgreSQL.
+
+### Order 5.2 — Flutter: today and classes ✅
+
+`c383f37`
+
+- Two tabs off **one** payload and **one** controller. Two endpoints for "my
+  periods" and "my classes" would eventually disagree about which classes
+  exist, and the tab a teacher trusts would be whichever they opened last.
+- **Pending comes from the outbox, not from a flag.** A period has three
+  states: outstanding, waiting to send, received by the school. The middle one
+  is read from the queue on every load — the only source still right after a
+  restart, on a second device, or when a drain succeeds while the screen is not
+  looking. Dead rows are counted separately and never folded in.
+- Roster gained photos and guardian contacts on the backend, behind the same
+  assigned-class check. A photo is requested only when the server says one
+  exists; a guardian with no number gets no call button at all.
+- **New dependency: `url_launcher`** — placing a call is a platform intent with
+  no Dart equivalent. Wrapped behind `GuardianDialer` so every screen offering
+  it stays testable, including the branch that matters: a school tablet with no
+  dialer, which now says so instead of doing nothing.
+
+### Order 5.3 — Flutter: offline attendance ✅
+
+`b374e31`
+
+- Everyone starts present, pre-filled from whatever the server already has. A
+  tap toggles present/absent, a swipe marks late or excused, a long press opens
+  the full chooser and a note. Rows are 48dp. Swipes use `Dismissible` with
+  `confirmDismiss` returning false, so the row springs back with a new status
+  instead of the student leaving the class.
+- **Every student is sent, not only the exceptions.** A partial roll cannot be
+  told apart from an unfinished one.
+- The screen never touches the network: submitting enqueues, and the existing
+  `OutboxDrainer` sends it. Losing connectivity spends no attempt.
+- **Pending is displayed as pending.** The confirmation says "saved on this
+  phone"; a rejection names which submission and why, reconstructed from the
+  local row because the drainer deliberately never keeps a response body.
+- Two real controller bugs found while writing the tests: state published
+  without being awaited (a spinner that never resolved), and notifying after
+  disposal when a screen is popped mid-load.
+- Negative controls: the local window check removed; dead rows folded into the
+  pending set. Both fail the right tests, both restored.
+- ⚠️ **Still required before this ships:** the plan asks for a real teacher
+  marking a real class against paper with a stopwatch. Cannot be done from
+  here. Recorded as an open item below.
+
+### Order 5.4 — Flutter: grade entry ✅
+
+`bea493b`
+
+- New `GET /mobile/v1/teacher/gradebook/{classId}/{subjectId}`: components,
+  every recorded score with its optimistic version, the workflow state, and
+  whether the **server** considers the sheet editable. `editable` is never
+  computed on the phone — the reopen window is a timestamp, and a device clock
+  a day out would offer an editable sheet the server then refuses.
+- One assessment at a time, not a spreadsheet on a phone. A submitted, approved
+  or finalised sheet has disabled fields, an explanation and no submit button.
+  A mark above the maximum never reaches the queue; a blank cell stays blank.
+- The version read with each mark goes back with it. On a conflict the drainer
+  lets the server win and does not replay; the screen names the batch, says the
+  server's copy stands, and **lists the marks that were refused** so they can be
+  entered again.
+- Negative controls: `MarkSheet.isEditable` forced true (five tests fail); the
+  version dropped from the payload (the silent-overwrite path itself fails).
+
+### Order 5.5 — Flutter: assignments and announcements ✅
+
+`ca50aa4`
+
+- Assignment is a **draft** until published, and publishing twice is a no-op
+  rather than a second round of notifications. Existing assignments are
+  backfilled as published so nothing already live is retracted on deploy.
+- The attachment is its own call: a failed upload costs the file and nothing
+  else, is visible on screen with the assignment explicitly still saved, and
+  retries in one tap. **This is not resumable upload** — see the note below.
+- Announcements are **approved templates only**, worded in config so a change
+  needs no app release, with the exact text shown before sending. Outside the
+  school's hours the server refuses with 409 and the screen has no send button.
+  Nothing here is queued: a notice drained at midnight arrives exactly when the
+  hours exist to prevent.
+- A notice to one guardian is a *message*, not a broadcast, so the family can
+  answer it — the parent surface is reply-only and the first message decides.
+- Negative controls: server hours guard forced open; template allow-list
+  removed; assignments published on creation; the client's hours check forced
+  open. All four fail the right tests; all restored.
+
+**Phase 5 verification:** `flutter analyze --fatal-infos --fatal-warnings`
+clean, 481 Flutter tests pass, 664 backend tests pass, `flutter build apk
+--flavor dev` succeeds.
 
 ## PHASE 6 — Student app
 
@@ -453,6 +569,33 @@ Not started.
 | 6 | **JoFotara / e-invoicing integration** — none exists | A *cleared* invoice and its authority QR (order 4.2, and 4.4's receipt view) | Needs a real integration. Until then every invoice reports `clearance.state: pending` and carries no QR, which is the honest answer. |
 
 ## Notes carried forward
+
+- **Attendance timing against paper has not been measured.** Order 5.3's own
+  acceptance says to time a real teacher marking a real class with a stopwatch
+  before it ships. The screen is built for it — default all-present, one tap
+  per exception, swipes, 48dp rows — but the measurement is a field test and
+  has not happened. If the app is not faster than paper it will not be adopted,
+  and no amount of polish repairs that.
+- **The assignment attachment is retryable, not resumable.** True resumable
+  upload needs a protocol (tus or multipart-with-offsets) and server-side
+  storage of partial objects; neither exists here. What is built satisfies
+  "fails visibly": the assignment is created first, so a failed upload loses
+  only the file, the failure is on screen, and the retry is one tap. A 20 MB
+  worksheet over a bad school connection will still start from zero.
+- **No file picker is wired into the build.** `AssignmentsScreen` takes a
+  `FilePicker` and hides the attach action when it is null, so the button is
+  absent rather than present and inert. Adding a picker package is a one-line
+  change at the `SchoolSuiteApp` seam.
+- **Announcement wording lives in `config/mobile.php`, not in a table.** A
+  school that wants to edit its own templates needs an admin surface and a
+  `school_id`-scoped table; until then the templates are the same for every
+  tenant, which is correct for a single-school pilot and wrong for the second
+  school.
+- **Announcement and assignment writes are deliberately not queued offline.**
+  Only attendance and grades go through the outbox. A notice queued at four in
+  the afternoon and drained at midnight would arrive exactly when the school's
+  hours exist to prevent, and a queued assignment has no id for its attachment
+  to attach to.
 
 - **Currency is configured, not stored.** No school setting carries a currency,
   so mobile money payloads read `mobile.currency` (`JOD`) and
