@@ -427,6 +427,22 @@ what the acceptance criteria exercise. School-configurable messaging hours are
 configuration rather than a per-school setting; `school_settings` has no column
 for them.
 
+## Status
+
+| Phase | State |
+|---|---|
+| 2 — Foundation | 3 of 5 (2.2 and 2.3 blocked on FCM) |
+| 3 — Authentication | Complete |
+| 4 — Parent app | Complete |
+| 5 — Teacher app | Complete |
+| 6 — Student app | Complete |
+| 7 — Integration, hardening, release | Complete |
+
+Every order that could be built without a decision or a device has been built.
+What remains is in the blocker table at the bottom: two account/provider
+signups, two product decisions, and three measurements that need real hardware
+and real people.
+
 ## PHASE 5 — Teacher app
 
 **Complete.** Five orders, all five delivered.
@@ -616,7 +632,125 @@ tests pass, `flutter build apk --flavor dev` succeeds.
 
 ## PHASE 7 — Integration, hardening, release
 
-Not started.
+**Complete.** Seven orders, all seven delivered.
+
+### Order 7.1 — Cross-role, cache coherence, session edges ✅
+
+`b8ee99a`
+
+- ⛔ **The multi-role gap is a blocker, not a bug I fixed.**
+  `MobileBootstrapService` reports both roles for a teacher whose own child
+  attends the school; `RoleMiddleware` admits on `users.role`, which holds one
+  value. The app is told it may switch to a role the API refuses, so 7.1's
+  acceptance case cannot be exercised at all. Widening `RoleMiddleware` would
+  widen every admin, finance and HR route at the same time, so per standing
+  rule 3 this stops at the guard. `CrossRoleTest` records both halves as they
+  behave, **including the refusal**; that test is the one to invert once the
+  decision is made. See blocker 7 below.
+- ✅ **Fixed: a device carried one user's cache into the next user's session.**
+  `signOut()` cleared tokens and nothing else. `LocalDataOwner` records which
+  user the local database belongs to — in the database itself, so the record
+  cannot outlive the data it describes — and a sign-in or cold-start restore by
+  a different user clears their rows first and reports what was discarded.
+- ✅ **Signing out refuses when writes are still owed**, and says how many. It
+  is the last moment the person who queued that register is present to be
+  asked. The count travels; the contents never do. Paths where the session is
+  already dead (own device revoked, forced password change) discard explicitly.
+
+### Order 7.2 — Offline chaos ✅
+
+`f93b0e2`
+
+- ✅ **Clock skew.** A phone that thought it was next Tuesday when a failure was
+  recorded left the row waiting for a date years away. `claimNext` now treats
+  anything beyond the backoff's own ceiling as skew. A *backwards* jump makes
+  an honest backoff look like skew too, so the row retries early — the right
+  direction to err in, because every queued write carries an idempotency key.
+- ✅ **Storage full.** `enqueue` failing raised a raw exception and the register
+  would have shown "saved on this phone" for something never written. Now a
+  typed `LocalWriteFailedException` (no payload, no path, not SQLite's own
+  message, which quotes paths that hold account names) and a visible notice.
+- Already held, now asserted: a drain killed mid-flight recovers without
+  spending an attempt; no eviction touches a pending, failed or dead row.
+
+### Order 7.3 — Performance ✅
+
+`f840fb7`
+
+- ⚠️ **The wall-clock target has NOT been measured.** Cold start under two
+  seconds and a home render under one, on a three-year-old mid-range Android
+  over throttled 3G, is a measurement on the handset. Open item, alongside 5.3's
+  stopwatch test.
+- ✅ Query budgets as tripwires: a roster of thirty, a day of eight periods, a
+  parent with five children, eight assignments, one delta type. The negative
+  control takes the roster from single digits to 34 queries.
+- ✅ Render ordering: the parent home paints its cached copy while a five-second
+  request is still in flight, with no spinner; one screen costs one request; a
+  revalidate is one round trip and no body.
+
+### Order 7.4 — Accessibility ✅
+
+`41df592`
+
+- A sweep over five screens' real semantics trees: every actionable node has a
+  label, tooltip or value; every one clears 48dp; every screen renders at 200%.
+- Every screen passed first time, which is a result worth distrusting, so the
+  sweep was negative-controlled with an unlabelled 30dp icon button. Both halves
+  failed and named the offender.
+
+### Order 7.5 — Security ✅
+
+`9ee2035`
+
+- ✅ **FLAG_SECURE, per screen and counted.** Fees, invoices, class rosters
+  (guardians' phone numbers), student marks and attendance. Not the whole app:
+  a parent has every reason to screenshot a timetable, and people who cannot do
+  the ordinary thing photograph the screen with another phone. Opening an
+  invoice over the fee list must not un-protect the list on close — tested.
+- ✅ **Certificate pinning with the rotation plan in the class that implements
+  it.** SPKI, not the certificate, because a certificate is renewed every ninety
+  days and pinning it bricks every install. Two pins always: the key in use and
+  its replacement. A *release* configured with a single pin is refused at
+  construction. Ships **unpinned** — no production certificate exists yet, and
+  an empty pin list means "not pinned", which is the honest state.
+- ✅ **PII audit** across log lines, sync events, stored failure reasons, the
+  rejection a teacher reads, and exceptions.
+- ✅ Writing the Data Safety form surfaced a real gap: minSdk 24 permits
+  cleartext on Android 7 and 8, so "encrypted in transit" would have been false
+  on exactly the older handsets a pilot runs on. Now refused explicitly.
+
+### Order 7.6 — Play Store ✅
+
+`0ffae46`
+
+- ✅ Release signing from a gitignored `key.properties`, with a fallback that
+  **announces itself** — a silently debug-signed artefact that looks like a
+  release is how the wrong APK reaches a listing.
+- ✅ `store/data-safety.md`, written from the code with every row citing its
+  file, plus a section naming what would make it wrong.
+- ✅ `store/listing-ar.md`, `store/privacy-policy.md` (ar + en),
+  `store/release-checklist.md` with the content-rating answers.
+- ⛔ **Not done:** screenshots (need a device; shot list written, and it says not
+  to photograph real children), the public policy URL, the submission itself,
+  and the upload keystore — which must be generated by whoever will hold it.
+
+### Order 7.7 — Pilot support ✅
+
+`411f8ee`
+
+- Request ids on error screens were already built in 2.5; this adds the tests,
+  including that the id is *selectable*.
+- ✅ **Feature flags** finally read on the client. Defaults to on in three
+  separate ways: unknown flag, unreachable server, never-reached server. A flag
+  is how a school turns something off; treating a bad connection as "everything
+  off" turns one morning's signal problem into an outage.
+- ✅ **Diagnostics export** as plain text a teacher can read out. Counts,
+  statuses, endpoints, short reasons. Cache entity *types* go in; entity ids do
+  not, because an entity id can be a student id and a bundle gets pasted into
+  group chats.
+
+**Phase 7 verification:** analyze clean, 568 Flutter tests pass, 697 backend
+tests pass, `flutter build apk --flavor dev` succeeds.
 
 ---
 
@@ -630,6 +764,11 @@ Not started.
 | 4 | Under-13 student account policy | Phase 6 scope | Product decision |
 | 5 | **SMS provider** (none configured) | The OTP alternative in order 3.4 | Product/procurement decision. The invite-code path is built and does not need it. |
 | 6 | **JoFotara / e-invoicing integration** — none exists | A *cleared* invoice and its authority QR (order 4.2, and 4.4's receipt view) | Needs a real integration. Until then every invoice reports `clearance.state: pending` and carries no QR, which is the honest answer. |
+| 7 | **Multi-role users cannot switch roles** — `RoleMiddleware` admits on `users.role` (one value), while `school_user_roles` holds several | Order 7.1's acceptance case: a teacher whose own child attends the school | Product + security decision. Widening `RoleMiddleware` widens every admin, finance and HR route at once, so it was not touched. `CrossRoleTest::test_the_other_role_is_refused_by_the_role_middleware` is the test to invert. |
+| 8 | **Performance never measured on a handset** | Order 7.3's acceptance (cold start < 2s, home render < 1s on a 3-year-old mid-range Android over throttled 3G) | Needs a device and a throttled network. Query budgets and render ordering are held by tests; the wall clock is not. |
+| 9 | **Attendance never timed against paper** | Order 5.3's own acceptance | Needs a real teacher, a real class and a stopwatch. If the app is not faster than paper it will not be adopted. |
+| 10 | **No production certificate, so the app ships unpinned** | Order 7.5's pinning | Needs the production TLS key. The mechanism and the two-pin rotation plan are built and tested; the pins are empty, which the code treats as "not pinned" rather than pretending. |
+| 11 | **No Arabic screenshots, no public privacy-policy URL, no upload keystore** | Order 7.6's submission | Screenshots need a device; the keystore must be generated by whoever will hold it. |
 
 ## Notes carried forward
 
