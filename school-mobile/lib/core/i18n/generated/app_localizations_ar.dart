@@ -752,4 +752,80 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get timetableEmpty => 'لا يوجد جدول لهذا الصف بعد.';
+
+  @override
+  String get teacherTodayTitle => 'يومي';
+
+  @override
+  String get teacherClassesTitle => 'صفوفي';
+
+  @override
+  String get teacherNoPeriods => 'لا توجد حصص مسجّلة اليوم.';
+
+  @override
+  String get teacherNoClasses => 'لم تُسنَد إليك أي صفوف بعد.';
+
+  @override
+  String get attendanceOutstanding => 'لم يُرصد الحضور';
+
+  @override
+  String get attendanceQueued => 'بانتظار الإرسال';
+
+  @override
+  String get attendanceSubmitted => 'وصل المدرسة';
+
+  @override
+  String get attendanceQueuedExplained =>
+      'محفوظ على هذا الجهاز فقط، ولم يصل المدرسة بعد.';
+
+  @override
+  String get attendanceWindowClosed => 'انتهت مهلة تعديل الحضور لهذا اليوم.';
+
+  @override
+  String get attendanceRejectedTitle => 'إرسال حضور مرفوض';
+
+  @override
+  String get rosterTitle => 'قائمة الصف';
+
+  @override
+  String get rosterSearchHint => 'ابحث بالاسم أو رقم القيد';
+
+  @override
+  String get rosterEmpty => 'لا يوجد طلاب في هذا الصف.';
+
+  @override
+  String get rosterNoMatch => 'لا نتائج مطابقة.';
+
+  @override
+  String get homeroomBadge => 'مربّي الصف';
+
+  @override
+  String get guardianContactTitle => 'التواصل مع ولي الأمر';
+
+  @override
+  String get guardianNone => 'لا يوجد ولي أمر مسجّل.';
+
+  @override
+  String get guardianNoPhone => 'لا يوجد رقم مسجّل.';
+
+  @override
+  String get guardianCall => 'اتصال';
+
+  @override
+  String get guardianCallFailed => 'تعذّر بدء الاتصال.';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
+  }
 }

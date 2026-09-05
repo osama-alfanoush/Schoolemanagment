@@ -1381,6 +1381,132 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'لا يوجد جدول لهذا الصف بعد.'**
   String get timetableEmpty;
+
+  /// Title of the teacher's day screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'يومي'**
+  String get teacherTodayTitle;
+
+  /// Title of the teacher's class list.
+  ///
+  /// In ar, this message translates to:
+  /// **'صفوفي'**
+  String get teacherClassesTitle;
+
+  /// Empty state for the teacher's day.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد حصص مسجّلة اليوم.'**
+  String get teacherNoPeriods;
+
+  /// Empty state for the teacher's class list.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تُسنَد إليك أي صفوف بعد.'**
+  String get teacherNoClasses;
+
+  /// Attendance has not been taken for this period.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يُرصد الحضور'**
+  String get attendanceOutstanding;
+
+  /// Attendance is queued on the device, not yet at the school.
+  ///
+  /// In ar, this message translates to:
+  /// **'بانتظار الإرسال'**
+  String get attendanceQueued;
+
+  /// Attendance has reached the server.
+  ///
+  /// In ar, this message translates to:
+  /// **'وصل المدرسة'**
+  String get attendanceSubmitted;
+
+  /// Explains that a queued submission is not saved upstream.
+  ///
+  /// In ar, this message translates to:
+  /// **'محفوظ على هذا الجهاز فقط، ولم يصل المدرسة بعد.'**
+  String get attendanceQueuedExplained;
+
+  /// Fallback when the server gives no reason for a closed window.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مهلة تعديل الحضور لهذا اليوم.'**
+  String get attendanceWindowClosed;
+
+  /// Heading for attendance batches the sync engine gave up on.
+  ///
+  /// In ar, this message translates to:
+  /// **'إرسال حضور مرفوض'**
+  String get attendanceRejectedTitle;
+
+  /// Title of the class roster screen.
+  ///
+  /// In ar, this message translates to:
+  /// **'قائمة الصف'**
+  String get rosterTitle;
+
+  /// Hint for the roster search field.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث بالاسم أو رقم القيد'**
+  String get rosterSearchHint;
+
+  /// Empty state for a roster.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد طلاب في هذا الصف.'**
+  String get rosterEmpty;
+
+  /// Shown when a roster search matches nothing.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا نتائج مطابقة.'**
+  String get rosterNoMatch;
+
+  /// Marks a class the teacher is homeroom teacher of.
+  ///
+  /// In ar, this message translates to:
+  /// **'مربّي الصف'**
+  String get homeroomBadge;
+
+  /// Title of the guardian contact sheet.
+  ///
+  /// In ar, this message translates to:
+  /// **'التواصل مع ولي الأمر'**
+  String get guardianContactTitle;
+
+  /// Shown when a student has no guardian on file.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد ولي أمر مسجّل.'**
+  String get guardianNone;
+
+  /// Shown when a guardian has no phone number on file.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا يوجد رقم مسجّل.'**
+  String get guardianNoPhone;
+
+  /// Starts a call to a guardian.
+  ///
+  /// In ar, this message translates to:
+  /// **'اتصال'**
+  String get guardianCall;
+
+  /// Shown when the dialer could not be opened.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر بدء الاتصال.'**
+  String get guardianCallFailed;
+
+  /// Number of students in a class.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count, plural, =0{لا طلاب} =1{طالب واحد} =2{طالبان} few{{count} طلاب} many{{count} طالبًا} other{{count} طالب}}'**
+  String studentCount(int count);
 }
 
 class _AppLocalizationsDelegate

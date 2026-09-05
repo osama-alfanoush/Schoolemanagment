@@ -15802,6 +15802,16 @@ paths:
                               type: string
                             admission_no:
                               type: string
+                            has_photo:
+                              type: string
+                              description: |-
+                                Whether to ask for one, not where it lives. The photo
+                                itself comes from the guarded file route.
+                            guardians:
+                              type: array
+                              items:
+                                type: object
+                                additionalProperties: {  }
                             status:
                               type:
                                 - string
@@ -15818,6 +15828,8 @@ paths:
                             - student_user_id
                             - name
                             - admission_no
+                            - has_photo
+                            - guardians
                             - status
                             - note
                             - scope_key

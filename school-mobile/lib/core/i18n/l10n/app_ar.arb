@@ -890,5 +890,94 @@
   "timetableEmpty": "لا يوجد جدول لهذا الصف بعد.",
   "@timetableEmpty": {
     "description": "Empty state for the timetable."
+  },
+  "teacherTodayTitle": "يومي",
+  "@teacherTodayTitle": {
+    "description": "Title of the teacher's day screen."
+  },
+  "teacherClassesTitle": "صفوفي",
+  "@teacherClassesTitle": {
+    "description": "Title of the teacher's class list."
+  },
+  "teacherNoPeriods": "لا توجد حصص مسجّلة اليوم.",
+  "@teacherNoPeriods": {
+    "description": "Empty state for the teacher's day."
+  },
+  "teacherNoClasses": "لم تُسنَد إليك أي صفوف بعد.",
+  "@teacherNoClasses": {
+    "description": "Empty state for the teacher's class list."
+  },
+  "attendanceOutstanding": "لم يُرصد الحضور",
+  "@attendanceOutstanding": {
+    "description": "Attendance has not been taken for this period."
+  },
+  "attendanceQueued": "بانتظار الإرسال",
+  "@attendanceQueued": {
+    "description": "Attendance is queued on the device, not yet at the school."
+  },
+  "attendanceSubmitted": "وصل المدرسة",
+  "@attendanceSubmitted": {
+    "description": "Attendance has reached the server."
+  },
+  "attendanceQueuedExplained": "محفوظ على هذا الجهاز فقط، ولم يصل المدرسة بعد.",
+  "@attendanceQueuedExplained": {
+    "description": "Explains that a queued submission is not saved upstream."
+  },
+  "attendanceWindowClosed": "انتهت مهلة تعديل الحضور لهذا اليوم.",
+  "@attendanceWindowClosed": {
+    "description": "Fallback when the server gives no reason for a closed window."
+  },
+  "attendanceRejectedTitle": "إرسال حضور مرفوض",
+  "@attendanceRejectedTitle": {
+    "description": "Heading for attendance batches the sync engine gave up on."
+  },
+  "rosterTitle": "قائمة الصف",
+  "@rosterTitle": {
+    "description": "Title of the class roster screen."
+  },
+  "rosterSearchHint": "ابحث بالاسم أو رقم القيد",
+  "@rosterSearchHint": {
+    "description": "Hint for the roster search field."
+  },
+  "rosterEmpty": "لا يوجد طلاب في هذا الصف.",
+  "@rosterEmpty": {
+    "description": "Empty state for a roster."
+  },
+  "rosterNoMatch": "لا نتائج مطابقة.",
+  "@rosterNoMatch": {
+    "description": "Shown when a roster search matches nothing."
+  },
+  "homeroomBadge": "مربّي الصف",
+  "@homeroomBadge": {
+    "description": "Marks a class the teacher is homeroom teacher of."
+  },
+  "guardianContactTitle": "التواصل مع ولي الأمر",
+  "@guardianContactTitle": {
+    "description": "Title of the guardian contact sheet."
+  },
+  "guardianNone": "لا يوجد ولي أمر مسجّل.",
+  "@guardianNone": {
+    "description": "Shown when a student has no guardian on file."
+  },
+  "guardianNoPhone": "لا يوجد رقم مسجّل.",
+  "@guardianNoPhone": {
+    "description": "Shown when a guardian has no phone number on file."
+  },
+  "guardianCall": "اتصال",
+  "@guardianCall": {
+    "description": "Starts a call to a guardian."
+  },
+  "guardianCallFailed": "تعذّر بدء الاتصال.",
+  "@guardianCallFailed": {
+    "description": "Shown when the dialer could not be opened."
+  },
+  "studentCount": "{count, plural, =0{لا طلاب} =1{طالب واحد} =2{طالبان} few{{count} طلاب} many{{count} طالبًا} other{{count} طالب}}",
+  "@studentCount": {
+    "description": "Number of students in a class.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

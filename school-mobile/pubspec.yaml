@@ -25,6 +25,10 @@ dependencies:
   one_of_serializer: 1.5.0
   path_provider: 2.1.6
   sqlite3: 3.5.2
+  # Only for "call this student's guardian". Placing a call is a platform
+  # intent; there is no way to do it from Dart. Wrapped behind GuardianDialer
+  # so every screen that offers it stays testable.
+  url_launcher: 6.3.2
 
 dev_dependencies:
   flutter_test:

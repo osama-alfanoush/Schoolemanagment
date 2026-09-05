@@ -25,6 +25,7 @@ import 'features/diagnostics/verification_screen.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/parent/parent.dart';
 import 'features/security/security.dart';
+import 'features/teacher/teacher.dart';
 
 /// Where the API lives. Injected at build time; there is no default and no
 /// host anywhere in the source.
@@ -45,6 +46,7 @@ class SchoolSuiteApp extends StatefulWidget {
     this.baseUrl,
     this.biometricGate,
     this.database,
+    this.guardianDialer,
   });
 
   /// Credential storage. Defaults to the platform keystore.
@@ -69,6 +71,11 @@ class SchoolSuiteApp extends StatefulWidget {
   /// directory, which is reached through a platform channel no test host
   /// provides — hence the seam.
   final AppDatabase? database;
+
+  /// Places the call behind "contact guardian". Defaults to the platform
+  /// dialer, which is an intent and therefore another channel a test host
+  /// does not have.
+  final GuardianDialer? guardianDialer;
 
   @override
   State<SchoolSuiteApp> createState() => _SchoolSuiteAppState();
@@ -99,6 +106,8 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
   late final ParentHomeController _parentHome;
   late final ParentFeesController _parentFees;
   late final ParentInboxController _parentInbox;
+  late final TeacherRepository _teacherRepository;
+  late final TeacherDayController _teacherDay;
   late final SessionController _session;
   late final GoRouter _router;
   StreamSubscription<void>? _unauthenticated;
@@ -178,6 +187,15 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
       repository: ParentInboxRepository(dio: _apiClient.dio),
     );
 
+    // One repository and one day controller shared by the two teacher tabs.
+    // They read the same payload, and two of each would eventually disagree
+    // about which classes exist.
+    _teacherRepository = TeacherRepository(
+      dio: _apiClient.dio,
+      database: _database,
+    );
+    _teacherDay = TeacherDayController(repository: _teacherRepository);
+
     _devices = DeviceListController(
       api: DeviceApi(dio: _apiClient.dio),
       tokenStore: _tokenStore,
@@ -221,6 +239,35 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
                     int.tryParse(state.pathParameters['invoiceId'] ?? '') ?? 0,
               ),
             ),
+        AppRoute.teacherToday: (context, state) => TeacherTodayScreen(
+              controller: _teacherDay,
+              onOpenAttendance: (period) => context.goNamed(
+                AppRoute.teacherClassRoster.routeName,
+                pathParameters: <String, String>{
+                  'classId': '${period.classRoomId}',
+                },
+              ),
+            ),
+        AppRoute.teacherClasses: (context, state) => TeacherClassesScreen(
+              controller: _teacherDay,
+              onOpenClass: (classRoom) => context.goNamed(
+                AppRoute.teacherClassRoster.routeName,
+                pathParameters: <String, String>{'classId': '${classRoom.id}'},
+              ),
+            ),
+        // Built per class rather than held, so opening a second roster cannot
+        // show the first class's students while it loads.
+        AppRoute.teacherClassRoster: (context, state) => ClassRosterScreen(
+              controller: ClassRosterController(
+                repository: _teacherRepository,
+                classRoomId:
+                    int.tryParse(state.pathParameters['classId'] ?? '') ?? 0,
+                date: _teacherDay.date,
+              ),
+              dialer: widget.guardianDialer ?? const PhoneDialer(),
+              photoUrlFor: (studentUserId) =>
+                  '${widget.baseUrl ?? apiBaseUrl}/files/profile-photo/$studentUserId',
+            ),
         AppRoute.devices: (context, state) =>
             DeviceListScreen(controller: _devices),
         AppRoute.diagnostics: (context, state) => VerificationScreen(
@@ -256,6 +303,7 @@ class _SchoolSuiteAppState extends State<SchoolSuiteApp> {
     unawaited(_unauthenticated?.cancel());
     _router.dispose();
     _changePassword.dispose();
+    _teacherDay.dispose();
     _parentInbox.dispose();
     _parentFees.dispose();
     _parentHome.dispose();

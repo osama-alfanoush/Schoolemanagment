@@ -39,6 +39,9 @@ enum AppRoute {
 
   teacherToday('teacherToday', '/teacher', AppRole.teacher),
   teacherClasses('teacherClasses', '/teacher/classes', AppRole.teacher),
+
+  /// One class's roll: photos, student lookup, and the guardians to call.
+  teacherClassRoster('teacherClassRoster', '/teacher/classes/:classId', AppRole.teacher),
   teacherAttendance('teacherAttendance', '/teacher/classes/:classId/attendance', AppRole.teacher),
   teacherGrades('teacherGrades', '/teacher/classes/:classId/grades', AppRole.teacher),
   teacherMessages('teacherMessages', '/teacher/messages', AppRole.teacher),

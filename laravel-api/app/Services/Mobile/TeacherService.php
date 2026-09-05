@@ -205,6 +205,13 @@ final class TeacherService
      * form pre-filled and offline. Sending an empty form and letting a teacher
      * re-enter a day they already marked is how duplicates happen.
      *
+     * Guardian names and numbers travel with it for the same reason: the one
+     * thing a teacher needs a phone for mid-lesson is to reach a parent, and a
+     * contact that requires a connection is a contact they do not have when
+     * they need it. This is the payload's only personal data beyond the roll,
+     * it is reachable only through the assigned-class check above, and it is
+     * never written to a log.
+     *
      * @return array<string, mixed>
      */
     public function roster(int $classRoomId, int $schoolId, ?Carbon $date = null): array
@@ -221,7 +228,13 @@ final class TeacherService
                 'student_profiles.user_id',
                 'student_profiles.admission_no',
                 'users.name',
+                'users.photo_path',
             ]);
+
+        $guardians = $this->guardiansOf(
+            $students->pluck('user_id')->map(static fn ($id): int => (int) $id)->all(),
+            $schoolId,
+        );
 
         $existing = DB::table('attendance_records')
             ->where('school_id', $schoolId)
@@ -234,19 +247,65 @@ final class TeacherService
             'class_room_id' => $classRoomId,
             'date' => $isoDate,
             'attendance_window' => $this->attendance->editWindow($isoDate),
-            'students' => $students->map(static function ($row) use ($existing): array {
+            'students' => $students->map(static function ($row) use ($existing, $guardians): array {
                 $mark = $existing->get($row->user_id);
 
                 return [
                     'student_user_id' => (int) $row->user_id,
                     'name' => $row->name,
                     'admission_no' => $row->admission_no,
+                    // Whether to ask for one, not where it lives. The photo
+                    // itself comes from the guarded file route.
+                    'has_photo' => $row->photo_path !== null && $row->photo_path !== '',
+                    'guardians' => $guardians[(int) $row->user_id] ?? [],
                     'status' => $mark->status ?? null,
                     'note' => $mark->note ?? null,
                     'scope_key' => $mark->scope_key ?? null,
                 ];
             })->all(),
         ];
+    }
+
+    /**
+     * Guardians for a set of students, one query for the whole class.
+     *
+     * The pivot is school-scoped, so a guardian linked in another school is
+     * not reachable from this one.
+     *
+     * @param  list<int>  $studentIds
+     * @return array<int, list<array<string, mixed>>>
+     */
+    private function guardiansOf(array $studentIds, int $schoolId): array
+    {
+        if ($studentIds === []) {
+            return [];
+        }
+
+        $rows = DB::table('parent_student')
+            ->join('users', 'users.id', '=', 'parent_student.parent_user_id')
+            ->where('parent_student.school_id', $schoolId)
+            ->whereIn('parent_student.student_user_id', $studentIds)
+            ->where('users.is_active', true)
+            ->orderBy('users.name')
+            ->get([
+                'parent_student.student_user_id',
+                'parent_student.relation',
+                'users.id as guardian_user_id',
+                'users.name',
+                'users.phone',
+            ]);
+
+        $byStudent = [];
+        foreach ($rows as $row) {
+            $byStudent[(int) $row->student_user_id][] = [
+                'guardian_user_id' => (int) $row->guardian_user_id,
+                'name' => $row->name,
+                'relation' => $row->relation,
+                'phone' => $row->phone,
+            ];
+        }
+
+        return $byStudent;
     }
 
     /* ---------- grades ---------- */

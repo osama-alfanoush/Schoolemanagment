@@ -261,6 +261,58 @@ class TeacherBffTest extends TestCase
         $this->assertSame(['late', 'late'], array_column($students, 'status'));
     }
 
+    public function test_a_roster_carries_the_guardians_a_teacher_would_call(): void
+    {
+        // The one thing a teacher needs a phone for mid-lesson. A contact that
+        // requires a connection is a contact they do not have when they need it.
+        $fixture = $this->assignment(1);
+        $guardian = User::factory()->parentRole()->create([
+            'name' => 'أم ليان',
+            'phone' => '0790000000',
+        ]);
+        $fixture['students'][0]->parents()->attach($guardian);
+
+        $students = $this->actingAs($fixture['teacher'])
+            ->getJson('/api/mobile/v1/teacher/roster/'.$fixture['class']->id)
+            ->assertOk()
+            ->json('data.students');
+
+        $this->assertSame('0790000000', $students[0]['guardians'][0]['phone']);
+        $this->assertSame('أم ليان', $students[0]['guardians'][0]['name']);
+        $this->assertFalse($students[0]['has_photo']);
+    }
+
+    public function test_guardian_numbers_are_unreachable_through_an_unassigned_class(): void
+    {
+        $mine = $this->assignment();
+        $theirs = $this->assignment(1);
+        $guardian = User::factory()->parentRole()->create(['phone' => '0791111111']);
+        $theirs['students'][0]->parents()->attach($guardian);
+
+        $body = (string) $this->actingAs($mine['teacher'])
+            ->getJson('/api/mobile/v1/teacher/roster/'.$theirs['class']->id)
+            ->assertForbidden()
+            ->getContent();
+
+        $this->assertStringNotContainsString('0791111111', $body);
+    }
+
+    public function test_a_guardian_number_is_never_written_to_the_audit_log(): void
+    {
+        $mine = $this->assignment();
+        $theirs = $this->assignment(1);
+        $guardian = User::factory()->parentRole()->create(['phone' => '0792222222']);
+        $theirs['students'][0]->parents()->attach($guardian);
+
+        $this->actingAs($mine['teacher'])
+            ->getJson('/api/mobile/v1/teacher/roster/'.$theirs['class']->id)
+            ->assertForbidden();
+
+        foreach (DB::table('audit_logs')->pluck('changes') as $changes) {
+            $this->assertStringNotContainsString('0792222222', (string) $changes);
+        }
+    }
+
     /* ---------- attendance batch ---------- */
 
     public function test_a_batch_replayed_with_the_same_key_produces_one_submission(): void

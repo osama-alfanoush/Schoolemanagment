@@ -205,6 +205,7 @@ GoRouter buildAppRouter({
           <AppRoute>[AppRoute.teacherToday],
           <AppRoute>[
             AppRoute.teacherClasses,
+            AppRoute.teacherClassRoster,
             AppRoute.teacherAttendance,
             AppRoute.teacherGrades,
           ],

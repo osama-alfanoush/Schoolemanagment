@@ -742,4 +742,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get timetableEmpty => 'No timetable for this class yet.';
+
+  @override
+  String get teacherTodayTitle => 'My day';
+
+  @override
+  String get teacherClassesTitle => 'My classes';
+
+  @override
+  String get teacherNoPeriods => 'No periods scheduled today.';
+
+  @override
+  String get teacherNoClasses => 'No classes have been assigned to you yet.';
+
+  @override
+  String get attendanceOutstanding => 'Attendance not taken';
+
+  @override
+  String get attendanceQueued => 'Waiting to send';
+
+  @override
+  String get attendanceSubmitted => 'Received by the school';
+
+  @override
+  String get attendanceQueuedExplained =>
+      'Saved on this phone only. The school does not have it yet.';
+
+  @override
+  String get attendanceWindowClosed =>
+      'The window for editing this day\'s attendance has closed.';
+
+  @override
+  String get attendanceRejectedTitle => 'Attendance that was rejected';
+
+  @override
+  String get rosterTitle => 'Class roster';
+
+  @override
+  String get rosterSearchHint => 'Search by name or admission number';
+
+  @override
+  String get rosterEmpty => 'There are no students in this class.';
+
+  @override
+  String get rosterNoMatch => 'No matching students.';
+
+  @override
+  String get homeroomBadge => 'Homeroom';
+
+  @override
+  String get guardianContactTitle => 'Contact a guardian';
+
+  @override
+  String get guardianNone => 'No guardian is on file for this student.';
+
+  @override
+  String get guardianNoPhone => 'No phone number on file.';
+
+  @override
+  String get guardianCall => 'Call';
+
+  @override
+  String get guardianCallFailed => 'The dialer could not be opened.';
+
+  @override
+  String studentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+      zero: 'No students',
+    );
+    return '$_temp0';
+  }
 }
