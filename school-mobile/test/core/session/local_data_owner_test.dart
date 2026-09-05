@@ -4,7 +4,6 @@ import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:school_mobile/core/api/api.dart';
 import 'package:school_mobile/core/db/app_database.dart';
-import 'package:school_mobile/core/db/tables.dart';
 import 'package:school_mobile/core/session/session.dart';
 import 'package:school_mobile/features/auth/auth.dart';
 

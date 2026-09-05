@@ -1096,4 +1096,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get attendanceAbsentDays => 'أيام الغياب';
+
+  @override
+  String get localWriteFailed =>
+      'تعذّر الحفظ على هذا الجهاز. لم يُسجَّل شيء ولم يُرسل. تحقّق من مساحة التخزين وأعد المحاولة.';
 }

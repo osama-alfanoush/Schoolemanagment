@@ -1335,5 +1335,9 @@
   "attendanceAbsentDays": "أيام الغياب",
   "@attendanceAbsentDays": {
     "description": "Label for the number of days a student was absent."
+  },
+  "localWriteFailed": "تعذّر الحفظ على هذا الجهاز. لم يُسجَّل شيء ولم يُرسل. تحقّق من مساحة التخزين وأعد المحاولة.",
+  "@localWriteFailed": {
+    "description": "Shown when the device could not record a queued write, usually a full disk."
   }
 }

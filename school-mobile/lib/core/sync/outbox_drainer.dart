@@ -123,7 +123,13 @@ class OutboxDrainer {
     try {
       // Bounded so a misbehaving row can never spin the loop forever.
       for (var i = 0; i < 10000; i++) {
-        final entry = await database.claimNext(now: _clock());
+        final entry = await database.claimNext(
+          now: _clock(),
+          // The same ceiling the backoff itself uses, so a row parked beyond
+          // it by a wrong device clock is recognised as skew rather than
+          // waited on for ever.
+          maxBackoff: backoff.max,
+        );
         if (entry == null) break;
 
         sent++;

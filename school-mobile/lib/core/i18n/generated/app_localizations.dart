@@ -2017,6 +2017,12 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'أيام الغياب'**
   String get attendanceAbsentDays;
+
+  /// Shown when the device could not record a queued write, usually a full disk.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر الحفظ على هذا الجهاز. لم يُسجَّل شيء ولم يُرسل. تحقّق من مساحة التخزين وأعد المحاولة.'**
+  String get localWriteFailed;
 }
 
 class _AppLocalizationsDelegate

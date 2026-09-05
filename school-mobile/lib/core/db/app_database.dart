@@ -130,8 +130,25 @@ class AppDatabase extends _$AppDatabase {
   /// claimable, so two concurrent drains can never take the same row. If a
   /// row is lost to a competing drain the loop moves on to the next candidate
   /// rather than reporting "nothing to do".
-  Future<OutboxEntry?> claimNext({DateTime? now}) {
+  Future<OutboxEntry?> claimNext({
+    DateTime? now,
+    Duration maxBackoff = const Duration(hours: 6),
+  }) {
     final at = now ?? DateTime.now();
+
+    // A backoff can never legitimately reach further ahead than its own
+    // ceiling. Anything beyond that was written while the device clock was
+    // wrong -- a phone that thought it was next Tuesday, or a manual change
+    // -- and without this the row waits for a date that is now in the future
+    // for ever. The queue's promise is that no write is lost, and a write
+    // stranded by a clock is lost as surely as one deleted.
+    //
+    // A clock that jumps *backwards* makes an honest backoff look like skew
+    // too, so the row is retried earlier than intended. That is the direction
+    // to err in: every queued write carries an idempotency key, so an early
+    // retry costs one request and the server deduplicates it, whereas the
+    // other direction costs a teacher their register.
+    final skewHorizon = at.add(maxBackoff);
 
     return transaction(() async {
       // Bounded so a pathological loser can never spin forever.
@@ -143,7 +160,8 @@ class AppDatabase extends _$AppDatabase {
                   ]))
               ..where((t) =>
                   t.nextAttemptAt.isNull() |
-                  t.nextAttemptAt.isSmallerOrEqualValue(at))
+                  t.nextAttemptAt.isSmallerOrEqualValue(at) |
+                  t.nextAttemptAt.isBiggerThanValue(skewHorizon))
               ..orderBy(<OrderClauseGenerator<$LocalOutboxTable>>[
                 (t) => OrderingTerm.asc(t.createdAt),
                 (t) => OrderingTerm.asc(t.id),

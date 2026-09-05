@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_error.dart';
+import '../../../core/db/database_errors.dart';
 import '../../../core/i18n/generated/app_localizations.dart';
 import '../../../shared/shared.dart';
 import '../data/teacher_repository.dart';
@@ -57,10 +58,15 @@ class AttendanceController extends ChangeNotifier {
   AttendanceDraft? _draft;
   bool _submitting = false;
   bool _disposed = false;
+  bool _couldNotSaveLocally = false;
 
   ScreenState<AttendanceView> get state => _state;
 
   bool get submitting => _submitting;
+
+  /// True when the device itself refused the write — a full disk, most often.
+  /// Kept apart from every server-side refusal: nothing was recorded at all.
+  bool get couldNotSaveLocally => _couldNotSaveLocally;
 
   Future<void> load() async {
     final cached = await repository.cachedRoster(classRoomId, date);
@@ -124,9 +130,20 @@ class AttendanceController extends ChangeNotifier {
     if (!roster.window.isOpen) return false;
 
     _submitting = true;
+    _couldNotSaveLocally = false;
     notifyListeners();
 
-    await repository.queueAttendance(draft);
+    try {
+      await repository.queueAttendance(draft);
+    } on LocalDatabaseException {
+      // Nothing was written, so nothing may be claimed. Saying "saved on this
+      // phone" here is the one lie this screen must never tell.
+      _submitting = false;
+      _couldNotSaveLocally = true;
+      if (!_disposed) notifyListeners();
+
+      return false;
+    }
 
     _submitting = false;
     if (_disposed) return true;
@@ -282,6 +299,25 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             padding: const EdgeInsetsDirectional.only(bottom: 96),
             children: <Widget>[
               _Summary(draft: value.draft),
+              if (widget.controller.couldNotSaveLocally)
+                Container(
+                  key: const Key('attendance-local-write-failed'),
+                  margin: const EdgeInsetsDirectional.all(Dimens.gutter),
+                  padding: const EdgeInsetsDirectional.all(Dimens.gap),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      l10n.localWriteFailed,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                          ),
+                    ),
+                  ),
+                ),
               if (!value.window.isOpen) _ClosedWindow(window: value.window),
               if (value.isQueued) const _QueuedNotice(),
               for (final rejection in value.rejected)

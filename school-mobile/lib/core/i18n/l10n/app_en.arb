@@ -319,5 +319,6 @@
   "studentSendEmpty": "Write an answer or attach a file.",
   "studentLateWarning": "The deadline has passed; your hand-in will be recorded as late.",
   "attendancePresentPercent": "Attendance",
-  "attendanceAbsentDays": "Days absent"
+  "attendanceAbsentDays": "Days absent",
+  "localWriteFailed": "This phone could not save it. Nothing was recorded and nothing was sent. Check the storage space and try again."
 }

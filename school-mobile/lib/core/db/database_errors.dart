@@ -45,3 +45,18 @@ class DatabaseEncryptionUnavailableException extends LocalDatabaseException {
 class DatabaseMigrationException extends LocalDatabaseException {
   const DatabaseMigrationException(super.message);
 }
+
+/// A queued write could not be recorded on this device.
+///
+/// A full disk, most often. It matters more than an ordinary write failure
+/// because the queue is what the offline screens promise: a teacher told
+/// "saved on this phone" when nothing was written has been lied to, and will
+/// walk away from a register nobody has.
+///
+/// Carries no payload and no file path -- only that it happened.
+class LocalWriteFailedException extends LocalDatabaseException {
+  const LocalWriteFailedException([
+    super.message = 'This device could not save the queued write. '
+        'It has not been recorded and has not been sent.',
+  ]);
+}

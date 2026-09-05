@@ -1089,4 +1089,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attendanceAbsentDays => 'Days absent';
+
+  @override
+  String get localWriteFailed =>
+      'This phone could not save it. Nothing was recorded and nothing was sent. Check the storage space and try again.';
 }

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/api/api_error.dart';
 import '../../../core/auth/secure_random.dart';
 import '../../../core/db/app_database.dart';
+import '../../../core/db/database_errors.dart';
 import '../../../core/db/tables.dart';
 import '../domain/attendance_draft.dart';
 import '../domain/gradebook.dart';
@@ -100,12 +101,35 @@ class TeacherRepository {
   ///
   /// Enqueue, not send, for the same reason attendance is: a staff room with
   /// no signal is where marks actually get entered.
-  Future<OutboxEntry> queueGrades(GradeDraft draft) => database.enqueue(
+  Future<OutboxEntry> queueGrades(GradeDraft draft) => _enqueue(
         endpoint: TeacherEndpoints.gradesBatch,
-        method: 'POST',
         payloadJson: jsonEncode(draft.toPayload()),
+      );
+
+  /// Records a queued write, or says plainly that it could not.
+  ///
+  /// A full disk is the case that matters. Telling a teacher "saved on this
+  /// phone" when nothing was written is worse than any error message: they
+  /// walk away, and nobody has the register.
+  Future<OutboxEntry> _enqueue({
+    required String endpoint,
+    required String payloadJson,
+  }) async {
+    try {
+      return await database.enqueue(
+        endpoint: endpoint,
+        method: 'POST',
+        payloadJson: payloadJson,
         idempotencyKey: randomUuidV4(),
       );
+    } on LocalDatabaseException {
+      rethrow;
+    } catch (_) {
+      // Deliberately not the driver's message: SQLite quotes file paths, and
+      // a path carries the account name.
+      throw const LocalWriteFailedException();
+    }
+  }
 
   /// Grade items with a batch still owed to the server for this class.
   ///
@@ -374,11 +398,9 @@ class TeacherRepository {
   /// correction, not a replay, and it has to reach the server as its own
   /// batch; the queue drains in creation order and the server upserts by
   /// student and date, so the correction lands last and wins.
-  Future<OutboxEntry> queueAttendance(AttendanceDraft draft) => database.enqueue(
+  Future<OutboxEntry> queueAttendance(AttendanceDraft draft) => _enqueue(
         endpoint: TeacherEndpoints.attendanceBatch,
-        method: 'POST',
         payloadJson: jsonEncode(draft.toPayload()),
-        idempotencyKey: randomUuidV4(),
       );
 
   /// Whether a batch for this class and date is still owed to the server.
