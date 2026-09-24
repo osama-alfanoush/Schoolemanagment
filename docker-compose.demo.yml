@@ -1,0 +1,110 @@
+# Public customer demo served from THIS machine over a Cloudflare quick tunnel.
+#
+# Why this exists: Railway restricts a new workspace until a card is attached,
+# and Render needs a signup. This needs neither -- it runs the same
+# single-origin image (Dockerfile.demo) locally and Cloudflare publishes it on a
+# temporary https:// hostname.
+#
+# The tunnel runs as a container too, so nothing is installed on the host.
+#
+# Usage, from the repo root:
+#   APP_KEY="base64:..." RUN_SEED=true docker compose -f docker-compose.demo.yml up -d --build
+#   docker compose -f docker-compose.demo.yml logs tunnel | grep trycloudflare
+# Afterwards, restart without RUN_SEED so a restart never wipes the customer's
+# work:
+#   APP_KEY="base64:..." docker compose -f docker-compose.demo.yml up -d
+#
+# The link lives only as long as this machine is awake and the tunnel container
+# is running, and a new tunnel gets a different hostname.
+
+name: school-demo
+
+services:
+  app:
+    build:
+      # Repo root, because the image builds school-web/ and laravel-api/ into
+      # one container.
+      context: .
+      dockerfile: Dockerfile.demo
+    environment:
+      APP_NAME: "School Management"
+      # staging, not production: ops:preflight-env returns early outside
+      # production and would otherwise refuse to boot with a local uploads disk.
+      APP_ENV: staging
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY:?Set APP_KEY, e.g. node -e "console.log('base64:'+require('crypto').randomBytes(32).toString('base64'))"}
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: pgsql
+      # One URL covers both the pgsql and pgsql_direct connections -- the latter
+      # is what the entrypoint runs migrations over.
+      DB_URL: postgres://school:demo-not-a-secret@postgres:5432/school_demo
+      # file, not database: `migrate --isolated` takes a cache lock before
+      # migrating, and on a fresh database the cache table does not exist yet.
+      CACHE_STORE: file
+      SESSION_DRIVER: file
+      QUEUE_CONNECTION: sync
+      # Cloudflare terminates TLS and forwards X-Forwarded-Proto: https. With
+      # the proxy trusted, Laravel sees a secure request and will emit these
+      # cookies; without it the cookies would be set and then never sent back.
+      SESSION_SECURE_COOKIE: "true"
+      WEB_AUTH_COOKIE_SECURE: "true"
+      TRUSTED_PROXIES: "*"
+      # Off for the demo ONLY. config/mfa.php enables MFA by default and
+      # MFA_REQUIRED_ROLES covers every seeded account (admin, finance, hr,
+      # warehouse, procurement), so a first login returns 202 with
+      # mfa_enrollment_required and the customer is trapped in a TOTP
+      # enrollment screen before seeing a single page. MFA stays on everywhere
+      # else -- it is a feature to demo, not one to remove.
+      MFA_ENABLED: "false"
+      # Off by default on purpose. Pass RUN_SEED=true for the FIRST start only;
+      # it re-seeds on every boot, discarding anything the customer entered.
+      RUN_SEED: ${RUN_SEED:-false}
+      PM_MAX_CHILDREN: "6"
+      PORT: "8080"
+    # Loopback only. The public path is the tunnel; this mapping exists so the
+    # deploy can be verified locally and is deliberately not reachable from the
+    # local network.
+    #
+    # 8090, not 8080: the school-staging stack's nginx already holds
+    # 127.0.0.1:8080 on this machine. The container still listens on 8080
+    # internally and the tunnel reaches it over the compose network, so this
+    # number only affects local verification.
+    ports:
+      - "127.0.0.1:8090:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: school_demo
+      POSTGRES_USER: school
+      # Never published off the compose network, so this is not a secret. It is
+      # still not a password to reuse anywhere else.
+      POSTGRES_PASSWORD: demo-not-a-secret
+    volumes:
+      # Named volume, so stopping and restarting the demo keeps the customer's
+      # data. `docker compose down -v` is what destroys it.
+      - school-demo-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school -d school_demo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    # A quick tunnel: no Cloudflare account, no credentials, a random
+    # *.trycloudflare.com hostname printed to this container's log. It reaches
+    # the app over the compose network, not through the host port mapping.
+    command: tunnel --no-autoupdate --url http://app:8080
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  school-demo-data:
+    name: school-demo-data
