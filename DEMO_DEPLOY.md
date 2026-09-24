@@ -33,13 +33,49 @@ directly from whichever branch you point it at.
 
 ## Prerequisites
 
-- The branch you want to show is **pushed to GitHub**. Railway builds from the
-  remote, not from your working tree.
-- A Railway account. There is no free tier any more: a new account gets one-time
-  trial credit, after which Hobby is about \$5/month. Check their pricing page
-  for the current figure before you promise the customer a window.
+The branch you want to show must be **pushed to GitHub**. Both platforms build
+from the remote, not from your working tree.
 
-## Steps
+## Choosing the platform
+
+| | Render (`render.yaml`) | Railway (`railway.demo.json`) |
+| --- | --- | --- |
+| Payment method | **not required** | **required**, even for trial credit |
+| Cost | free | ~\$5/month after trial credit |
+| Cold start | ~50s after idle | ~30-60s if `sleepApplication` is on |
+| Database | free, **deleted after ~30 days** | billed with the project |
+
+Railway restricts a brand-new workspace until a card is attached — attempting to
+create any service returns *"Your workspace has been restricted. Please attach a
+payment method"*, and that applies to the trial too. So Render is the path when
+no card is going to be attached; Railway is better if one is.
+
+Both deploy the identical `Dockerfile.demo` image, so nothing below is
+platform-specific except the dashboard clicks.
+
+## Option A -- Render, no payment method
+
+`render.yaml` at the repo root declares the web service, the database, the
+region and all 14 environment variables, so there is nothing to type into a
+form.
+
+1. **render.com** → sign up with GitHub.
+2. **New** → **Blueprint** → select `Schoolemanagment` → branch `mobile/wave-0`.
+3. Render reads `render.yaml` and asks for exactly one value, `APP_KEY`, because
+   that is the only thing deliberately not committed. Generate it with:
+   ```
+   node -e "console.log('base64:'+require('crypto').randomBytes(32).toString('base64'))"
+   ```
+4. **Apply**. The first build takes roughly 10-20 minutes — `npm ci`, a Vite
+   production build, Composer install and two compiles of the Redis extension.
+5. When it is live, delete the `RUN_SEED` environment variable from the service,
+   then jump to *Verify* below.
+
+Optionally set `APP_URL` to the hostname Render assigned. Nothing in the demo
+breaks without it — the portal calls a relative `/api` and mail goes to the log —
+it only affects links generated inside emails.
+
+## Option B -- Railway, requires a card
 
 ### 1. Create the project
 
@@ -152,11 +188,17 @@ a timetable, grade components and grades, so the dashboards are not empty.
 
 Say these out loud to the customer rather than letting them discover them.
 
-- **Cold start.** `railway.demo.json` sets `sleepApplication: true` to conserve
-  trial credit. The container stops when idle and the next request pays for a
-  full boot — migrations, config/route/view/event caches — so expect roughly
-  30-60 seconds on the first hit after a quiet period. While the customer is
-  actively testing, set it to `false` and redeploy; set it back afterwards.
+- **Cold start.** On Render's free plan the instance is stopped after 15 minutes
+  idle and the next request pays for a full boot — migrations,
+  config/route/view/event caches — so expect roughly 50 seconds on the first hit
+  after a quiet period. Warm it yourself right before the customer opens the
+  link. On Railway the same applies because `railway.demo.json` sets
+  `sleepApplication: true` to conserve credit; set it to `false` while they are
+  actively testing.
+- **On Render the free database is deleted after about 30 days.** If the trial
+  runs longer than that, everything the customer entered goes with it. For a
+  longer pilot, point `DB_URL` at a free Neon project instead, which does not
+  expire, or move to a paid database.
 - **Uploads are ephemeral.** No volume is attached, so profile photos and
   documents are destroyed by every redeploy. Attach a Railway Volume mounted at
   `/var/www/storage/app` if the trial needs them to persist.
