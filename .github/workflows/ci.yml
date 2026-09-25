@@ -385,5 +385,5 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           # Excluded paths are accepted findings, each recorded in
-          # laravel-api/docs/security-exceptions.md (EX-2026-002).
+          # laravel-api/docs/security-exceptions.md (EX-2026-002, EX-2026-003).
           extra_args: --results=verified,unknown --exclude-detectors=cloudflarecakey --exclude-paths=.github/trufflehog-exclude-paths.txt

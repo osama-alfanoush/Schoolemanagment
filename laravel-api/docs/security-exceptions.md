@@ -24,3 +24,16 @@
 - Control: The one file is excluded through `.github/trufflehog-exclude-paths.txt`. Every other path, and every other detector, is still scanned.
 - Residual risk: A real credential added to `docker-compose.demo.yml` later would not be caught. Moving the demo password to `${DEMO_DB_PASSWORD}`, the way `APP_KEY` already is, and then dropping this exclusion would close that.
 - Approval evidence: Not yet supplied.
+
+## EX-2026-003: A file hash in the old graphify cache flagged as a Sentry token
+
+- Status: Pending security-owner approval.
+- Opened: 2026-09-25
+- Expires: Not time-boxed. It is a false positive in a generated directory that is no longer tracked.
+- Owner role: Platform owner
+- Finding: TruffleHog's SentryToken detector matches a 64-character hex value in `graphify-out/cache/stat-index.json` (commit `93dc123c`). The value is the SHA-256 of `laravel-api/config/sentry.php`, stored under a key containing the word "sentry", and that key is what trips the detector.
+- Why it fails intermittently: the detector tries to verify the value against Sentry's API. A definitive "invalid" filters it out, but an error response counts as unknown, which fails the job. It passed on some runs of this branch and failed on others with no code change.
+- Control: `graphify-out/` is excluded through `.github/trufflehog-exclude-paths.txt`. The directory is generated knowledge-graph output, gitignored and removed from the tree since `d0b3786`, so it exists only in history.
+- Residual risk: a file force-added under `graphify-out/` would not be scanned.
+- Approval evidence: Not yet supplied.
+
