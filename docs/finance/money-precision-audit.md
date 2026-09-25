@@ -495,3 +495,25 @@ non-number reached the column and the request failed with a 500.
 
 All 42 now carry the `money` rule and are refused with a 422 naming the field.
 `MoneyInputCoverageTest` fails for any future money input that lacks it.
+
+---
+
+## Addendum — PostgreSQL, observed
+
+§9 said the PostgreSQL behaviour in §6 and §7 was cited, not observed. It has
+now been observed on PostgreSQL 16, and one claim was wrong.
+
+- **§6 holds.** A `numeric(12,2)` column rounds on store rather than refusing,
+  half away from zero: `33.334 -> 33.33`, `12.505 -> 12.51`,
+  `-12.505 -> -12.51`.
+- **§7 was wrong about widening.** Changing only the precision,
+  `numeric(12,2) -> numeric(16,2)`, keeps the same file on disk, so it is
+  metadata-only. Changing the scale, `numeric(12,2) -> numeric(14,3)`, gives
+  the table a new file. That is a **full rewrite of every row under an ACCESS
+  EXCLUSIVE lock**. Option A is therefore not the cheap migration §7
+  described. Option B's `bigint` conversion rewrites too, so either one has to
+  be planned table by table as a locking operation.
+
+Both are asserted on every CI run by `tests/Postgres/MoneyColumnBehaviourTest.php`,
+which types its probe tables from the live schema. The whole Unit and Feature
+suite now also runs on PostgreSQL in CI.

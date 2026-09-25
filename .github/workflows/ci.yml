@@ -87,6 +87,13 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U school_test -d school_test"
           --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 55432
+      DB_DATABASE: school_test
+      DB_USERNAME: school_test
+      DB_PASSWORD: school_test
     steps:
       - uses: actions/checkout@v4
 
@@ -111,11 +118,24 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
+      # The concurrency suite commits real rows for its worker processes, so
+      # it needs a migrated database; RefreshDatabase is not in play there.
+      - name: Migrate
+        run: php artisan migrate --force --no-interaction
+
       # Proves the tenant-isolation, locking and uniqueness guarantees that
       # SQLite cannot express (partial indexes, exclusion constraints, real
-      # row locks under concurrent writers).
+      # row locks under concurrent writers), and what a money column does
+      # with an extra decimal.
       - name: PostgreSQL concurrency suite
         run: php artisan test --configuration phpunit.postgres.xml
+
+      # The whole suite again, on the driver production runs. SQLite ignores
+      # decimal scale, smallint range and the timetable exclusion constraints,
+      # so a test can pass there on an assumption PostgreSQL refuses. The job
+      # env above overrides phpunit.xml's SQLite settings.
+      - name: Unit & feature tests on PostgreSQL
+        run: php artisan test --testsuite=Unit,Feature
 
   migration-safety:
     name: Migration safety — clean DB, rollback, re-apply
