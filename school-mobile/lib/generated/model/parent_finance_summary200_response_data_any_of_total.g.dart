@@ -6,6 +6,73 @@ part of 'parent_finance_summary200_response_data_any_of_total.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
+const ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum_number2 =
+    const ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum._(
+      'number2',
+    );
+
+ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumValueOf(
+  String name,
+) {
+  switch (name) {
+    case 'number2':
+      return _$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum_number2;
+    default:
+      throw ArgumentError(name);
+  }
+}
+
+final BuiltSet<ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum>
+_$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumValues =
+    BuiltSet<ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum>(
+      const <ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum>[
+        _$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum_number2,
+      ],
+    );
+
+Serializer<ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum>
+_$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumSerializer =
+    _$ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumSerializer();
+
+class _$ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumSerializer
+    implements
+        PrimitiveSerializer<
+          ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum
+        > {
+  static const Map<String, Object> _toWire = const <String, Object>{
+    'number2': 2,
+  };
+  static const Map<Object, String> _fromWire = const <Object, String>{
+    2: 'number2',
+  };
+
+  @override
+  final Iterable<Type> types = const <Type>[
+    ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum,
+  ];
+  @override
+  final String wireName =
+      'ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum';
+
+  @override
+  Object serialize(
+    Serializers serializers,
+    ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum object, {
+    FullType specifiedType = FullType.unspecified,
+  }) => _toWire[object.name] ?? object.name;
+
+  @override
+  ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum deserialize(
+    Serializers serializers,
+    Object serialized, {
+    FullType specifiedType = FullType.unspecified,
+  }) => ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum.valueOf(
+    _fromWire[serialized] ?? (serialized is String ? serialized : ''),
+  );
+}
+
 class _$ParentFinanceSummary200ResponseDataAnyOfTotal
     extends ParentFinanceSummary200ResponseDataAnyOfTotal {
   @override
@@ -13,7 +80,7 @@ class _$ParentFinanceSummary200ResponseDataAnyOfTotal
   @override
   final String currency;
   @override
-  final int decimals;
+  final ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum decimals;
 
   factory _$ParentFinanceSummary200ResponseDataAnyOfTotal([
     void Function(ParentFinanceSummary200ResponseDataAnyOfTotalBuilder)?
@@ -83,9 +150,12 @@ class ParentFinanceSummary200ResponseDataAnyOfTotalBuilder
   String? get currency => _$this._currency;
   set currency(String? currency) => _$this._currency = currency;
 
-  int? _decimals;
-  int? get decimals => _$this._decimals;
-  set decimals(int? decimals) => _$this._decimals = decimals;
+  ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum? _decimals;
+  ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum? get decimals =>
+      _$this._decimals;
+  set decimals(
+    ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum? decimals,
+  ) => _$this._decimals = decimals;
 
   ParentFinanceSummary200ResponseDataAnyOfTotalBuilder() {
     ParentFinanceSummary200ResponseDataAnyOfTotal._defaults(this);

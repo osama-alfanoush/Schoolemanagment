@@ -48,7 +48,7 @@ class AdminApi {
 
   const AdminApi(this._dio, this._serializers);
 
-  /// Admin Academicyears 163
+  /// Admin Academicyears 181
   /// 
   ///
   /// Parameters:
@@ -61,7 +61,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<AcademicYear>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<AcademicYear>>> adminAcademicYears163({ 
+  Future<Response<BuiltList<AcademicYear>>> adminAcademicYears181({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -127,7 +127,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Academicyears 164
+  /// Admin Academicyears 182
   /// 
   ///
   /// Parameters:
@@ -140,7 +140,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<AcademicYear>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<AcademicYear>>> adminAcademicYears164({ 
+  Future<Response<BuiltList<AcademicYear>>> adminAcademicYears182({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -625,7 +625,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Calendar 142
+  /// Admin Calendar 160
   /// 
   ///
   /// Parameters:
@@ -638,7 +638,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<CalendarEvent>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<CalendarEvent>>> adminCalendar142({ 
+  Future<Response<BuiltList<CalendarEvent>>> adminCalendar160({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -704,7 +704,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Calendar 143
+  /// Admin Calendar 161
   /// 
   ///
   /// Parameters:
@@ -717,7 +717,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<CalendarEvent>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<CalendarEvent>>> adminCalendar143({ 
+  Future<Response<BuiltList<CalendarEvent>>> adminCalendar161({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -783,7 +783,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Classes 134
+  /// Admin Classes 152
   /// 
   ///
   /// Parameters:
@@ -796,7 +796,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<ClassRoom>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<ClassRoom>>> adminClasses134({ 
+  Future<Response<BuiltList<ClassRoom>>> adminClasses152({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -862,7 +862,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Classes 135
+  /// Admin Classes 153
   /// 
   ///
   /// Parameters:
@@ -875,7 +875,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<ClassRoom>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<ClassRoom>>> adminClasses135({ 
+  Future<Response<BuiltList<ClassRoom>>> adminClasses153({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1525,7 +1525,7 @@ class AdminApi {
     return _response;
   }
 
-  /// Admin Exams 159
+  /// Admin Exams 177
   /// 
   ///
   /// Parameters:
@@ -1538,7 +1538,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<Exam>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<Exam>>> adminExams159({ 
+  Future<Response<BuiltList<Exam>>> adminExams177({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1604,7 +1604,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Exams 160
+  /// Admin Exams 178
   /// 
   ///
   /// Parameters:
@@ -1617,7 +1617,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<Exam>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<Exam>>> adminExams160({ 
+  Future<Response<BuiltList<Exam>>> adminExams178({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1762,7 +1762,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Getschoolsettings 167
+  /// Admin Getschoolsettings 185
   /// 
   ///
   /// Parameters:
@@ -1775,7 +1775,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [SchoolSetting] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<SchoolSetting>> adminGetSchoolSettings167({ 
+  Future<Response<SchoolSetting>> adminGetSchoolSettings185({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2449,7 +2449,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Subjects 155
+  /// Admin Subjects 173
   /// 
   ///
   /// Parameters:
@@ -2462,7 +2462,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<Subject>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<Subject>>> adminSubjects155({ 
+  Future<Response<BuiltList<Subject>>> adminSubjects173({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2528,7 +2528,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Subjects 156
+  /// Admin Subjects 174
   /// 
   ///
   /// Parameters:
@@ -2541,7 +2541,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<Subject>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<Subject>>> adminSubjects156({ 
+  Future<Response<BuiltList<Subject>>> adminSubjects174({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -2607,7 +2607,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Timetable 139
+  /// Admin Timetable 157
   /// 
   ///
   /// Parameters:
@@ -2621,7 +2621,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TimetableEntry>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TimetableEntry>>> adminTimetable139({ 
+  Future<Response<BuiltList<TimetableEntry>>> adminTimetable157({ 
     required int classId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -2688,7 +2688,7 @@ class AdminApi {
     );
   }
 
-  /// Admin Timetable 140
+  /// Admin Timetable 158
   /// 
   ///
   /// Parameters:
@@ -2702,7 +2702,7 @@ class AdminApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<TimetableEntry>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<TimetableEntry>>> adminTimetable140({ 
+  Future<Response<BuiltList<TimetableEntry>>> adminTimetable158({ 
     required int classId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

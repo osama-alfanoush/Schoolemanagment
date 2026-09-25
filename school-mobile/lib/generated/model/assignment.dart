@@ -23,6 +23,8 @@ part 'assignment.g.dart';
 /// * [createdAt] 
 /// * [updatedAt] 
 /// * [schoolId] 
+/// * [publishedAt] 
+/// * [idempotencyKey] 
 @BuiltValue()
 abstract class Assignment implements Built<Assignment, AssignmentBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -60,6 +62,12 @@ abstract class Assignment implements Built<Assignment, AssignmentBuilder> {
 
   @BuiltValueField(wireName: r'school_id')
   int get schoolId;
+
+  @BuiltValueField(wireName: r'published_at')
+  DateTime? get publishedAt;
+
+  @BuiltValueField(wireName: r'idempotency_key')
+  String? get idempotencyKey;
 
   Assignment._();
 
@@ -143,6 +151,16 @@ class _$AssignmentSerializer implements PrimitiveSerializer<Assignment> {
     yield serializers.serialize(
       object.schoolId,
       specifiedType: const FullType(int),
+    );
+    yield r'published_at';
+    yield object.publishedAt == null ? null : serializers.serialize(
+      object.publishedAt,
+      specifiedType: const FullType.nullable(DateTime),
+    );
+    yield r'idempotency_key';
+    yield object.idempotencyKey == null ? null : serializers.serialize(
+      object.idempotencyKey,
+      specifiedType: const FullType.nullable(String),
     );
   }
 
@@ -253,6 +271,22 @@ class _$AssignmentSerializer implements PrimitiveSerializer<Assignment> {
             specifiedType: const FullType(int),
           ) as int;
           result.schoolId = valueDes;
+          break;
+        case r'published_at':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(DateTime),
+          ) as DateTime?;
+          if (valueDes == null) continue;
+          result.publishedAt = valueDes;
+          break;
+        case r'idempotency_key':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.idempotencyKey = valueDes;
           break;
         default:
           unhandled.add(key);

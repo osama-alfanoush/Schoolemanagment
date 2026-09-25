@@ -34,8 +34,8 @@ import 'package:school_mobile/generated/model/accounting_show_journal_entry200_r
 import 'package:school_mobile/generated/model/accounting_show_journal_entry404_response.dart';
 import 'package:school_mobile/generated/model/accounting_store_account201_response.dart';
 import 'package:school_mobile/generated/model/accounting_store_account_request.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry285201_response.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry285422_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry303201_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry303422_response.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response_data.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response_data_updated_inner.dart';
@@ -113,7 +113,7 @@ import 'package:school_mobile/generated/model/enrollment_transfer_request.dart';
 import 'package:school_mobile/generated/model/exam.dart';
 import 'package:school_mobile/generated/model/fee_structure.dart';
 import 'package:school_mobile/generated/model/file_profile_photo403_response.dart';
-import 'package:school_mobile/generated/model/finance_fee_structures270_request.dart';
+import 'package:school_mobile/generated/model/finance_fee_structures288_request.dart';
 import 'package:school_mobile/generated/model/finance_financial_reports200_response.dart';
 import 'package:school_mobile/generated/model/finance_generate_invoices201_response.dart';
 import 'package:school_mobile/generated/model/finance_generate_invoices_request.dart';
@@ -137,15 +137,15 @@ import 'package:school_mobile/generated/model/gradebook.dart';
 import 'package:school_mobile/generated/model/gradebook_issue201_response.dart';
 import 'package:school_mobile/generated/model/gradebook_issue_request.dart';
 import 'package:school_mobile/generated/model/gradebook_reopen_request.dart';
-import 'package:school_mobile/generated/model/gradebook_show111200_response.dart';
+import 'package:school_mobile/generated/model/gradebook_show129200_response.dart';
 import 'package:school_mobile/generated/model/gradebook_submit200_response.dart';
 import 'package:school_mobile/generated/model/healthz_get200_response.dart';
 import 'package:school_mobile/generated/model/hr_applications200_response.dart';
 import 'package:school_mobile/generated/model/hr_create_evaluation_request.dart';
 import 'package:school_mobile/generated/model/hr_create_evaluation_request_criteria_scores_inner.dart';
 import 'package:school_mobile/generated/model/hr_evaluations200_response.dart';
-import 'package:school_mobile/generated/model/hr_jobs351200_response.dart';
-import 'package:school_mobile/generated/model/hr_jobs352_request.dart';
+import 'package:school_mobile/generated/model/hr_jobs369200_response.dart';
+import 'package:school_mobile/generated/model/hr_jobs370_request.dart';
 import 'package:school_mobile/generated/model/hr_payroll_advances200_response.dart';
 import 'package:school_mobile/generated/model/hr_payroll_contract_history200_response.dart';
 import 'package:school_mobile/generated/model/hr_payroll_contract_history200_response_employment.dart';
@@ -165,11 +165,11 @@ import 'package:school_mobile/generated/model/hr_payroll_store_warning_request.d
 import 'package:school_mobile/generated/model/hr_payroll_transition_warning_request.dart';
 import 'package:school_mobile/generated/model/hr_payroll_warnings200_response.dart';
 import 'package:school_mobile/generated/model/hr_request.dart';
-import 'package:school_mobile/generated/model/hr_review_request341_request.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance345200_response.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance345200_response_any_of.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance345_records_parameter_inner.dart';
-import 'package:school_mobile/generated/model/hr_staff_attendance346_request.dart';
+import 'package:school_mobile/generated/model/hr_review_request359_request.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance363200_response.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance363200_response_any_of.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance363_records_parameter_inner.dart';
+import 'package:school_mobile/generated/model/hr_staff_attendance364_request.dart';
 import 'package:school_mobile/generated/model/hr_submit_request25403_response.dart';
 import 'package:school_mobile/generated/model/hr_submit_request25_request.dart';
 import 'package:school_mobile/generated/model/hr_update_application_status_request.dart';
@@ -192,7 +192,7 @@ import 'package:school_mobile/generated/model/length_aware_paginator.dart';
 import 'package:school_mobile/generated/model/library_all_borrowings200_response.dart';
 import 'package:school_mobile/generated/model/library_available_books200_response.dart';
 import 'package:school_mobile/generated/model/library_book.dart';
-import 'package:school_mobile/generated/model/library_books182_request.dart';
+import 'package:school_mobile/generated/model/library_books200_request.dart';
 import 'package:school_mobile/generated/model/library_borrowing.dart';
 import 'package:school_mobile/generated/model/library_my_borrowings200_response.dart';
 import 'package:school_mobile/generated/model/library_self_return200_response.dart';
@@ -209,6 +209,12 @@ import 'package:school_mobile/generated/model/mfa_enroll200_response.dart';
 import 'package:school_mobile/generated/model/mfa_regenerate_recovery_codes200_response.dart';
 import 'package:school_mobile/generated/model/mfa_regenerate_recovery_codes_request.dart';
 import 'package:school_mobile/generated/model/mfa_request_help_desk_recovery201_response.dart';
+import 'package:school_mobile/generated/model/mobile_student_assignments200_response.dart';
+import 'package:school_mobile/generated/model/mobile_student_assignments200_response_data.dart';
+import 'package:school_mobile/generated/model/mobile_student_assignments200_response_data_any_of.dart';
+import 'package:school_mobile/generated/model/mobile_student_assignments200_response_data_any_of1.dart';
+import 'package:school_mobile/generated/model/mobile_teacher_announce_request.dart';
+import 'package:school_mobile/generated/model/mobile_teacher_create_assignment_request.dart';
 import 'package:school_mobile/generated/model/notification.dart';
 import 'package:school_mobile/generated/model/notification_analytics200_response.dart';
 import 'package:school_mobile/generated/model/notification_cleanup200_response.dart';
@@ -379,6 +385,11 @@ import 'package:school_mobile/generated/model/student_dashboard200_response_upco
 import 'package:school_mobile/generated/model/student_enrollment.dart';
 import 'package:school_mobile/generated/model/student_financial_adjustment.dart';
 import 'package:school_mobile/generated/model/student_grades200_response.dart';
+import 'package:school_mobile/generated/model/student_home200_response.dart';
+import 'package:school_mobile/generated/model/student_home200_response_data.dart';
+import 'package:school_mobile/generated/model/student_home200_response_data_attendance.dart';
+import 'package:school_mobile/generated/model/student_home200_response_data_next_due.dart';
+import 'package:school_mobile/generated/model/student_home200_response_data_today_inner.dart';
 import 'package:school_mobile/generated/model/student_report_card200_response.dart';
 import 'package:school_mobile/generated/model/student_submit_assignment403_response.dart';
 import 'package:school_mobile/generated/model/subject.dart';
@@ -390,26 +401,53 @@ import 'package:school_mobile/generated/model/supplier_transaction.dart';
 import 'package:school_mobile/generated/model/sync_delta200_response.dart';
 import 'package:school_mobile/generated/model/sync_delta403_response.dart';
 import 'package:school_mobile/generated/model/teacher_announce_request.dart';
+import 'package:school_mobile/generated/model/teacher_announcement_templates200_response.dart';
+import 'package:school_mobile/generated/model/teacher_announcement_templates200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_announcement_templates200_response_data_templates_inner.dart';
 import 'package:school_mobile/generated/model/teacher_assignment_submissions200_response.dart';
+import 'package:school_mobile/generated/model/teacher_assignments200_response.dart';
+import 'package:school_mobile/generated/model/teacher_attach_to_assignment200_response.dart';
+import 'package:school_mobile/generated/model/teacher_attach_to_assignment200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch200_response.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch_request.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch_request_records_inner.dart';
 import 'package:school_mobile/generated/model/teacher_enter_grade_request.dart';
-import 'package:school_mobile/generated/model/teacher_grade_components107_request.dart';
+import 'package:school_mobile/generated/model/teacher_grade_components125_request.dart';
 import 'package:school_mobile/generated/model/teacher_grade_submission_request.dart';
+import 'package:school_mobile/generated/model/teacher_gradebook200_response.dart';
+import 'package:school_mobile/generated/model/teacher_gradebook200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_gradebook200_response_data_gradebook.dart';
+import 'package:school_mobile/generated/model/teacher_gradebook200_response_data_students_inner.dart';
+import 'package:school_mobile/generated/model/teacher_grades_batch200_response.dart';
+import 'package:school_mobile/generated/model/teacher_grades_batch_request.dart';
+import 'package:school_mobile/generated/model/teacher_grades_batch_request_grades_inner.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct403_response.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct_request.dart';
 import 'package:school_mobile/generated/model/teacher_mark_attendance200_response.dart';
 import 'package:school_mobile/generated/model/teacher_mark_attendance_request.dart';
-import 'package:school_mobile/generated/model/teacher_mark_attendance_request_records_inner.dart';
 import 'package:school_mobile/generated/model/teacher_my_classes200_response.dart';
 import 'package:school_mobile/generated/model/teacher_my_timetable200_response.dart';
+import 'package:school_mobile/generated/model/teacher_roster200_response.dart';
+import 'package:school_mobile/generated/model/teacher_roster200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_roster200_response_data_students_inner.dart';
+import 'package:school_mobile/generated/model/teacher_roster403_response.dart';
+import 'package:school_mobile/generated/model/teacher_submissions200_response.dart';
+import 'package:school_mobile/generated/model/teacher_submissions200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_submissions200_response_data_students_inner.dart';
+import 'package:school_mobile/generated/model/teacher_today200_response.dart';
+import 'package:school_mobile/generated/model/teacher_today200_response_data.dart';
+import 'package:school_mobile/generated/model/teacher_today200_response_data_attendance_window.dart';
+import 'package:school_mobile/generated/model/teacher_today200_response_data_periods_inner.dart';
 import 'package:school_mobile/generated/model/timetable_entry.dart';
 import 'package:school_mobile/generated/model/transport_all_assignments200_response.dart';
 import 'package:school_mobile/generated/model/transport_assignment.dart';
 import 'package:school_mobile/generated/model/transport_route.dart';
-import 'package:school_mobile/generated/model/transport_routes187_request.dart';
+import 'package:school_mobile/generated/model/transport_routes205_request.dart';
 import 'package:school_mobile/generated/model/transport_stop.dart';
-import 'package:school_mobile/generated/model/transport_stops191_request.dart';
+import 'package:school_mobile/generated/model/transport_stops209_request.dart';
 import 'package:school_mobile/generated/model/transport_vehicle.dart';
-import 'package:school_mobile/generated/model/transport_vehicles189_request.dart';
+import 'package:school_mobile/generated/model/transport_vehicles207_request.dart';
 import 'package:school_mobile/generated/model/user.dart';
 import 'package:school_mobile/generated/model/user_device.dart';
 import 'package:school_mobile/generated/model/warehouse_category.dart';
@@ -420,7 +458,7 @@ import 'package:school_mobile/generated/model/warehouse_dashboard200_response_mo
 import 'package:school_mobile/generated/model/warehouse_dashboard200_response_top_consumed_items_inner.dart';
 import 'package:school_mobile/generated/model/warehouse_index_categories200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_counts200_response.dart';
-import 'package:school_mobile/generated/model/warehouse_index_items209200_response.dart';
+import 'package:school_mobile/generated/model/warehouse_index_items227200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_movements200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_index_purchase_requests200_response.dart';
 import 'package:school_mobile/generated/model/warehouse_inventory_report200_response.dart';
@@ -463,8 +501,8 @@ part 'serializers.g.dart';
   AccountingShowJournalEntry404Response,
   AccountingStoreAccount201Response,
   AccountingStoreAccountRequest,
-  AccountingStoreJournalEntry285201Response,
-  AccountingStoreJournalEntry285422Response,
+  AccountingStoreJournalEntry303201Response,
+  AccountingStoreJournalEntry303422Response,
   AccountingSyncBudgetActuals200Response,
   AccountingSyncBudgetActuals200ResponseData,
   AccountingSyncBudgetActuals200ResponseDataUpdatedInner,
@@ -542,7 +580,7 @@ part 'serializers.g.dart';
   Exam,
   FeeStructure,
   FileProfilePhoto403Response,
-  FinanceFeeStructures270Request,
+  FinanceFeeStructures288Request,
   FinanceFinancialReports200Response,
   FinanceGenerateInvoices201Response,
   FinanceGenerateInvoicesRequest,
@@ -566,15 +604,15 @@ part 'serializers.g.dart';
   GradebookIssue201Response,
   GradebookIssueRequest,
   GradebookReopenRequest,
-  GradebookShow111200Response,
+  GradebookShow129200Response,
   GradebookSubmit200Response,
   HealthzGet200Response,
   HrApplications200Response,
   HrCreateEvaluationRequest,
   HrCreateEvaluationRequestCriteriaScoresInner,
   HrEvaluations200Response,
-  HrJobs351200Response,
-  HrJobs352Request,
+  HrJobs369200Response,
+  HrJobs370Request,
   HrPayrollAdvances200Response,
   HrPayrollContractHistory200Response,
   HrPayrollContractHistory200ResponseEmployment,
@@ -594,11 +632,11 @@ part 'serializers.g.dart';
   HrPayrollTransitionWarningRequest,
   HrPayrollWarnings200Response,
   HrRequest,
-  HrReviewRequest341Request,
-  HrStaffAttendance345200Response,
-  HrStaffAttendance345200ResponseAnyOf,
-  HrStaffAttendance345RecordsParameterInner,
-  HrStaffAttendance346Request,
+  HrReviewRequest359Request,
+  HrStaffAttendance363200Response,
+  HrStaffAttendance363200ResponseAnyOf,
+  HrStaffAttendance363RecordsParameterInner,
+  HrStaffAttendance364Request,
   HrSubmitRequest25403Response,
   HrSubmitRequest25Request,
   HrUpdateApplicationStatusRequest,
@@ -621,7 +659,7 @@ part 'serializers.g.dart';
   LibraryAllBorrowings200Response,
   LibraryAvailableBooks200Response,
   LibraryBook,
-  LibraryBooks182Request,
+  LibraryBooks200Request,
   LibraryBorrowing,
   LibraryMyBorrowings200Response,
   LibrarySelfReturn200Response,
@@ -638,6 +676,12 @@ part 'serializers.g.dart';
   MfaRegenerateRecoveryCodes200Response,
   MfaRegenerateRecoveryCodesRequest,
   MfaRequestHelpDeskRecovery201Response,
+  MobileStudentAssignments200Response,
+  MobileStudentAssignments200ResponseData,
+  MobileStudentAssignments200ResponseDataAnyOf,
+  MobileStudentAssignments200ResponseDataAnyOf1,
+  MobileTeacherAnnounceRequest,
+  MobileTeacherCreateAssignmentRequest,
   Notification,
   NotificationAnalytics200Response,
   NotificationCleanup200Response,
@@ -808,6 +852,11 @@ part 'serializers.g.dart';
   StudentEnrollment,
   StudentFinancialAdjustment,
   StudentGrades200Response,
+  StudentHome200Response,
+  StudentHome200ResponseData,
+  StudentHome200ResponseDataAttendance,
+  StudentHome200ResponseDataNextDue,
+  StudentHome200ResponseDataTodayInner,
   StudentReportCard200Response,
   StudentSubmitAssignment403Response,
   Subject,
@@ -819,26 +868,53 @@ part 'serializers.g.dart';
   SyncDelta200Response,
   SyncDelta403Response,
   TeacherAnnounceRequest,
+  TeacherAnnouncementTemplates200Response,
+  TeacherAnnouncementTemplates200ResponseData,
+  TeacherAnnouncementTemplates200ResponseDataTemplatesInner,
   TeacherAssignmentSubmissions200Response,
+  TeacherAssignments200Response,
+  TeacherAttachToAssignment200Response,
+  TeacherAttachToAssignment200ResponseData,
+  TeacherAttendanceBatch200Response,
+  TeacherAttendanceBatch200ResponseData,
+  TeacherAttendanceBatchRequest,
+  TeacherAttendanceBatchRequestRecordsInner,
   TeacherEnterGradeRequest,
-  TeacherGradeComponents107Request,
+  TeacherGradeComponents125Request,
   TeacherGradeSubmissionRequest,
+  TeacherGradebook200Response,
+  TeacherGradebook200ResponseData,
+  TeacherGradebook200ResponseDataGradebook,
+  TeacherGradebook200ResponseDataStudentsInner,
+  TeacherGradesBatch200Response,
+  TeacherGradesBatchRequest,
+  TeacherGradesBatchRequestGradesInner,
   TeacherLogConduct403Response,
   TeacherLogConductRequest,
   TeacherMarkAttendance200Response,
   TeacherMarkAttendanceRequest,
-  TeacherMarkAttendanceRequestRecordsInner,
   TeacherMyClasses200Response,
   TeacherMyTimetable200Response,
+  TeacherRoster200Response,
+  TeacherRoster200ResponseData,
+  TeacherRoster200ResponseDataStudentsInner,
+  TeacherRoster403Response,
+  TeacherSubmissions200Response,
+  TeacherSubmissions200ResponseData,
+  TeacherSubmissions200ResponseDataStudentsInner,
+  TeacherToday200Response,
+  TeacherToday200ResponseData,
+  TeacherToday200ResponseDataAttendanceWindow,
+  TeacherToday200ResponseDataPeriodsInner,
   TimetableEntry,
   TransportAllAssignments200Response,
   TransportAssignment,
   TransportRoute,
-  TransportRoutes187Request,
+  TransportRoutes205Request,
   TransportStop,
-  TransportStops191Request,
+  TransportStops209Request,
   TransportVehicle,
-  TransportVehicles189Request,
+  TransportVehicles207Request,
   User,
   UserDevice,
   WarehouseCategory,
@@ -849,7 +925,7 @@ part 'serializers.g.dart';
   WarehouseDashboard200ResponseTopConsumedItemsInner,
   WarehouseIndexCategories200Response,
   WarehouseIndexCounts200Response,
-  WarehouseIndexItems209200Response,
+  WarehouseIndexItems227200Response,
   WarehouseIndexMovements200Response,
   WarehouseIndexPurchaseRequests200Response,
   WarehouseInventoryReport200Response,
@@ -903,10 +979,6 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<HrRequest>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(HrStaffAttendance345RecordsParameterInner)]),
-        () => ListBuilder<HrStaffAttendance345RecordsParameterInner>(),
-      )
-      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(MessagingThreads200ResponseInnerLastMessage)]),
         () => ListBuilder<MessagingThreads200ResponseInnerLastMessage>(),
       )
@@ -953,6 +1025,10 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(TransportStop)]),
         () => ListBuilder<TransportStop>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(HrStaffAttendance363RecordsParameterInner)]),
+        () => ListBuilder<HrStaffAttendance363RecordsParameterInner>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(StaffAttendance)]),

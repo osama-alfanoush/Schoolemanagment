@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -23,7 +24,8 @@ abstract class ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid impleme
   String get currency;
 
   @BuiltValueField(wireName: r'decimals')
-  int get decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum get decimals;
+  // enum decimalsEnum {  2,  };
 
   ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid._();
 
@@ -61,7 +63,7 @@ class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidSerializer impl
     yield r'decimals';
     yield serializers.serialize(
       object.decimals,
-      specifiedType: const FullType(int),
+      specifiedType: const FullType(ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum),
     );
   }
 
@@ -103,8 +105,8 @@ class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidSerializer impl
         case r'decimals':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
+            specifiedType: const FullType(ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum),
+          ) as ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum;
           result.decimals = valueDes;
           break;
         default:
@@ -134,5 +136,18 @@ class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidSerializer impl
     );
     return result.build();
   }
+}
+
+class ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum extends EnumClass {
+
+  @BuiltValueEnumConst(wireNumber: 2)
+  static const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum number2 = _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum_number2;
+
+  static Serializer<ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum> get serializer => _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumSerializer;
+
+  const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum._(String name): super(name);
+
+  static BuiltSet<ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum> get values => _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumValues;
+  static ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum valueOf(String name) => _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumValueOf(name);
 }
 

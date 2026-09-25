@@ -33,6 +33,8 @@ class _$Submission extends Submission {
   final DateTime? updatedAt;
   @override
   final int schoolId;
+  @override
+  final String? idempotencyKey;
 
   factory _$Submission([void Function(SubmissionBuilder)? updates]) =>
       (SubmissionBuilder()..update(updates))._build();
@@ -51,6 +53,7 @@ class _$Submission extends Submission {
     this.createdAt,
     this.updatedAt,
     required this.schoolId,
+    this.idempotencyKey,
   }) : super._();
   @override
   Submission rebuild(void Function(SubmissionBuilder) updates) =>
@@ -75,7 +78,8 @@ class _$Submission extends Submission {
         gradedBy == other.gradedBy &&
         createdAt == other.createdAt &&
         updatedAt == other.updatedAt &&
-        schoolId == other.schoolId;
+        schoolId == other.schoolId &&
+        idempotencyKey == other.idempotencyKey;
   }
 
   @override
@@ -94,6 +98,7 @@ class _$Submission extends Submission {
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, updatedAt.hashCode);
     _$hash = $jc(_$hash, schoolId.hashCode);
+    _$hash = $jc(_$hash, idempotencyKey.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -113,7 +118,8 @@ class _$Submission extends Submission {
           ..add('gradedBy', gradedBy)
           ..add('createdAt', createdAt)
           ..add('updatedAt', updatedAt)
-          ..add('schoolId', schoolId))
+          ..add('schoolId', schoolId)
+          ..add('idempotencyKey', idempotencyKey))
         .toString();
   }
 }
@@ -174,6 +180,11 @@ class SubmissionBuilder implements Builder<Submission, SubmissionBuilder> {
   int? get schoolId => _$this._schoolId;
   set schoolId(int? schoolId) => _$this._schoolId = schoolId;
 
+  String? _idempotencyKey;
+  String? get idempotencyKey => _$this._idempotencyKey;
+  set idempotencyKey(String? idempotencyKey) =>
+      _$this._idempotencyKey = idempotencyKey;
+
   SubmissionBuilder() {
     Submission._defaults(this);
   }
@@ -194,6 +205,7 @@ class SubmissionBuilder implements Builder<Submission, SubmissionBuilder> {
       _createdAt = $v.createdAt;
       _updatedAt = $v.updatedAt;
       _schoolId = $v.schoolId;
+      _idempotencyKey = $v.idempotencyKey;
       _$v = null;
     }
     return this;
@@ -245,6 +257,7 @@ class SubmissionBuilder implements Builder<Submission, SubmissionBuilder> {
             r'Submission',
             'schoolId',
           ),
+          idempotencyKey: idempotencyKey,
         );
     replace(_$result);
     return _$result;

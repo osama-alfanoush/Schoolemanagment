@@ -6,6 +6,82 @@ part of 'parent_finance_summary200_response_data_any_of_children_inner_paid.dart
 // BuiltValueGenerator
 // **************************************************************************
 
+const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum_number2 =
+    const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum._(
+      'number2',
+    );
+
+ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumValueOf(
+  String name,
+) {
+  switch (name) {
+    case 'number2':
+      return _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum_number2;
+    default:
+      throw ArgumentError(name);
+  }
+}
+
+final BuiltSet<
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+>
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumValues =
+    BuiltSet<
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+    >(const <
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+    >[
+      _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum_number2,
+    ]);
+
+Serializer<
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+>
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumSerializer =
+    _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumSerializer();
+
+class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnumSerializer
+    implements
+        PrimitiveSerializer<
+          ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+        > {
+  static const Map<String, Object> _toWire = const <String, Object>{
+    'number2': 2,
+  };
+  static const Map<Object, String> _fromWire = const <Object, String>{
+    2: 'number2',
+  };
+
+  @override
+  final Iterable<Type> types = const <Type>[
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum,
+  ];
+  @override
+  final String wireName =
+      'ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum';
+
+  @override
+  Object serialize(
+    Serializers serializers,
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+    object, {
+    FullType specifiedType = FullType.unspecified,
+  }) => _toWire[object.name] ?? object.name;
+
+  @override
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+  deserialize(
+    Serializers serializers,
+    Object serialized, {
+    FullType specifiedType = FullType.unspecified,
+  }) =>
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum.valueOf(
+        _fromWire[serialized] ?? (serialized is String ? serialized : ''),
+      );
+}
+
 class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid
     extends ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid {
   @override
@@ -13,7 +89,8 @@ class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid
   @override
   final String currency;
   @override
-  final int decimals;
+  final ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum
+  decimals;
 
   factory _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid([
     void Function(
@@ -91,9 +168,14 @@ class ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidBuilder
   String? get currency => _$this._currency;
   set currency(String? currency) => _$this._currency = currency;
 
-  int? _decimals;
-  int? get decimals => _$this._decimals;
-  set decimals(int? decimals) => _$this._decimals = decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum?
+  _decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum?
+  get decimals => _$this._decimals;
+  set decimals(
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidDecimalsEnum?
+    decimals,
+  ) => _$this._decimals = decimals;
 
   ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaidBuilder() {
     ParentFinanceSummary200ResponseDataAnyOfChildrenInnerPaid._defaults(this);

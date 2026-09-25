@@ -210,6 +210,11 @@ final class TeacherPublishingService
      * The whole class, not only those who submitted: the students with nothing
      * against their name are the reason a teacher opens this screen.
      *
+     * `status` is cast to string on purpose. Uncast, the contract infers it as
+     * "a string or 'pending'", an anyOf the generated Dart client cannot
+     * compile. Comments beside the array keys become API descriptions, so the
+     * reason lives here.
+     *
      * @return array<string, mixed>
      */
     public function submissions(Assignment $assignment): array
@@ -238,7 +243,7 @@ final class TeacherPublishingService
                     'name' => $row->name,
                     // Absent means not handed in. Reporting nothing at all
                     // would let the screen render a blank that reads as "fine".
-                    'status' => $submission->status ?? 'pending',
+                    'status' => (string) ($submission->status ?? 'pending'),
                     'submitted_at' => $submission->submitted_at ?? null,
                     'score' => $submission?->score === null
                         ? null

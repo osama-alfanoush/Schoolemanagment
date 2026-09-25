@@ -19,6 +19,8 @@ part 'announcement.g.dart';
 /// * [createdAt] 
 /// * [updatedAt] 
 /// * [schoolId] 
+/// * [templateKey] 
+/// * [idempotencyKey] 
 @BuiltValue()
 abstract class Announcement implements Built<Announcement, AnnouncementBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -44,6 +46,12 @@ abstract class Announcement implements Built<Announcement, AnnouncementBuilder> 
 
   @BuiltValueField(wireName: r'school_id')
   int get schoolId;
+
+  @BuiltValueField(wireName: r'template_key')
+  String? get templateKey;
+
+  @BuiltValueField(wireName: r'idempotency_key')
+  String? get idempotencyKey;
 
   Announcement._();
 
@@ -107,6 +115,16 @@ class _$AnnouncementSerializer implements PrimitiveSerializer<Announcement> {
     yield serializers.serialize(
       object.schoolId,
       specifiedType: const FullType(int),
+    );
+    yield r'template_key';
+    yield object.templateKey == null ? null : serializers.serialize(
+      object.templateKey,
+      specifiedType: const FullType.nullable(String),
+    );
+    yield r'idempotency_key';
+    yield object.idempotencyKey == null ? null : serializers.serialize(
+      object.idempotencyKey,
+      specifiedType: const FullType.nullable(String),
     );
   }
 
@@ -188,6 +206,22 @@ class _$AnnouncementSerializer implements PrimitiveSerializer<Announcement> {
             specifiedType: const FullType(int),
           ) as int;
           result.schoolId = valueDes;
+          break;
+        case r'template_key':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.templateKey = valueDes;
+          break;
+        case r'idempotency_key':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.idempotencyKey = valueDes;
           break;
         default:
           unhandled.add(key);

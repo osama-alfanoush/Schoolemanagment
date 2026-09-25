@@ -3,7 +3,7 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:school_mobile/generated/model/accounting_store_journal_entry285422_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry303422_response.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:school_mobile/generated/model/payment_handle_webhook400_response_any_of.dart';
 import 'package:built_value/built_value.dart';
@@ -18,7 +18,7 @@ part 'payment_handle_webhook400_response.g.dart';
 /// * [message] 
 @BuiltValue()
 abstract class PaymentHandleWebhook400Response implements Built<PaymentHandleWebhook400Response, PaymentHandleWebhook400ResponseBuilder> {
-  /// Any Of [AccountingStoreJournalEntry285422Response], [PaymentHandleWebhook400ResponseAnyOf]
+  /// Any Of [AccountingStoreJournalEntry303422Response], [PaymentHandleWebhook400ResponseAnyOf]
   AnyOf get anyOf;
 
   PaymentHandleWebhook400Response._();
@@ -64,7 +64,7 @@ class _$PaymentHandleWebhook400ResponseSerializer implements PrimitiveSerializer
   }) {
     final result = PaymentHandleWebhook400ResponseBuilder();
     Object? anyOfDataSrc;
-    final targetType = const FullType(AnyOf, [FullType(AccountingStoreJournalEntry285422Response), FullType(PaymentHandleWebhook400ResponseAnyOf), ]);
+    final targetType = const FullType(AnyOf, [FullType(AccountingStoreJournalEntry303422Response), FullType(PaymentHandleWebhook400ResponseAnyOf), ]);
     anyOfDataSrc = serialized;
     result.anyOf = serializers.deserialize(anyOfDataSrc, specifiedType: targetType) as AnyOf;
     return result.build();

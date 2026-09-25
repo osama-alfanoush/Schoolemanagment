@@ -31,6 +31,10 @@ class _$Assignment extends Assignment {
   final DateTime? updatedAt;
   @override
   final int schoolId;
+  @override
+  final DateTime? publishedAt;
+  @override
+  final String? idempotencyKey;
 
   factory _$Assignment([void Function(AssignmentBuilder)? updates]) =>
       (AssignmentBuilder()..update(updates))._build();
@@ -48,6 +52,8 @@ class _$Assignment extends Assignment {
     this.createdAt,
     this.updatedAt,
     required this.schoolId,
+    this.publishedAt,
+    this.idempotencyKey,
   }) : super._();
   @override
   Assignment rebuild(void Function(AssignmentBuilder) updates) =>
@@ -71,7 +77,9 @@ class _$Assignment extends Assignment {
         maxScore == other.maxScore &&
         createdAt == other.createdAt &&
         updatedAt == other.updatedAt &&
-        schoolId == other.schoolId;
+        schoolId == other.schoolId &&
+        publishedAt == other.publishedAt &&
+        idempotencyKey == other.idempotencyKey;
   }
 
   @override
@@ -89,6 +97,8 @@ class _$Assignment extends Assignment {
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, updatedAt.hashCode);
     _$hash = $jc(_$hash, schoolId.hashCode);
+    _$hash = $jc(_$hash, publishedAt.hashCode);
+    _$hash = $jc(_$hash, idempotencyKey.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -107,7 +117,9 @@ class _$Assignment extends Assignment {
           ..add('maxScore', maxScore)
           ..add('createdAt', createdAt)
           ..add('updatedAt', updatedAt)
-          ..add('schoolId', schoolId))
+          ..add('schoolId', schoolId)
+          ..add('publishedAt', publishedAt)
+          ..add('idempotencyKey', idempotencyKey))
         .toString();
   }
 }
@@ -165,6 +177,15 @@ class AssignmentBuilder implements Builder<Assignment, AssignmentBuilder> {
   int? get schoolId => _$this._schoolId;
   set schoolId(int? schoolId) => _$this._schoolId = schoolId;
 
+  DateTime? _publishedAt;
+  DateTime? get publishedAt => _$this._publishedAt;
+  set publishedAt(DateTime? publishedAt) => _$this._publishedAt = publishedAt;
+
+  String? _idempotencyKey;
+  String? get idempotencyKey => _$this._idempotencyKey;
+  set idempotencyKey(String? idempotencyKey) =>
+      _$this._idempotencyKey = idempotencyKey;
+
   AssignmentBuilder() {
     Assignment._defaults(this);
   }
@@ -184,6 +205,8 @@ class AssignmentBuilder implements Builder<Assignment, AssignmentBuilder> {
       _createdAt = $v.createdAt;
       _updatedAt = $v.updatedAt;
       _schoolId = $v.schoolId;
+      _publishedAt = $v.publishedAt;
+      _idempotencyKey = $v.idempotencyKey;
       _$v = null;
     }
     return this;
@@ -250,6 +273,8 @@ class AssignmentBuilder implements Builder<Assignment, AssignmentBuilder> {
             r'Assignment',
             'schoolId',
           ),
+          publishedAt: publishedAt,
+          idempotencyKey: idempotencyKey,
         );
     replace(_$result);
     return _$result;

@@ -24,6 +24,7 @@ part 'submission.g.dart';
 /// * [createdAt] 
 /// * [updatedAt] 
 /// * [schoolId] 
+/// * [idempotencyKey] 
 @BuiltValue()
 abstract class Submission implements Built<Submission, SubmissionBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -64,6 +65,9 @@ abstract class Submission implements Built<Submission, SubmissionBuilder> {
 
   @BuiltValueField(wireName: r'school_id')
   int get schoolId;
+
+  @BuiltValueField(wireName: r'idempotency_key')
+  String? get idempotencyKey;
 
   Submission._();
 
@@ -152,6 +156,11 @@ class _$SubmissionSerializer implements PrimitiveSerializer<Submission> {
     yield serializers.serialize(
       object.schoolId,
       specifiedType: const FullType(int),
+    );
+    yield r'idempotency_key';
+    yield object.idempotencyKey == null ? null : serializers.serialize(
+      object.idempotencyKey,
+      specifiedType: const FullType.nullable(String),
     );
   }
 
@@ -274,6 +283,14 @@ class _$SubmissionSerializer implements PrimitiveSerializer<Submission> {
             specifiedType: const FullType(int),
           ) as int;
           result.schoolId = valueDes;
+          break;
+        case r'idempotency_key':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(String),
+          ) as String?;
+          if (valueDes == null) continue;
+          result.idempotencyKey = valueDes;
           break;
         default:
           unhandled.add(key);

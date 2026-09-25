@@ -17,19 +17,34 @@ import 'package:school_mobile/generated/model/conduct_log.dart';
 import 'package:school_mobile/generated/model/file_profile_photo403_response.dart';
 import 'package:school_mobile/generated/model/grade.dart';
 import 'package:school_mobile/generated/model/grade_component.dart';
+import 'package:school_mobile/generated/model/gradebook_submit200_response.dart';
 import 'package:school_mobile/generated/model/inline_object.dart';
+import 'package:school_mobile/generated/model/mobile_teacher_announce_request.dart';
+import 'package:school_mobile/generated/model/mobile_teacher_create_assignment_request.dart';
 import 'package:school_mobile/generated/model/submission.dart';
 import 'package:school_mobile/generated/model/teacher_announce_request.dart';
+import 'package:school_mobile/generated/model/teacher_announcement_templates200_response.dart';
 import 'package:school_mobile/generated/model/teacher_assignment_submissions200_response.dart';
+import 'package:school_mobile/generated/model/teacher_assignments200_response.dart';
+import 'package:school_mobile/generated/model/teacher_attach_to_assignment200_response.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch200_response.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch_request.dart';
 import 'package:school_mobile/generated/model/teacher_enter_grade_request.dart';
-import 'package:school_mobile/generated/model/teacher_grade_components107_request.dart';
+import 'package:school_mobile/generated/model/teacher_grade_components125_request.dart';
 import 'package:school_mobile/generated/model/teacher_grade_submission_request.dart';
+import 'package:school_mobile/generated/model/teacher_gradebook200_response.dart';
+import 'package:school_mobile/generated/model/teacher_grades_batch200_response.dart';
+import 'package:school_mobile/generated/model/teacher_grades_batch_request.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct403_response.dart';
 import 'package:school_mobile/generated/model/teacher_log_conduct_request.dart';
 import 'package:school_mobile/generated/model/teacher_mark_attendance200_response.dart';
 import 'package:school_mobile/generated/model/teacher_mark_attendance_request.dart';
 import 'package:school_mobile/generated/model/teacher_my_classes200_response.dart';
 import 'package:school_mobile/generated/model/teacher_my_timetable200_response.dart';
+import 'package:school_mobile/generated/model/teacher_roster200_response.dart';
+import 'package:school_mobile/generated/model/teacher_roster403_response.dart';
+import 'package:school_mobile/generated/model/teacher_submissions200_response.dart';
+import 'package:school_mobile/generated/model/teacher_today200_response.dart';
 import 'package:school_mobile/generated/model/user.dart';
 
 class TeacherApi {
@@ -39,6 +54,202 @@ class TeacherApi {
   final Serializers _serializers;
 
   const TeacherApi(this._dio, this._serializers);
+
+  /// Sends one approved notice to a class or a single guardian
+  /// Free text is deliberately not accepted here: one tap from a phone reaches thirty households, and moderating that is not something anyone on this project is staffed to do.
+  ///
+  /// Parameters:
+  /// * [mobileTeacherAnnounceRequest] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [String] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<String>> mobileTeacherAnnounce({ 
+    required MobileTeacherAnnounceRequest mobileTeacherAnnounceRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/announcements';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      const _type = FullType(MobileTeacherAnnounceRequest);
+      _bodyData = _serializers.serialize(mobileTeacherAnnounceRequest, specifiedType: _type);
+
+    } catch(error, stackTrace) {
+      throw DioException(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    String? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : rawResponse as String;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<String>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Creates a draft. Nothing reaches a student until it is published
+  /// 
+  ///
+  /// Parameters:
+  /// * [mobileTeacherCreateAssignmentRequest] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [String] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<String>> mobileTeacherCreateAssignment({ 
+    required MobileTeacherCreateAssignmentRequest mobileTeacherCreateAssignmentRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/assignments';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      const _type = FullType(MobileTeacherCreateAssignmentRequest);
+      _bodyData = _serializers.serialize(mobileTeacherCreateAssignmentRequest, specifiedType: _type);
+
+    } catch(error, stackTrace) {
+      throw DioException(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    String? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : rawResponse as String;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<String>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
 
   /// Teacher Announce
   /// 
@@ -141,6 +352,85 @@ class TeacherApi {
     );
   }
 
+  /// The notices a teacher may send, and when they may send them
+  /// 
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherAnnouncementTemplates200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherAnnouncementTemplates200Response>> teacherAnnouncementTemplates({ 
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/announcement-templates';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherAnnouncementTemplates200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherAnnouncementTemplates200Response),
+      ) as TeacherAnnouncementTemplates200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherAnnouncementTemplates200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
   /// Teacher Assignmentsubmissions
   /// 
   ///
@@ -211,6 +501,290 @@ class TeacherApi {
     }
 
     return Response<TeacherAssignmentSubmissions200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// This teacher&#39;s homework for their assigned classes, with hand-in counts
+  /// 
+  ///
+  /// Parameters:
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherAssignments200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherAssignments200Response>> teacherAssignments({ 
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/assignments';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherAssignments200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherAssignments200Response),
+      ) as TeacherAssignments200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherAssignments200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Attaches a file to a draft
+  /// Separate from creating the assignment: an upload over a school connection is the step most likely to fail, and a failure here must not take the text with it. The assignment survives, the attachment is visibly absent, and the upload can be retried without retyping anything.
+  ///
+  /// Parameters:
+  /// * [assignmentId] 
+  /// * [file] - Maximum file size: 20480 kilobytes.
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherAttachToAssignment200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherAttachToAssignment200Response>> teacherAttachToAssignment({ 
+    required int assignmentId,
+    MultipartFile? file,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/assignments/{assignmentId}/attachment'.replaceAll('{' r'assignmentId' '}', encodeQueryParameter(_serializers, assignmentId, const FullType(int)).toString());
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'multipart/form-data',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = FormData.fromMap(<String, dynamic>{
+        if (file != null) r'file': file,
+      });
+
+    } catch(error, stackTrace) {
+      throw DioException(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherAttachToAssignment200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherAttachToAssignment200Response),
+      ) as TeacherAttachToAssignment200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherAttachToAssignment200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// A whole class&#39;s attendance in one write
+  /// &#x60;Idempotency-Key&#x60; is required. This is the endpoint an offline phone drains into, so the same batch will be sent again after any timeout, and the unique index on the key is what makes the second send a no-op rather than a second submission.
+  ///
+  /// Parameters:
+  /// * [teacherAttendanceBatchRequest] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherAttendanceBatch200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherAttendanceBatch200Response>> teacherAttendanceBatch({ 
+    required TeacherAttendanceBatchRequest teacherAttendanceBatchRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/attendance/batch';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      const _type = FullType(TeacherAttendanceBatchRequest);
+      _bodyData = _serializers.serialize(teacherAttendanceBatchRequest, specifiedType: _type);
+
+    } catch(error, stackTrace) {
+      throw DioException(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherAttendanceBatch200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherAttendanceBatch200Response),
+      ) as TeacherAttendanceBatch200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherAttendanceBatch200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -693,7 +1267,7 @@ class TeacherApi {
     );
   }
 
-  /// Teacher Gradecomponents 106
+  /// Teacher Gradecomponents 124
   /// 
   ///
   /// Parameters:
@@ -714,7 +1288,7 @@ class TeacherApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<GradeComponent>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents106({ 
+  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents124({ 
     required int classRoomId,
     required int subjectId,
     required String name,
@@ -798,13 +1372,13 @@ class TeacherApi {
     );
   }
 
-  /// Teacher Gradecomponents 107
+  /// Teacher Gradecomponents 125
   /// 
   ///
   /// Parameters:
   /// * [classRoomId] 
   /// * [subjectId] 
-  /// * [teacherGradeComponents107Request] 
+  /// * [teacherGradeComponents125Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -814,10 +1388,10 @@ class TeacherApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<GradeComponent>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents107({ 
+  Future<Response<BuiltList<GradeComponent>>> teacherGradeComponents125({ 
     required int classRoomId,
     required int subjectId,
-    required TeacherGradeComponents107Request teacherGradeComponents107Request,
+    required TeacherGradeComponents125Request teacherGradeComponents125Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -848,8 +1422,8 @@ class TeacherApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(TeacherGradeComponents107Request);
-      _bodyData = _serializers.serialize(teacherGradeComponents107Request, specifiedType: _type);
+      const _type = FullType(TeacherGradeComponents125Request);
+      _bodyData = _serializers.serialize(teacherGradeComponents125Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -995,6 +1569,190 @@ class TeacherApi {
     }
 
     return Response<Submission>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// One class&#39;s mark sheet for one subject
+  /// Carries the gradebook&#39;s workflow state and every score&#39;s version, so the client can show a locked sheet as locked and a stale edit as stale rather than discovering either at submission time.
+  ///
+  /// Parameters:
+  /// * [classId] 
+  /// * [subjectId] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherGradebook200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherGradebook200Response>> teacherGradebook({ 
+    required int classId,
+    required int subjectId,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/gradebook/{classId}/{subjectId}'.replaceAll('{' r'classId' '}', encodeQueryParameter(_serializers, classId, const FullType(int)).toString()).replaceAll('{' r'subjectId' '}', encodeQueryParameter(_serializers, subjectId, const FullType(int)).toString());
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherGradebook200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherGradebook200Response),
+      ) as TeacherGradebook200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherGradebook200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// A column of marks in one write
+  /// All-or-nothing, and idempotent on the key. A partially applied batch is unrecoverable for an offline client: it cannot tell which half landed.
+  ///
+  /// Parameters:
+  /// * [teacherGradesBatchRequest] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherGradesBatch200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherGradesBatch200Response>> teacherGradesBatch({ 
+    required TeacherGradesBatchRequest teacherGradesBatchRequest,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/grades/batch';
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      const _type = FullType(TeacherGradesBatchRequest);
+      _bodyData = _serializers.serialize(teacherGradesBatchRequest, specifiedType: _type);
+
+    } catch(error, stackTrace) {
+      throw DioException(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherGradesBatch200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherGradesBatch200Response),
+      ) as TeacherGradesBatch200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherGradesBatch200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -1355,6 +2113,342 @@ class TeacherApi {
     }
 
     return Response<TeacherMyTimetable200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Publishes a draft and notifies the class
+  /// A second publish is a no-op rather than a second round of notifications to every family in the class.
+  ///
+  /// Parameters:
+  /// * [assignmentId] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [GradebookSubmit200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<GradebookSubmit200Response>> teacherPublishAssignment({ 
+    required int assignmentId,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/assignments/{assignmentId}/publish'.replaceAll('{' r'assignmentId' '}', encodeQueryParameter(_serializers, assignmentId, const FullType(int)).toString());
+    final _options = Options(
+      method: r'POST',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    GradebookSubmit200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(GradebookSubmit200Response),
+      ) as GradebookSubmit200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<GradebookSubmit200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// One class&#39;s students, with any attendance already recorded for the day
+  /// 
+  ///
+  /// Parameters:
+  /// * [classId] 
+  /// * [date] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherRoster200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherRoster200Response>> teacherRoster({ 
+    required int classId,
+    DateTime? date,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/roster/{classId}'.replaceAll('{' r'classId' '}', encodeQueryParameter(_serializers, classId, const FullType(int)).toString());
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _queryParameters = <String, dynamic>{
+      r'date': encodeQueryParameter(_serializers, date, const FullType(DateTime)),
+    };
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      queryParameters: _queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherRoster200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherRoster200Response),
+      ) as TeacherRoster200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherRoster200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// Who has handed in, and who has not
+  /// 
+  ///
+  /// Parameters:
+  /// * [assignmentId] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherSubmissions200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherSubmissions200Response>> teacherSubmissions({ 
+    required int assignmentId,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/assignments/{assignmentId}/submissions'.replaceAll('{' r'assignmentId' '}', encodeQueryParameter(_serializers, assignmentId, const FullType(int)).toString());
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherSubmissions200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherSubmissions200Response),
+      ) as TeacherSubmissions200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherSubmissions200Response>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// The teacher&#39;s periods for a day, and which of them still need marking
+  /// 
+  ///
+  /// Parameters:
+  /// * [date] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [TeacherToday200Response] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<TeacherToday200Response>> teacherToday({ 
+    DateTime? date,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/mobile/v1/teacher/today';
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'http',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _queryParameters = <String, dynamic>{
+      r'date': encodeQueryParameter(_serializers, date, const FullType(DateTime)),
+    };
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      queryParameters: _queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    TeacherToday200Response? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(TeacherToday200Response),
+      ) as TeacherToday200Response;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<TeacherToday200Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

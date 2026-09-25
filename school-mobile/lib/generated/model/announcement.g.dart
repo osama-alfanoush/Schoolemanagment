@@ -23,6 +23,10 @@ class _$Announcement extends Announcement {
   final DateTime? updatedAt;
   @override
   final int schoolId;
+  @override
+  final String? templateKey;
+  @override
+  final String? idempotencyKey;
 
   factory _$Announcement([void Function(AnnouncementBuilder)? updates]) =>
       (AnnouncementBuilder()..update(updates))._build();
@@ -36,6 +40,8 @@ class _$Announcement extends Announcement {
     this.createdAt,
     this.updatedAt,
     required this.schoolId,
+    this.templateKey,
+    this.idempotencyKey,
   }) : super._();
   @override
   Announcement rebuild(void Function(AnnouncementBuilder) updates) =>
@@ -55,7 +61,9 @@ class _$Announcement extends Announcement {
         body == other.body &&
         createdAt == other.createdAt &&
         updatedAt == other.updatedAt &&
-        schoolId == other.schoolId;
+        schoolId == other.schoolId &&
+        templateKey == other.templateKey &&
+        idempotencyKey == other.idempotencyKey;
   }
 
   @override
@@ -69,6 +77,8 @@ class _$Announcement extends Announcement {
     _$hash = $jc(_$hash, createdAt.hashCode);
     _$hash = $jc(_$hash, updatedAt.hashCode);
     _$hash = $jc(_$hash, schoolId.hashCode);
+    _$hash = $jc(_$hash, templateKey.hashCode);
+    _$hash = $jc(_$hash, idempotencyKey.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -83,7 +93,9 @@ class _$Announcement extends Announcement {
           ..add('body', body)
           ..add('createdAt', createdAt)
           ..add('updatedAt', updatedAt)
-          ..add('schoolId', schoolId))
+          ..add('schoolId', schoolId)
+          ..add('templateKey', templateKey)
+          ..add('idempotencyKey', idempotencyKey))
         .toString();
   }
 }
@@ -124,6 +136,15 @@ class AnnouncementBuilder
   int? get schoolId => _$this._schoolId;
   set schoolId(int? schoolId) => _$this._schoolId = schoolId;
 
+  String? _templateKey;
+  String? get templateKey => _$this._templateKey;
+  set templateKey(String? templateKey) => _$this._templateKey = templateKey;
+
+  String? _idempotencyKey;
+  String? get idempotencyKey => _$this._idempotencyKey;
+  set idempotencyKey(String? idempotencyKey) =>
+      _$this._idempotencyKey = idempotencyKey;
+
   AnnouncementBuilder() {
     Announcement._defaults(this);
   }
@@ -139,6 +160,8 @@ class AnnouncementBuilder
       _createdAt = $v.createdAt;
       _updatedAt = $v.updatedAt;
       _schoolId = $v.schoolId;
+      _templateKey = $v.templateKey;
+      _idempotencyKey = $v.idempotencyKey;
       _$v = null;
     }
     return this;
@@ -189,6 +212,8 @@ class AnnouncementBuilder
             r'Announcement',
             'schoolId',
           ),
+          templateKey: templateKey,
+          idempotencyKey: idempotencyKey,
         );
     replace(_$result);
     return _$result;

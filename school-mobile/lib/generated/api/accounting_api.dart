@@ -21,8 +21,8 @@ import 'package:school_mobile/generated/model/accounting_show_journal_entry200_r
 import 'package:school_mobile/generated/model/accounting_show_journal_entry404_response.dart';
 import 'package:school_mobile/generated/model/accounting_store_account201_response.dart';
 import 'package:school_mobile/generated/model/accounting_store_account_request.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry285201_response.dart';
-import 'package:school_mobile/generated/model/accounting_store_journal_entry285422_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry303201_response.dart';
+import 'package:school_mobile/generated/model/accounting_store_journal_entry303422_response.dart';
 import 'package:school_mobile/generated/model/accounting_sync_budget_actuals200_response.dart';
 import 'package:school_mobile/generated/model/accounting_trial_balance200_response.dart';
 import 'package:school_mobile/generated/model/accounting_update_account_request.dart';
@@ -1485,7 +1485,7 @@ class AccountingApi {
     );
   }
 
-  /// Accounting Storejournalentry 285
+  /// Accounting Storejournalentry 303
   /// 
   ///
   /// Parameters:
@@ -1496,9 +1496,9 @@ class AccountingApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [AccountingStoreJournalEntry285201Response] as data
+  /// Returns a [Future] containing a [Response] with a [AccountingStoreJournalEntry303201Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<AccountingStoreJournalEntry285201Response>> accountingStoreJournalEntry285({ 
+  Future<Response<AccountingStoreJournalEntry303201Response>> accountingStoreJournalEntry303({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1533,14 +1533,14 @@ class AccountingApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    AccountingStoreJournalEntry285201Response? _responseData;
+    AccountingStoreJournalEntry303201Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(AccountingStoreJournalEntry285201Response),
-      ) as AccountingStoreJournalEntry285201Response;
+        specifiedType: const FullType(AccountingStoreJournalEntry303201Response),
+      ) as AccountingStoreJournalEntry303201Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -1552,7 +1552,7 @@ class AccountingApi {
       );
     }
 
-    return Response<AccountingStoreJournalEntry285201Response>(
+    return Response<AccountingStoreJournalEntry303201Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -1564,7 +1564,7 @@ class AccountingApi {
     );
   }
 
-  /// Accounting Storejournalentry 291
+  /// Accounting Storejournalentry 309
   /// 
   ///
   /// Parameters:
@@ -1575,9 +1575,9 @@ class AccountingApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [AccountingStoreJournalEntry285201Response] as data
+  /// Returns a [Future] containing a [Response] with a [AccountingStoreJournalEntry303201Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<AccountingStoreJournalEntry285201Response>> accountingStoreJournalEntry291({ 
+  Future<Response<AccountingStoreJournalEntry303201Response>> accountingStoreJournalEntry309({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -1612,14 +1612,14 @@ class AccountingApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    AccountingStoreJournalEntry285201Response? _responseData;
+    AccountingStoreJournalEntry303201Response? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(AccountingStoreJournalEntry285201Response),
-      ) as AccountingStoreJournalEntry285201Response;
+        specifiedType: const FullType(AccountingStoreJournalEntry303201Response),
+      ) as AccountingStoreJournalEntry303201Response;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -1631,7 +1631,7 @@ class AccountingApi {
       );
     }
 
-    return Response<AccountingStoreJournalEntry285201Response>(
+    return Response<AccountingStoreJournalEntry303201Response>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

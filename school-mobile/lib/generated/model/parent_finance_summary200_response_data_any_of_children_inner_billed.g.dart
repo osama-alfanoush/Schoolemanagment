@@ -6,6 +6,82 @@ part of 'parent_finance_summary200_response_data_any_of_children_inner_billed.da
 // BuiltValueGenerator
 // **************************************************************************
 
+const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum_number2 =
+    const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum._(
+      'number2',
+    );
+
+ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnumValueOf(
+  String name,
+) {
+  switch (name) {
+    case 'number2':
+      return _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum_number2;
+    default:
+      throw ArgumentError(name);
+  }
+}
+
+final BuiltSet<
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+>
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnumValues =
+    BuiltSet<
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+    >(const <
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+    >[
+      _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum_number2,
+    ]);
+
+Serializer<
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+>
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnumSerializer =
+    _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnumSerializer();
+
+class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnumSerializer
+    implements
+        PrimitiveSerializer<
+          ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+        > {
+  static const Map<String, Object> _toWire = const <String, Object>{
+    'number2': 2,
+  };
+  static const Map<Object, String> _fromWire = const <Object, String>{
+    2: 'number2',
+  };
+
+  @override
+  final Iterable<Type> types = const <Type>[
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum,
+  ];
+  @override
+  final String wireName =
+      'ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum';
+
+  @override
+  Object serialize(
+    Serializers serializers,
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+    object, {
+    FullType specifiedType = FullType.unspecified,
+  }) => _toWire[object.name] ?? object.name;
+
+  @override
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+  deserialize(
+    Serializers serializers,
+    Object serialized, {
+    FullType specifiedType = FullType.unspecified,
+  }) =>
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum.valueOf(
+        _fromWire[serialized] ?? (serialized is String ? serialized : ''),
+      );
+}
+
 class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilled
     extends ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilled {
   @override
@@ -13,7 +89,8 @@ class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilled
   @override
   final String currency;
   @override
-  final int decimals;
+  final ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum
+  decimals;
 
   factory _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilled([
     void Function(
@@ -92,9 +169,14 @@ class ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledBuilder
   String? get currency => _$this._currency;
   set currency(String? currency) => _$this._currency = currency;
 
-  int? _decimals;
-  int? get decimals => _$this._decimals;
-  set decimals(int? decimals) => _$this._decimals = decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum?
+  _decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum?
+  get decimals => _$this._decimals;
+  set decimals(
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledDecimalsEnum?
+    decimals,
+  ) => _$this._decimals = decimals;
 
   ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilledBuilder() {
     ParentFinanceSummary200ResponseDataAnyOfChildrenInnerBilled._defaults(this);

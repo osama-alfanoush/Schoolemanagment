@@ -16,7 +16,7 @@ class _$TeacherMarkAttendanceRequest extends TeacherMarkAttendanceRequest {
   @override
   final DateTime date;
   @override
-  final BuiltList<TeacherMarkAttendanceRequestRecordsInner> records;
+  final BuiltList<TeacherAttendanceBatchRequestRecordsInner> records;
 
   factory _$TeacherMarkAttendanceRequest([
     void Function(TeacherMarkAttendanceRequestBuilder)? updates,
@@ -98,12 +98,13 @@ class TeacherMarkAttendanceRequestBuilder
   DateTime? get date => _$this._date;
   set date(DateTime? date) => _$this._date = date;
 
-  ListBuilder<TeacherMarkAttendanceRequestRecordsInner>? _records;
-  ListBuilder<TeacherMarkAttendanceRequestRecordsInner> get records =>
+  ListBuilder<TeacherAttendanceBatchRequestRecordsInner>? _records;
+  ListBuilder<TeacherAttendanceBatchRequestRecordsInner> get records =>
       _$this._records ??=
-          ListBuilder<TeacherMarkAttendanceRequestRecordsInner>();
-  set records(ListBuilder<TeacherMarkAttendanceRequestRecordsInner>? records) =>
-      _$this._records = records;
+          ListBuilder<TeacherAttendanceBatchRequestRecordsInner>();
+  set records(
+    ListBuilder<TeacherAttendanceBatchRequestRecordsInner>? records,
+  ) => _$this._records = records;
 
   TeacherMarkAttendanceRequestBuilder() {
     TeacherMarkAttendanceRequest._defaults(this);

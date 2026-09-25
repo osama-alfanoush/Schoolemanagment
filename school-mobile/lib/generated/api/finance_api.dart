@@ -12,7 +12,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:school_mobile/generated/api_util.dart';
 import 'package:school_mobile/generated/model/fee_structure.dart';
 import 'package:school_mobile/generated/model/file_profile_photo403_response.dart';
-import 'package:school_mobile/generated/model/finance_fee_structures270_request.dart';
+import 'package:school_mobile/generated/model/finance_fee_structures288_request.dart';
 import 'package:school_mobile/generated/model/finance_financial_reports200_response.dart';
 import 'package:school_mobile/generated/model/finance_generate_invoices201_response.dart';
 import 'package:school_mobile/generated/model/finance_generate_invoices_request.dart';
@@ -87,7 +87,7 @@ class FinanceApi {
     return _response;
   }
 
-  /// Finance Feestructures 269
+  /// Finance Feestructures 287
   /// 
   ///
   /// Parameters:
@@ -105,7 +105,7 @@ class FinanceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<FeeStructure>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<FeeStructure>>> financeFeeStructures269({ 
+  Future<Response<BuiltList<FeeStructure>>> financeFeeStructures287({ 
     required String name,
     required String billingCycle,
     required num amount,
@@ -185,11 +185,11 @@ class FinanceApi {
     );
   }
 
-  /// Finance Feestructures 270
+  /// Finance Feestructures 288
   /// 
   ///
   /// Parameters:
-  /// * [financeFeeStructures270Request] 
+  /// * [financeFeeStructures288Request] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -199,8 +199,8 @@ class FinanceApi {
   ///
   /// Returns a [Future] containing a [Response] with a [BuiltList<FeeStructure>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<FeeStructure>>> financeFeeStructures270({ 
-    required FinanceFeeStructures270Request financeFeeStructures270Request,
+  Future<Response<BuiltList<FeeStructure>>> financeFeeStructures288({ 
+    required FinanceFeeStructures288Request financeFeeStructures288Request,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -231,8 +231,8 @@ class FinanceApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(FinanceFeeStructures270Request);
-      _bodyData = _serializers.serialize(financeFeeStructures270Request, specifiedType: _type);
+      const _type = FullType(FinanceFeeStructures288Request);
+      _bodyData = _serializers.serialize(financeFeeStructures288Request, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(

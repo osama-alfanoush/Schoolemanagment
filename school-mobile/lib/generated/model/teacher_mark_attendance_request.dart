@@ -4,7 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:school_mobile/generated/model/teacher_mark_attendance_request_records_inner.dart';
+import 'package:school_mobile/generated/model/teacher_attendance_batch_request_records_inner.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -33,7 +33,7 @@ abstract class TeacherMarkAttendanceRequest implements Built<TeacherMarkAttendan
   DateTime get date;
 
   @BuiltValueField(wireName: r'records')
-  BuiltList<TeacherMarkAttendanceRequestRecordsInner> get records;
+  BuiltList<TeacherAttendanceBatchRequestRecordsInner> get records;
 
   TeacherMarkAttendanceRequest._();
 
@@ -85,7 +85,7 @@ class _$TeacherMarkAttendanceRequestSerializer implements PrimitiveSerializer<Te
     yield r'records';
     yield serializers.serialize(
       object.records,
-      specifiedType: const FullType(BuiltList, [FullType(TeacherMarkAttendanceRequestRecordsInner)]),
+      specifiedType: const FullType(BuiltList, [FullType(TeacherAttendanceBatchRequestRecordsInner)]),
     );
   }
 
@@ -143,8 +143,8 @@ class _$TeacherMarkAttendanceRequestSerializer implements PrimitiveSerializer<Te
         case r'records':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(TeacherMarkAttendanceRequestRecordsInner)]),
-          ) as BuiltList<TeacherMarkAttendanceRequestRecordsInner>;
+            specifiedType: const FullType(BuiltList, [FullType(TeacherAttendanceBatchRequestRecordsInner)]),
+          ) as BuiltList<TeacherAttendanceBatchRequestRecordsInner>;
           result.records.replace(valueDes);
           break;
         default:

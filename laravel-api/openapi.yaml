@@ -16847,16 +16847,10 @@ paths:
                             name:
                               type: string
                             status:
+                              type: string
                               description: |-
                                 Absent means not handed in. Reporting nothing at all
                                 would let the screen render a blank that reads as "fine".
-                              anyOf:
-                                -
-                                  type: string
-                                -
-                                  type: string
-                                  enum:
-                                    - pending
                             submitted_at:
                               type:
                                 - string

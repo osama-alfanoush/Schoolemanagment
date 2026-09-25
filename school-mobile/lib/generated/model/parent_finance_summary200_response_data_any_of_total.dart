@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -23,7 +24,8 @@ abstract class ParentFinanceSummary200ResponseDataAnyOfTotal implements Built<Pa
   String get currency;
 
   @BuiltValueField(wireName: r'decimals')
-  int get decimals;
+  ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum get decimals;
+  // enum decimalsEnum {  2,  };
 
   ParentFinanceSummary200ResponseDataAnyOfTotal._();
 
@@ -61,7 +63,7 @@ class _$ParentFinanceSummary200ResponseDataAnyOfTotalSerializer implements Primi
     yield r'decimals';
     yield serializers.serialize(
       object.decimals,
-      specifiedType: const FullType(int),
+      specifiedType: const FullType(ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum),
     );
   }
 
@@ -103,8 +105,8 @@ class _$ParentFinanceSummary200ResponseDataAnyOfTotalSerializer implements Primi
         case r'decimals':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
+            specifiedType: const FullType(ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum),
+          ) as ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum;
           result.decimals = valueDes;
           break;
         default:
@@ -134,5 +136,18 @@ class _$ParentFinanceSummary200ResponseDataAnyOfTotalSerializer implements Primi
     );
     return result.build();
   }
+}
+
+class ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum extends EnumClass {
+
+  @BuiltValueEnumConst(wireNumber: 2)
+  static const ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum number2 = _$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum_number2;
+
+  static Serializer<ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum> get serializer => _$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumSerializer;
+
+  const ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum._(String name): super(name);
+
+  static BuiltSet<ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum> get values => _$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumValues;
+  static ParentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnum valueOf(String name) => _$parentFinanceSummary200ResponseDataAnyOfTotalDecimalsEnumValueOf(name);
 }
 

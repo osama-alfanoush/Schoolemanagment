@@ -6,6 +6,82 @@ part of 'parent_finance_summary200_response_data_any_of_children_inner_outstandi
 // BuiltValueGenerator
 // **************************************************************************
 
+const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum_number2 =
+    const ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum._(
+      'number2',
+    );
+
+ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnumValueOf(
+  String name,
+) {
+  switch (name) {
+    case 'number2':
+      return _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum_number2;
+    default:
+      throw ArgumentError(name);
+  }
+}
+
+final BuiltSet<
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+>
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnumValues =
+    BuiltSet<
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+    >(const <
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+    >[
+      _$parentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum_number2,
+    ]);
+
+Serializer<
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+>
+_$parentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnumSerializer =
+    _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnumSerializer();
+
+class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnumSerializer
+    implements
+        PrimitiveSerializer<
+          ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+        > {
+  static const Map<String, Object> _toWire = const <String, Object>{
+    'number2': 2,
+  };
+  static const Map<Object, String> _fromWire = const <Object, String>{
+    2: 'number2',
+  };
+
+  @override
+  final Iterable<Type> types = const <Type>[
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum,
+  ];
+  @override
+  final String wireName =
+      'ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum';
+
+  @override
+  Object serialize(
+    Serializers serializers,
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+    object, {
+    FullType specifiedType = FullType.unspecified,
+  }) => _toWire[object.name] ?? object.name;
+
+  @override
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+  deserialize(
+    Serializers serializers,
+    Object serialized, {
+    FullType specifiedType = FullType.unspecified,
+  }) =>
+      ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum.valueOf(
+        _fromWire[serialized] ?? (serialized is String ? serialized : ''),
+      );
+}
+
 class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstanding
     extends ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstanding {
   @override
@@ -13,7 +89,8 @@ class _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstanding
   @override
   final String currency;
   @override
-  final int decimals;
+  final ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum
+  decimals;
 
   factory _$ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstanding([
     void Function(
@@ -92,9 +169,14 @@ class ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingBuilder
   String? get currency => _$this._currency;
   set currency(String? currency) => _$this._currency = currency;
 
-  int? _decimals;
-  int? get decimals => _$this._decimals;
-  set decimals(int? decimals) => _$this._decimals = decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum?
+  _decimals;
+  ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum?
+  get decimals => _$this._decimals;
+  set decimals(
+    ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingDecimalsEnum?
+    decimals,
+  ) => _$this._decimals = decimals;
 
   ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstandingBuilder() {
     ParentFinanceSummary200ResponseDataAnyOfChildrenInnerOutstanding._defaults(
