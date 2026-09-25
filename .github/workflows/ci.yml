@@ -361,4 +361,6 @@ jobs:
       - name: Secret scan
         uses: trufflesecurity/trufflehog@main
         with:
-          extra_args: --results=verified,unknown --exclude-detectors=cloudflarecakey
+          # Excluded paths are accepted findings, each recorded in
+          # laravel-api/docs/security-exceptions.md (EX-2026-002).
+          extra_args: --results=verified,unknown --exclude-detectors=cloudflarecakey --exclude-paths=.github/trufflehog-exclude-paths.txt
