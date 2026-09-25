@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\Mobile\TeacherService;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * One grade submission from the teacher app, keyed by its idempotency key.
  *
- * @see \App\Services\Mobile\TeacherService::submitGrades()
+ * @see TeacherService::submitGrades()
  */
 class TeacherGradeBatch extends Model
 {

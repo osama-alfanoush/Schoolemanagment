@@ -1,9 +1,10 @@
 <?php
 
+use Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess;
 use Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy;
 
 return [
-    'middleware' => ['web', \Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess::class],
+    'middleware' => ['web', RestrictedDocsAccess::class],
 
     'dev_tools' => [
         'enabled' => env('SCRAMBLE_DEV_TOOLS', false),

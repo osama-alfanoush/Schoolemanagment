@@ -108,6 +108,7 @@ class GenerateOpenApi extends Command
         foreach ($node as $key => &$value) {
             if ($value === null && ($parentKey === 'properties' || in_array($key, ['items', 'additionalProperties', 'schema'], true))) {
                 $value = new stdClass;
+
                 continue;
             }
 

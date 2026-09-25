@@ -81,7 +81,7 @@ class SyncController extends Controller
      * The entity types this call should read.
      *
      * @param  list<string>  $allowed
-     * @return list<string>|null  Null when the client named a type it may not have.
+     * @return list<string>|null Null when the client named a type it may not have.
      */
     private function requestedTypes(?string $types, array $allowed): ?array
     {

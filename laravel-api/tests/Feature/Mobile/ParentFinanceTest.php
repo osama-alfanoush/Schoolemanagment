@@ -7,6 +7,7 @@ namespace Tests\Feature\Mobile;
 use App\Models\Invoice;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -338,7 +339,7 @@ class ParentFinanceTest extends TestCase
         unset($row['id']);
         $row['reference'] = 'PAY-DIFFERENT';
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
         DB::table('mobile_payment_intents')->insert($row);
     }
 

@@ -83,8 +83,8 @@ use App\Models\TransportAssignment;
 use App\Models\TransportRoute;
 use App\Models\TransportStop;
 use App\Models\TransportVehicle;
-use App\Models\UserPermission;
 use App\Models\UserDevice;
+use App\Models\UserPermission;
 use App\Models\WarehouseCategory;
 use App\Models\WarehouseItem;
 

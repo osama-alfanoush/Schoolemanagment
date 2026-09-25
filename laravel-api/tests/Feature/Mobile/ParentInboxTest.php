@@ -7,7 +7,6 @@ namespace Tests\Feature\Mobile;
 use App\Models\ClassRoom;
 use App\Models\Message;
 use App\Models\Notification;
-use App\Models\NotificationPreference;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\User;
