@@ -127,8 +127,11 @@ jobs:
       # SQLite cannot express (partial indexes, exclusion constraints, real
       # row locks under concurrent writers), and what a money column does
       # with an extra decimal.
+      # PHPUnit directly: `artisan test` always adds --configuration=phpunit.xml,
+      # so passing another one makes PHPUnit warn about the duplicate option
+      # and exit 1 even when every test passes.
       - name: PostgreSQL concurrency suite
-        run: php artisan test --configuration phpunit.postgres.xml
+        run: vendor/bin/phpunit --configuration phpunit.postgres.xml
 
       # The whole suite again, on the driver production runs. SQLite ignores
       # decimal scale, smallint range and the timetable exclusion constraints,
