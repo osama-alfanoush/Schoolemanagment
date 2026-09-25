@@ -8,15 +8,24 @@ return [
     |--------------------------------------------------------------------------
     |
     | Mobile payloads carry money as integer minor units, never as a decimal
-    | string and never as a float. JOD has THREE decimals: 1 JOD = 1000 fils.
-    | The relational columns are decimal(12,2), so the mobile layer widens the
-    | scale on the way out; it never narrows it, because narrowing loses a fil.
+    | string and never as a float.
+    |
+    | JOD is nominally a THREE-decimal currency: 1 JOD = 1000 fils. The
+    | relational columns are decimal(x,2) and the server's whole internal
+    | minor unit is the qirsh, so the third decimal does not exist anywhere on
+    | this side. The wire therefore declares TWO, which is what the server can
+    | actually store.
+    |
+    | The scale is deliberately not configurable. It lives on
+    | `MobileMoney::decimals()`, pinned to the column scale by
+    | `MoneyColumnScaleTest`, because an env var that disagreed with the
+    | database would not add precision — it would only make every payload
+    | claim precision the database cannot hold. See
+    | docs/finance/money-precision-audit.md.
     |
     */
 
     'currency' => env('MOBILE_CURRENCY', 'JOD'),
-
-    'currency_decimals' => (int) env('MOBILE_CURRENCY_DECIMALS', 3),
 
     /*
     |--------------------------------------------------------------------------

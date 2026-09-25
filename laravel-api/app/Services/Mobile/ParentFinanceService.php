@@ -356,7 +356,7 @@ final class ParentFinanceService
                 'installment_id' => $installment->id,
                 'amount_minor' => $amountMinor,
                 'currency' => strtoupper((string) config('mobile.currency', 'JOD')),
-                'decimals' => (int) config('mobile.currency_decimals', 3),
+                'decimals' => MobileMoney::decimals(),
             ]);
         } catch (QueryException $e) {
             // Lost the race for the unique index. The winner's row is the
@@ -439,7 +439,7 @@ final class ParentFinanceService
         return [
             'minor' => $minor,
             'currency' => strtoupper((string) config('mobile.currency', 'JOD')),
-            'decimals' => (int) config('mobile.currency_decimals', 3),
+            'decimals' => MobileMoney::decimals(),
         ];
     }
 }

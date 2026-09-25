@@ -57,7 +57,7 @@ class ChildBalance {
       billed: billed,
       paid: paid,
       outstanding: outstanding,
-      overdue: moneyFrom(json['overdue']) ?? Money.zero(outstanding.currency),
+      overdue: moneyFrom(json['overdue']) ?? Money.zeroLike(outstanding),
       overdueCount: int.tryParse('${json['overdue_count']}') ?? 0,
     );
   }
@@ -275,7 +275,7 @@ class InvoiceDetail {
       id: id,
       invoiceNo: '${json['invoice_no'] ?? ''}',
       amount: amount,
-      paid: moneyFrom(json['paid']) ?? Money.zero(amount.currency),
+      paid: moneyFrom(json['paid']) ?? Money.zeroLike(amount),
       outstanding: moneyFrom(json['outstanding']) ?? amount,
       status: '${json['status'] ?? ''}',
       clearance: parsed,

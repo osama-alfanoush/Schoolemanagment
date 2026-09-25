@@ -179,7 +179,7 @@ final class ParentHomeService
             $due = Carbon::parse($row->due_date)->startOfDay();
             $outstanding = MobileMoney::toMinor(
                 self::subtract($row->amount, $row->paid_amount),
-                (int) config('mobile.currency_decimals', 3),
+                MobileMoney::decimals(),
             );
 
             $next[$childId] = [
@@ -189,7 +189,7 @@ final class ParentHomeService
                 'outstanding' => [
                     'minor' => $outstanding,
                     'currency' => strtoupper((string) config('mobile.currency', 'JOD')),
-                    'decimals' => (int) config('mobile.currency_decimals', 3),
+                    'decimals' => MobileMoney::decimals(),
                 ],
                 // Negative once the date has passed, which is what lets the
                 // client say "3 days late" rather than "-3 days remaining".

@@ -292,7 +292,7 @@ class ParentBffTest extends TestCase
             ->assertJsonPath('data.children.0.next_installment.overdue', false);
     }
 
-    public function test_money_on_the_home_screen_is_integer_minor_units_at_three_decimals(): void
+    public function test_money_on_the_home_screen_is_integer_minor_units_at_the_stored_scale(): void
     {
         ['parent' => $parent, 'child' => $child] = $this->family();
         $this->installmentFor($child, now()->addDays(5)->toDateString(), '150.00', '25.50');
@@ -300,14 +300,14 @@ class ParentBffTest extends TestCase
         $response = $this->actingAs($parent)->getJson(self::HOME)->assertOk();
 
         $response->assertJsonPath('data.children.0.next_installment.amount', [
-            'minor' => 150000,
+            'minor' => 15000,
             'currency' => 'JOD',
-            'decimals' => 3,
+            'decimals' => 2,
         ]);
-        // 150.00 - 25.50 = 124.50 JOD = 124 500 fils, computed without a float.
+        // 150.00 - 25.50 = 124.50 JOD = 12 450 qirsh, computed without a float.
         $response->assertJsonPath(
             'data.children.0.next_installment.outstanding.minor',
-            124500,
+            12450,
         );
     }
 

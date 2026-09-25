@@ -9,10 +9,13 @@ import 'digit_shape.dart';
 /// space and quietly break string comparisons on formatted amounts.
 const String currencySeparator = ' ';
 
-/// Decimal places for currencies this app knows about.
+/// The *nominal* decimal places of currencies this app knows about.
 ///
-/// JOD is a three-decimal currency: 1 JOD = 1000 fils. Rendering it with two
-/// decimals loses a fil and stops matching the invoice the parent is holding.
+/// JOD is a three-decimal currency: 1 JOD = 1000 fils. This map says what the
+/// currency is, not what any particular payload carries — a server may store
+/// and declare fewer decimals than the currency nominally has, and today ours
+/// does exactly that. The authority for a given amount is the `decimals` field
+/// that arrived with it; this map only bounds it from above.
 const Map<String, int> knownCurrencyDecimals = <String, int>{
   'JOD': 3,
   'USD': 2,
@@ -44,6 +47,25 @@ class CurrencyMismatchException implements Exception {
       'CurrencyMismatchException: cannot combine $left with $right';
 }
 
+/// Arithmetic was attempted across two scales of the same currency.
+///
+/// Separate from [CurrencyMismatchException] because the cause and the fix are
+/// different: this one means two parts of the app disagree about whether an
+/// amount is counted in qirsh or in fils, which is a thousandfold error and
+/// never a display problem.
+class ScaleMismatchException implements Exception {
+  const ScaleMismatchException(this.currency, this.left, this.right);
+
+  final String currency;
+  final int left;
+  final int right;
+
+  @override
+  String toString() =>
+      'ScaleMismatchException: cannot combine $currency at $left decimals '
+      'with $currency at $right decimals';
+}
+
 /// An exact amount of money, held as integer minor units.
 ///
 /// There is deliberately **no** constructor, field or method here that accepts
@@ -62,11 +84,25 @@ class Money implements Comparable<Money> {
       : currency = 'JOD',
         decimals = 3;
 
-  /// Zero in [currency], using that currency's own scale.
+  /// Zero in [currency], using that currency's own nominal scale.
+  ///
+  /// Use [Money.zeroLike] instead wherever the zero will sit beside, or be
+  /// combined with, an amount that came from the server: the server's scale is
+  /// the one in play, and it need not be the nominal one.
   factory Money.zero(String currency) => Money(
         minor: 0,
         currency: currency,
         decimals: knownCurrencyDecimals[currency.toUpperCase()] ?? 2,
+      );
+
+  /// Zero in the same currency *and scale* as [other].
+  ///
+  /// The default for a missing amount in a payload, so an absent value and a
+  /// present one are counted in the same units.
+  factory Money.zeroLike(Money other) => Money(
+        minor: 0,
+        currency: other.currency,
+        decimals: other.decimals,
       );
 
   /// The amount in minor units — fils for JOD.
@@ -112,12 +148,18 @@ class Money implements Comparable<Money> {
       );
     }
 
-    // If we know the currency, the payload has to agree with it. A JOD amount
-    // claiming 2 decimals is a bug upstream, not something to render anyway.
-    final expected = knownCurrencyDecimals[currency];
-    if (expected != null && expected != rawDecimals) {
+    // A payload may declare FEWER decimals than the currency nominally has:
+    // that is a server storing qirsh rather than fils, and the honest thing
+    // for it to do is say so. It may not declare MORE, because precision the
+    // currency does not have cannot have come from anywhere real.
+    //
+    // This deliberately does not pin JOD to 3. Pinning it would mean an
+    // installed app rejecting every amount the day the server widens its
+    // columns, turning a server-side improvement into a field outage.
+    final nominal = knownCurrencyDecimals[currency];
+    if (nominal != null && rawDecimals > nominal) {
       throw MoneyFormatException(
-        '$currency uses $expected decimals, payload declared $rawDecimals.',
+        '$currency has at most $nominal decimals, payload declared $rawDecimals.',
       );
     }
 
@@ -151,13 +193,13 @@ class Money implements Comparable<Money> {
   int get fractionalUnits => minor.abs() % _scale;
 
   Money operator +(Money other) => Money(
-        minor: minor + _assertSameCurrency(other).minor,
+        minor: minor + _assertCompatible(other).minor,
         currency: currency,
         decimals: decimals,
       );
 
   Money operator -(Money other) => Money(
-        minor: minor - _assertSameCurrency(other).minor,
+        minor: minor - _assertCompatible(other).minor,
         currency: currency,
         decimals: decimals,
       );
@@ -235,9 +277,20 @@ class Money implements Comparable<Money> {
     ];
   }
 
-  Money _assertSameCurrency(Money other) {
+  /// Refuses arithmetic that would mix currencies or scales.
+  ///
+  /// The scale half matters as much as the currency half. `minor` means
+  /// nothing without the scale it is counted in, so adding 1250 qirsh to
+  /// 12500 fils yields 13750 of neither. While the server declared the same
+  /// scale as the currency's nominal one this could not happen; now that a
+  /// payload may legitimately carry fewer decimals than [knownCurrencyDecimals]
+  /// says, it can, and silently.
+  Money _assertCompatible(Money other) {
     if (other.currency != currency) {
       throw CurrencyMismatchException(currency, other.currency);
+    }
+    if (other.decimals != decimals) {
+      throw ScaleMismatchException(currency, decimals, other.decimals);
     }
     return other;
   }
@@ -274,7 +327,7 @@ class Money implements Comparable<Money> {
 
   @override
   int compareTo(Money other) =>
-      minor.compareTo(_assertSameCurrency(other).minor);
+      minor.compareTo(_assertCompatible(other).minor);
 
   @override
   bool operator ==(Object other) =>

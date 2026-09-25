@@ -91,12 +91,32 @@ void main() {
       );
     });
 
-    test('JOD declaring the wrong number of decimals is rejected', () {
+    test('JOD declaring two decimals is accepted, because the server stores two',
+        () {
+      // This inverts a rule that used to say JOD must always declare 3. The
+      // server's money columns are decimal(x,2) and its internal minor unit is
+      // the qirsh, so declaring 3 was the app being told a precision the
+      // database never had. Accepting the server's own scale is what makes the
+      // displayed amount true.
+      final money = Money.fromJson(const <String, Object?>{
+        'minor': 1250,
+        'currency': 'JOD',
+        'decimals': 2,
+      });
+
+      expect(money.decimals, 2);
+      expect(money.format(locale: 'en'), '12.50 JOD');
+    });
+
+    test('JOD declaring four decimals is still rejected', () {
+      // Fewer decimals than the currency has is a server being honest about
+      // its storage. More is precision that cannot have come from anywhere
+      // real, and rendering it would invent digits.
       expect(
         () => Money.fromJson(const <String, Object?>{
-          'minor': 1250,
+          'minor': 125000,
           'currency': 'JOD',
-          'decimals': 2,
+          'decimals': 4,
         }),
         throwsA(isA<MoneyFormatException>()),
       );
@@ -233,6 +253,84 @@ void main() {
       expect(large.format(locale: 'en'), '999,999.999 JOD');
       expect(large.wholeUnits, 999999);
       expect(large.fractionalUnits, 999);
+    });
+  });
+
+  group('the scale the server declares', () {
+    // The server stores qirsh, not fils, and now says so. These pin the
+    // rendering of that honest payload, and the capability the client keeps
+    // for the day the server gains a third decimal.
+
+    const qirsh = Money(minor: 1250, currency: 'JOD', decimals: 2);
+
+    test('a two-decimal JOD amount renders with two in both locales', () {
+      expect(qirsh.format(locale: 'en'), '12.50 JOD');
+      expect(
+        qirsh.format(locale: 'ar', digitShape: DigitShape.western),
+        '12.50 JOD',
+      );
+    });
+
+    test('and in Arabic-Indic digits, which is a separate code path', () {
+      // Digits are shaped; the separator is deliberately left ASCII, as the
+      // three-decimal case above already establishes.
+      expect(
+        qirsh.format(locale: 'ar', digitShape: DigitShape.arabicIndic),
+        '١٢.٥٠ JOD',
+      );
+    });
+
+    test('a trailing zero is not dropped', () {
+      // 12.5 and 12.50 are the same number and different amounts of money on
+      // a receipt. Padding is what keeps the column aligned with the invoice.
+      const half = Money(minor: 1250, currency: 'JOD', decimals: 2);
+
+      expect(half.format(locale: 'en', showCurrency: false), '12.50');
+    });
+
+    test('whole and fractional units split on the declared scale, not on 3',
+        () {
+      expect(qirsh.wholeUnits, 12);
+      expect(qirsh.fractionalUnits, 50);
+    });
+
+    test('the client keeps its three-decimal capability', () {
+      // The server's limitation is temporary; the type must not be narrowed to
+      // match it, or widening the columns later becomes a client rewrite.
+      const fils = Money.jod(12505);
+
+      expect(fils.decimals, 3);
+      expect(fils.format(locale: 'en'), '12.505 JOD');
+      expect(fils.wholeUnits, 12);
+      expect(fils.fractionalUnits, 505);
+    });
+
+    test('allocate stays exact at two decimals', () {
+      // 100.00 JOD in qirsh, split three ways.
+      const total = Money(minor: 10000, currency: 'JOD', decimals: 2);
+      final parts = total.allocate(3);
+
+      expect(parts.map((p) => p.minor).toList(), <int>[3334, 3333, 3333]);
+      expect(parts.reduce((a, b) => a + b), total);
+      expect(parts.every((p) => p.decimals == 2), isTrue);
+    });
+
+    test('mixing qirsh and fils is refused, not silently added', () {
+      // 1250 qirsh + 12500 fils is 13750 of neither. While the server declared
+      // the nominal scale this could not arise; now that it declares its own,
+      // it can.
+      const fils = Money.jod(12500);
+
+      expect(() => qirsh + fils, throwsA(isA<ScaleMismatchException>()));
+      expect(() => qirsh - fils, throwsA(isA<ScaleMismatchException>()));
+      expect(() => qirsh.compareTo(fils), throwsA(isA<ScaleMismatchException>()));
+    });
+
+    test('a missing amount adopts the scale of the one beside it', () {
+      final zero = Money.zeroLike(qirsh);
+
+      expect(zero.decimals, 2);
+      expect(zero + qirsh, qirsh);
     });
   });
 }

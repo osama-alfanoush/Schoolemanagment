@@ -114,15 +114,16 @@ class ParentFinanceTest extends TestCase
 
         $byChild = collect($data['children'])->keyBy('student_user_id');
 
-        $this->assertSame(100000, $byChild[$first->id]['billed']['minor']);
-        $this->assertSame(100000, $byChild[$first->id]['outstanding']['minor']);
-        $this->assertSame(250000, $byChild[$second->id]['billed']['minor']);
-        $this->assertSame(200000, $byChild[$second->id]['outstanding']['minor']);
+        // Qirsh: 100.00 JOD is 10 000, not 100 000.
+        $this->assertSame(10000, $byChild[$first->id]['billed']['minor']);
+        $this->assertSame(10000, $byChild[$first->id]['outstanding']['minor']);
+        $this->assertSame(25000, $byChild[$second->id]['billed']['minor']);
+        $this->assertSame(20000, $byChild[$second->id]['outstanding']['minor']);
         $this->assertSame(0, $byChild[$third->id]['outstanding']['minor']);
 
-        // And the family total is the sum of the three, to the fil.
-        $this->assertSame(425250, $data['total']['minor']);
-        $this->assertSame(300000, $data['total_outstanding']['minor']);
+        // And the family total is the sum of the three, to the qirsh.
+        $this->assertSame(42525, $data['total']['minor']);
+        $this->assertSame(30000, $data['total_outstanding']['minor']);
     }
 
     public function test_every_amount_is_integer_minor_units_and_never_a_float(): void
@@ -140,9 +141,11 @@ class ParentFinanceTest extends TestCase
         }
 
         $summary = $this->actingAs($parent)->getJson(self::SUMMARY)->assertOk();
-        // 12.55 JOD is 12 550 fils, not 1 255.
-        $summary->assertJsonPath('data.children.0.billed.minor', 12550);
-        $summary->assertJsonPath('data.children.0.billed.decimals', 3);
+        // 12.55 JOD is 1 255 qirsh. The wire declares the scale the columns
+        // actually hold, so the client renders 12.55 rather than a 12.550 the
+        // database never stored.
+        $summary->assertJsonPath('data.children.0.billed.minor', 1255);
+        $summary->assertJsonPath('data.children.0.billed.decimals', 2);
         $summary->assertJsonPath('data.children.0.billed.currency', 'JOD');
     }
 
@@ -172,7 +175,7 @@ class ParentFinanceTest extends TestCase
 
     /* ---------- installments ---------- */
 
-    public function test_installments_sum_exactly_to_the_plan_total_in_fils(): void
+    public function test_installments_sum_exactly_to_the_plan_total(): void
     {
         // 100.00 split three ways is where a schedule stops adding up.
         ['parent' => $parent, 'child' => $child] = $this->family();
@@ -186,7 +189,7 @@ class ParentFinanceTest extends TestCase
         $sum = array_sum(array_column(array_column($plan['installments'], 'amount'), 'minor'));
 
         $this->assertSame($plan['total']['minor'], $sum);
-        $this->assertSame(100000, $sum);
+        $this->assertSame(10000, $sum);
         $this->assertTrue($plan['reconciles']);
     }
 
@@ -400,9 +403,9 @@ class ParentFinanceTest extends TestCase
             ->withHeader('Idempotency-Key', $this->key())
             ->postJson($this->intentUrl($installmentId))
             ->assertStatus(201)
-            // 150.00 - 25.50 = 124.50 JOD = 124 500 fils.
-            ->assertJsonPath('data.amount.minor', 124500)
-            ->assertJsonPath('data.amount.decimals', 3);
+            // 150.00 - 25.50 = 124.50 JOD = 12 450 qirsh.
+            ->assertJsonPath('data.amount.minor', 12450)
+            ->assertJsonPath('data.amount.decimals', 2);
     }
 
     public function test_a_settled_installment_cannot_be_paid_again(): void

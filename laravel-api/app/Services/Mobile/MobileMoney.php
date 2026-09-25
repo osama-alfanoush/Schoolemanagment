@@ -17,9 +17,34 @@ use InvalidArgumentException;
 final class MobileMoney
 {
     /**
-     * Scale of the relational money columns: `decimal(12, 2)` throughout.
+     * Scale of the relational money columns: `decimal(x, 2)` throughout.
+     *
+     * This is the single source of truth for how much precision the server
+     * actually has, and it is what the wire reports. It is deliberately not a
+     * config value: an operator who set `MOBILE_CURRENCY_DECIMALS=3` would not
+     * gain a fil of precision, they would only make every payload claim one
+     * the database cannot store.
+     *
+     * JOD is nominally a three-decimal currency — 1 JOD = 1000 fils — and the
+     * columns cannot hold the third. Reporting 3 here would be a contract the
+     * server cannot honour, so the wire reports what is actually stored and the
+     * clients render exactly that. Widening the columns to fils is a separate,
+     * larger change; when it happens this constant moves with them, and
+     * `MoneyColumnScaleTest` fails until it does.
      */
     private const COLUMN_SCALE = 2;
+
+    /**
+     * Decimal places every mobile money payload declares.
+     *
+     * Equal to the column scale by construction. Callers outside this class
+     * use this rather than reading config, so the wire cannot disagree with
+     * the storage.
+     */
+    public static function decimals(): int
+    {
+        return self::COLUMN_SCALE;
+    }
 
     /**
      * The wire shape every mobile money value takes.
@@ -28,13 +53,10 @@ final class MobileMoney
      */
     public static function payload(int|float|string|null $amount): array
     {
-        $currency = strtoupper((string) config('mobile.currency', 'JOD'));
-        $decimals = (int) config('mobile.currency_decimals', 3);
-
         return [
-            'minor' => self::toMinor(self::asExactDecimal($amount), $decimals),
-            'currency' => $currency,
-            'decimals' => $decimals,
+            'minor' => self::toMinor(self::asExactDecimal($amount), self::COLUMN_SCALE),
+            'currency' => self::currency(),
+            'decimals' => self::COLUMN_SCALE,
         ];
     }
 
@@ -83,18 +105,20 @@ final class MobileMoney
      */
     public static function minorOf(int|float|string|null $amount): int
     {
-        return self::toMinor(
-            self::asExactDecimal($amount),
-            (int) config('mobile.currency_decimals', 3),
-        );
+        return self::toMinor(self::asExactDecimal($amount), self::COLUMN_SCALE);
+    }
+
+    /** The ISO 4217 code every mobile money payload declares. */
+    public static function currency(): string
+    {
+        return strtoupper((string) config('mobile.currency', 'JOD'));
     }
 
     /**
      * Scale a decimal string to integer minor units without touching a float.
      *
-     * Widening (2 stored decimals to 3 JOD decimals) pads with zeros. Narrowing
-     * is refused rather than rounded: silently dropping a significant digit is
-     * how money goes missing.
+     * Widening pads with zeros. Narrowing is refused rather than rounded:
+     * silently dropping a significant digit is how money goes missing.
      */
     public static function toMinor(int|string $amount, int $decimals): int
     {

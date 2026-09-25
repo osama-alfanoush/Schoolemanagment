@@ -9,10 +9,35 @@ import 'package:school_mobile/features/parent/parent.dart';
 
 import '../../support/mock_http_adapter.dart';
 
-Map<String, Object?> _money(int minor) => <String, Object?>{
+Map<String, Object?> _money(int minor, {int decimals = 3}) => <String, Object?>{
       'minor': minor,
       'currency': 'JOD',
-      'decimals': 3,
+      'decimals': decimals,
+    };
+
+/// The summary as the server actually sends it: qirsh, declaring two decimals.
+///
+/// The server's money columns are decimal(x,2) and its internal minor unit is
+/// the qirsh, so this — not the three-decimal shape above — is the live
+/// contract. The three-decimal fixtures stay because the client must keep
+/// rendering fils correctly for the day the columns widen.
+Map<String, Object?> _summaryAtStoredScale() => <String, Object?>{
+      'data': <String, Object?>{
+        'children': <Object?>[
+          <String, Object?>{
+            'student_user_id': 1,
+            'name': 'ليان',
+            'billed': _money(30000, decimals: 2),
+            'paid': _money(15000, decimals: 2),
+            'outstanding': _money(15000, decimals: 2),
+            'overdue': _money(0, decimals: 2),
+            'overdue_count': 0,
+          },
+        ],
+        'total': _money(30000, decimals: 2),
+        'total_outstanding': _money(15000, decimals: 2),
+        'overdue_count': 0,
+      },
     };
 
 Map<String, Object?> _summary({int outstanding = 150000}) => <String, Object?>{
@@ -38,6 +63,7 @@ Map<String, Object?> _plans({
   bool reconciles = true,
   bool payable = true,
   bool overdue = false,
+  int decimals = 3,
 }) =>
     <String, Object?>{
       'data': <String, Object?>{
@@ -46,15 +72,15 @@ Map<String, Object?> _plans({
           <String, Object?>{
             'id': 9,
             'plan_no': 'PLAN-1',
-            'total': _money(300000),
+            'total': _money(300000, decimals: decimals),
             'reconciles': reconciles,
             'installments': <Object?>[
               <String, Object?>{
                 'id': 11,
                 'sequence_no': 1,
                 'due_date': '2026-09-10',
-                'amount': _money(150000),
-                'outstanding': _money(150000),
+                'amount': _money(150000, decimals: decimals),
+                'outstanding': _money(150000, decimals: decimals),
                 'status': 'pending',
                 'overdue': overdue,
                 'payable': payable,
@@ -64,8 +90,8 @@ Map<String, Object?> _plans({
                 'id': 12,
                 'sequence_no': 2,
                 'due_date': '2026-10-10',
-                'amount': _money(150000),
-                'outstanding': _money(0),
+                'amount': _money(150000, decimals: decimals),
+                'outstanding': _money(0, decimals: decimals),
                 'status': 'paid',
                 'overdue': false,
                 'payable': false,
@@ -140,9 +166,10 @@ Map<String, Object?> _invoice({
 }
 
 /// The default happy-path responder.
-MockResponder happyPath({Map<String, Object?>? plans}) =>
+MockResponder happyPath({Map<String, Object?>? plans, Map<String, Object?>? summary}) =>
     (options) => switch (options.path) {
-          '/mobile/v1/parent/finance/summary' => MockReply(body: _summary()),
+          '/mobile/v1/parent/finance/summary' =>
+            MockReply(body: summary ?? _summary()),
           '/mobile/v1/parent/children/1/installments' =>
             MockReply(body: plans ?? _plans()),
           '/mobile/v1/parent/pay/11/intent' =>
@@ -379,6 +406,31 @@ void main() {
           reason: locale,
         );
         expect(find.textContaining('150.00 '), findsNothing, reason: locale);
+      }
+    });
+
+    testWidgets('the scale the server actually sends renders in both locales',
+        (tester) async {
+      // 150.00 JOD as 15 000 qirsh declaring two decimals. It must read as
+      // 150.00 and never as 150.000: the third digit would be precision the
+      // database does not hold, shown to a parent as though it were real.
+      for (final locale in <String>['ar', 'en']) {
+        // Both endpoints at the stored scale, because that is what the server
+        // sends: a screen mixing qirsh and fils is not a state that occurs.
+        final fees = buildFees(happyPath(
+          summary: _summaryAtStoredScale(),
+          plans: _plans(decimals: 2),
+        ));
+
+        await pumpFees(
+          tester,
+          fees.fees,
+          locale: locale,
+          key: ValueKey<String>(locale),
+        );
+
+        expect(find.textContaining('150.00'), findsWidgets, reason: locale);
+        expect(find.textContaining('150.000'), findsNothing, reason: locale);
       }
     });
 

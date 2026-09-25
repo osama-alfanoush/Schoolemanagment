@@ -11473,6 +11473,7 @@ paths:
                                       type: string
                                     decimals:
                                       type: integer
+                                      const: 2
                                   required:
                                     - minor
                                     - currency
@@ -11486,6 +11487,7 @@ paths:
                                       type: string
                                     decimals:
                                       type: integer
+                                      const: 2
                                   required:
                                     - minor
                                     - currency
@@ -11501,6 +11503,7 @@ paths:
                                       type: string
                                     decimals:
                                       type: integer
+                                      const: 2
                                   required:
                                     - minor
                                     - currency
@@ -11514,6 +11517,7 @@ paths:
                                       type: string
                                     decimals:
                                       type: integer
+                                      const: 2
                                   required:
                                     - minor
                                     - currency
@@ -11537,6 +11541,7 @@ paths:
                                 type: string
                               decimals:
                                 type: integer
+                                const: 2
                             required:
                               - minor
                               - currency
@@ -11550,6 +11555,7 @@ paths:
                                 type: string
                               decimals:
                                 type: integer
+                                const: 2
                             required:
                               - minor
                               - currency
@@ -11579,6 +11585,7 @@ paths:
                                 type: string
                               decimals:
                                 type: integer
+                                const: 2
                             required:
                               - minor
                               - currency
@@ -11592,6 +11599,7 @@ paths:
                                 type: string
                               decimals:
                                 type: integer
+                                const: 2
                             required:
                               - minor
                               - currency
@@ -19494,6 +19502,14 @@ components:
           format: date-time
         school_id:
           type: integer
+        template_key:
+          type:
+            - string
+            - 'null'
+        idempotency_key:
+          type:
+            - string
+            - 'null'
       required:
         - id
         - sender_user_id
@@ -19503,6 +19519,8 @@ components:
         - created_at
         - updated_at
         - school_id
+        - template_key
+        - idempotency_key
       title: Announcement
     Assignment:
       type: object
@@ -19540,6 +19558,15 @@ components:
           format: date-time
         school_id:
           type: integer
+        published_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        idempotency_key:
+          type:
+            - string
+            - 'null'
       required:
         - id
         - teacher_user_id
@@ -19553,6 +19580,8 @@ components:
         - created_at
         - updated_at
         - school_id
+        - published_at
+        - idempotency_key
       title: Assignment
     AttendanceRecord:
       type: object
@@ -23411,6 +23440,10 @@ components:
           format: date-time
         school_id:
           type: integer
+        idempotency_key:
+          type:
+            - string
+            - 'null'
       required:
         - id
         - assignment_id
@@ -23425,6 +23458,7 @@ components:
         - created_at
         - updated_at
         - school_id
+        - idempotency_key
       title: Submission
     Supplier:
       type: object

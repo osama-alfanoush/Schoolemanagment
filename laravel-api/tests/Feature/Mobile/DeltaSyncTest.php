@@ -423,7 +423,7 @@ class DeltaSyncTest extends TestCase
 
     /* ---------- payload ---------- */
 
-    public function test_money_is_integer_minor_units_at_three_decimals(): void
+    public function test_money_is_integer_minor_units_at_the_stored_scale(): void
     {
         ['parent' => $parent, 'child' => $child] = $this->family();
         Invoice::factory()->create(['student_user_id' => $child->id, 'amount' => 150.00, 'paid_amount' => 25.50]);
@@ -432,11 +432,15 @@ class DeltaSyncTest extends TestCase
             $this->actingAs($parent)->getJson(self::ENDPOINT.'?types=invoice')->assertOk()->json()
         )[0];
 
+        // Qirsh, not fils. The columns are decimal(x,2) and the server's
+        // internal minor unit is the qirsh, so the payload declares 2 and the
+        // client renders exactly what is stored. Declaring 3 would render a
+        // digit the database never held.
         $this->assertSame(
-            ['minor' => 150000, 'currency' => 'JOD', 'decimals' => 3],
+            ['minor' => 15000, 'currency' => 'JOD', 'decimals' => 2],
             $change['payload']['amount'],
         );
-        $this->assertSame(25500, $change['payload']['paid_amount']['minor']);
+        $this->assertSame(2550, $change['payload']['paid_amount']['minor']);
         $this->assertIsInt($change['payload']['amount']['minor']);
     }
 
