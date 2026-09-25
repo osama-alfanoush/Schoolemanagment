@@ -108,6 +108,10 @@ class MobileQueryBudgetTest extends TestCase
                 'day_of_week' => now()->dayOfWeekIso,
                 'start_time' => sprintf('%02d:00:00', 7 + $day),
                 'end_time' => sprintf('%02d:45:00', 7 + $day),
+                // Written directly, so the minutes TimetableEntry derives on
+                // save are set here; PostgreSQL's overlap constraints read them.
+                'start_minute' => (7 + $day) * 60,
+                'end_minute' => (7 + $day) * 60 + 45,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

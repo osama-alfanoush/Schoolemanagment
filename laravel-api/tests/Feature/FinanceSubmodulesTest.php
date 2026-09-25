@@ -267,6 +267,8 @@ class FinanceSubmodulesTest extends TestCase
         $response = $this->authed($finance)->postJson('/api/finance/installments/send-reminders');
         $response->assertOk();
         $this->assertGreaterThanOrEqual(1, $response->json('reminders_sent'));
-        $this->assertNotNull(Installment::first()->reminder_sent_at);
+        // Ordered: without it PostgreSQL may return any row, and the updated
+        // one moves. The reminder goes to the installment falling due first.
+        $this->assertNotNull(Installment::orderBy('sequence_no')->first()->reminder_sent_at);
     }
 }

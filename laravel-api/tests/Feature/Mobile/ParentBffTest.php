@@ -91,7 +91,9 @@ class ParentBffTest extends TestCase
             'name' => 'Period '.$child->id,
             'start_date' => now()->subMonth()->toDateString(),
             'end_date' => now()->addMonth()->toDateString(),
-            'sequence' => $child->id,
+            // smallint: PostgreSQL refuses anything past 32767, and ids
+            // keep climbing across a run there.
+            'sequence' => (int) DB::table('grading_periods')->where('term_id', $termId)->max('sequence') + 1,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

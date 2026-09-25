@@ -95,7 +95,9 @@ class ProductionReadinessWorkflowsTest extends TestCase
         $component = GradeComponent::create(['class_room_id' => $class->id, 'subject_id' => $subject->id, 'name' => 'Exam', 'type' => 'exam', 'weight' => 100, 'max_score' => 100]);
         Grade::create(['student_user_id' => User::factory()->student()->create()->id, 'grade_component_id' => $component->id, 'score' => 80, 'entered_by' => $teacher->id]);
         try {
-            $component->delete();
+            // In a savepoint: on PostgreSQL the refused delete would otherwise
+            // abort the test's transaction, and the assertion below with it.
+            DB::transaction(fn () => $component->delete());
             $this->fail('A retained grade component was physically deleted.');
         } catch (QueryException) {
             $this->assertDatabaseHas('grade_components', ['id' => $component->id]);

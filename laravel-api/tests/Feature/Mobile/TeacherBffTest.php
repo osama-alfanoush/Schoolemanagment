@@ -84,7 +84,8 @@ class TeacherBffTest extends TestCase
             'name' => 'Period '.Str::random(4),
             'start_date' => now()->subMonth()->toDateString(),
             'end_date' => now()->addMonth()->toDateString(),
-            'sequence' => random_int(1, 100000),
+            // smallint: PostgreSQL refuses anything past 32767.
+            'sequence' => (int) DB::table('grading_periods')->where('term_id', $termId)->max('sequence') + 1,
             'created_at' => now(), 'updated_at' => now(),
         ]);
         $gradebookId = DB::table('gradebooks')->insertGetId([
@@ -113,7 +114,13 @@ class TeacherBffTest extends TestCase
             'day_of_week' => $day->dayOfWeekIso,
             'start_time' => '08:00:00',
             'end_time' => '08:45:00',
-            'room' => 'A1',
+            // Written directly, so the minutes TimetableEntry derives on save
+            // are set here; PostgreSQL's overlap constraints read them.
+            'start_minute' => 480,
+            'end_minute' => 525,
+            // One room per class: two classes in one room at 08:00 is a
+            // conflict PostgreSQL refuses, and not what these tests are about.
+            'room' => 'R'.$class->id,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
