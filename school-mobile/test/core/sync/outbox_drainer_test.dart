@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:school_mobile/core/api/api.dart';
@@ -266,6 +268,26 @@ void main() {
       expect(afterSecond.status, OutboxStatus.failed);
     });
 
+    test('a backoff under a second still waits for a later pass', () async {
+      // The outbox stores times to the whole second. A jittered pick under a
+      // second used to round back to "now", so the same pass claimed the row
+      // again and spent a second attempt with no backoff at all. That is how
+      // the test above failed about one run in thirty.
+      await queue('idem-1');
+      final harness = build(
+        (options) => const MockReply(statusCode: 503, body: <String, dynamic>{}),
+        clock: () => t0,
+        backoff: JitteredOutboxBackoff(random: _AlwaysPicks(500)),
+      );
+
+      await harness.drainer.drain();
+      final row = (await db.allOutbox()).single;
+
+      expect(row.attempts, 1);
+      expect(harness.adapter.countFor(attendanceEndpoint), 1);
+      expect(row.nextAttemptAt!.isAfter(t0), isTrue);
+    });
+
     test('a row that exhausts its attempts goes dead and is announced',
         () async {
       await queue('idem-1');
@@ -446,4 +468,20 @@ void main() {
       expect(row.payloadJson, attendancePayload);
     });
   });
+}
+
+/// A [Random] that always picks the same value, to make jitter deterministic.
+class _AlwaysPicks implements Random {
+  _AlwaysPicks(this.value);
+
+  final int value;
+
+  @override
+  int nextInt(int max) => value < max ? value : max - 1;
+
+  @override
+  double nextDouble() => 0;
+
+  @override
+  bool nextBool() => false;
 }

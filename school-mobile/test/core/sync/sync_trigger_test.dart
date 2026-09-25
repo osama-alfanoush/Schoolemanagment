@@ -203,6 +203,16 @@ void main() {
           reason: 'a fixed delay would let a fleet retry in lockstep');
     });
 
+    test('never shorter than the second the outbox stores times at', () {
+      // A lower pick would round back to "now" in the database and be
+      // retried within the same pass.
+      final backoff = JitteredOutboxBackoff(random: Random(3));
+      for (var i = 0; i < 200; i++) {
+        expect(backoff.delayFor(1),
+            greaterThanOrEqualTo(JitteredOutboxBackoff.resolution));
+      }
+    });
+
     test('the recovery backoff is immediate', () {
       expect(immediateRetry.delayFor(1), Duration.zero);
       expect(immediateRetry.delayFor(9), Duration.zero);

@@ -20,11 +20,17 @@ class JitteredOutboxBackoff extends OutboxBackoff {
 
   final Random _random;
 
+  /// The outbox stores times to the whole second. A pick below that rounds
+  /// back to "now", and the same drain pass claims the row again: an attempt
+  /// spent with no backoff at all, repeatable until the row goes dead.
+  static const Duration resolution = Duration(seconds: 1);
+
   @override
   Duration delayFor(int attempts) {
     final ceiling = super.delayFor(attempts).inMilliseconds;
     if (ceiling <= 0) return Duration.zero;
-    return Duration(milliseconds: _random.nextInt(ceiling + 1));
+    final floor = min(resolution.inMilliseconds, ceiling);
+    return Duration(milliseconds: max(floor, _random.nextInt(ceiling + 1)));
   }
 }
 
