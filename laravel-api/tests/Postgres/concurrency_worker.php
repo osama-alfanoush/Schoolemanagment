@@ -62,5 +62,14 @@ try {
     exit(20);
 } catch (PDOException $exception) {
     fwrite(STDERR, $exception->getCode().': '.$exception->getMessage().PHP_EOL);
-    exit(in_array($exception->getCode(), ['23P01', '23505'], true) ? 10 : 20);
+    // Refused by the database: a unique or exclusion violation. Two
+    // concurrent inserts that collide on an exclusion constraint can each wait
+    // on the other's uncommitted row while checking it, and PostgreSQL then
+    // aborts one as a deadlock (40P01) instead of a violation. That is the
+    // same refusal, reached a different way; about one run in eight here.
+    $refused = ['23P01', '23505'];
+    if ($operation === 'enrollment') {
+        $refused[] = '40P01';
+    }
+    exit(in_array($exception->getCode(), $refused, true) ? 10 : 20);
 }
