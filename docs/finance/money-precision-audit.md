@@ -467,3 +467,31 @@ migration would do to real rows.**
 - §3 executed with PHP against transcriptions of the real code paths.
 - §6 executed against an in-memory SQLite database.
 - Read-only throughout: `git status --porcelain` shows only this file.
+
+---
+
+## Addendum — order 8.4 · correction
+
+§2 Class C and §6 said an over-precise input "round-trips intact through the
+entire SQLite suite and is silently rounded in production". That holds for
+three of the seven sites listed, which store the value as given: fee
+structures, supplier invoices and manual journal entries. **The other four
+round in PHP before the database sees the value** — `round((float) $data['amount'], 2)`
+in the payment, installment-payment and supplier-payment controllers, and
+`ReceiptService::cents()` for receipts — so on those paths the third decimal
+was lost on every driver, the test suite's included. Observed under SQLite
+before 8.4, not reasoned about:
+
+```
+payment 12.505          -> 201, stored 12.51
+receipt 9.995           -> 201, stored 9.99   (rounded down, the other way)
+fixed adjustment 12.505 -> 201, stored 12.51
+fee structure 1200.005  -> 201, stored 1200.005 (PostgreSQL would round)
+```
+
+The list of seven was also incomplete. There are 42 money inputs, and one of
+them, `staff.base_salary` on user creation, had no rule of any kind: a
+non-number reached the column and the request failed with a 500.
+
+All 42 now carry the `money` rule and are refused with a 422 naming the field.
+`MoneyInputCoverageTest` fails for any future money input that lacks it.

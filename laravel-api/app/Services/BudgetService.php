@@ -35,8 +35,8 @@ class BudgetService
             'fiscal_year' => 'required|integer',
             'category' => 'required|string',
             'sub_category' => 'nullable|string',
-            'planned_amount' => 'required|numeric|min:1',
-            'actual_amount' => 'nullable|numeric',
+            'planned_amount' => 'required|numeric|money|min:1',
+            'actual_amount' => 'nullable|numeric|money',
             'created_by' => 'nullable|exists:users,id',
         ]);
         $data['actual_amount'] = $data['actual_amount'] ?? 0;
@@ -54,8 +54,8 @@ class BudgetService
             'fiscal_year' => 'sometimes|integer',
             'category' => 'sometimes|string',
             'sub_category' => 'nullable|string',
-            'planned_amount' => 'sometimes|numeric|min:1',
-            'actual_amount' => 'sometimes|numeric',
+            'planned_amount' => 'sometimes|numeric|money|min:1',
+            'actual_amount' => 'sometimes|numeric|money',
         ]);
         $plan->update($data);
         AuditLogger::log($request, 'update_budget_plan', 'budget_plan', $plan->id, $data);

@@ -5,6 +5,7 @@ import { Banknote, BellRing, Eye, Plus, X } from "lucide-react";
 import { Finance, Installments, type CreatePaymentPlanRequest, type InstallmentRow, type Invoice, type PayInstallmentRequest, type PaymentPlan } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { paginationMeta, toArray } from "@/lib/response";
+import { roundToCents } from "@/lib/utils";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import BrandButton from "@/components/ui/BrandButton";
@@ -95,10 +96,10 @@ export default function FinanceInstallments() {
       ...form,
       invoice_id: invoice.id,
       student_user_id: invoice.student_user_id,
-      total_amount: Number(invoice.amount) - Number(invoice.paid_amount),
+      total_amount: roundToCents(Number(invoice.amount) - Number(invoice.paid_amount)),
     });
   };
-  const outstanding = (row: InstallmentRow) => Number(row.amount) - Number(row.paid_amount);
+  const outstanding = (row: InstallmentRow) => roundToCents(Number(row.amount) - Number(row.paid_amount));
 
   return <div className="space-y-6">
     <PageHeader icon="📅" title={t("financePages.installments")} subtitle={t("financePages.installmentsSubtitle")}

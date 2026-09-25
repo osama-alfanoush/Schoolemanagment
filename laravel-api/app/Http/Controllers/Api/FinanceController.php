@@ -28,7 +28,7 @@ class FinanceController extends Controller
             $data = $request->validate([
                 'name' => 'required', 'grade' => 'nullable',
                 'billing_cycle' => 'required|in:monthly,semester,yearly,one-time',
-                'amount' => 'required|numeric|min:0', 'is_active' => 'boolean',
+                'amount' => 'required|numeric|money|min:0', 'is_active' => 'boolean',
             ]);
             $fs = FeeStructure::create($data);
             AuditLogger::log($request, 'create_fee_structure', 'fee_structure', $fs->id, $data);
@@ -46,7 +46,7 @@ class FinanceController extends Controller
             'name' => 'sometimes|string',
             'grade' => 'nullable',
             'billing_cycle' => 'sometimes|in:monthly,semester,yearly,one-time',
-            'amount' => 'sometimes|numeric|min:0',
+            'amount' => 'sometimes|numeric|money|min:0',
             'is_active' => 'sometimes|boolean',
         ]);
         $fs->update($data);
@@ -151,7 +151,7 @@ class FinanceController extends Controller
         $request->merge(['idempotency_key' => $request->header('Idempotency-Key')]);
         $data = $request->validate([
             'idempotency_key' => 'required|uuid',
-            'amount' => 'required|numeric|gt:0',
+            'amount' => 'required|numeric|money|gt:0',
             'method' => 'required|in:cash,bank_transfer,card,online',
             'reference' => 'nullable|string',
             'paid_at' => 'nullable|date',

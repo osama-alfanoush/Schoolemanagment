@@ -7,6 +7,7 @@ use App\Models\School;
 use App\Models\User;
 use App\Services\CurrentSchool;
 use App\Services\Mobile\DeltaEntityRegistry;
+use App\Services\Mobile\MobileMoney;
 use App\Services\Mobile\SyncTombstoneRecorder;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 
@@ -57,6 +59,21 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // `money`: an amount the columns can store without losing a digit.
+        // `numeric` bounds a value but not its scale, so 12.505 used to be
+        // accepted and then lose its third decimal without a word — rounded by
+        // the controllers that call round(), by PostgreSQL on store where they
+        // do not, and kept by SQLite, so the tests never saw it. The 422
+        // naming the field is the point: rounding here instead would be the
+        // same invisible loss one layer earlier. Whether the value is a number
+        // at all stays `numeric`'s job, so it is never reported twice.
+        // MoneyInputCoverageTest fails for any money input without this rule.
+        Validator::extend(
+            'money',
+            fn (string $attribute, mixed $value): bool => ! is_numeric($value) || MobileMoney::fitsColumnScale($value),
+            'The :attribute field must not have more than '.MobileMoney::decimals().' decimal places.',
+        );
 
         // Mobile delta feed. A deleted row is invisible to a keyset scan over
         // updated_at, so the deletion is recorded separately and outlives the

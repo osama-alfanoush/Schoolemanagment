@@ -47,6 +47,39 @@ final class MobileMoney
     }
 
     /**
+     * Whether a submitted amount can be stored without losing a digit.
+     *
+     * The input half of the contract `decimals()` declares. A money column
+     * rounds anything finer than its scale on store — PostgreSQL does, SQLite
+     * does not — so an amount that does not fit has to be refused at the edge,
+     * while the client can still be told which field was wrong. Rounding it
+     * instead would be the same silent loss one layer earlier.
+     *
+     * Trailing zeros are not precision: `12.500` fits, `12.505` does not. A
+     * float is judged by value rather than by how PHP happens to print it, the
+     * same round-trip `asExactDecimal()` applies on the way out.
+     */
+    public static function fitsColumnScale(int|float|string $amount): bool
+    {
+        if (is_int($amount)) {
+            return true;
+        }
+
+        if (is_float($amount)) {
+            return is_finite($amount)
+                && (float) sprintf('%.'.self::COLUMN_SCALE.'F', $amount) === $amount;
+        }
+
+        try {
+            self::toMinor($amount, self::COLUMN_SCALE);
+        } catch (InvalidArgumentException) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * The wire shape every mobile money value takes.
      *
      * @return array{minor: int, currency: string, decimals: int}

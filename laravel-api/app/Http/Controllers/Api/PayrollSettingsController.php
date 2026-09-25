@@ -126,7 +126,7 @@ class PayrollSettingsController extends Controller
         $profile = StaffProfile::findOrFail($staffProfileId);
         $this->schools->authorize($request->user(), (int) $profile->school_id);
         $data = $request->validate([
-            'payroll_component_id' => 'required|exists:payroll_components,id', 'amount_override' => 'nullable|numeric|min:0',
+            'payroll_component_id' => 'required|exists:payroll_components,id', 'amount_override' => 'nullable|numeric|money|min:0',
             'rate_override' => 'nullable|numeric|min:0', 'effective_from' => 'required|date',
             'effective_to' => 'nullable|date|after_or_equal:effective_from', 'one_time_period' => 'nullable|date',
             'reason' => 'required|string|max:255',
@@ -147,9 +147,9 @@ class PayrollSettingsController extends Controller
             'code' => 'required|string|max:50', 'name_ar' => 'required|string|max:150', 'name_en' => 'required|string|max:150',
             'category' => 'required|in:earning,deduction,employer_contribution',
             'calculation_type' => 'required|in:fixed,percentage', 'percentage_base' => 'nullable|in:base,gross,insurable,custom',
-            'amount' => 'nullable|required_if:calculation_type,fixed|numeric|min:0',
+            'amount' => 'nullable|required_if:calculation_type,fixed|numeric|money|min:0',
             'rate' => 'nullable|required_if:calculation_type,percentage|numeric|min:0|max:100',
-            'minimum_amount' => 'nullable|numeric|min:0', 'maximum_amount' => 'nullable|numeric|gte:minimum_amount',
+            'minimum_amount' => 'nullable|numeric|money|min:0', 'maximum_amount' => 'nullable|numeric|money|gte:minimum_amount',
             'rounding_mode' => 'required|in:nearest,nearest_unit,up,down', 'is_recurring' => 'required|boolean',
             'effective_from' => 'required|date', 'effective_to' => 'nullable|date|after_or_equal:effective_from',
             'is_social_insurance_base' => 'required|boolean', 'is_taxable' => 'required|boolean',
@@ -163,8 +163,8 @@ class PayrollSettingsController extends Controller
         return $request->validate([
             'scheme_code' => 'required|string|max:50', 'name_ar' => 'required|string|max:150', 'name_en' => 'required|string|max:150',
             'employee_rate' => 'required|numeric|min:0|max:100', 'employer_rate' => 'required|numeric|min:0|max:100',
-            'calculation_base' => 'required|in:base,gross,insurable,custom', 'minimum_wage' => 'nullable|numeric|min:0',
-            'maximum_wage' => 'nullable|numeric|gte:minimum_wage', 'included_component_codes' => 'nullable|array',
+            'calculation_base' => 'required|in:base,gross,insurable,custom', 'minimum_wage' => 'nullable|numeric|money|min:0',
+            'maximum_wage' => 'nullable|numeric|money|gte:minimum_wage', 'included_component_codes' => 'nullable|array',
             'excluded_component_codes' => 'nullable|array', 'effective_from' => 'required|date',
             'effective_to' => 'nullable|date|after_or_equal:effective_from', 'employee_payable_account_code' => 'nullable|string|max:50',
             'employer_expense_account_code' => 'nullable|string|max:50', 'employer_payable_account_code' => 'nullable|string|max:50',

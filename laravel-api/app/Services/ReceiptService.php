@@ -28,7 +28,7 @@ class ReceiptService
         $data = $request->validate([
             'idempotency_key' => 'required|uuid',
             'student_user_id' => 'required|exists:users,id',
-            'amount' => 'required|numeric|gt:0',
+            'amount' => 'required|numeric|money|gt:0',
             'method' => 'required|in:cash,bank_transfer,card,online',
             'receipt_date' => 'required|date',
             'reference' => 'nullable|string|max:255',
@@ -37,7 +37,7 @@ class ReceiptService
             'allocations' => 'nullable|array',
             'allocations.*.invoice_id' => 'required_with:allocations|exists:invoices,id',
             'allocations.*.installment_id' => 'nullable|exists:installments,id',
-            'allocations.*.amount' => 'required_with:allocations|numeric|gt:0',
+            'allocations.*.amount' => 'required_with:allocations|numeric|money|gt:0',
         ]);
         $authorisedStudent = User::whereKey($data['student_user_id'])->where('role', 'student')
             ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))

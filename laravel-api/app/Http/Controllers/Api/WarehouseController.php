@@ -208,7 +208,7 @@ class WarehouseController extends Controller
             'quantity_requested' => 'required|numeric|min:0.01',
             'unit' => 'required|string',
             'justification' => 'nullable|string',
-            'estimated_cost' => 'nullable|numeric|min:0',
+            'estimated_cost' => 'nullable|numeric|money|min:0',
         ]);
 
         $item = WarehouseItem::findOrFail($data['item_id']);

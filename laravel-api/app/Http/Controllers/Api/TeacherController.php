@@ -283,7 +283,7 @@ class TeacherController extends Controller
             'reason' => 'required|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'amount' => 'nullable|numeric|min:0',
+            'amount' => 'nullable|numeric|money|min:0',
         ]);
         $r = HrRequest::create(array_merge($data, ['teacher_user_id' => $request->user()->id]));
 

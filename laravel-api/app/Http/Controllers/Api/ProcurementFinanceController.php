@@ -49,7 +49,7 @@ class ProcurementFinanceController extends Controller
             'supplier_invoice_ref' => 'nullable|string|max:100',
             'invoice_date' => 'required|date',
             'due_date' => 'required|date|after_or_equal:invoice_date',
-            'amount' => 'required|numeric|gt:0',
+            'amount' => 'required|numeric|money|gt:0',
             'notes' => 'nullable|string',
         ]);
 
@@ -87,7 +87,7 @@ class ProcurementFinanceController extends Controller
             'supplier_invoice_ref' => 'nullable|string|max:100',
             'invoice_date' => 'sometimes|date',
             'due_date' => 'sometimes|date',
-            'amount' => 'sometimes|numeric|gt:0',
+            'amount' => 'sometimes|numeric|money|gt:0',
             'notes' => 'nullable|string',
         ]);
         $invoice->update($data);
@@ -111,7 +111,7 @@ class ProcurementFinanceController extends Controller
     public function recordPayment(Request $request, int $id)
     {
         $data = $request->validate([
-            'amount' => 'required|numeric|gt:0',
+            'amount' => 'required|numeric|money|gt:0',
             'method' => 'required|in:cash,bank_transfer,cheque',
             'reference' => 'nullable|string|max:100',
             'paid_at' => 'nullable|date',

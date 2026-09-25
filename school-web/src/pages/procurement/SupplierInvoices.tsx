@@ -5,6 +5,7 @@ import { Banknote, Plus } from "lucide-react";
 import { AccountsPayable, Procurement, type CreateSupplierInvoiceRequest, type RecordSupplierPaymentRequest, type Supplier, type SupplierInvoice } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { paginationMeta, toArray } from "@/lib/response";
+import { roundToCents } from "@/lib/utils";
 import PageHeader from "@/components/ui/PageHeader";
 import DataTable from "@/components/ui/DataTable";
 import BrandButton from "@/components/ui/BrandButton";
@@ -50,7 +51,7 @@ export default function SupplierInvoices() {
     onError: (e: Error) => toast({ variant: "destructive", title: t("procurementPages.paymentFailed"), description: e.message }),
   });
 
-  const outstanding = (row: SupplierInvoice) => Number(row.amount) - Number(row.paid_amount);
+  const outstanding = (row: SupplierInvoice) => roundToCents(Number(row.amount) - Number(row.paid_amount));
   const openPay = (row: SupplierInvoice) => { setPaying(row); setPayment({ ...initialPayment, amount: outstanding(row) }); };
 
   return <div className="space-y-6">

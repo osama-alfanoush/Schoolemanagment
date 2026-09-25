@@ -49,8 +49,8 @@ class InstallmentController extends Controller
         $data = $request->validate([
             'student_user_id' => 'required|exists:users,id',
             'invoice_id' => 'nullable|exists:invoices,id',
-            'total_amount' => 'required|numeric|gt:0',
-            'down_payment' => 'nullable|numeric|min:0|lt:total_amount',
+            'total_amount' => 'required|numeric|money|gt:0',
+            'down_payment' => 'nullable|numeric|money|min:0|lt:total_amount',
             'num_installments' => 'required|integer|between:1,36',
             'frequency' => 'nullable|in:monthly,quarterly',
             'start_date' => 'required|date',
@@ -177,7 +177,7 @@ class InstallmentController extends Controller
     public function payInstallment(Request $request, int $id)
     {
         $data = $request->validate([
-            'amount' => 'required|numeric|gt:0',
+            'amount' => 'required|numeric|money|gt:0',
             'method' => 'required|in:cash,bank_transfer,card,online',
             'reference' => 'nullable|string',
             'note' => 'nullable|string',

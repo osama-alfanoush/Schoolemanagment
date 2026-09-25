@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class StudentAdjustmentService
 {
@@ -25,7 +26,10 @@ class StudentAdjustmentService
             'type' => 'required|in:discount,adjustment,refund',
             'direction' => 'required|in:debit,credit',
             'calculation_type' => 'required|in:amount,percentage',
-            'value' => 'required|numeric|gt:0',
+            // An amount is money and must fit the column; a percentage is not,
+            // and may carry the four decimals its own column holds.
+            'value' => ['required', 'numeric', 'gt:0',
+                Rule::when(fn ($input) => $input->calculation_type === 'amount', 'money')],
             'reason' => 'required|string|max:500',
         ]);
         abort_if($data['calculation_type'] === 'percentage' && (float) $data['value'] > 100, 422, 'Percentage cannot exceed 100.');

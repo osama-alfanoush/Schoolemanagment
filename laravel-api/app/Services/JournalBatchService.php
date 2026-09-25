@@ -27,8 +27,8 @@ class JournalBatchService
             'lines.*.account_code' => 'nullable|string|max:50',
             'lines.*.account_name' => 'nullable|string|max:255',
             'lines.*.description' => 'nullable|string|max:255',
-            'lines.*.debit' => 'nullable|numeric|min:0',
-            'lines.*.credit' => 'nullable|numeric|min:0',
+            'lines.*.debit' => 'nullable|numeric|money|min:0',
+            'lines.*.credit' => 'nullable|numeric|money|min:0',
             'lines.*.cost_center' => 'nullable|string|max:100',
         ]);
 

@@ -51,7 +51,7 @@ class TransportController extends Controller
                 'description' => 'nullable|string',
                 'departure_time' => 'required|date_format:H:i',
                 'return_time' => 'required|date_format:H:i',
-                'fee' => 'required|numeric|min:0',
+                'fee' => 'required|numeric|money|min:0',
                 'capacity' => 'required|integer|min:1',
             ]);
             if (! empty($data['route_id'])) {

@@ -2,6 +2,7 @@ import BrandButton from "@/components/ui/BrandButton";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Finance } from "@/lib/api";
+import { roundToCents } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import DataTable from "@/components/ui/DataTable";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +33,7 @@ export default function FinanceInvoices() {
 
   const invoices = Array.isArray(data) ? data : data?.data ?? [];
   const feeStructures = Array.isArray(fsData) ? fsData : fsData?.data ?? [];
-  const outstandingOf = (inv: any) => Math.max(0, Number(inv.amount ?? 0) - Number(inv.paid_amount ?? 0));
+  const outstandingOf = (inv: any) => Math.max(0, roundToCents(Number(inv.amount ?? 0) - Number(inv.paid_amount ?? 0)));
 
   const generate = useMutation({
     mutationFn: (body: any) => Finance.generateInvoices(body),

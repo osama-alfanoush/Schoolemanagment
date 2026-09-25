@@ -213,7 +213,7 @@ class HrPayrollController extends Controller
     public function storeAdvance(Request $request)
     {
         $data = $request->validate([
-            'staff_profile_id' => 'required|exists:staff_profiles,id', 'original_amount' => 'required|numeric|min:0.01',
+            'staff_profile_id' => 'required|exists:staff_profiles,id', 'original_amount' => 'required|numeric|money|min:0.01',
             'reason' => 'required|string', 'requested_at' => 'required|date', 'installment_count' => 'required|integer|min:1|max:120',
             'first_deduction_month' => 'required|date', 'receivable_account_code' => 'nullable|string|max:50',
             'cash_account_code' => 'nullable|string|max:50', 'attachments' => 'nullable|array', 'notes' => 'nullable|string',
@@ -418,7 +418,7 @@ class HrPayrollController extends Controller
             'contract_type' => 'required|in:fixed_term,indefinite', 'start_date' => 'required|date',
             'end_date' => 'nullable|required_if:contract_type,fixed_term|date|after_or_equal:start_date',
             'probation_days' => 'nullable|integer|min:0|max:730', 'probation_end' => 'nullable|date|after_or_equal:start_date',
-            'base_salary' => 'required|numeric|min:0', 'payment_method' => 'nullable|string|max:50',
+            'base_salary' => 'required|numeric|money|min:0', 'payment_method' => 'nullable|string|max:50',
             'bank_name' => 'nullable|string|max:100', 'bank_account' => 'nullable|string|max:150',
             'attachments' => 'nullable|array', 'notes' => 'nullable|string', 'is_current' => 'sometimes|boolean',
         ]);

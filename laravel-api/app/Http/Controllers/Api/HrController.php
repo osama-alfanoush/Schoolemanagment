@@ -47,7 +47,7 @@ class HrController extends Controller
             'reason' => 'required|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'amount' => 'nullable|numeric|min:0',
+            'amount' => 'nullable|numeric|money|min:0',
         ]);
         $schoolId = $this->schools->forUser($request->user());
 
@@ -147,7 +147,7 @@ class HrController extends Controller
         $data = $request->validate([
             'department' => 'sometimes|string', 'position' => 'sometimes|string',
             'hire_date' => 'sometimes|date', 'contract_type' => 'sometimes|string',
-            'contract_end' => 'sometimes|date|nullable', 'base_salary' => 'sometimes|numeric',
+            'contract_end' => 'sometimes|date|nullable', 'base_salary' => 'sometimes|numeric|money',
             'qualifications' => 'sometimes|array',
             'annual_leave_balance' => 'sometimes|integer', 'sick_leave_balance' => 'sometimes|integer',
             'employee_no' => ['sometimes', 'nullable', 'string', 'max:100', Rule::unique('staff_profiles')->where('school_id', $schoolId)->ignore($user->staffProfile?->id)],

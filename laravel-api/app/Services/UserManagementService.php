@@ -54,6 +54,11 @@ class UserManagementService
             'student' => 'nullable|array',
             'staff' => 'nullable|array',
         ]);
+        // The salary is copied into staff_profiles below, so it is a money
+        // input like any other. It is checked in its own call because naming
+        // a key inside `staff` above would make validated() drop the rest of
+        // the array — department, position, hire date — without a word.
+        $request->validate(['staff.base_salary' => 'nullable|numeric|money']);
 
         $user = DB::transaction(function () use ($data, $request) {
             $u = User::create([

@@ -41,7 +41,7 @@ class JournalService
             'type' => 'required|in:debit,credit',
             'account_code' => 'required|string',
             'account_name' => 'required|string',
-            'amount' => 'required|numeric|min:0.01',
+            'amount' => 'required|numeric|money|min:0.01',
             'source' => 'in:manual,invoice,payroll,expense',
         ]);
 

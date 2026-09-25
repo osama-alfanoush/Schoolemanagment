@@ -58,4 +58,35 @@ class MobileMoneyTest extends TestCase
 
         MobileMoney::toMinor('not money', 3);
     }
+
+    /** @return array<string, array{0: int|float|string, 1: bool}> */
+    public static function submittedAmounts(): array
+    {
+        return [
+            'two decimals, as typed' => ['12.50', true],
+            'one decimal' => ['12.5', true],
+            'a whole number' => ['12', true],
+            'an integer from JSON' => [12, true],
+            'a float from JSON' => [12.5, true],
+            'trailing zeros are not precision' => ['12.500', true],
+            'a refund' => ['-25.50', true],
+            'the column maximum' => ['999999999999.99', true],
+            'a third decimal' => ['12.505', false],
+            'a third decimal from JSON' => [12.505, false],
+            'a negative third decimal' => ['-12.505', false],
+            'a single fil' => ['0.001', false],
+            'a float past the scale' => [0.00001, false],
+            // A client that posts the raw result of float arithmetic has sent
+            // seventeen decimals. It is refused rather than guessed at; the
+            // client rounds to the cent before sending.
+            'float arithmetic noise' => [0.1 + 0.2, false],
+            'exponent notation' => ['1e-3', false],
+        ];
+    }
+
+    #[DataProvider('submittedAmounts')]
+    public function test_a_submitted_amount_fits_the_columns_only_if_no_digit_would_be_lost(int|float|string $amount, bool $fits): void
+    {
+        $this->assertSame($fits, MobileMoney::fitsColumnScale($amount));
+    }
 }

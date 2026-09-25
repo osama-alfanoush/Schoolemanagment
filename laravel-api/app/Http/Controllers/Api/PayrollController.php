@@ -110,7 +110,7 @@ class PayrollController extends Controller
 
     public function updateRecord(Request $request, int $id)
     {
-        $data = $request->validate(['allowances' => 'sometimes|numeric|min:0', 'deductions' => 'sometimes|numeric|min:0', 'reason' => 'required|string|max:500']);
+        $data = $request->validate(['allowances' => 'sometimes|numeric|money|min:0', 'deductions' => 'sometimes|numeric|money|min:0', 'reason' => 'required|string|max:500']);
         $record = DB::transaction(function () use ($request, $id, $data) {
             $record = PayrollRecord::with(['run', 'staff.staffProfile'])->lockForUpdate()->findOrFail($id);
             $this->schools->authorize($request->user(), (int) $record->school_id);

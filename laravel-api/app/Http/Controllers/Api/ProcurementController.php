@@ -52,7 +52,7 @@ class ProcurementController extends Controller
             'address' => 'nullable|string',
             'tax_number' => 'nullable|string|max:100',
             'payment_terms' => 'nullable|in:cash,net_15,net_30,net_60',
-            'credit_limit' => 'nullable|numeric|min:0',
+            'credit_limit' => 'nullable|numeric|money|min:0',
             'notes' => 'nullable|string',
         ]);
 
@@ -88,7 +88,7 @@ class ProcurementController extends Controller
             'tax_number' => 'nullable|string|max:100',
             'is_active' => 'sometimes|boolean',
             'payment_terms' => 'sometimes|in:cash,net_15,net_30,net_60',
-            'credit_limit' => 'nullable|numeric|min:0',
+            'credit_limit' => 'nullable|numeric|money|min:0',
             'notes' => 'nullable|string',
         ]);
 
@@ -160,7 +160,7 @@ class ProcurementController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'order_date' => 'required|date',
             'expected_date' => 'nullable|date|after_or_equal:order_date',
-            'tax' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|money|min:0',
             'notes' => 'nullable|string',
             'purchase_request_id' => 'nullable|exists:purchase_requests,id',
             'items' => 'required|array|min:1',
@@ -168,7 +168,7 @@ class ProcurementController extends Controller
             'items.*.description' => 'nullable|string|max:255',
             'items.*.quantity_ordered' => 'required|numeric|gt:0',
             'items.*.unit' => 'required|string|max:50',
-            'items.*.unit_cost' => 'required|numeric|min:0',
+            'items.*.unit_cost' => 'required|numeric|money|min:0',
             'items.*.warehouse_location' => 'nullable|string|max:255',
         ]);
 
@@ -227,14 +227,14 @@ class ProcurementController extends Controller
 
         $data = $request->validate([
             'expected_date' => 'nullable|date',
-            'tax' => 'sometimes|numeric|min:0',
+            'tax' => 'sometimes|numeric|money|min:0',
             'notes' => 'nullable|string',
             'items' => 'sometimes|array|min:1',
             'items.*.warehouse_item_id' => 'required_with:items|exists:warehouse_items,id',
             'items.*.description' => 'nullable|string|max:255',
             'items.*.quantity_ordered' => 'required_with:items|numeric|gt:0',
             'items.*.unit' => 'required_with:items|string|max:50',
-            'items.*.unit_cost' => 'required_with:items|numeric|min:0',
+            'items.*.unit_cost' => 'required_with:items|numeric|money|min:0',
             'items.*.warehouse_location' => 'nullable|string|max:255',
         ]);
 
@@ -361,7 +361,7 @@ class ProcurementController extends Controller
             'lines' => 'required|array|min:1',
             'lines.*.purchase_order_item_id' => 'required|integer|exists:purchase_order_items,id',
             'lines.*.quantity_received' => 'required|numeric|gt:0',
-            'lines.*.unit_cost' => 'nullable|numeric|min:0',
+            'lines.*.unit_cost' => 'nullable|numeric|money|min:0',
             'lines.*.warehouse_location' => 'nullable|string|max:255',
         ]);
 
