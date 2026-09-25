@@ -40,8 +40,8 @@ export default function ParentDashboard() {
           </div>}
         
         {!error && childList.map((child: any) => {
-        const childName = child.name ?? "Student";
-        const className = child.studentProfile?.classRoom?.name ?? child.student_profile?.class_room?.name ?? "Not assigned";
+        const childName = child.name ?? t("parentPages.student");
+        const className = child.studentProfile?.classRoom?.name ?? child.student_profile?.class_room?.name ?? t("parentPages.notAssigned");
         const initials = child.name ? child.name.substring(0, 2).toUpperCase() : "ST";
         return <BrandCard key={child.id} className="overflow-hidden:border-primary/50 transition-colors">
               <CardHeader className="pb-4">

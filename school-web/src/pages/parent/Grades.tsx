@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Parent } from "@/lib/api";
 import { renderUser, renderGrade, renderDate, renderStatus } from "@/lib/tableHelpers";
@@ -7,6 +8,7 @@ import DataTable from "@/components/ui/DataTable";
 import BrandEmptyState from "@/components/ui/BrandEmptyState";
 
 export default function ParentGrades() {
+  const { t } = useTranslation();
   const [selectedChild, setSelectedChild] = useState<number | "all">("all");
 
   const { data: childrenData } = useQuery({
@@ -30,7 +32,7 @@ const grades = Array.isArray(gradesData) ? gradesData : gradesData?.data ?? [];
 
   return (
     <div className="space-y-6">
-      <PageHeader icon="UI" title="Children's Grades" subtitle="Academic performance for all your children" />
+      <PageHeader icon="UI" title={t("parentPages.gradesTitle")} subtitle={t("parentPages.gradesSubtitle")} />
 
       {children.length > 1 && (
         <div className="flex gap-2 flex-wrap">
@@ -59,23 +61,23 @@ const grades = Array.isArray(gradesData) ? gradesData : gradesData?.data ?? [];
       )}
 
       {grades.length === 0 && !isLoading ? (
-        <BrandEmptyState icon="UI" title="No grade records found" subtitle="No grades have been recorded yet." />
+        <BrandEmptyState icon="UI" title={t("parentPages.noGrades")} subtitle={t("parentPages.noGradesHint")} />
       ) : (
         <DataTable
           data={grades}
           isLoading={isLoading}
           columns={[
             ...(showStudentColumn
-              ? [{ key: "student", label: "Student", render: (_: any, row: any) => renderUser(row.student_name ?? "-", "") }]
+              ? [{ key: "student", label: t("parentPages.student"), render: (_: any, row: any) => renderUser(row.student_name ?? "-", "") }]
               : []
             ),
-            { key: "subject", label: "Subject", sortable: true, render: (_: any, row: any) => row.subject?.name ?? row.subject_name ?? row.component?.subject?.name ?? "-" },
-            { key: "assessment", label: "Assessment", render: (_: any, row: any) => row.exam?.name ?? row.component?.name ?? row.component_name ?? "-" },
-            { key: "score", label: "Score", sortable: true, render: (v: any, row: any) => renderGrade(v ?? row.marks_obtained ?? null) },
-            { key: "date", label: "Date", sortable: true, hide: "lg", render: (v: any) => renderDate(v) },
-            { key: "status", label: "Status", render: (v: any) => renderStatus(v) },
+            { key: "subject", label: t("parentPages.subject"), sortable: true, render: (_: any, row: any) => row.subject?.name ?? row.subject_name ?? row.component?.subject?.name ?? "-" },
+            { key: "assessment", label: t("parentPages.assessment"), render: (_: any, row: any) => row.exam?.name ?? row.component?.name ?? row.component_name ?? "-" },
+            { key: "score", label: t("parentPages.score"), sortable: true, render: (v: any, row: any) => renderGrade(v ?? row.marks_obtained ?? null) },
+            { key: "date", label: t("parentPages.date"), sortable: true, hide: "lg", render: (v: any) => renderDate(v) },
+            { key: "status", label: t("common.status"), render: (v: any) => renderStatus(v) },
           ]}
-          emptyMessage="No grade records found"
+          emptyMessage={t("parentPages.noGrades")}
           emptyIcon="UI"
         />
       )}

@@ -13,7 +13,7 @@ export default function WarehouseDashboard() {
   const [, navigate] = useLocation();
   const { t } = useTranslation();
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, error, refetch } = useQuery({
     queryKey: ["warehouse-dashboard"],
     queryFn: () => Warehouse.dashboard(),
   }) as any;
@@ -27,6 +27,18 @@ export default function WarehouseDashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-purple border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Don't render zeros when the load failed — "0 low stock items" and
+  // "stock is fine" are very different statements.
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-3" role="alert">
+        <p className="text-sm font-semibold text-foreground">{t("common.loadFailed", "Couldn't load dashboard data.")}</p>
+        <p className="text-sm text-muted-foreground">{(error as Error)?.message}</p>
+        <BrandButton variant="primary" onClick={() => void refetch()}>{t("common.retry", "Retry")}</BrandButton>
       </div>
     );
   }

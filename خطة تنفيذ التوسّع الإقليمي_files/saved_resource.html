@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<!-- saved from url=(0253)https://d1aa3360-a4ee-4ae1-8c7a-a0f718ce1a5e.frame.claudeusercontent.com/_f/1787871425-c244/?__frame_t=lsMQxl5mj6HTusb_gGDU1hU8.3bf677ce-d190-4dc8-b4d5-31a8b998c4b6.35b892f2-16c8-4a86-a0a0-a5a8d53bca31.1787923439&__frame_v=manifest.8f37d435eff8686f.json -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- frame-runtime --><!--<base href="/_f/1787871425-c244/">--><base href="."><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.DvsaCnS7.js","assets":"assets.8Gk803W0.js","comments":"comments.GLuHR3zP.js","db":"db.h-3sndFg.js","downloads":"downloads.C3GSvEDP.js","embed":"embed.CxGAyc-v.js","mcp":"mcp.Bvma3qD7.js","network":"network.B5UA9Su4.js","permissions":"permissions.BNySkLV5.js","room":"room.BMMoe2BY.js","sample":"sample.BW2Uysoh.js","self":"artifact.DvsaCnS7.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.CQm3TZ9K.js","comments":"_comments.DELvYLUh.js","translate":"_translate.5HCW4BJh.js"}</script><script>(function(){"use strict";var J=["light","dark","system"],Q=/^[A-Za-z0-9_-]{1,64}$/,H=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,ee=new Set(["class","hidden","value","checked"]);function te(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||ee.has(t)}var Me="http://www.w3.org/1999/xhtml",re="http://www.w3.org/2000/svg",ne=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),oe=new Set(["script","style"]);function se(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!ne.has(t):e.namespaceURI===re?!oe.has(t):!1}var ae=new Set(["html","head","body","frameset"]);function ie(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&ae.has(e.localName)}function ce(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!Q.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!H.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!H.test(r))return!1}return!0}function le(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let s=0;s<n.length;s++)if(!t(n[s]))return!1;return!0}function ue(e){return e===null||typeof e!="object"?!1:le(e.__frame_patch,ce)}function fe(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function pe(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function de(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&J.includes(r)}var A=/^[\w.-]+\.js$/;function me(e,t,r){return r?"inert":typeof t=="string"&&A.test(t)?e?[t]:"inert":e?"inert":"framed"}function he(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function _e(){return{post:()=>{},on:()=>()=>{}}}var O="__frame_scroll",ve=150,ye=310,we=160,be=3e4;function Ee(){let e=0,t=!1,r=!1,n=!1,s=0,a=null;const l=i=>{try{sessionStorage.setItem(O,JSON.stringify({y:i}))}catch{}},d=()=>{if(clearTimeout(e),a===null)return;const i=a;a=null,l(i)},v=()=>{if(t){t=!1;return}r=!0,a=scrollY,clearTimeout(e),e=setTimeout(d,ve)};try{addEventListener("scroll",v,{passive:!0}),addEventListener("pagehide",d)}catch{}const y=()=>{let i;try{i=sessionStorage.getItem(O)}catch{return null}if(i===null)return null;let m;try{m=JSON.parse(i)}catch{m=null}const u=m?.y;if(!(typeof u=="number"&&Number.isFinite(u)&&u>=0)){try{sessionStorage.removeItem(O)}catch{}return null}return u};let S=!1;const h=i=>{try{const m=scrollY;scrollTo({top:i,left:0,behavior:"instant"}),s=i,n=!0,clearTimeout(e),a=null,l(i);const u=scrollY;u!==m&&(t=!0),u!==i&&!S&&(S=!0,addEventListener("load",()=>{try{if(scrollY===u){const k=y();h(k!==null?k:s)}}catch{}},{once:!0}))}catch{}},w=()=>{try{return!!location.hash}catch{return!0}};let o=!1;const f=()=>{try{if(o||innerWidth>ye||innerHeight>we)return;o=!0;const i=Date.now(),m=()=>{try{removeEventListener("resize",m)}catch{}if(Date.now()-i>be||r||w())return;const u=y();h(u!==null?u:s)};addEventListener("resize",m)}catch{}};let _=!1,b=!1;return{restore(){if(_||(_=!0,w()))return;const i=y();i!==null&&(h(i),f())},promoted(){if(b||(b=!0,w()))return;const i=y();i!==null?(h(i),f()):n&&h(s)}}}function ge(e,t,r,n){let s=null;try{s=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:v=>v})??null}catch{}const a=window.Worker,l=a?.prototype,d=Object.freeze({Worker:a,workerOn:l?.addEventListener,workerPost:l?.postMessage,workerTerminate:l?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:s,origins:t});r(e).then(v=>v?.bootTopLevel?v.bootTopLevel(d,n):n.settle()).catch(()=>n.settle())}var Oe="modulepreload",Ce=function(e){return"/"+e},je={},Ae=function(t,r,n){let s=Promise.resolve();function a(l){const d=new Event("vite:preloadError",{cancelable:!0});if(d.payload=l,window.dispatchEvent(d),!d.defaultPrevented)throw l}return s.then(l=>{for(const d of l||[])d.status==="rejected"&&a(d.reason);return t().catch(a)})},Re=window===top,q=Object.getOwnPropertyDescriptor(window,"claude"),T=me(Re,window.__FRAME_PREAMBLE?.topLevel,q?.writable===!1),C=typeof T=="object"&&T[0],p=C?_e():he();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let s=0;s<r.length;s++){const a=r[s];try{e(t,a,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[a]}catch{}try{e(t,a,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[a]=="function"&&n++}if(n&&T==="framed")try{p.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Se=1e4,W=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function $(e){for(const t of W)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var L=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),j=window.__FRAME_PREAMBLE?.transforms,N=window.__FRAME_PREAMBLE?.comments,I=window.__FRAME_PREAMBLE?.translate;function R(e){return Ae(()=>import("/_runtime/"+e),void 0)}function K(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:D,pipe:()=>({wrap:(r,n)=>(...s)=>{try{return n(...s)}catch(a){return Promise.reject(a)}}})}}var P=null,E=null;function Y(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var B=!1;function ke(e,t){const r=[];for(const n of e.elements){const s=document.querySelector(`[data-id="${n.target}"]`);if(!s){p.post({__frame_patch_miss:{seq:e.seq}},t);return}if([...Object.keys(n.attrsSet??{}),...n.attrsRemoved??[]].some(a=>!te(a))){p.post({__frame_patch_miss:{seq:e.seq}},t);return}if(n.text!==void 0&&(!se(s)||ie(s))){p.post({__frame_patch_miss:{seq:e.seq}},t);return}for(const[a,l]of Object.entries(n.attrsSet??{}))if(!G(s,a)){try{s.setAttribute(a,l)}catch{}X(s,a,l)}for(const a of n.attrsRemoved??[])G(s,a)||(s.removeAttribute(a),X(s,a,null));typeof n.text=="string"&&(s.textContent=n.text),r.push(n.target)}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:r}}))}catch{}}function X(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function G(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function V(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,B=!0):B&&(delete t.dataset.theme,t.style.colorScheme="",B=!1)}var M=new Map;function Te(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function U(){for(const e of M.values())e.done||(e.nulled=!0,e.r(null))}var Le=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),D=(e,t)=>{const r=M.get(e);if(!r||r.done){r?.nulled&&E&&p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},E);return}const n=typeof t=="function"?Object.setPrototypeOf(t,Le):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function Z(){const e=q?.value??{};Y(window,"claude",e);for(const t of Object.keys(L)){if(e[t]!==void 0){Y(e,t,e[t]);continue}M.set(t,Te())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(L,r))return Promise.resolve(null);const n=M.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(T==="framed"){const e=j&&A.test(j)?R(j).catch(()=>{}):Promise.resolve(void 0),t=o=>{if(o.type==="auxclick"&&o.button!==1)return;const f=o.target,_=f&&f.closest?f.closest("a[href],area[href]"):null;if(!_)return;const b=_.getAttribute("href");if(!b)return;let i;try{i=new URL(b,document.baseURI)}catch{return}if((i.protocol==="http:"||i.protocol==="https:")&&i.origin!==location.origin){o.preventDefault();const m=(_.getAttribute("target")??"").toLowerCase(),u=o.type==="auxclick"||o.metaKey||o.ctrlKey||o.shiftKey||o.altKey||!["","_self","_top","_parent"].includes(m);p.post({__frame_nav:!0,url:i.href,newTab:u},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=o=>{o.isTrusted&&(r.pointer=!0)},s=o=>{o.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",s,{capture:!0,passive:!0}),e.then(o=>{o?.wireNav&&(o.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",s,!0),o.wireEngagement?.(r))});let a=null;try{a=Ee()}catch{}Z();let l=null,d=null,v=0;const y=p.on((o,f)=>{$(f)&&fe(o)&&(l=o.__frame_init,E=f,y(),clearTimeout(v),d?.())});p.post({__frame_connect:!0},"*");const S=new Promise(o=>{d=o,v=setTimeout(()=>{y(),o()},Se)}),h=document.readyState==="loading"?new Promise(o=>document.addEventListener("DOMContentLoaded",()=>o(),{once:!0})):Promise.resolve();h.then(()=>{try{a?.restore()}catch{}});const w={cb:null};p.on((o,f)=>{if($(f)&&pe(o)){try{a?.promoted()}catch{}w.cb?.()}}),S.then(async()=>{if(!l||!E){U();return}V(l.theme);const o=E;let f=!1,_=!1;p.on((c,x)=>{if(x!==o)return;de(c)&&V(c.__frame_theme.theme),ue(c)&&ke(c.__frame_patch,o);const g=c?.__fc_mode;g&&typeof g=="object"&&!f&&N&&A.test(N)&&(f=!0,R(N).then(z=>z.install?.(o,g.on===!0)).catch(()=>{}));const F=c?.__ft_cmd;F&&typeof F=="object"&&!_&&I&&A.test(I)&&(_=!0,R(I).then(z=>z.install?.(o,F)).catch(()=>{}))});const b=Object.keys(l.capabilities??{}).filter(c=>Object.hasOwn(L,c)).map(c=>[c,L[c]]).filter(c=>typeof c[1]=="string"&&A.test(c[1])),i=await Promise.allSettled(b.map(([,c])=>R(c))),m=await e,u=E;if(m?.buildBoot||p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},u),m?.buildBoot)try{P=m.buildBoot(l,m.TRANSFORMS??{},{shellOrigin:u,mount:D},c=>p.post({__frame_cap_telemetry:c},u))}catch{p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},u),P=K(l,u)}else P=K(l,u);const k=c=>p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:c}},u),Pe=P;i.forEach((c,x)=>{const g=b[x][0];if(c.status!=="fulfilled"){k(g);return}try{c.value?.install?.(Pe)}catch{k(g)}}),U(),await h,p.post({__frame_ready:!0},E),e.then(c=>c?.installSizeReporter?.(u,w))})}else C&&(Z(),ge(C,W,R,{settle:U,mount:D}))})();</script><!-- /frame-runtime --><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>خطة تنفيذ التوسّع الإقليمي</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link rel="stylesheet" href="./css2">
+
+<style>
+  :root {
+    --paper:#F3F5F4; --surface:#FFFFFF; --surface-2:#E8EDEC; --line:#D2DBDA; --line-soft:#E2E9E8;
+    --ink:#0F1A1C; --ink-soft:#33474A; --muted:#5F7376;
+    --petrol:#0D5257; --petrol-2:#17787F; --sand:#8F6415; --sand-bg:rgba(176,125,40,.13);
+    --block:#A32D22; --block-bg:rgba(163,45,34,.10);
+    --win:#1C6B4B; --win-bg:rgba(28,107,75,.10);
+    --code-bg:#EAF0EF;
+    --shadow:0 1px 2px rgba(15,26,28,.05), 0 12px 32px rgba(15,26,28,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#0A1416; --surface:#10201F; --surface-2:#16292A; --line:#23393A; --line-soft:#1A2E2F;
+      --ink:#E7EEED; --ink-soft:#BCCDCC; --muted:#8CA3A4;
+      --petrol:#57B8BD; --petrol-2:#7FD0D3; --sand:#DCAA51; --sand-bg:rgba(220,170,81,.13);
+      --block:#F08A7C; --block-bg:rgba(240,138,124,.13);
+      --win:#5DC79B; --win-bg:rgba(93,199,155,.13);
+      --code-bg:#0C1A1B;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.36);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#0A1416; --surface:#10201F; --surface-2:#16292A; --line:#23393A; --line-soft:#1A2E2F;
+    --ink:#E7EEED; --ink-soft:#BCCDCC; --muted:#8CA3A4;
+    --petrol:#57B8BD; --petrol-2:#7FD0D3; --sand:#DCAA51; --sand-bg:rgba(220,170,81,.13);
+    --block:#F08A7C; --block-bg:rgba(240,138,124,.13);
+    --win:#5DC79B; --win-bg:rgba(93,199,155,.13);
+    --code-bg:#0C1A1B;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.36);
+  }
+
+  * { box-sizing:border-box; }
+  html { direction:rtl; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+    font-size:17px; line-height:1.85; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:940px; margin:0 auto; padding:0 24px 120px; }
+  h1,h2,.phase h3,.verdict-h { font-family:"Noto Kufi Arabic","IBM Plex Sans Arabic",Tahoma,sans-serif; }
+
+  code, .ltr {
+    direction:ltr; unicode-bidi:isolate;
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.87em;
+  }
+  code {
+    background:var(--code-bg); border:1px solid var(--line-soft); border-radius:5px;
+    padding:.1em .42em; color:var(--ink-soft);
+  }
+  .num { font-variant-numeric:tabular-nums; }
+  a { color:var(--petrol); text-underline-offset:3px; }
+  :focus-visible { outline:2px solid var(--petrol); outline-offset:3px; border-radius:4px; }
+
+  .mast { padding:74px 0 28px; }
+  .eyebrow { font-size:12.5px; font-weight:700; letter-spacing:.18em; color:var(--sand); margin:0 0 16px; }
+  h1 { font-size:clamp(34px,5.2vw,50px); line-height:1.26; font-weight:800; margin:0 0 18px; letter-spacing:-.01em; text-wrap:balance; }
+  .lede { font-size:20px; line-height:1.75; color:var(--ink-soft); margin:0; max-width:62ch; }
+
+  .verdict { margin-top:34px; border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; }
+  .verdict-top { padding:24px 28px 20px; border-bottom:1px solid var(--line-soft); }
+  .verdict-h { font-size:23px; font-weight:800; margin:0 0 10px; line-height:1.45; }
+  .verdict-top p { margin:0; color:var(--ink-soft); font-size:16.5px; }
+  .vgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--line-soft); }
+  .vgrid div { background:var(--surface); padding:17px 22px; }
+  .vgrid dt { font-size:11.5px; font-weight:700; letter-spacing:.1em; color:var(--muted); margin:0 0 5px; }
+  .vgrid dd { margin:0; font-size:20px; font-weight:700; }
+  .vgrid dd small { display:block; font-size:12.5px; font-weight:500; color:var(--muted); line-height:1.5; margin-top:3px; }
+
+  section { padding-top:60px; }
+  h2 { font-size:15px; font-weight:700; letter-spacing:.14em; color:var(--sand); margin:0 0 10px; }
+  .h2sub { font-size:28px; font-weight:700; line-height:1.4; margin:0 0 24px; text-wrap:balance; }
+  p { margin:0 0 18px; }
+  .note { color:var(--muted); font-size:15.5px; }
+
+  /* phases */
+  .phases { display:flex; flex-direction:column; gap:22px; }
+  .phase { border:1px solid var(--line); border-radius:16px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; }
+  .phase > header { padding:20px 26px; border-bottom:1px solid var(--line-soft); background:var(--surface-2); display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .pnum {
+    font-family:ui-monospace,Consolas,monospace; font-size:13px; font-weight:700;
+    background:var(--petrol); color:var(--surface); border-radius:8px; padding:3px 10px;
+  }
+  :root[data-theme="dark"] .pnum, :root:not([data-theme="light"]) .pnum { color:#08191A; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .pnum { color:#FFFFFF; } }
+  .phase h3 { margin:0; font-size:21px; font-weight:800; }
+  .phase > header .meta { font-size:14px; color:var(--muted); margin-inline-start:auto; }
+
+  .task { padding:20px 26px; border-bottom:1px solid var(--line-soft); }
+  .task:last-child { border-bottom:0; }
+  .task-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:8px; }
+  .task h4 { margin:0; font-size:18px; font-weight:700; }
+  .effort { font-size:12.5px; font-weight:700; color:var(--muted); background:var(--surface-2); border-radius:999px; padding:3px 11px; white-space:nowrap; margin-inline-start:auto; }
+  .task p { margin:0 0 12px; color:var(--ink-soft); font-size:16.5px; }
+  .task p:last-child { margin-bottom:0; }
+  .files { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
+  .files code { white-space:normal; font-size:12.5px; }
+  .ac {
+    margin-top:12px; padding:12px 16px; border-radius:10px;
+    background:var(--win-bg); border-inline-start:3px solid var(--win);
+    font-size:15.5px; color:var(--ink-soft);
+  }
+  .ac b { color:var(--win); }
+
+  pre {
+    background:var(--code-bg); border:1px solid var(--line-soft); border-radius:12px;
+    padding:16px 18px; overflow-x:auto; direction:ltr; text-align:left; margin:12px 0 0;
+    font-family:ui-monospace,Consolas,monospace; font-size:13.5px; line-height:1.7; color:var(--ink-soft);
+  }
+  pre .c { color:var(--muted); }
+
+  .scroll { overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); }
+  table { width:100%; border-collapse:collapse; min-width:640px; }
+  th,td { text-align:right; padding:12px 16px; border-bottom:1px solid var(--line-soft); font-size:15.5px; vertical-align:top; }
+  thead th { background:var(--surface-2); font-size:12.5px; font-weight:700; letter-spacing:.08em; color:var(--muted); }
+  tbody tr:last-child td { border-bottom:0; }
+  td.k { font-weight:700; white-space:nowrap; }
+
+  .callout { border-inline-start:3px solid var(--sand); background:var(--sand-bg); border-radius:0 12px 12px 0; padding:16px 20px; margin:0 0 18px; font-size:16.5px; color:var(--ink-soft); }
+  .danger { border-inline-start-color:var(--block); background:var(--block-bg); }
+  .danger b { color:var(--block); }
+  ul { margin:0 0 16px; padding-inline-start:22px; color:var(--ink-soft); }
+  li { margin-bottom:6px; }
+
+  footer { margin-top:66px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:15px; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation:none!important; transition:none!important; } }
+  @media (max-width:620px) { .effort { margin-inline-start:0; } }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="eyebrow">خطة هندسية · أغسطس ٢٠٢٦</p>
+    <h1>خطة تنفيذ التوسّع الإقليمي</h1>
+    <p class="lede">
+      ما يجب بناؤه بالضبط — بالجداول والملفات ومعايير القبول — لتحويل النظام
+      الحالي إلى منتج قابل للبيع في الأردن والخليج، مرتّباً بالتبعية لا بالرغبة.
+    </p>
+
+    <div class="verdict">
+      <div class="verdict-top">
+        <p class="verdict-h">لا تبدأ بأي دولة قبل إنجاز الأساسات</p>
+        <p>
+          فحص الشيفرة كشف ثلاث فجوات بنيوية تسبق أي عمل قُطري: العملة مثبّتة
+          على الدولار في الواجهة، والفاتورة لا تحتوي أي حقل ضريبة، والأهم —
+          <b>الفاتورة ليس لها بنود أصلاً</b>، بل مبلغ واحد. وكل نظام فوترة
+          إلكترونية في المنطقة يتطلب بنوداً بضريبة لكل بند. هذه المرحلة صفر،
+          وبدونها كل مُحوّل قُطري سيُبنى مرتين.
+        </p>
+      </div>
+      <dl class="vgrid">
+        <div><dt>مراحل</dt><dd class="num">٥<small>الصفر إلزامية للجميع</small></dd></div>
+        <div><dt>حتى أول عقد</dt><dd class="num">٨ – ١٠ أسابيع<small>قطر أو الكويت</small></dd></div>
+        <div><dt>حتى تغطية ٤ أسواق</dt><dd class="num">١٢ شهراً<small>بمطوّر واحد متفرغ</small></dd></div>
+        <div><dt>شبكة الأمان</dt><dd class="num">٥٩٦<small>اختباراً قائماً</small></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <section>
+    <h2>المبدأ المعماري</h2>
+    <p class="h2sub">واجهة واحدة، ومُحوّل لكل دولة</p>
+    <p>
+      الخطأ الأكثر تكلفة هنا هو كتابة تكامل السعودية داخل
+      <code>InvoiceController</code>. أنظمة الفوترة الثلاثة مختلفة جذرياً — ربط
+      مباشر بختم تشفيري في السعودية، وتخليص مركزي في الأردن، وتبادل عبر مزوّد
+      معتمد في الإمارات — لكن ما يسبقها مشترك بالكامل: نمذجة المستند، الترقيم
+      المتسلسل، <code>UUID</code>، رمز <code>QR</code>، الأرشفة، وإعادة المحاولة.
+    </p>
+    <pre><span class="c">// كل دولة مُحوّل، والنواة لا تعرف أي دولة</span>
+App\Services\EInvoicing\
+  ├─ EInvoiceGateway.php        <span class="c">// interface: issue(Invoice): EInvoiceResult</span>
+  ├─ EInvoiceDocument.php       <span class="c">// canonical model, country-agnostic</span>
+  ├─ Adapters\
+  │    ├─ JoFotaraAdapter.php   <span class="c">// الأردن — clearance</span>
+  │    ├─ ZatcaAdapter.php      <span class="c">// السعودية — direct + crypto stamp</span>
+  │    ├─ PeppolAspAdapter.php  <span class="c">// الإمارات — via accredited provider</span>
+  │    └─ NullAdapter.php       <span class="c">// قطر/الكويت — no mandate yet</span>
+  └─ Jobs\SubmitEInvoice.php    <span class="c">// queued, idempotent, retry with backoff</span></pre>
+    <p style="margin-top:16px">
+      نفس النمط للأجور: <code>App\Services\Wps\</code> بواجهة
+      <code>WpsFileGenerator</code> ومُحوّلات <code>UaeSif</code> و
+      <code>QatarWps</code> و<code>Mudad</code>. ونفس النمط لقنوات الدفع.
+      المُحوّل يُختار من ملف الدولة المخزّن على المدرسة، لا من متغيّر بيئة.
+    </p>
+    <div class="callout danger">
+      <b>قاعدة غير قابلة للتفاوض:</b> في الأردن والسعودية لا تُسلَّم الفاتورة
+      لولي الأمر قبل أن تُخلَّص من المنصة الحكومية. يعني ذلك أن إصدار الفاتورة
+      عملية غير متزامنة لها حالة (<code>pending → cleared → failed</code>)،
+      وليست استجابة فورية. صمّم واجهة المستخدم على هذا الأساس من البداية.
+    </div>
+  </section>
+
+  <section>
+    <h2>المراحل</h2>
+    <p class="h2sub">بالتبعية، لا بالأولوية التجارية</p>
+
+    <div class="phases">
+
+      <!-- PHASE 0 -->
+      <article class="phase">
+        <header>
+          <span class="pnum">0</span>
+          <h3>الأساسات</h3>
+          <span class="meta">٤ – ٦ أسابيع · إلزامية قبل أي سوق</span>
+        </header>
+
+        <div class="task">
+          <div class="task-head"><h4>ملف الدولة لكل مدرسة</h4><span class="effort">٥ أيام</span></div>
+          <p>
+            جدول <code>school_settings</code> اليوم يحمل الهوية البصرية فقط.
+            أضف إليه ملفاً تشغيلياً يحدّد سلوك النظام: الدولة، العملة، نظام
+            الفوترة، صيغة ملف الأجور، قناة الدفع، والتقويم. كل مُحوّل يُقرأ من
+            هنا، فتصبح إضافة دولة إعداداً لا نشراً جديداً.
+          </p>
+          <div class="files">
+            <code>schools.country_code</code><code>school_settings.currency</code>
+            <code>school_settings.tax_regime</code><code>school_settings.einvoice_adapter</code>
+            <code>school_settings.wps_format</code><code>school_settings.calendar</code>
+          </div>
+          <div class="ac"><b>معيار القبول:</b> تشغيل مدرستين بدولتين مختلفتين على نفس النشر، وكل واحدة ترى عملتها وتقويمها ومُحوّلها.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>تعدّد العملات</h4><span class="effort">٧ أيام</span></div>
+          <p>
+            العملة مثبّتة على الدولار في ثلاثة مواضع بالواجهة، وفي
+            <code>PAYMENT_CURRENCY</code> بالخادم. أضف عمود <code>currency</code>
+            على الجداول المالية، وأنشئ دالة تنسيق واحدة تقرأ عملة المدرسة، واستبدل
+            كل <code>Intl.NumberFormat</code> مباشر بها.
+          </p>
+          <p>
+            لا تنتقل إلى وحدات فرعية صحيحة الآن — النظام يستخدم أعشاراً مع دوال
+            <code>cents()</code> في خدمة السلف وتعمل بشكل صحيح. تغييرها الآن
+            مخاطرة بلا عائد فوري.
+          </p>
+          <div class="files"><code>invoices</code><code>payments</code><code>payroll_runs</code><code>journal_entries</code><code>useMoney()</code></div>
+          <div class="ac"><b>معيار القبول:</b> لا يوجد <code>currency: "USD"</code> واحد في الواجهة، ومدرسة أردنية تعرض دينارًا ومدرسة قطرية ريالاً.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>بنود الفاتورة</h4><span class="effort">١٠ أيام</span></div>
+          <p>
+            أخطر بند في الخطة. الفاتورة اليوم مبلغ واحد <code>amount</code> مع
+            وصف، ولا جدول بنود. كل نظام فوترة إلكترونية يتطلب بنداً لكل خدمة
+            بسعره وضريبته وكميته. أنشئ <code>invoice_lines</code>، ورحّل الفواتير
+            القائمة إلى بند واحد لكل فاتورة، واجعل <code>invoices.amount</code>
+            مجموعاً محسوباً من البنود لا حقلاً حراً.
+          </p>
+          <p>
+            هذا يفتح أيضاً ما يطلبه السوق أصلاً: فاتورة واحدة تجمع الرسوم
+            الدراسية والنقل والزي، مع اختلاف المعاملة الضريبية بين البنود.
+          </p>
+          <div class="files"><code>invoice_lines</code><code>InvoiceLine.php</code><code>migration + backfill</code></div>
+          <div class="ac"><b>معيار القبول:</b> الترحيل يمرّ على بيانات إنتاج منسوخة دون فقد قرش واحد، ومجموع البنود يساوي المبلغ القديم في ١٠٠٪ من الصفوف.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>محرّك الضريبة</h4><span class="effort">٨ أيام</span></div>
+          <p>
+            نسبة لكل دولة، وقاعدة لكل نوع خدمة: التعليم معفى في الأردن بينما
+            النقل والزي خاضعان، والسعودية ١٥٪ والإمارات ٥٪ والبحرين ١٠٪. الضريبة
+            تُحتسب على مستوى البند، وتظهر في الفاتورة والإيصال والقيد المحاسبي —
+            وهذا يعني حسابين جديدين في دليل الحسابات للضريبة المستحقة.
+          </p>
+          <div class="files"><code>tax_rules</code><code>TaxEngine.php</code><code>LedgerService</code></div>
+          <div class="ac"><b>معيار القبول:</b> فاتورة أردنية برسوم معفاة ونقل خاضع تُظهر ضريبة صحيحة على البند الثاني فقط، ويوازن القيد المحاسبي.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>التقويم الهجري</h4><span class="effort">٤ أيام</span></div>
+          <p>
+            عرض مزدوج للتاريخ في العام الدراسي والشهادات والتقارير، وخيار على
+            مستوى المدرسة لأيّ التقويمين يكون الأساسي. التخزين يبقى ميلادياً في
+            قاعدة البيانات؛ التحويل عرضي فقط.
+          </p>
+          <div class="files"><code>formatDate()</code><code>school_settings.calendar</code></div>
+          <div class="ac"><b>معيار القبول:</b> تبديل التقويم يغيّر كل تواريخ الواجهة دون أي تغيير في البيانات المخزّنة.</div>
+        </div>
+      </article>
+
+      <!-- PHASE 1 -->
+      <article class="phase">
+        <header>
+          <span class="pnum">1</span>
+          <h3>قطر والكويت — أول عقد</h3>
+          <span class="meta">٤ أسابيع · لا فوترة ولا ضريبة</span>
+        </header>
+
+        <div class="task">
+          <div class="task-head"><h4>حقول الموظف الناقصة</h4><span class="effort">٣ أيام</span></div>
+          <p>
+            <code>staff_profiles</code> يحمل <code>bank_name</code> و
+            <code>bank_account</code> والتأمينات، لكن ملف الأجور يحتاج ما ليس
+            موجوداً: <code>IBAN</code> مُتحقَّقاً منه، ورقم بطاقة العمل، والجنسية،
+            ورقم منشأة صاحب العمل. أضفها مع تحقّق صارم — ملف الأجور يُرفض كاملاً
+            بسبب حقل واحد خاطئ.
+          </p>
+          <div class="files"><code>staff_profiles.iban</code><code>.labour_card_no</code><code>.nationality</code><code>school_settings.establishment_id</code></div>
+          <div class="ac"><b>معيار القبول:</b> التحقق يرفض <code>IBAN</code> غير صالح عند الحفظ لا عند التصدير.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>مولّد ملف حماية الأجور</h4><span class="effort">١٢ يوماً</span></div>
+          <p>
+            واجهة واحدة ومُحوّل لكل دولة. ابدأ بقطر والكويت، وصمّم للإمارات
+            (<code>SIF</code> بفواصل رأسية) والسعودية (مدد) من اليوم الأول. الملف
+            يُولَّد من مسيّرة <b>مدفوعة</b> فقط، ويُحفظ مع بصمة تحقق وسجل تدقيق —
+            لأنه مستند نظامي يُراجَع لاحقاً.
+          </p>
+          <p>
+            في قطر تحديداً يجب أن يعكس الملف الحد الأدنى للأجر وبدلات السكن
+            والطعام. هذه قواعد احتساب تُضاف إلى مكوّنات الراتب الموجودة، لا وحدة جديدة.
+          </p>
+          <div class="files"><code>App\Services\Wps\</code><code>wps_submissions</code><code>PayrollRun@exportWps</code></div>
+          <div class="ac"><b>معيار القبول:</b> اختبار ملف ذهبي يقارن المخرَج ببايت مرجعي، ورفض التصدير لمسيّرة غير مدفوعة.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>تجهيز العرض التقديمي</h4><span class="effort">٥ أيام</span></div>
+          <p>
+            بيانات تجريبية بعملة الدولة وأسماء محلية، وتقرير مسيّرة قابل للطباعة،
+            والفيديو التعريفي الذي أنجزناه. لا شيء تقني هنا، لكنه ما يُغلق أول صفقة.
+          </p>
+          <div class="ac"><b>معيار القبول:</b> عرض كامل من التسجيل حتى تصدير ملف الأجور دون لمس شاشة إدارة واحدة بالإنجليزية.</div>
+        </div>
+      </article>
+
+      <!-- PHASE 2 -->
+      <article class="phase">
+        <header>
+          <span class="pnum">2</span>
+          <h3>الأردن — السوق البيتي</h3>
+          <span class="meta">٦ – ٨ أسابيع · فوترة إلزامية</span>
+        </header>
+
+        <div class="task">
+          <div class="task-head"><h4>طبقة الفوترة الإلكترونية</h4><span class="effort">١٠ أيام</span></div>
+          <p>
+            النواة المشتركة قبل أي مُحوّل: جدول المستندات، آلة الحالة، مهمة
+            الإرسال المؤجّلة مع إعادة محاولة أُسّية، والأرشفة. الإرسال يجب أن
+            يكون <b>مُعرّفاً بمفتاح تكرار</b> حتى لا تُخلَّص الفاتورة مرتين عند
+            إعادة المحاولة.
+          </p>
+          <div class="files"><code>e_invoice_documents</code><code>EInvoiceGateway</code><code>Jobs\SubmitEInvoice</code></div>
+          <div class="ac"><b>معيار القبول:</b> قطع الشبكة أثناء الإرسال ثم إعادة التشغيل ينتج مستنداً واحداً لا اثنين.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>مُحوّل JoFotara</h4><span class="effort">١٢ يوماً</span></div>
+          <p>
+            توليد <code>XML</code> بالحقول المطلوبة و<code>UUID</code> ورمز
+            <code>QR</code>، والإرسال للتخليص المركزي، وحفظ الختم الرقمي العائد.
+            الفاتورة لا تُعرض لولي الأمر قبل التخليص.
+          </p>
+          <div class="callout danger" style="margin:12px 0 0">
+            <b>يجب تأكيده قبل التقدير:</b> معاملة الفواتير المعفاة — التعليم معفى
+            من ضريبة المبيعات، لكن لم يتضح من المصادر العامة هل تُخلَّص فواتيره
+            عبر المنصة أم تُستثنى. هذا يغيّر حجم العمل جوهرياً، ويُحسم بسؤال
+            دائرة ضريبة الدخل والمبيعات أو مستشار محلي قبل الالتزام بموعد.
+          </div>
+          <div class="ac"><b>معيار القبول:</b> اختبارات بملفات مسجّلة مسبقاً دون استدعاء المنصة في التكامل المستمر، وفاتورة حقيقية مخلَّصة في بيئة الاختبار.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>ربط eFAWATEERcom</h4><span class="effort">١٠ أيام</span></div>
+          <p>
+            استبدل <code>PaymentGatewayService</code> المهيّأ لـ
+            <code>Stripe</code> بواجهة مزوّد ومُحوّلات. القناة الوطنية الأردنية
+            تقبل فواتير التعليم، وتعمل بنموذج «إصدار فاتورة ثم إشعار سداد»، أي
+            أن التسوية تأتي عبر <code>webhook</code> لا عند الضغط.
+          </p>
+          <p>
+            البنية الصحيحة موجودة أصلاً: <code>payment_transactions</code> و
+            <code>payment_webhook_events</code> ومنطق منع التكرار. المطلوب مُحوّل لا إعادة بناء.
+          </p>
+          <div class="files"><code>PaymentProvider</code><code>Adapters\EfawateercomAdapter</code></div>
+          <div class="ac"><b>معيار القبول:</b> إشعار سداد مكرّر لا ينتج دفعتين، وحالة الفاتورة تتحدّث تلقائياً.</div>
+        </div>
+      </article>
+
+      <!-- PHASE 3 -->
+      <article class="phase">
+        <header>
+          <span class="pnum">3</span>
+          <h3>ما يكسب الصفقة</h3>
+          <span class="meta">٨ – ١٠ أسابيع · بالتوازي مع البيع</span>
+        </header>
+
+        <div class="task">
+          <div class="task-head"><h4>قناة الرسائل النصية</h4><span class="effort">٦ أيام</span></div>
+          <p>
+            قائمة القنوات اليوم <code>push · email · in_app</code> فقط. أضف
+            <code>sms</code> إلى <code>NotificationPreference</code> و
+            <code>NotificationDelivery</code> ومُحوّل مزوّد واحد. البنية جاهزة
+            بالكامل — هذه إضافة قناة لا نظام إشعارات جديد.
+          </p>
+          <div class="ac"><b>معيار القبول:</b> غياب طالب يُنتج رسالة نصية لوليّ أمره خلال دقيقة، مع احترام تفضيلات الإشعار.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>تطبيق ولي الأمر</h4><span class="effort">٢٥ يوماً</span></div>
+          <p>
+            الخادم جاهز: مصادقة، إشعارات، رموز أجهزة، وكل نقاط النهاية التي
+            تحتاجها البوابة. المطلوب تطبيق <code>Expo</code> بأربع شاشات فقط —
+            الأبناء، الحضور والدرجات، الفواتير والدفع، الإشعارات. لا تبنِ تطبيقاً
+            شاملاً؛ ابنِ الأربعة التي يسأل عنها المشتري.
+          </p>
+          <div class="ac"><b>معيار القبول:</b> ولي أمر يدفع فاتورة من الجوال ويستلم إشعار غياب، على أندرويد و<span class="ltr">iOS</span>.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>القبول والتسجيل</h4><span class="effort">١٥ يوماً</span></div>
+          <p>
+            نموذج تقديم عام، رفع مستندات، مسار حالات (مقدَّم ← مقابلة ← عرض مقعد
+            ← مقبول)، ثم تحويل المقبول إلى طالب مع فاتورة تسجيل. لدينا
+            <code>StudentEnrollment</code> كنقطة وصول، والناقص هو ما قبلها.
+          </p>
+          <div class="files"><code>admission_applications</code><code>application_documents</code></div>
+          <div class="ac"><b>معيار القبول:</b> طلب مقدَّم من رابط عام يصبح طالباً بفاتورة دون إدخال يدوي مزدوج.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>الشهادات وكشوف الدرجات</h4><span class="effort">٨ أيام</span></div>
+          <p>
+            قوالب <code>PDF</code> عربية بالشكل المعتمد، برقم تحقق وصفحة تحقق
+            عامة. <code>ReportCardIssue</code> موجود ويصلح أساساً.
+          </p>
+          <div class="ac"><b>معيار القبول:</b> شهادة مطبوعة بالعربية يتحقق منها رقمها عبر رابط عام.</div>
+        </div>
+      </article>
+
+      <!-- PHASE 4 -->
+      <article class="phase">
+        <header>
+          <span class="pnum">4</span>
+          <h3>الإمارات ثم السعودية</h3>
+          <span class="meta">١٦ – ٢٤ أسبوعاً · الأثقل</span>
+        </header>
+
+        <div class="task">
+          <div class="task-head"><h4>مُحوّل Peppol عبر مزوّد معتمد</h4><span class="effort">١٢ يوماً</span></div>
+          <p>
+            أسهل المُحوّلات الثلاثة: لا ختم تشفيري ولا تسجيل أجهزة، بل ربط واجهة
+            برمجية تجارية واحدة مع مزوّد معتمد يتولى التبليغ للهيئة. أضف ضريبة
+            ٥٪ ومُحوّل <code>SIF</code> وتقارير الجهات الرقابية.
+          </p>
+          <div class="callout" style="margin:12px 0 0">
+            التوقيت مهم: أغلب المدارس الخاصة ضمن المرحلة الثانية في يوليو ٢٠٢٧.
+            أنجز هذا قبل الربع الأول من ٢٠٢٧ لتدخل السوق قبل الازدحام لا بعده.
+          </div>
+          <div class="ac"><b>معيار القبول:</b> فاتورة مُرسَلة ومُستلَمة عبر شبكة المزوّد في بيئة الاختبار.</div>
+        </div>
+
+        <div class="task">
+          <div class="task-head"><h4>حزمة السعودية</h4><span class="effort">١٦ أسبوعاً</span></div>
+          <p>
+            أربعة أعمال متوازية: مُحوّل فاتورة بالختم التشفيري وتسجيل الجهاز،
+            وتصدير نور بصيغه المعتمدة ونوافذ المزامنة، ومُحوّل مدد المطابق
+            للتأمينات وقوى، والانتقال إلى استضافة داخل المملكة بموجب نظام حماية
+            البيانات.
+          </p>
+          <p class="note">
+            ابدأ إجراءات الشهادات والتسجيل مع الجهات <b>قبل</b> بدء البرمجة بشهر —
+            مدّتها خارج سيطرتك وهي المسار الحرج الحقيقي، لا الشيفرة.
+          </p>
+          <div class="ac"><b>معيار القبول:</b> فاتورة مخلَّصة في بيئة اختبار الهيئة، وملف مدد مقبول، والبيانات داخل المملكة.</div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>الجودة</h2>
+    <p class="h2sub">كيف نحمي ما يعمل اليوم</p>
+    <p>
+      عندنا ٤٧٠ اختباراً خلفياً و١٢٦ أمامياً تمرّ جميعها، وهي شبكة أمان حقيقية
+      لعمل بهذا الحجم. قواعد تحافظ عليها:
+    </p>
+    <ul>
+      <li><b>لا استدعاء خارجي في التكامل المستمر.</b> كل مُحوّل يُختبر بملفات استجابة مسجّلة، والاتصال الحقيقي في بيئة اختبار منفصلة يدوياً.</li>
+      <li><b>اختبارات ملف ذهبي</b> لكل مخرَج نظامي — <code>XML</code> الفوترة وملف الأجور — تُقارن بايتاً ببايت بمرجع معتمد.</li>
+      <li><b>الترحيلات تُجرَّب على نسخة من الإنتاج</b> قبل الدمج، خصوصاً ترحيل بنود الفاتورة.</li>
+      <li><b>اختبار تعدّد المستأجرين</b> في كل ميزة قُطرية: مدرستان بدولتين لا تريان بيانات أو إعدادات بعضهما.</li>
+    </ul>
+    <div class="callout">
+      استعمل نصّ الجولة المسجّلة كاختبار انحدار مرئي: <code>node record.cjs --dry</code>
+      يمرّ على ٦٠ شاشة ويُبلغ عن أي استجابة خطأ. شغّله قبل كل إصدار.
+    </div>
+  </section>
+
+  <section>
+    <h2>المخاطر</h2>
+    <p class="h2sub">ما قد يكسر الجدول الزمني</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>الخطر</th><th>الأثر</th><th>التخفيف</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="k">مدة اعتماد الشهادات</td>
+            <td>تسجيل الأجهزة لدى الهيئات قد يستغرق أسابيع خارج سيطرتنا</td>
+            <td>ابدأ الإجراءات قبل البرمجة بشهر، وعامِلها كمسار حرج</td>
+          </tr>
+          <tr>
+            <td class="k">ترحيل بنود الفاتورة</td>
+            <td>يمسّ بيانات مالية قائمة — الخطأ فيه مكلف</td>
+            <td>ترحيل على نسخة أولاً، وتحقّق أن مجموع البنود يطابق المبلغ القديم في كل صف</td>
+          </tr>
+          <tr>
+            <td class="k">غموض الإعفاء الأردني</td>
+            <td>قد يضاعف أو يُلغي عمل مُحوّل JoFotara</td>
+            <td>سؤال مستشار ضريبي قبل تقدير المرحلة الثانية</td>
+          </tr>
+          <tr>
+            <td class="k">عقد المزوّد المعتمد</td>
+            <td>الإمارات تتطلب تعاقداً تجارياً لا مجرد برمجة</td>
+            <td>اختر المزوّد وتفاوض مبكراً؛ التسعير يؤثر على هامشك</td>
+          </tr>
+          <tr>
+            <td class="k">مطوّر واحد</td>
+            <td>كل التقديرات تفترض تفرّغاً كاملاً بلا دعم فني موازٍ</td>
+            <td>بعد أول عميل سيستهلك الدعم وقتاً؛ خطّط لذلك أو وظّف</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      التقديرات اجتهادية وتفترض مطوّراً واحداً متفرغاً، ولا تشمل وقت البيع والدعم.
+      تقييم الوضع الحالي مبني على فحص مباشر للشيفرة في أغسطس ٢٠٢٦: لا حقول ضريبة
+      في <code>invoices</code>، ولا جدول بنود، والعملة مثبّتة على الدولار في ثلاثة
+      مواضع، وقنوات الإشعار <code>push · email · in_app</code>، وبوابة الدفع
+      مهيّأة لـ <code>Stripe</code> وحدها.
+    </p>
+  </footer>
+
+</div>
+
+</body></html>

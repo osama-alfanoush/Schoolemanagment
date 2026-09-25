@@ -6,6 +6,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
+    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],

@@ -2,6 +2,7 @@ import BrandButton from "@/components/ui/BrandButton";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Finance } from "@/lib/api";
+import { roundToCents } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import DataTable from "@/components/ui/DataTable";
 import { Badge } from "@/components/ui/badge";
@@ -32,34 +33,34 @@ export default function FinanceInvoices() {
 
   const invoices = Array.isArray(data) ? data : data?.data ?? [];
   const feeStructures = Array.isArray(fsData) ? fsData : fsData?.data ?? [];
-  const outstandingOf = (inv: any) => Math.max(0, Number(inv.amount ?? 0) - Number(inv.paid_amount ?? 0));
+  const outstandingOf = (inv: any) => Math.max(0, roundToCents(Number(inv.amount ?? 0) - Number(inv.paid_amount ?? 0)));
 
   const generate = useMutation({
     mutationFn: (body: any) => Finance.generateInvoices(body),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["finance", "invoices"] });
-      toast({ title: "Invoices generated" });
+      toast({ title: t("financePages.invoicesGenerated") });
       setGenOpen(false);
       setGenForm({ fee_structure_id: "", due_date: "", class_room_id: "", student_user_ids: "" });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Generation failed", description: e?.data?.message ?? e?.message })
+    onError: (e: any) => toast({ variant: "destructive", title: t("financePages.generationFailed"), description: e?.data?.message ?? e?.message })
   });
 
   const pay = useMutation({
     mutationFn: ({ id, body }: { id: number; body: any }) => Finance.recordPayment(id, body),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["finance", "invoices"] });
-      toast({ title: "Payment recorded" });
+      toast({ title: t("financePages.paymentRecordedOk") });
       setPayOpen(null);
       setPayForm({ amount: "", method: "cash", reference: "" });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Payment failed", description: e?.data?.message ?? e?.message })
+    onError: (e: any) => toast({ variant: "destructive", title: t("financePages.paymentFailed"), description: e?.data?.message ?? e?.message })
   });
 
   const reminders = useMutation({
     mutationFn: () => Finance.sendReminders(),
-    onSuccess: () => toast({ title: "Reminders sent" }),
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.message })
+    onSuccess: () => toast({ title: t("financePages.remindersSent") }),
+    onError: (e: any) => toast({ variant: "destructive", title: t("financePages.failed"), description: e?.message })
   });
 
   return (
@@ -71,9 +72,9 @@ export default function FinanceInvoices() {
         <div className="flex gap-2">
           <BrandButton variant="outline" onClick={() => reminders.mutate()} disabled={reminders.isPending}>
             <Send className="h-4 w-4 me-2" />
-            Send reminders
+            {t("financePages.sendReminders")}
           </BrandButton>
-          <BrandButton onClick={() => setGenOpen(true)}>Generate Batch</BrandButton>
+          <BrandButton onClick={() => setGenOpen(true)}>{t("financePages.generateBatch")}</BrandButton>
         </div>
       </div>
 
@@ -82,15 +83,15 @@ export default function FinanceInvoices() {
           columns={[
             {
               key: "invoice_no",
-              label: "Invoice No",
+              label: t("financePages.invoiceNo"),
               sortable: true,
               render: (val) => <span className="font-medium font-mono text-sm">{val}</span>,
             },
             {
               key: "student",
-              label: "Student",
+              label: t("financePages.student"),
               sortable: true,
-              render: (_, inv) => inv.student?.name || "Unknown",
+              render: (_, inv) => inv.student?.name || t("financePages.unknown"),
             },
             {
               key: "amount",
@@ -101,7 +102,7 @@ export default function FinanceInvoices() {
             },
             {
               key: "balance",
-              label: "Balance",
+              label: t("financePages.balance"),
               sortable: true,
               align: "right",
               render: (_, inv) => <span className="font-mono">{outstandingOf(inv).toFixed(2)}</span>,
@@ -129,7 +130,7 @@ export default function FinanceInvoices() {
             },
             {
               key: "due_date",
-              label: "Due Date",
+              label: t("financePages.dueDate"),
               sortable: true,
               render: (val) => (val ? format(new Date(val), "MMM d, yyyy") : "-"),
             },
@@ -139,7 +140,7 @@ export default function FinanceInvoices() {
           emptyMessage={t("common.empty")}
           rowActions={[
             {
-              label: "Record Payment",
+              label: t("financePages.recordPayment"),
               icon: <CreditCard className="h-4 w-4" />,
               show: (inv) => inv.status !== "paid",
               onClick: (inv) => {
@@ -152,7 +153,7 @@ export default function FinanceInvoices() {
               },
             },
             {
-              label: "Download Receipt",
+              label: t("financePages.downloadReceipt"),
               icon: <Download className="h-4 w-4" />,
               onClick: (inv) => {
                 void Finance.receiptPdf(inv.id, inv.invoice_no);
@@ -165,14 +166,14 @@ export default function FinanceInvoices() {
       <Dialog open={genOpen} onOpenChange={setGenOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Generate invoice batch</DialogTitle>
+            <DialogTitle>{t("financePages.generateInvoiceBatch")}</DialogTitle>
             <DialogDescription>
               Issue invoices for all students under a fee structure.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="fs">Fee structure</Label>
+              <Label htmlFor="fs">{t("financePages.feeStructure")}</Label>
               <select
                 id="fs"
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"
@@ -188,15 +189,15 @@ export default function FinanceInvoices() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="due">Due date</Label>
+              <Label htmlFor="due">{t("financePages.dueDate")}</Label>
               <Input id="due" type="date" value={genForm.due_date} onChange={e => setGenForm({ ...genForm, due_date: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cls">Class room ID</Label>
-              <Input id="cls" type="number" value={genForm.class_room_id} placeholder="Invoice a whole class" onChange={e => setGenForm({ ...genForm, class_room_id: e.target.value })} />
+              <Label htmlFor="cls">{t("financePages.classRoomId")}</Label>
+              <Input id="cls" type="number" value={genForm.class_room_id} placeholder={t("financePages.invoiceWholeClass")} onChange={e => setGenForm({ ...genForm, class_room_id: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="sids">Student IDs (optional)</Label>
+              <Label htmlFor="sids">{t("financePages.studentIdsOptional")}</Label>
               <Input id="sids" value={genForm.student_user_ids} placeholder="e.g. 12, 15, 20" onChange={e => setGenForm({ ...genForm, student_user_ids: e.target.value })} />
               <p className="text-xs text-muted-foreground">Provide a class room ID and/or a comma-separated list of student IDs.</p>
             </div>
@@ -215,7 +216,7 @@ export default function FinanceInvoices() {
               if (ids.length) body.student_user_ids = ids;
               generate.mutate(body);
             }} disabled={!genForm.fee_structure_id || !genForm.due_date || (!genForm.class_room_id && !genForm.student_user_ids.trim()) || generate.isPending}>
-              {generate.isPending ? t("common.loading") : "Generate"}
+              {generate.isPending ? t("common.loading") : t("financePages.generate")}
             </BrandButton>
           </DialogFooter>
         </DialogContent>
@@ -224,9 +225,9 @@ export default function FinanceInvoices() {
       <Dialog open={!!payOpen} onOpenChange={o => !o && setPayOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Record payment</DialogTitle>
+            <DialogTitle>{t("financePages.recordPayment")}</DialogTitle>
             <DialogDescription>
-              {payOpen ? `Invoice ${payOpen.invoice_no}` : ""}
+              {payOpen ? `${t("financePages.invoiceNo")} ${payOpen.invoice_no}` : ""}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -238,19 +239,19 @@ export default function FinanceInvoices() {
             })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="method">Method</Label>
+              <Label htmlFor="method">{t("financePages.method")}</Label>
               <select id="method" className="w-full rounded-md border bg-background px-3 py-2 text-sm" value={payForm.method} onChange={e => setPayForm({
               ...payForm,
               method: e.target.value
             })}>
-                <option value="cash">Cash</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="card">Card</option>
-                <option value="online">Online</option>
+                <option value="cash">{t("financePages.cash")}</option>
+                <option value="bank_transfer">{t("financePages.bankTransfer")}</option>
+                <option value="card">{t("financePages.card")}</option>
+                <option value="online">{t("financePages.online")}</option>
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ref">Reference</Label>
+              <Label htmlFor="ref">{t("financePages.reference")}</Label>
               <Input id="ref" value={payForm.reference} onChange={e => setPayForm({
               ...payForm,
               reference: e.target.value
@@ -269,7 +270,7 @@ export default function FinanceInvoices() {
               reference: payForm.reference
             }
           })} disabled={!payForm.amount || pay.isPending}>
-              {pay.isPending ? t("common.loading") : "Record"}
+              {pay.isPending ? t("common.loading") : t("financePages.record")}
             </BrandButton>
           </DialogFooter>
         </DialogContent>

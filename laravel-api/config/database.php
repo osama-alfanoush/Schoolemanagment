@@ -82,6 +82,15 @@ return [
             ]) : [],
         ],
 
+        /*
+         * Application traffic. In production DB_HOST/DB_URL point at PgBouncer,
+         * not at PostgreSQL: php-fpm opens a backend per request, and a
+         * PostgreSQL backend is an OS process, so request-rate connection churn
+         * shows up as database CPU long before max_connections is reached.
+         * Raising max_connections makes that worse, not better — pooling is the
+         * fix, and the pool is sized to the total of every replica's
+         * PM_MAX_CHILDREN plus the queue workers.
+         */
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
@@ -94,7 +103,33 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
+        /*
+         * Schema changes and maintenance, pointed straight at PostgreSQL.
+         *
+         * Migrations must bypass the pooler. Under transaction pooling every
+         * statement may land on a different server connection, which breaks
+         * anything session-scoped, and CREATE INDEX CONCURRENTLY — used by the
+         * tenant-index migration — must own its connection for the whole build.
+         *
+         * Defaults fall back to the pooled values so a deployment without a
+         * pooler (local, CI, a single-container demo) keeps working unchanged.
+         */
+        'pgsql_direct' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_DIRECT_URL', env('DB_URL')),
+            'host' => env('DB_DIRECT_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_DIRECT_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [

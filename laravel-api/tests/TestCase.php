@@ -4,16 +4,18 @@ namespace Tests;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Laravel\Sanctum\Sanctum;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['mfa.enabled' => false]);
+    }
+
     protected function loginAs(string $role): User
     {
-        $user = User::factory()->{$role}()->create();
-        Sanctum::actingAs($user, ['*']);
-
-        return $user;
+        return User::factory()->{$role}()->create();
     }
 
     protected function assertApiSuccess($response, int $status = 200): void

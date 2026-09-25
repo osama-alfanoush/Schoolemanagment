@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\DeviceToken;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
 use App\Models\User;
+use App\Models\UserDevice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -160,18 +160,20 @@ class NotificationTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/notifications/register-device', [
+                'device_id' => 'ios-test-device',
                 'token' => 'test_fcm_token_123',
                 'platform' => 'ios',
-                'device_name' => 'iPhone Test',
                 'app_version' => '1.0.0',
+                'os_version' => '18.0',
             ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure(['message', 'device_id']);
 
-        $this->assertDatabaseHas('device_tokens', [
+        $this->assertDatabaseHas('user_devices', [
             'user_id' => $user->id,
-            'token' => 'test_fcm_token_123',
+            'device_id' => 'ios-test-device',
+            'push_token' => 'test_fcm_token_123',
         ]);
     }
 
@@ -179,22 +181,22 @@ class NotificationTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
 
-        DeviceToken::create([
+        $device = UserDevice::create([
             'user_id' => $user->id,
-            'token' => 'token_to_remove',
+            'device_id' => 'android-test-device',
+            'push_token' => 'token_to_remove',
             'platform' => 'android',
         ]);
 
         $response = $this->actingAs($user)
             ->postJson('/api/notifications/unregister-device', [
-                'token' => 'token_to_remove',
+                'device_id' => 'android-test-device',
             ]);
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Device unregistered']);
 
-        $this->assertDatabaseMissing('device_tokens', [
-            'token' => 'token_to_remove',
-        ]);
+        $this->assertNull($device->fresh()->push_token);
+        $this->assertNotNull($device->fresh()->revoked_at);
     }
 }

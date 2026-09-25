@@ -4,29 +4,61 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\AccountLockout;
-use App\Models\PushToken;
+use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\CurrentSchool;
+use App\Services\DeviceRegistry;
+use App\Services\PrivateFileVault;
+use App\Services\SchoolContext;
+use App\Services\TokenIssuer;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthController extends Controller
 {
+    public function __construct(
+        private readonly TokenIssuer $tokenIssuer,
+        private readonly SchoolContext $schools,
+        private readonly CurrentSchool $currentSchool,
+        private readonly DeviceRegistry $devices,
+    ) {}
+
+    public function csrfCookie(): JsonResponse
+    {
+        $token = Str::random(64);
+
+        return response()->json(['csrf_token' => $token])
+            ->withCookie($this->webCookie(
+                config('web-auth.csrf_cookie'),
+                $token,
+                config('web-auth.refresh_minutes'),
+                '/',
+                false,
+            ))
+            ->header('Cache-Control', 'no-store');
+    }
+
     public function login(Request $request)
     {
         $data = $request->validate([
             'email' => 'required|email:rfc,strict',
             'password' => 'required',
             'device_name' => 'nullable|string',
+            'device_id' => 'nullable|string|max:255',
         ]);
 
-        $user = User::where('email', $data['email'])->first();
+        $data['email'] = Str::lower(trim($data['email']));
+        $user = User::whereRaw('LOWER(email) = ?', [$data['email']])->first();
 
         // Always perform a hash check, even when the user doesn't exist, so the
         // response time doesn't reveal whether an email is registered.
@@ -44,26 +76,85 @@ class AuthController extends Controller
         // Clear lockout counter on successful login
         AccountLockout::clearAttempts($user);
 
+        // A token is never issued without an unambiguous active tenant. This
+        // also prevents the login response from exposing unscoped relations.
+        $schoolId = $this->schools->forUser($user);
+
         // Track last login
         $user->update(['last_login_at' => now()]);
 
         $deviceName = $data['device_name'] ?? 'web';
         // Issue access token (short-lived) and refresh token (long-lived).
         // Sanctum personal access tokens — names disambiguate the two grants.
-        $access = $user->createToken("access:$deviceName", ['*'], now()->addHours(2))->plainTextToken;
-        $refresh = $user->createToken("refresh:$deviceName", ['refresh'], now()->addDays(30))->plainTextToken;
+        if ($user->requiresMfa()) {
+            $enrollmentRequired = ! $user->mfa_confirmed_at;
+            $ability = $enrollmentRequired ? 'mfa-enroll' : 'mfa-challenge';
+            $minutes = (int) config($enrollmentRequired ? 'mfa.enrollment_minutes' : 'mfa.challenge_minutes');
+            $limited = $this->tokenIssuer->limited($user, $ability, $deviceName, $minutes, $data['device_id'] ?? null);
 
-        AuditLogger::log($request, 'login', 'user', $user->id, [], $user->id);
+            $this->currentSchool->run($schoolId, fn () => AuditLogger::log(
+                $request,
+                'mfa_challenge_issued',
+                'user',
+                $user->id,
+                ['enrollment_required' => $enrollmentRequired, 'device_name' => $deviceName],
+                $user->id,
+            ));
 
-        return response()->json([
-            'token' => $access,           // alias kept for backwards compatibility
-            'access_token' => $access,
-            'refresh_token' => $refresh,
+            return response()->json([
+                'mfa_required' => true,
+                'mfa_enrollment_required' => $enrollmentRequired,
+                'mfa_token' => $limited['token'],
+                'token_type' => 'Bearer',
+                'expires_in' => $limited['expires_in'],
+            ], 202)->header('Cache-Control', 'no-store');
+        }
+
+        $tokens = $this->tokenIssuer->pair($user, $deviceName, null, $data['device_id'] ?? null);
+
+        $this->currentSchool->run($schoolId, fn () => AuditLogger::log(
+            $request,
+            'login',
+            'user',
+            $user->id,
+            [],
+            $user->id,
+        ));
+
+        $payload = [
+            'token' => $tokens['access_token'], // alias kept for backwards compatibility
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'],
             'token_type' => 'Bearer',
             'expires_in' => 7200,
             'must_change_password' => (bool) $user->must_change_password,
-            'user' => $user->load(['studentProfile.classRoom', 'staffProfile', 'children.studentProfile']),
-        ]);
+            'user' => $this->currentSchool->run(
+                $schoolId,
+                fn () => $user->load(['studentProfile.classRoom', 'staffProfile', 'children.studentProfile']),
+            ),
+        ];
+
+        if (! $this->usesWebCookies($request)) {
+            return response()->json($payload);
+        }
+
+        // The browser receives identity data only. Both credentials stay in
+        // encrypted, scoped, httpOnly cookies and are never exposed to JS.
+        unset($payload['token'], $payload['access_token'], $payload['refresh_token']);
+
+        return response()->json($payload)
+            ->withCookie($this->webCookie(
+                config('web-auth.access_cookie'),
+                Crypt::encryptString($tokens['access_token']),
+                config('web-auth.access_minutes'),
+                '/api',
+            ))
+            ->withCookie($this->webCookie(
+                config('web-auth.refresh_cookie'),
+                Crypt::encryptString($tokens['refresh_token']),
+                config('web-auth.refresh_minutes'),
+                '/api/auth/refresh',
+            ));
     }
 
     /**
@@ -73,28 +164,91 @@ class AuthController extends Controller
     public function refresh(Request $request)
     {
         $token = $request->user()?->currentAccessToken();
-        if (! $token || ! in_array('refresh', $token->abilities ?? [], true)) {
+        if (! $token instanceof PersonalAccessToken || ! $token->can('refresh')) {
             return response()->json(['message' => 'Invalid refresh token'], 401);
         }
+
         $user = $request->user();
-        $deviceName = Str::after($token->name, ':') ?: 'web';
-        $token->delete(); // rotate
+        $deviceName = $token->device_name ?: (Str::after($token->name, ':') ?: 'web');
+        $deviceId = $token->device_id;
+        $reused = false;
 
-        $access = $user->createToken("access:$deviceName", ['*'], now()->addHours(2))->plainTextToken;
-        $refresh = $user->createToken("refresh:$deviceName", ['refresh'], now()->addDays(30))->plainTextToken;
+        $tokens = DB::transaction(function () use ($token, $user, $deviceName, $deviceId, &$reused) {
+            /** @var PersonalAccessToken|null $lockedToken */
+            $lockedToken = PersonalAccessToken::query()->lockForUpdate()->find($token->id);
+            if (! $lockedToken || $lockedToken->rotated_at || $lockedToken->revoked_at) {
+                $reused = true;
+                if ($lockedToken?->token_family) {
+                    PersonalAccessToken::where('token_family', $lockedToken->token_family)
+                        ->whereNull('revoked_at')
+                        ->update(['revoked_at' => now()]);
+                }
 
-        return response()->json([
-            'access_token' => $access,
-            'refresh_token' => $refresh,
+                return null;
+            }
+
+            $family = $lockedToken->token_family ?: (string) Str::uuid();
+            $familyQuery = PersonalAccessToken::where('tokenable_type', $lockedToken->tokenable_type)
+                ->where('tokenable_id', $lockedToken->tokenable_id);
+            if ($lockedToken->token_family) {
+                $familyQuery->where('token_family', $family);
+            } else {
+                $familyQuery->whereIn('name', ["access:$deviceName", "refresh:$deviceName"]);
+            }
+            $familyQuery->whereNull('revoked_at')->update(['revoked_at' => now()]);
+
+            $lockedToken->forceFill([
+                'token_family' => $family,
+                'rotated_at' => now(),
+                'revoked_at' => now(),
+            ])->save();
+
+            return $this->tokenIssuer->pair($user, $deviceName, $family, $deviceId);
+        });
+
+        if ($reused || $tokens === null) {
+            AuditLogger::log($request, 'refresh_token_reuse', 'user', $user->id, [
+                'device_name' => $deviceName,
+                'token_family' => $token->token_family,
+            ], $user->id);
+
+            return response()->json(['message' => 'Invalid refresh token'], 401);
+        }
+
+        $payload = [
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'],
             'token_type' => 'Bearer',
             'expires_in' => 7200,
-        ]);
+        ];
+
+        if (! $this->usesWebCookies($request)) {
+            return response()->json($payload);
+        }
+
+        unset($payload['access_token'], $payload['refresh_token']);
+
+        return response()->json($payload)
+            ->withCookie($this->webCookie(
+                config('web-auth.access_cookie'),
+                Crypt::encryptString($tokens['access_token']),
+                config('web-auth.access_minutes'),
+                '/api',
+            ))
+            ->withCookie($this->webCookie(
+                config('web-auth.refresh_cookie'),
+                Crypt::encryptString($tokens['refresh_token']),
+                config('web-auth.refresh_minutes'),
+                '/api/auth/refresh',
+            ));
     }
 
     public function me(Request $request)
     {
         return response()->json([
             'user' => $request->user()->load(['studentProfile.classRoom', 'staffProfile', 'children.studentProfile']),
+            // Granular sub-module permissions so clients can gate UI. ['*'] for admin.
+            'permissions' => $request->user()->allPermissionKeys(),
         ]);
     }
 
@@ -115,7 +269,16 @@ class AuthController extends Controller
                 })->delete();
         }
 
-        return response()->json(['message' => 'Logged out']);
+        $response = response()->json(['message' => 'Logged out']);
+
+        if ($this->usesWebCookies($request)) {
+            $response
+                ->withCookie($this->expiredWebCookie(config('web-auth.access_cookie'), '/api'))
+                ->withCookie($this->expiredWebCookie(config('web-auth.refresh_cookie'), '/api/auth/refresh'))
+                ->withCookie($this->expiredWebCookie(config('web-auth.csrf_cookie'), '/', false));
+        }
+
+        return $response;
     }
 
     public function updateProfile(Request $request)
@@ -131,26 +294,43 @@ class AuthController extends Controller
     }
 
     /**
-     * Upload a profile photo (multipart). Stored on the public disk; the public URL
+     * Upload a profile photo (multipart). Stored on the configured uploads disk; the public URL
      * is persisted on the user record.
      */
-    public function uploadProfilePhoto(Request $request)
+    /**
+     * Upload a profile photo (multipart).
+     *
+     * A profile photo identifies a child or a member of staff, so it is stored
+     * on the private disk and has no public URL. It previously went to the
+     * public uploads disk under a path containing the user's id, which made it
+     * readable by anyone who obtained or guessed the URL.
+     *
+     * `mimetypes:` rather than `mimes:` because the latter trusts the client's
+     * filename extension. SVG is excluded: it is an XML document that can carry
+     * script.
+     */
+    public function uploadProfilePhoto(Request $request, PrivateFileVault $vault)
     {
         $request->validate([
-            'photo' => 'required|file|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'photo' => array_merge(['required'], PrivateFileVault::rulesFor('profile-photo')),
         ]);
+
         $user = $request->user();
-        // Remove previous file when present
-        if ($user->photo_path) {
-            Storage::disk('public')->delete($user->photo_path);
-        }
-        $path = $request->file('photo')->store("profile-photos/{$user->id}", 'public');
+        $previous = $user->photo_path;
+
+        $path = $vault->store($request->file('photo'), 'profile-photo');
         $user->update(['photo_path' => $path]);
+
+        // Only after the new object is safely written.
+        $vault->delete($previous);
 
         return response()->json([
             'message' => 'Photo updated',
             'photo_path' => $path,
-            'photo_url' => Storage::disk('public')->url($path),
+            // An authorized endpoint, not a storage URL. Browsers send the
+            // session cookie with an <img> request to the same site; native
+            // clients send their bearer token.
+            'photo_url' => url('/api/files/profile-photo/'.$user->id),
             'user' => $user->fresh(),
         ]);
     }
@@ -165,12 +345,51 @@ class AuthController extends Controller
         if (! Hash::check($data['current_password'], $user->password)) {
             throw ValidationException::withMessages(['current_password' => ['Incorrect password.']]);
         }
-        $user->update([
-            'password' => Hash::make($data['new_password']),
-            'must_change_password' => false,
-        ]);
+        $currentToken = $user->currentAccessToken();
+        $deviceName = $currentToken instanceof PersonalAccessToken
+            ? ($currentToken->device_name ?: Str::after($currentToken->name, ':'))
+            : 'web';
+        $deviceId = $currentToken instanceof PersonalAccessToken ? $currentToken->device_id : null;
 
-        return response()->json(['message' => 'Password updated']);
+        $tokens = DB::transaction(function () use ($user, $data, $deviceName, $deviceId) {
+            $user->update([
+                'password' => Hash::make($data['new_password']),
+                'must_change_password' => false,
+            ]);
+            $user->tokens()->delete();
+
+            return $this->tokenIssuer->pair($user, $deviceName ?: 'web', null, $deviceId);
+        });
+
+        AuditLogger::log($request, 'password_changed', 'user', $user->id, [], $user->id);
+
+        $payload = [
+            'message' => 'Password updated',
+            'access_token' => $tokens['access_token'],
+            'refresh_token' => $tokens['refresh_token'],
+            'token_type' => 'Bearer',
+            'expires_in' => 7200,
+        ];
+
+        if (! $this->usesWebCookies($request)) {
+            return response()->json($payload);
+        }
+
+        unset($payload['access_token'], $payload['refresh_token']);
+
+        return response()->json($payload)
+            ->withCookie($this->webCookie(
+                config('web-auth.access_cookie'),
+                Crypt::encryptString($tokens['access_token']),
+                config('web-auth.access_minutes'),
+                '/api',
+            ))
+            ->withCookie($this->webCookie(
+                config('web-auth.refresh_cookie'),
+                Crypt::encryptString($tokens['refresh_token']),
+                config('web-auth.refresh_minutes'),
+                '/api/auth/refresh',
+            ));
     }
 
     /**
@@ -180,12 +399,12 @@ class AuthController extends Controller
     public function forgotPassword(Request $request)
     {
         $data = $request->validate(['email' => 'required|email:rfc,strict']);
-        $status = Password::sendResetLink($data);
+        $data['email'] = Str::lower(trim($data['email']));
+        Password::sendResetLink($data);
 
         return response()->json([
-            'message' => __($status),
-            'status' => $status,
-        ], $status === Password::RESET_LINK_SENT ? 200 : 422);
+            'message' => 'If an account exists for that email, a password reset link has been sent.',
+        ]);
     }
 
     /**
@@ -216,14 +435,61 @@ class AuthController extends Controller
     public function registerPushToken(Request $request)
     {
         $data = $request->validate([
+            'device_id' => 'required|string|max:255',
             'token' => 'required|string',
             'platform' => 'required|in:ios,android,web',
+            'app_version' => 'nullable|string|max:100',
+            'os_version' => 'nullable|string|max:100',
         ]);
-        PushToken::updateOrCreate(
-            ['user_id' => $request->user()->id, 'token' => $data['token']],
-            ['platform' => $data['platform']]
-        );
+        $device = $this->devices->register($request, $request->user(), [
+            'device_id' => $data['device_id'],
+            'platform' => $data['platform'],
+            'push_token' => $data['token'],
+            'app_version' => $data['app_version'] ?? null,
+            'os_version' => $data['os_version'] ?? null,
+        ]);
 
-        return response()->json(['message' => 'Token registered']);
+        return response()->json(['message' => 'Token registered', 'device_id' => $device->device_id]);
+    }
+
+    private function usesWebCookies(Request $request): bool
+    {
+        return $request->header('X-Auth-Mode') === 'cookie'
+            || $request->attributes->get('web_cookie_auth') === true;
+    }
+
+    private function webCookie(
+        string $name,
+        string $value,
+        int $minutes,
+        string $path,
+        bool $httpOnly = true,
+    ): Cookie {
+        return new Cookie(
+            $name,
+            $value,
+            now()->addMinutes($minutes),
+            $path,
+            config('web-auth.domain'),
+            (bool) config('web-auth.secure'),
+            $httpOnly,
+            false,
+            config('web-auth.same_site'),
+        );
+    }
+
+    private function expiredWebCookie(string $name, string $path, bool $httpOnly = true): Cookie
+    {
+        return new Cookie(
+            $name,
+            '',
+            1,
+            $path,
+            config('web-auth.domain'),
+            (bool) config('web-auth.secure'),
+            $httpOnly,
+            false,
+            config('web-auth.same_site'),
+        );
     }
 }

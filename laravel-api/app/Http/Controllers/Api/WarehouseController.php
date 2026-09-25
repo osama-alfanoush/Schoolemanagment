@@ -14,6 +14,7 @@ use App\Services\NotificationService;
 use App\Services\WarehouseService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class WarehouseController extends Controller
 {
@@ -31,7 +32,7 @@ class WarehouseController extends Controller
     public function storeCategory(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|unique:warehouse_categories',
+            'name' => ['required', 'string', Rule::unique('warehouse_categories')->where('school_id', $request->attributes->get('school_id'))],
             'description' => 'nullable|string',
         ]);
         $category = WarehouseCategory::create($data);
@@ -45,7 +46,7 @@ class WarehouseController extends Controller
     public function indexItems(Request $request)
     {
         $q = WarehouseItem::with('category');
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($categoryId = $request->query('category_id')) {
             $q->where('category_id', (int) $categoryId);
@@ -54,7 +55,9 @@ class WarehouseController extends Controller
             $q->whereColumn('current_qty', '<=', 'min_stock_qty');
         }
         if ($search = $request->query('search')) {
-            $safe = str_replace(['%', '_'], ['\\%', '\\_'], substr($search, 0, 100));
+            // mb_substr keeps the truncation from cutting a multibyte character
+            // in half, which PostgreSQL rejects as an invalid byte sequence.
+            $safe = str_replace(['%', '_'], ['\\%', '\\_'], mb_substr($search, 0, 100, 'UTF-8'));
             $q->where(function ($query) use ($safe) {
                 $query->where('name', 'like', "%{$safe}%")
                     ->orWhere('sku', 'like', "%{$safe}%");
@@ -75,12 +78,16 @@ class WarehouseController extends Controller
             'min_stock_qty' => 'required|numeric|min:0',
             'location' => 'nullable|string',
             'description' => 'nullable|string',
-            'sku' => 'nullable|string|unique:warehouse_items',
+            'sku' => ['nullable', 'string', Rule::unique('warehouse_items')->where('school_id', $request->attributes->get('school_id'))],
         ]);
 
         if (empty($data['sku'])) {
             $category = WarehouseCategory::findOrFail($data['category_id']);
-            $prefix = strtoupper(substr($category->name, 0, 3));
+            // Multibyte-safe: a byte-wise substr() splits an Arabic (or any
+            // non-ASCII) category name mid-character, which produces invalid
+            // UTF-8, poisons the stored SKU and then fails every JSON response
+            // that includes the item. ASCII names are unaffected by the switch.
+            $prefix = mb_strtoupper(mb_substr($category->name, 0, 3, 'UTF-8'), 'UTF-8');
             $year = date('Y');
             $count = WarehouseItem::where('category_id', $data['category_id'])
                 ->whereYear('created_at', $year)->count() + 1;
@@ -120,7 +127,7 @@ class WarehouseController extends Controller
             'min_stock_qty' => 'sometimes|numeric|min:0',
             'location' => 'nullable|string',
             'description' => 'nullable|string',
-            'sku' => "sometimes|string|unique:warehouse_items,sku,{$id}",
+            'sku' => ['sometimes', 'string', Rule::unique('warehouse_items')->where('school_id', $request->attributes->get('school_id'))->ignore($item->id)],
             'is_active' => 'sometimes|boolean',
         ]);
         $item->update($data);
@@ -134,7 +141,7 @@ class WarehouseController extends Controller
     public function indexMovements(Request $request)
     {
         $q = StockMovement::with(['item', 'performedBy:id,name']);
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($itemId = $request->query('item_id')) {
             $q->where('item_id', (int) $itemId);
@@ -183,7 +190,7 @@ class WarehouseController extends Controller
     public function indexPurchaseRequests(Request $request)
     {
         $q = PurchaseRequest::with(['item', 'requestedBy:id,name', 'reviewedBy:id,name']);
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($status = $request->query('status')) {
             $q->where('status', $status);
@@ -201,7 +208,7 @@ class WarehouseController extends Controller
             'quantity_requested' => 'required|numeric|min:0.01',
             'unit' => 'required|string',
             'justification' => 'nullable|string',
-            'estimated_cost' => 'nullable|numeric|min:0',
+            'estimated_cost' => 'nullable|numeric|money|min:0',
         ]);
 
         $item = WarehouseItem::findOrFail($data['item_id']);
@@ -211,7 +218,9 @@ class WarehouseController extends Controller
 
         $pr = PurchaseRequest::create($data);
 
-        $adminIds = User::where('role', 'admin')->pluck('id')->toArray();
+        $adminIds = User::where('role', 'admin')
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $request->attributes->get('school_id')))
+            ->pluck('id')->toArray();
         NotificationService::sendToMany($adminIds, 'new_purchase_request', [
             'item_name' => $item->name,
             'quantity' => $request->quantity_requested,
@@ -261,7 +270,7 @@ class WarehouseController extends Controller
     public function indexCounts(Request $request)
     {
         $q = InventoryCount::with(['item', 'countedBy:id,name']);
-        $perPage = min((int) $request->query('per_page', 20), 100);
+        $perPage = $this->perPage($request, 20);
 
         if ($type = $request->query('count_type')) {
             $q->where('count_type', $type);

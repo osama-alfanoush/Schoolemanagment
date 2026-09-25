@@ -39,11 +39,11 @@ export default function AdminAcademicYears() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin", "academic-years"] });
-      toast({ title: editingId ? "Academic year updated" : "Academic year created" });
+      toast({ title: editingId ? t("adminPages.yearUpdated") : t("adminPages.yearCreated") });
       setOpen(false);
       reset();
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.data?.message ?? e?.message }),
+    onError: (e: any) => toast({ variant: "destructive", title: t("adminPages.failed"), description: e?.data?.message ?? e?.message }),
   });
 
   const openCreate = () => { reset(); setOpen(true); };
@@ -74,7 +74,7 @@ export default function AdminAcademicYears() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
+              <TableHead>{t("adminPages.endDate")}</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
@@ -92,7 +92,7 @@ export default function AdminAcademicYears() {
                   <TableCell>{year.end_date ? format(new Date(year.end_date), "MMM d, yyyy") : "-"}</TableCell>
                   <TableCell>
                     <Badge variant={year.is_current ? "default" : "secondary"}>
-                      {year.is_current ? "Current" : "Inactive"}
+                      {year.is_current ? t("adminPages.current") : t("status.inactive")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -109,7 +109,7 @@ export default function AdminAcademicYears() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingId ? t("common.edit") : t("common.create")} Academic Year</DialogTitle>
-            <DialogDescription>{editingId ? "Update this academic year." : "Add a new academic year."}</DialogDescription>
+            <DialogDescription>{editingId ? t("adminPages.updateYear") : t("adminPages.addYear")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
@@ -121,7 +121,7 @@ export default function AdminAcademicYears() {
               <Input id="ay-start" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ay-end">End Date</Label>
+              <Label htmlFor="ay-end">{t("adminPages.endDate")}</Label>
               <Input id="ay-end" type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
             </div>
             <label className="flex items-center gap-2 text-sm">

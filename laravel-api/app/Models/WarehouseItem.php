@@ -14,12 +14,15 @@ class WarehouseItem extends Model
     protected $fillable = [
         'sku', 'name', 'description', 'category_id', 'unit',
         'current_qty', 'min_stock_qty', 'location', 'is_active',
+        'unit_cost', 'last_unit_cost', 'preferred_supplier_id',
     ];
 
     protected $casts = [
         'current_qty' => 'decimal:2',
         'min_stock_qty' => 'decimal:2',
         'is_active' => 'boolean',
+        'unit_cost' => 'decimal:2',
+        'last_unit_cost' => 'decimal:2',
     ];
 
     protected $appends = ['is_low_stock'];
@@ -42,5 +45,10 @@ class WarehouseItem extends Model
     public function purchaseRequests(): HasMany
     {
         return $this->hasMany(PurchaseRequest::class, 'item_id');
+    }
+
+    public function preferredSupplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'preferred_supplier_id');
     }
 }

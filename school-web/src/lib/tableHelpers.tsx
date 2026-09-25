@@ -1,38 +1,41 @@
-const statusMap: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-  paid: { bg: "#dcfce7", text: "#166534", dot: "#22c55e", label: "Paid" },
-  unpaid: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Unpaid" },
-  partial: { bg: "#fef9c3", text: "#854d0e", dot: "#eab308", label: "Partial" },
-  overdue: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Overdue" },
-  refunded: { bg: "#f3e8ff", text: "#6b21a8", dot: "#a855f7", label: "Refunded" },
-  pending: { bg: "#fef9c3", text: "#854d0e", dot: "#eab308", label: "Pending" },
-  submitted: { bg: "#dbeafe", text: "#1e40af", dot: "#3b82f6", label: "Submitted" },
-  graded: { bg: "#dcfce7", text: "#166534", dot: "#22c55e", label: "Graded" },
-  late: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Late" },
-  missing: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Missing" },
-  draft: { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af", label: "Draft" },
-  present: { bg: "#dcfce7", text: "#166534", dot: "#22c55e", label: "Present" },
-  absent: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Absent" },
-  excused: { bg: "#f0fdf4", text: "#166534", dot: "#86efac", label: "Excused" },
-  approved: { bg: "#dcfce7", text: "#166534", dot: "#22c55e", label: "Approved" },
-  rejected: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Rejected" },
-  reviewing: { bg: "#dbeafe", text: "#1e40af", dot: "#3b82f6", label: "Reviewing" },
-  cancelled: { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af", label: "Cancelled" },
-  active: { bg: "#dcfce7", text: "#166534", dot: "#22c55e", label: "Active" },
-  inactive: { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af", label: "Inactive" },
-  suspended: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Suspended" },
-  "in-stock": { bg: "#dcfce7", text: "#166534", dot: "#22c55e", label: "In Stock" },
-  "low-stock": { bg: "#fef9c3", text: "#854d0e", dot: "#eab308", label: "Low Stock" },
-  "out-stock": { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Out of Stock" },
+import i18n from "@/lib/i18n"
+const statusMap: Record<string, { bg: string; text: string; dot: string }> = {
+  paid: { bg: "#dcfce7", text: "#166534", dot: "#22c55e" },
+  unpaid: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  partial: { bg: "#fef9c3", text: "#854d0e", dot: "#eab308" },
+  overdue: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  refunded: { bg: "#f3e8ff", text: "#6b21a8", dot: "#a855f7" },
+  pending: { bg: "#fef9c3", text: "#854d0e", dot: "#eab308" },
+  submitted: { bg: "#dbeafe", text: "#1e40af", dot: "#3b82f6" },
+  graded: { bg: "#dcfce7", text: "#166534", dot: "#22c55e" },
+  late: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  missing: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  draft: { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af" },
+  present: { bg: "#dcfce7", text: "#166534", dot: "#22c55e" },
+  absent: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  excused: { bg: "#f0fdf4", text: "#166534", dot: "#86efac" },
+  approved: { bg: "#dcfce7", text: "#166534", dot: "#22c55e" },
+  rejected: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  reviewing: { bg: "#dbeafe", text: "#1e40af", dot: "#3b82f6" },
+  cancelled: { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af" },
+  active: { bg: "#dcfce7", text: "#166534", dot: "#22c55e" },
+  inactive: { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af" },
+  suspended: { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
+  "in-stock": { bg: "#dcfce7", text: "#166534", dot: "#22c55e" },
+  "low-stock": { bg: "#fef9c3", text: "#854d0e", dot: "#eab308" },
+  "out-stock": { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" },
 }
 
 export function renderStatus(status?: string) {
   const key = status?.toLowerCase() ?? ""
-  const cfg = statusMap[key] ?? {
-    bg: "#f3f4f6",
-    text: "#4b5563",
-    dot: "#9ca3af",
-    label: status ? status.charAt(0).toUpperCase() + status.slice(1) : "\u2014",
-  }
+  const cfg = statusMap[key] ?? { bg: "#f3f4f6", text: "#4b5563", dot: "#9ca3af" }
+  // A plain function, not a component, so it reads the i18n singleton instead of
+  // a hook. DataTable subscribes to the language and re-runs column renderers,
+  // so the pills still follow a language switch.
+  const fallback = status
+    ? status.charAt(0).toUpperCase() + status.slice(1).replace(/[-_]/g, " ")
+    : "\u2014"
+  const label = key ? i18n.t(`status.${key}`, { defaultValue: fallback }) : fallback
   return (
     <span
       style={{
@@ -57,7 +60,7 @@ export function renderStatus(status?: string) {
           flexShrink: 0,
         }}
       />
-      {cfg.label}
+      {label}
     </span>
   )
 }

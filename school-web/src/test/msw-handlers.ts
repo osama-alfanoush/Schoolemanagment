@@ -4,6 +4,9 @@ import { setupServer } from 'msw/node';
 const BASE = '/api';
 
 const authHandlers = [
+  http.get(`${BASE}/auth/csrf-cookie`, () =>
+    HttpResponse.json({ csrf_token: 'test-csrf-token' })
+  ),
   http.post(`${BASE}/auth/login`, () =>
     HttpResponse.json({
       access_token: 'fake-token-123',
@@ -148,6 +151,11 @@ const parentHandlers = [
 ];
 
 const financeHandlers = [
+  http.get(`${BASE}/finance/students/search`, () => HttpResponse.json({ data: [], meta: { current_page: 1, last_page: 1, per_page: 20, total: 0 } })),
+  http.get(`${BASE}/finance/students/1`, () => HttpResponse.json({ student: { id: 1, name: 'Student', role: 'student' }, summary: { gross_fees: 0, discounts: 0, adjustments: 0, amount_due: 0, paid: 0, remaining: 0, overdue: 0 }, invoices: [], payment_plans: [], payments: [], adjustments: [], timeline: [] })),
+  http.get(`${BASE}/finance/students/1/statement`, () => HttpResponse.json({ data: [], current_page: 1, last_page: 1, per_page: 20, total: 0, opening_balance: 0, period_debit: 0, period_credit: 0, closing_balance: 0 })),
+  http.get(`${BASE}/finance/receipts`, () => HttpResponse.json({ data: [], meta: { current_page: 1, last_page: 1, per_page: 25, total: 0 } })),
+  http.get(`${BASE}/finance/adjustments`, () => HttpResponse.json({ data: [], meta: { current_page: 1, last_page: 1, per_page: 25, total: 0 } })),
   http.get(`${BASE}/finance/fee-structures`, () => HttpResponse.json([])),
   http.get(`${BASE}/finance/invoices`, () =>
     HttpResponse.json({
@@ -184,6 +192,7 @@ const notificationHandlers = [
 ];
 
 const accountingHandlers = [
+  http.get(`${BASE}/accounting/journal-batches`, () => HttpResponse.json({ data: [], meta: { current_page: 1, last_page: 1, per_page: 20, total: 0 } })),
   http.get(`${BASE}/accounting/journal-entries`, () =>
     HttpResponse.json({ data: [], meta: { current_page: 1, last_page: 1, per_page: 15, total: 0 } })
   ),
@@ -228,6 +237,12 @@ const paymentHandlers = [
 ];
 
 export const handlers = [
+  http.get('/api/hr/dashboard', () => HttpResponse.json({
+    active_staff: 4, terminated_staff: 0, contracts_expiring_soon: 1, expired_contracts: 0,
+    uninsured_staff: 1, pending_advances: 0, pending_warnings: 0, current_payroll_run: null,
+    expiring_contracts: [],
+  })),
+  http.get('/api/hr/requests', () => HttpResponse.json([])),
   ...authHandlers,
   ...studentHandlers,
   ...teacherHandlers,

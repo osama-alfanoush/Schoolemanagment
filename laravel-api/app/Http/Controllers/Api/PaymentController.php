@@ -12,9 +12,9 @@ class PaymentController extends Controller
 {
     protected PaymentGatewayService $paymentService;
 
-    public function __construct()
+    public function __construct(PaymentGatewayService $paymentService)
     {
-        $this->paymentService = new PaymentGatewayService;
+        $this->paymentService = $paymentService;
     }
 
     /**
@@ -22,9 +22,11 @@ class PaymentController extends Controller
      */
     public function createPaymentIntent(Request $request)
     {
+        $request->merge(['idempotency_key' => $request->header('Idempotency-Key')]);
         $data = $request->validate([
             'invoice_id' => 'required|exists:invoices,id',
             'currency' => 'nullable|string|size:3',
+            'idempotency_key' => 'required|uuid',
         ]);
 
         $invoice = Invoice::with('student')->findOrFail($data['invoice_id']);
@@ -43,6 +45,7 @@ class PaymentController extends Controller
             'currency' => $data['currency'] ?? 'usd',
             'customer_email' => $invoice->student->email,
             'customer_name' => $invoice->student->name,
+            'idempotency_key' => $data['idempotency_key'],
         ]);
 
         if (! $result['success']) {

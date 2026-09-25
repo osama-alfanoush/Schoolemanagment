@@ -62,10 +62,10 @@ export default function AccountingDashboard() {
       <PageHeader icon="AC" title={t("accountingDashboard.title")} subtitle={t("accountingDashboard.subtitle")} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard title="Total debit" value={fmt(totalDebit)} icon={<TrendingUp className="h-5 w-5" />} />
-        <StatCard title="Total credit" value={fmt(totalCredit)} icon={<TrendingDown className="h-5 w-5" />} />
-        <StatCard title="Net balance" value={fmt(netBalance)} icon={<CircleDollarSign className="h-5 w-5" />} />
-        <StatCard title="Journal entries" value={journalEntries.length} icon={<Landmark className="h-5 w-5" />} />
+        <StatCard title={t("accountingPages.totalDebit")} value={fmt(totalDebit)} icon={<TrendingUp className="h-5 w-5" />} />
+        <StatCard title={t("accountingPages.totalCredit")} value={fmt(totalCredit)} icon={<TrendingDown className="h-5 w-5" />} />
+        <StatCard title={t("accountingPages.netBalance")} value={fmt(netBalance)} icon={<CircleDollarSign className="h-5 w-5" />} />
+        <StatCard title={t("accountingPages.journalEntriesCount")} value={journalEntries.length} icon={<Landmark className="h-5 w-5" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">

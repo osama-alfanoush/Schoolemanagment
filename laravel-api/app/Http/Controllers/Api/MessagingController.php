@@ -8,12 +8,15 @@ use App\Models\ClassRoom;
 use App\Models\Message;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Services\CurrentSchool;
 use App\Services\Notifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MessagingController extends Controller
 {
+    public function __construct(private CurrentSchool $currentSchool) {}
+
     public function threads(Request $request)
     {
         $uid = $request->user()->id;
@@ -55,12 +58,13 @@ class MessagingController extends Controller
         // 100 candidates == 100 results. Other roles are authorization-filtered in
         // PHP, so widen the candidate pool and cap AFTER filtering — otherwise an
         // allowed recipient sorting past the first 100 users is silently dropped.
-        $privileged = in_array($sender->role, ['admin', 'finance', 'hr', 'warehouse'], true);
+        $privileged = in_array($sender->role, ['admin', 'finance', 'hr', 'warehouse', 'procurement'], true);
 
         $users = User::query()
             ->select(['id', 'name', 'email', 'role', 'photo_path'])
             ->where('id', '!=', $sender->id)
             ->where('is_active', true)
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($inner) use ($search) {
                     $inner->where('name', 'like', "%{$search}%")
@@ -135,24 +139,26 @@ class MessagingController extends Controller
         if ($sender->id === $recipientId) {
             return false;
         }
-        if (in_array($sender->role, ['admin', 'finance', 'hr', 'warehouse'], true)) {
-            return true;
-        }
-
-        $recipient = User::find($recipientId);
+        $recipient = User::whereKey($recipientId)
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $this->currentSchool->id()))
+            ->first();
         if (! $recipient || ! $recipient->is_active) {
             return false;
+        }
+        if (in_array($sender->role, ['admin', 'finance', 'hr', 'warehouse', 'procurement'], true)) {
+            return true;
         }
         if (in_array($recipient->role, ['admin', 'hr'], true)) {
             return true;
         }
 
-        $db = DB::table('parent_student');
+        $db = DB::table('parent_student')->where('school_id', $this->currentSchool->id());
 
         if ($sender->role === 'teacher') {
             // Recipient must be a student in one of teacher's classes, OR a parent of such a student.
             $teacherClassIds = ClassRoom::where('homeroom_teacher_id', $sender->id)->pluck('id')
                 ->merge(DB::table('class_subject_teacher')
+                    ->where('school_id', $this->currentSchool->id())
                     ->where('teacher_user_id', $sender->id)->pluck('class_room_id'))
                 ->unique()->values();
             if ($recipient->role === 'student') {
@@ -181,6 +187,7 @@ class MessagingController extends Controller
             }
 
             return DB::table('class_subject_teacher')
+                ->where('school_id', $this->currentSchool->id())
                 ->whereIn('class_room_id', $childClassIds)->where('teacher_user_id', $recipient->id)->exists();
         }
 
@@ -198,6 +205,7 @@ class MessagingController extends Controller
             }
 
             return DB::table('class_subject_teacher')
+                ->where('school_id', $this->currentSchool->id())
                 ->where('class_room_id', $classId)->where('teacher_user_id', $recipient->id)->exists();
         }
 

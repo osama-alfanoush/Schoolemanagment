@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Admin } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
@@ -9,6 +10,7 @@ import BrandButton from "@/components/ui/BrandButton";
 import BrandEmptyState from "@/components/ui/BrandEmptyState";
 
 export default function AdminAttendance() {
+  const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
   const [selectedDate, setSelectedDate] = useState(today);
   const [search, setSearch] = useState("");
@@ -29,23 +31,23 @@ export default function AdminAttendance() {
 
   return (
     <div className="space-y-6">
-      <PageHeader icon="UI" title="Attendance Overview" subtitle="School-wide daily attendance monitoring" />
+      <PageHeader icon="UI" title={t("adminPages.attendanceOverview")} subtitle={t("adminPages.attendanceSubtitle")} />
 
       <div className="grid grid-cols-4 gap-4 mb-6">
         <BrandCard className="p-4">
-          <p className="text-xs text-muted-foreground">Present Today</p>
+          <p className="text-xs text-muted-foreground">{t("adminPages.presentToday")}</p>
           <p className="text-2xl font-bold text-green-600 mt-1">{presentCount}</p>
         </BrandCard>
         <BrandCard className="p-4">
-          <p className="text-xs text-muted-foreground">Absent Today</p>
+          <p className="text-xs text-muted-foreground">{t("adminPages.absentToday")}</p>
           <p className="text-2xl font-bold text-red-600 mt-1">{absentCount}</p>
         </BrandCard>
         <BrandCard className="p-4">
-          <p className="text-xs text-muted-foreground">Late Today</p>
+          <p className="text-xs text-muted-foreground">{t("adminPages.lateToday")}</p>
           <p className="text-2xl font-bold text-amber-600 mt-1">{lateCount}</p>
         </BrandCard>
         <BrandCard className="p-4">
-          <p className="text-xs text-muted-foreground">Attendance Rate</p>
+          <p className="text-xs text-muted-foreground">{t("adminPages.attendanceRate")}</p>
           <p className="text-2xl font-bold mt-1" style={{ color: "var(--color-primary)" }}>{rate}%</p>
         </BrandCard>
       </div>
@@ -64,29 +66,29 @@ export default function AdminAttendance() {
       </div>
 
       {byClass.length === 0 && !dashboardLoading ? (
-        <BrandEmptyState icon="UI" title="No attendance records" subtitle="No attendance data for the selected date." />
+        <BrandEmptyState icon="UI" title={t("adminPages.noAttendanceRecords")} subtitle={t("adminPages.noAttendanceData")} />
       ) : (
         <DataTable
-          title="Attendance Records"
+          title={t("adminPages.attendanceRecords")}
           data={byClass}
           isLoading={dashboardLoading}
           columns={[
-            { key: "class", label: "Class", render: (_: any, row: any) => `Class #${row.class_room_id}` },
-            { key: "present", label: "Present", sortable: true },
-            { key: "absent", label: "Absent", sortable: true },
-            { key: "late", label: "Late", sortable: true },
+            { key: "class", label: t("adminPages.classLabel"), render: (_: any, row: any) => `Class #${row.class_room_id}` },
+            { key: "present", label: t("status.present"), sortable: true },
+            { key: "absent", label: t("status.absent"), sortable: true },
+            { key: "late", label: t("status.late"), sortable: true },
           ]}
           toolbar={
             <SearchAndFilter
-              placeholder="Search students..."
+              placeholder={t("adminPages.searchStudents")}
               value={search}
               onChange={setSearch}
               filters={[
-                { key: "status", label: "Status", options: [
-                  { value: "present", label: "Present" },
-                  { value: "absent", label: "Absent" },
-                  { value: "late", label: "Late" },
-                  { value: "excused", label: "Excused" },
+                { key: "status", label: t("common.status"), options: [
+                  { value: "present", label: t("status.present") },
+                  { value: "absent", label: t("status.absent") },
+                  { value: "late", label: t("status.late") },
+                  { value: "excused", label: t("status.excused") },
                 ]},
               ]}
               activeFilters={activeFilters}

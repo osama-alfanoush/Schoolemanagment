@@ -1,0 +1,12 @@
+﻿{
+    "checked_at_utc":  "2026-08-03T23:04:04.5530401Z",
+    "backup_file":  "school_20260803T230342Z.dump",
+    "sha256":  "03524a8a430521662450c575c185e5e45421c9053d79c8b736665fae85d518e7",
+    "temporary_database":  "restore_verify_20260803230354",
+    "table_counts_match":  true,
+    "application_migrations_readable":  true,
+    "duration_seconds":  9.85,
+    "rto_target_seconds":  7200,
+    "rto_met":  true,
+    "result":  "passed"
+}

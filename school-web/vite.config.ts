@@ -20,6 +20,24 @@ const basePath = process.env.BASE_PATH ?? "/";
 const devHost = process.env.VITE_HOST ?? "localhost";
 const allowAllHosts = process.env.VITE_ALLOW_ALL_HOSTS === "true";
 
+function productionCsp(): string {
+  let apiOrigin = "";
+  try {
+    const configuredApi = process.env.VITE_API_BASE_URL;
+    if (configuredApi?.startsWith("http")) apiOrigin = ` ${new URL(configuredApi).origin}`;
+  } catch {
+    // A relative API URL is covered by 'self'. Invalid build-time values fail
+    // through normal API configuration checks rather than weakening the CSP.
+  }
+
+  return "default-src 'self'; script-src 'self'; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    `img-src 'self' data: blob:${apiOrigin}; ` +
+    `connect-src 'self'${apiOrigin}; object-src 'none'; base-uri 'self'; ` +
+    "form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests";
+}
+
 /**
  * Injects the Content-Security-Policy <meta> into index.html.
  * Production keeps script-src locked to 'self' (the build emits only external
@@ -34,11 +52,7 @@ function cspPlugin(isDev: boolean): Plugin {
       "font-src 'self' https://fonts.gstatic.com data:; " +
       "img-src 'self' data: blob: http: https:; " +
       "connect-src 'self' ws: wss: http: https:; object-src 'none'; base-uri 'self'"
-    : "default-src 'self'; script-src 'self'; " +
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-      "font-src 'self' https://fonts.gstatic.com; " +
-      "img-src 'self' data: blob: https:; " +
-      "connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'";
+    : productionCsp();
 
   return {
     name: "inject-csp",
@@ -51,12 +65,27 @@ function cspPlugin(isDev: boolean): Plugin {
   };
 }
 
+/** Emits the response-header format consumed by Cloudflare Pages and Netlify. */
+function staticSecurityHeadersPlugin(): Plugin {
+  return {
+    name: "static-security-headers",
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: "_headers",
+        source: `/*\n  Content-Security-Policy: ${productionCsp()}\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: DENY\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cross-Origin-Opener-Policy: same-origin\n  X-Robots-Tag: noindex, nofollow, noarchive\n  Strict-Transport-Security: max-age=31536000; includeSubDomains\n`,
+      });
+    },
+  };
+}
+
 export default defineConfig(({ command }) => ({
   base: basePath,
   plugins: [
     react(),
     tailwindcss(),
     cspPlugin(command === "serve"),
+    staticSecurityHeadersPlugin(),
   ],
   resolve: {
     alias: {
@@ -70,7 +99,7 @@ export default defineConfig(({ command }) => ({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 600,
-    sourcemap: 'hidden',
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {

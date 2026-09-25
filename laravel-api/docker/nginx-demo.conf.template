@@ -1,0 +1,174 @@
+# nginx front end for the single-origin DEMO container (Dockerfile.demo).
+#
+# Rendered by docker/railway-entrypoint.sh with envsubst because Railway injects
+# $PORT at container start and nginx cannot read environment variables in its
+# configuration. Only ${PORT} is substituted; every other $variable below is an
+# nginx runtime variable and is escaped in the entrypoint's envsubst call.
+#
+# Difference from nginx-railway.conf.template: that file serves the API only and
+# ends with `location / { return 404; }`, because the portal is published to
+# GitHub Pages. This one serves the built SPA from /var/www/frontend at `/` so
+# the portal and the API share one origin, which keeps the auth cookie
+# first-party -- see the header comment in Dockerfile.demo for why that matters
+# on iOS.
+#
+# Rate limits are per client IP. Behind Railway's edge the peer address is the
+# proxy, so $binary_remote_addr is only meaningful once real_ip_header has
+# rewritten it from X-Forwarded-For -- see the set_real_ip_from block below.
+limit_req_zone $binary_remote_addr zone=login:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=api:10m   rate=600r/m;
+
+server {
+    listen ${PORT};
+    server_name _;
+    limit_req_status 429;
+
+    # Laravel's document root. The SPA lives at /var/www/frontend and is
+    # selected per-location below, never here, so a built index.html can never
+    # shadow the PHP front controller.
+    root /var/www/public;
+    index index.php;
+
+    # Railway terminates TLS at its edge and forwards over the private network.
+    # The container is not publicly routable, so the immediate peer is always
+    # the platform proxy; take the client address from X-Forwarded-For so rate
+    # limiting and access logs attribute requests to real clients.
+    set_real_ip_from 0.0.0.0/0;
+    set_real_ip_from ::/0;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
+
+    # X-Frame-Options stays DENY: nothing here is meant to be framed.
+    # No Content-Security-Policy is set at this level on purpose -- the SPA ships
+    # its own CSP as a <meta> tag from vite.config.ts, and a second policy here
+    # would intersect with it and be far harder to reason about.
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    server_tokens off;
+
+    client_max_body_size 20M;
+    # Uploads stream to disk rather than buffering wholly in memory.
+    client_body_buffer_size 128k;
+    keepalive_timeout 65;
+
+    # nginx has mapped .js to text/javascript since 1.21.1, and the shared
+    # http-level gzip_types in nginx-railway-http.conf lists only
+    # application/javascript -- so without this the SPA's ~1.9 MB of JavaScript
+    # would be served uncompressed. The API-only config never serves static JS
+    # and so never hit this. gzip_types REPLACES the inherited list rather than
+    # adding to it, so every type the demo serves is restated here.
+    gzip_types text/javascript application/javascript application/json
+               text/css text/plain application/xml image/svg+xml;
+
+    # Public liveness probe. Deliberately outside the api rate-limit zone: the
+    # limit is per client IP and Railway's health checker, an external uptime
+    # monitor and ordinary traffic can share an address. A 429 here would make
+    # the platform restart a healthy container.
+    location = /api/healthz {
+        access_log off;
+        try_files $uri /index.php?$query_string;
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 10;
+    }
+
+    location = /api/auth/login {
+        limit_req zone=login burst=5 nodelay;
+        try_files $uri /index.php?$query_string;
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 30;
+    }
+
+    location /api/ {
+        limit_req zone=api burst=100 nodelay;
+        try_files $uri /index.php?$query_string;
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 60;
+    }
+
+    # Only present when UPLOADS_DRIVER=local. On the demo there is no volume, so
+    # uploads survive only until the next redeploy; that is acceptable for a
+    # customer trial and nothing else.
+    # nginx replaces inherited add_header directives once a location declares
+    # one, so every header is restated here.
+    location ^~ /storage/ {
+        alias /var/www/storage/app/public/;
+        autoindex off;
+        limit_except GET { deny all; }
+        expires 7d;
+        add_header Cache-Control "public";
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox" always;
+        add_header Cross-Origin-Resource-Policy "same-origin" always;
+    }
+
+    # Only Laravel's front controller may execute. This stops a future
+    # upload-validation mistake from turning a stored file into PHP.
+    location = /index.php {
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 60;
+    }
+
+    location ~ \.map$ {
+        deny all;
+        return 404;
+    }
+
+    location ~ /\. {
+        deny all;
+        return 404;
+    }
+
+    # --- SPA ---------------------------------------------------------------
+    #
+    # Vite emits content-hashed filenames under /assets/, so they are immutable
+    # and may be cached hard. A plain prefix match (not ^~) is used so the
+    # regex `\.map$` deny above still wins for any stray source map.
+    # `expires` is not an add_header directive, so the server-level security
+    # headers above are still inherited here.
+    location /assets/ {
+        root /var/www/frontend;
+        access_log off;
+        expires 1y;
+    }
+
+    # index.html must never be cached, or a redeploy leaves browsers holding a
+    # document that references asset hashes the new image no longer has.
+    location = /index.html {
+        root /var/www/frontend;
+        expires -1;
+    }
+
+    # Every other path is a client-side route (/dashboard, /students/12, ...).
+    # The SPA's own router resolves it, so serve the document and let it.
+    # `index index.html` overrides the server-level `index index.php` here; the
+    # /index.html fallback re-enters the exact-match location above, so the
+    # no-cache policy applies to it as well.
+    location / {
+        root /var/www/frontend;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+}

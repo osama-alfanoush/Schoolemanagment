@@ -11,8 +11,9 @@ class JournalEntry extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'entry_date', 'reference_no', 'description', 'type', 'account_code',
+        'school_id', 'entry_date', 'reference_no', 'description', 'type', 'account_code',
         'account_name', 'amount', 'source', 'source_id', 'created_by',
+        'journal_batch_id', 'line_description', 'cost_center',
     ];
 
     protected $casts = [
@@ -23,5 +24,10 @@ class JournalEntry extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(JournalBatch::class, 'journal_batch_id');
     }
 }

@@ -55,7 +55,7 @@ export default function StudentAssignments() {
     },
     onError: (e: any) => toast({
       variant: "destructive",
-      title: "Submission failed",
+      title: t("studentPages.submissionFailed"),
       description: e?.message
     })
   });
@@ -100,12 +100,12 @@ export default function StudentAssignments() {
                       Due Date
                     </span>
                     <span className="font-medium">
-                      {a.due_at ? format(new Date(a.due_at), "MMM d, yyyy") : a.due_date ? format(new Date(a.due_date), "MMM d, yyyy") : "No Date"}
+                      {a.due_at ? format(new Date(a.due_at), "MMM d, yyyy") : a.due_date ? format(new Date(a.due_date), "MMM d, yyyy") : t("studentPages.noDate")}
                     </span>
                   </div>
                   <BrandButton size="sm" variant={isSubmitted ? "outline" : "primary"} disabled={status === "graded"} onClick={() => setOpen(a)}>
                     <Upload className="me-2 h-4 w-4" />
-                    {status === "graded" ? "Graded" : isSubmitted ? "Resubmit" : "Submit"}
+                    {status === "graded" ? "Graded" : isSubmitted ? t("studentPages.resubmit") : "Submit"}
                   </BrandButton>
                 </div>
               </CardContent>
@@ -116,7 +116,7 @@ export default function StudentAssignments() {
       <Dialog open={!!open} onOpenChange={o => !o && setOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Submit assignment</DialogTitle>
+            <DialogTitle>{t("studentPages.submitAssignment")}</DialogTitle>
             <DialogDescription>{open?.title}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -125,7 +125,7 @@ export default function StudentAssignments() {
               <Textarea id="body" value={body} onChange={e => setBody(e.target.value)} rows={4} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="file">Attachment</Label>
+              <Label htmlFor="file">{t("studentPages.attachment")}</Label>
               <Input id="file" type="file" onChange={e => setFile(e.target.files?.[0] ?? null)} />
             </div>
           </div>

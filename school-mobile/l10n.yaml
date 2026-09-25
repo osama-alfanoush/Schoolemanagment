@@ -1,0 +1,8 @@
+# Arabic is the template as well as the default locale, so it is the source of
+# truth for message keys and the fallback for any untranslated string.
+arb-dir: lib/core/i18n/l10n
+template-arb-file: app_ar.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/core/i18n/generated
+nullable-getter: false

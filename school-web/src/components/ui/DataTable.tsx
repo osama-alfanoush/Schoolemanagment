@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import {
   ChevronUp,
@@ -30,6 +31,7 @@ export interface TableAction<T = any> {
   onClick: (row: T) => void
   variant?: "default" | "danger"
   show?: (row: T) => boolean
+  disabled?: (row: T) => boolean
 }
 
 export interface DataTableProps<T = any> {
@@ -129,12 +131,13 @@ function RowActionDropdown({ actions, row, onClose }: { actions: TableAction[]; 
         return (
           <button
             key={ai}
+            disabled={action.disabled?.(row)}
             onClick={() => {
               action.onClick(row)
               onClose()
             }}
             className={cn(
-              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-100",
+              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-100 disabled:cursor-not-allowed disabled:opacity-50",
               isDanger
                 ? "text-destructive hover:bg-destructive/10"
                 : "text-foreground hover:bg-muted/60",
@@ -154,7 +157,7 @@ export default function DataTable<T extends Record<string, any>>({
   data,
   isLoading,
   error,
-  emptyMessage = "No data found",
+  emptyMessage,
   emptyIcon = "📭",
   emptyAction,
   onRowClick,
@@ -168,6 +171,7 @@ export default function DataTable<T extends Record<string, any>>({
   headerActions,
   compact = false,
 }: DataTableProps<T>) {
+  const { t } = useTranslation()
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
   const [selected, setSelected] = useState<T[]>([])
@@ -322,7 +326,7 @@ export default function DataTable<T extends Record<string, any>>({
                       <AlertTriangle className="h-7 w-7 text-orange-500" />
                     </div>
                     <div>
-                      <p className="text-base font-semibold text-foreground">Failed to load data</p>
+                      <p className="text-base font-semibold text-foreground">{t("table.loadFailed")}</p>
                       <p className="text-sm text-muted-foreground mt-1">{error}</p>
                     </div>
                     <button
@@ -330,7 +334,7 @@ export default function DataTable<T extends Record<string, any>>({
                       className="px-4 py-2 text-sm font-medium transition-all hover:brightness-110 hover:shadow-[var(--shadow-hover)] active:scale-[0.97]"
                       style={{ backgroundColor: "var(--color-primary)", color: "var(--color-primary-fg)", borderRadius: "var(--radius-base, 0.5rem)" }}
                     >
-                      Try Again
+                      {t("table.retry")}
                     </button>
                   </div>
                 </td>
@@ -349,7 +353,7 @@ export default function DataTable<T extends Record<string, any>>({
                     >
                       <span className="text-5xl">{emptyIcon}</span>
                     </motion.div>
-                    <p className="text-muted-foreground text-sm">{emptyMessage}</p>
+                    <p className="text-muted-foreground text-sm">{emptyMessage ?? t("table.empty")}</p>
                     {emptyAction && (
                       <button
                         onClick={emptyAction.onClick}
@@ -422,10 +426,11 @@ export default function DataTable<T extends Record<string, any>>({
                               return (
                                 <button
                                   key={ai}
+                                  disabled={action.disabled?.(row)}
                                   onClick={() => action.onClick(row)}
                                   title={action.label}
                                   className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150",
+                                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50",
                                     isDanger
                                       ? "text-destructive bg-transparent border border-transparent hover:bg-destructive/10 hover:border-destructive/30"
                                       : "text-muted-foreground bg-transparent border border-transparent hover:bg-muted/60 hover:text-foreground hover:border-border",
@@ -470,15 +475,15 @@ export default function DataTable<T extends Record<string, any>>({
         <div className="flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <p className="text-sm text-muted-foreground">
-              Showing{" "}
+              {t("table.showing")}{" "}
               {(pagination.currentPage - 1) * pagination.perPage + 1}
               {"\u2013"}
-              {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} of{" "}
-              {pagination.total} entries
+              {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} {t("table.of")}{" "}
+              {pagination.total} {t("table.entries")}
             </p>
             {pagination.onPerPageChange && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                Show:
+                {t("table.show")}
                 <select
                   value={pagination.perPage}
                   onChange={(e) => pagination.onPerPageChange?.(Number(e.target.value))}

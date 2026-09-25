@@ -1,0 +1,12 @@
+﻿{
+    "checked_at_utc":  "2026-07-17T16:35:38.3330948Z",
+    "backup_file":  "school_staging_20260717T163512Z.dump",
+    "sha256":  "01c1edbadaf02b5e22150d932d6e05a7c3aa3a966dac856bd7ace7eb613da9a1",
+    "temporary_database":  "restore_verify_20260717163529",
+    "table_counts_match":  true,
+    "application_migrations_readable":  true,
+    "duration_seconds":  8.85,
+    "rto_target_seconds":  7200,
+    "rto_met":  true,
+    "result":  "passed"
+}

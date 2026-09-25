@@ -25,3 +25,15 @@ export async function downloadBlob(
     onError?.(e);
   }
 }
+
+/**
+ * An amount rounded to the cent, the scale the API stores.
+ *
+ * The raw result of float arithmetic is not a two-decimal number: 0.3 - 0.1
+ * is 0.19999999999999998, and that is what JSON sends. The API refuses an
+ * amount it cannot store rather than guessing which one was meant, so any
+ * amount computed here is rounded before it is posted.
+ */
+export function roundToCents(amount: number): number {
+  return Math.round(amount * 100) / 100
+}

@@ -8,9 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Assignment extends Model
 {
-    protected $fillable = ['teacher_user_id', 'class_room_id', 'subject_id', 'title', 'instructions', 'attachment_path', 'due_at', 'max_score'];
+    protected $fillable = ['teacher_user_id', 'class_room_id', 'subject_id', 'title', 'instructions', 'attachment_path', 'due_at', 'max_score', 'published_at', 'idempotency_key'];
 
-    protected $casts = ['due_at' => 'datetime', 'max_score' => 'decimal:2'];
+    protected $casts = ['due_at' => 'datetime', 'published_at' => 'datetime', 'max_score' => 'decimal:2'];
+
+    /** A draft is invisible to students and to their families. */
+    public function isPublished(): bool
+    {
+        return $this->published_at !== null;
+    }
 
     public function teacher(): BelongsTo
     {

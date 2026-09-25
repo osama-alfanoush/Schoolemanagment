@@ -24,14 +24,14 @@ export default function TeacherAnnouncements() {
   const mutation = useMutation({
     mutationFn: (data: { class_room_id: number; title: string; body: string }) => Teacher.announce(data),
     onSuccess: () => {
-      toast({ title: "Success", description: "Announcement posted." });
+      toast({ title: t("teacherPages.success"), description: t("teacherPages.announcementPosted") });
       setTitle("");
       setBody("");
       setClassRoomId("");
       setShowForm(false);
       void qc.invalidateQueries({ queryKey: ["teacher-announcements"] });
     },
-    onError: () => toast({ title: "Error", description: "Failed to post announcement.", variant: "destructive" }),
+    onError: () => toast({ title: t("teacherPages.error"), description: t("teacherPages.announcementFailed"), variant: "destructive" }),
   });
 
   const handleSubmit = (e: FormEvent) => {
@@ -51,23 +51,23 @@ export default function TeacherAnnouncements() {
           onClick={() => setShowForm(!showForm)}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          {showForm ? "Cancel" : "+ New Announcement"}
+          {showForm ? t("teacherPages.cancel") : "+ New Announcement"}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-6 bg-card max-w-xl">
-          <h2 className="text-lg font-semibold">Create Announcement</h2>
+          <h2 className="text-lg font-semibold">{t("teacherPages.createAnnouncement")}</h2>
 
           <div className="space-y-2">
-            <label htmlFor="announcement-class" className="text-sm font-medium">Class</label>
+            <label htmlFor="announcement-class" className="text-sm font-medium">{t("teacherPages.class")}</label>
             <select
               id="announcement-class"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               value={classRoomId}
               onChange={(e) => setClassRoomId(Number(e.target.value) || "")}
             >
-              <option value="">Select class...</option>
+              <option value="">{t("teacherPages.selectClass")}</option>
               {classes.map((c: any) => (
                 <option key={c.id} value={c.id}>{c.name} - {c.grade}{c.section ? ` ${c.section}` : ""}</option>
               ))}
@@ -75,13 +75,13 @@ export default function TeacherAnnouncements() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="announcement-title" className="text-sm font-medium">Title</label>
+            <label htmlFor="announcement-title" className="text-sm font-medium">{t("teacherPages.title")}</label>
             <input
               id="announcement-title"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Announcement title..."
+              placeholder={t("teacherPages.announcementTitlePlaceholder")}
             />
           </div>
 
@@ -92,7 +92,7 @@ export default function TeacherAnnouncements() {
               className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[100px]"
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Announcement content..."
+              placeholder={t("teacherPages.announcementBodyPlaceholder")}
             />
           </div>
 
@@ -101,14 +101,14 @@ export default function TeacherAnnouncements() {
             disabled={mutation.isPending || !classRoomId || !title.trim() || !body.trim()}
             className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {mutation.isPending ? "Posting..." : "Post Announcement"}
+            {mutation.isPending ? t("teacherPages.posting") : t("teacherPages.postAnnouncement")}
           </button>
         </form>
       )}
 
       <div className="space-y-3">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Loading announcements...</div>
+          <div className="p-8 text-center text-muted-foreground">{t("teacherPages.loadingAnnouncements")}</div>
         ) : items.length === 0 ? (
           <div className="p-8 text-center border rounded-md text-muted-foreground">No announcements yet. Create one above!</div>
         ) : (

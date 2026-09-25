@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Warehouse, StockMovement, WarehouseItem } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
@@ -15,6 +16,7 @@ import { paginationMeta, toArray } from "@/lib/response";
 const EMPTY = { item_id: "", movement_type: "in", quantity: "", reference_no: "", reason: "" };
 
 export default function Movements() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
@@ -46,59 +48,59 @@ export default function Movements() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["stock-movements"] });
       void qc.invalidateQueries({ queryKey: ["warehouse-items"] });
-      toast({ title: "Movement recorded" });
+      toast({ title: t("warehouse.movementRecorded") });
       setOpen(false);
       setForm({ ...EMPTY });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.data?.message ?? e?.message }),
+    onError: (e: any) => toast({ variant: "destructive", title: t("warehouse.failed"), description: e?.data?.message ?? e?.message }),
   });
 
   const typeStyle: Record<string, { bg: string; text: string; label: string }> = {
-    in: { bg: "#dcfce7", text: "#166534", label: "Stock In" },
-    out: { bg: "#fee2e2", text: "#991b1b", label: "Stock Out" },
-    return: { bg: "#dbeafe", text: "#1e40af", label: "Return" },
-    adjustment: { bg: "#fef9c3", text: "#854d0e", label: "Adjustment" },
+    in: { bg: "#dcfce7", text: "#166534", label: t("warehouse.stockIn") },
+    out: { bg: "#fee2e2", text: "#991b1b", label: t("warehouse.stockOut") },
+    return: { bg: "#dbeafe", text: "#1e40af", label: t("warehouse.returned") },
+    adjustment: { bg: "#fef9c3", text: "#854d0e", label: t("warehouse.adjustment") },
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader icon="UI" title="Stock Movements" subtitle="All stock in/out and adjustment records" actions={<BrandButton variant="primary" onClick={() => { setForm({ ...EMPTY }); setOpen(true); }}>+ Record Movement</BrandButton>} />
+      <PageHeader icon="UI" title={t("warehouse.movementsTitle")} subtitle={t("warehouse.movementsSubtitle")} actions={<BrandButton variant="primary" onClick={() => { setForm({ ...EMPTY }); setOpen(true); }}>+ {t("warehouse.recordMovement")}</BrandButton>} />
 
       <DataTable
-        title="Movement History"
+        title={t("warehouse.movementHistory")}
         columns={[
-          { key: "movement_type", label: "Type", render: (v) => {
+          { key: "movement_type", label: t("warehouse.type"), render: (v) => {
             const cfg = typeStyle[v] ?? typeStyle.adjustment;
             return <span style={{ backgroundColor: cfg.bg, color: cfg.text, display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 10px", borderRadius: "9999px", fontSize: "11px", fontWeight: 500 }}>{cfg.label}</span>;
           }},
-          { key: "item", label: "Item", sortable: true, render: (_, row) => (
+          { key: "item", label: t("warehouse.item"), sortable: true, render: (_, row) => (
             <div>
               <div className="text-sm font-medium text-foreground">{row.item?.name ?? "—"}</div>
               <div className="text-xs text-muted-foreground/70">{row.item?.sku ?? ""}</div>
             </div>
           )},
-          { key: "quantity", label: "Qty", align: "center" as const, render: (v, row) => (
+          { key: "quantity", label: t("warehouse.qty"), align: "center" as const, render: (v, row) => (
             <span className={`text-sm font-bold ${row.movement_type === "in" || row.movement_type === "return" ? "text-green-600" : row.movement_type === "out" ? "text-red-600" : "text-blue-600"}`}>
               {row.movement_type === "in" || row.movement_type === "return" ? "+" : row.movement_type === "out" ? "-" : ""}{Number(v ?? 0)}
             </span>
           )},
-          { key: "movement_date", label: "Date", render: (v) => renderDate(v), sortable: true },
-          { key: "performed_by", label: "By", render: (_, row) => renderUser(row.performedBy?.name ?? "-", row.reason), hide: "md" as const },
-          { key: "reference_no", label: "Ref", render: (v) => v ? <span className="font-mono text-xs text-muted-foreground/70">{v}</span> : <span className="text-muted-foreground/50">-</span>, hide: "lg" as const },
+          { key: "movement_date", label: t("warehouse.date"), render: (v) => renderDate(v), sortable: true },
+          { key: "performed_by", label: t("warehouse.by"), render: (_, row) => renderUser(row.performedBy?.name ?? "-", row.reason), hide: "md" as const },
+          { key: "reference_no", label: t("warehouse.ref"), render: (v) => v ? <span className="font-mono text-xs text-muted-foreground/70">{v}</span> : <span className="text-muted-foreground/50">-</span>, hide: "lg" as const },
         ]}
         data={movements}
         isLoading={isLoading}
         toolbar={
           <SearchAndFilter
-            placeholder="Search movements..."
+            placeholder={t("warehouse.searchMovements")}
             value={search}
             onChange={setSearch}
             activeFilters={activeFilters}
             onFilterChange={(key, value) => setActiveFilters((prev) => ({ ...prev, [key]: value === "__all__" ? "" : value }))}
             filters={[
-              { key: "movement_type", label: "Movement Type", options: [
-                { value: "in", label: "Stock In" }, { value: "out", label: "Stock Out" },
-                { value: "return", label: "Return" }, { value: "adjustment", label: "Adjustment" },
+              { key: "movement_type", label: t("warehouse.movementType"), options: [
+                { value: "in", label: t("warehouse.stockIn") }, { value: "out", label: t("warehouse.stockOut") },
+                { value: "return", label: t("warehouse.returned") }, { value: "adjustment", label: t("warehouse.adjustment") },
               ]},
             ]}
           />
@@ -146,7 +148,7 @@ export default function Movements() {
           <DialogFooter>
             <BrandButton variant="outline" onClick={() => setOpen(false)}>Cancel</BrandButton>
             <BrandButton variant="primary" onClick={() => record.mutate()} disabled={record.isPending || !form.item_id || !form.quantity}>
-              {record.isPending ? "Loading..." : "Record"}
+              {record.isPending ? t("warehouse.loading") : t("warehouse.record")}
             </BrandButton>
           </DialogFooter>
         </DialogContent>

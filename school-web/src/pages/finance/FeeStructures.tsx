@@ -55,13 +55,13 @@ export default function FinanceFeeStructures() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["finance", "fee-structures"] });
-      toast({ title: editingId ? "Fee structure updated" : "Fee structure created" });
+      toast({ title: editingId ? t("financePages.structureUpdated") : t("financePages.structureCreated") });
       setOpen(false);
       reset();
     },
     onError: (e: any) => toast({
       variant: "destructive",
-      title: "Failed",
+      title: t("financePages.failed"),
       description: e?.data?.message ?? e?.message
     })
   });
@@ -69,16 +69,16 @@ export default function FinanceFeeStructures() {
     mutationFn: (id: number) => Finance.deleteFeeStructure(id),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["finance", "fee-structures"] });
-      toast({ title: "Fee structure deleted" });
+      toast({ title: t("financePages.structureDeleted") });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.data?.message ?? e?.message }),
+    onError: (e: any) => toast({ variant: "destructive", title: t("financePages.failed"), description: e?.data?.message ?? e?.message }),
   });
   return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="font-display text-2xl font-bold text-ink-dark tracking-tight">{t("nav.feeStructures")}</h1>
         <BrandButton onClick={openCreate}>
           <Plus className="me-2 h-4 w-4" />
-          Create Structure
+          {t("financePages.createStructure")}
         </BrandButton>
       </div>
 
@@ -86,11 +86,11 @@ export default function FinanceFeeStructures() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Grade</TableHead>
-              <TableHead>Billing Cycle</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("warehouse.nameLabel")}</TableHead>
+              <TableHead>{t("financePages.grade")}</TableHead>
+              <TableHead>{t("financePages.billingCycle")}</TableHead>
+              <TableHead>{t("financePages.amount")}</TableHead>
+              <TableHead>{t("common.status")}</TableHead>
               <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -101,10 +101,10 @@ export default function FinanceFeeStructures() {
                 <TableCell colSpan={6} className="text-center p-8 text-muted-foreground">{t("common.empty")}</TableCell>
               </TableRow> : structures.map((fs: any) => <TableRow key={fs.id}>
                   <TableCell className="font-medium">{fs.name}</TableCell>
-                  <TableCell>{fs.grade != null && fs.grade !== "" ? `Grade ${fs.grade}` : "All grades"}</TableCell>
+                  <TableCell>{fs.grade != null && fs.grade !== "" ? `Grade ${fs.grade}` : t("financePages.allGrades")}</TableCell>
                   <TableCell className="capitalize">{fs.billing_cycle ?? "-"}</TableCell>
                   <TableCell className="font-medium">${parseFloat(fs.amount ?? 0).toFixed(2)}</TableCell>
-                  <TableCell>{fs.is_active ? "Active" : "Inactive"}</TableCell>
+                  <TableCell>{fs.is_active ? t("status.active") : t("status.inactive")}</TableCell>
                   <TableCell className="text-right space-x-1">
                     <BrandButton variant="ghost" size="sm" onClick={() => openEdit(fs)}>{t("common.edit")}</BrandButton>
                     <BrandButton variant="ghost" size="sm" onClick={() => { if (confirm("Delete this fee structure?")) remove.mutate(fs.id); }}>{t("common.delete")}</BrandButton>
@@ -117,33 +117,33 @@ export default function FinanceFeeStructures() {
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit" : "Create"} Fee Structure</DialogTitle>
-            <DialogDescription>Define a fee, its billing cycle and an optional grade (leave grade empty to apply to all grades).</DialogDescription>
+            <DialogTitle>{editingId ? t("financePages.edit") : t("financePages.create")} {t("financePages.feeStructure")}</DialogTitle>
+            <DialogDescription>{t("financePages.structureHint")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label>Name</Label>
+              <Label>{t("warehouse.nameLabel")}</Label>
               <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Tuition Fee" />
             </div>
             <div className="space-y-1.5">
-              <Label>Grade (optional)</Label>
+              <Label>{t("financePages.gradeOptional")}</Label>
               <Input type="number" value={form.grade} onChange={e => setForm({ ...form, grade: e.target.value })} placeholder="e.g. 10 — leave empty for all" />
             </div>
             <div className="space-y-1.5">
-              <Label>Billing Cycle</Label>
+              <Label>{t("financePages.billingCycle")}</Label>
               <select
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                 value={form.billing_cycle}
                 onChange={e => setForm({ ...form, billing_cycle: e.target.value })}
               >
-                <option value="monthly">Monthly</option>
-                <option value="semester">Semester</option>
-                <option value="yearly">Yearly</option>
-                <option value="one-time">One-time</option>
+                <option value="monthly">{t("financePages.monthly")}</option>
+                <option value="semester">{t("financePages.semester")}</option>
+                <option value="yearly">{t("financePages.yearly")}</option>
+                <option value="one-time">{t("financePages.oneTime")}</option>
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>Amount</Label>
+              <Label>{t("financePages.amount")}</Label>
               <Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} placeholder="e.g. 500.00" />
             </div>
             {editingId && (

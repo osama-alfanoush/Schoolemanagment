@@ -1,0 +1,230 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "read": {
+                "name": "read",
+                "path": "::read",
+                "id": "d1106446f368c9978534af4524a1a48a",
+                "groups": {},
+                "checks": {
+                        "read 200": {
+                            "id": "1008be7a3da7d6a79826568a8bfe31a6",
+                            "passes": 51178,
+                            "fails": 0,
+                            "name": "read 200",
+                            "path": "::read::read 200"
+                        }
+                    }
+            }
+        },
+        "checks": {}
+    },
+    "metrics": {
+        "data_received": {
+            "count": 231583842,
+            "rate": 709447.5054396602
+        },
+        "dashboard_latency": {
+            "min": -10505,
+            "med": 1524,
+            "max": 12998,
+            "p(90)": 1979,
+            "p(95)": 2157,
+            "avg": 1255.7250381023096
+        },
+        "errors": {
+            "passes": 0,
+            "fails": 51178,
+            "value": 0
+        },
+        "checks": {
+            "passes": 51178,
+            "fails": 0,
+            "value": 1
+        },
+        "http_reqs": {
+            "count": 51192,
+            "rate": 156.82457111350232
+        },
+        "http_req_receiving": {
+            "p(95)": 3.3118510499999982,
+            "avg": 2.2291789653656924,
+            "min": -10572.739826,
+            "med": 0.183211,
+            "max": 10551.014632,
+            "p(90)": 1.1674632000000007
+        },
+        "http_req_tls_handshaking": {
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0
+        },
+        "http_req_sending": {
+            "p(90)": 0.061427,
+            "p(95)": 0.08748104999999998,
+            "avg": 0.04668235206672938,
+            "min": 0.006823,
+            "med": 0.028589,
+            "max": 13.812706
+        },
+        "data_sent": {
+            "count": 11415813,
+            "rate": 34971.8701679353
+        },
+        "iteration_duration": {
+            "avg": 2263.870263775094,
+            "min": 1040.360928,
+            "med": 2556.0677475,
+            "max": 3574.666514,
+            "p(90)": 2930.6417533,
+            "p(95)": 3015.9626849499996
+        },
+        "vus": {
+            "value": 3,
+            "min": 0,
+            "max": 500
+        },
+        "http_req_duration": {
+            "min": -10479.622954,
+            "med": 1524.1515415,
+            "max": 12997.356309,
+            "p(90)": 1978.9270659000001,
+            "p(95)": 2155.87943165,
+            "avg": 1575.6656572559586,
+            "thresholds": {
+                "p(95)<800": true
+            }
+        },
+        "http_req_connecting": {
+            "avg": 0.006009202238631035,
+            "min": 0,
+            "med": 0,
+            "max": 30.920451,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 51192,
+            "thresholds": {
+                "rate<0.02": false
+            },
+            "value": 0
+        },
+        "login_latency": {
+            "avg": 324.57142857142856,
+            "min": 301,
+            "med": 318,
+            "max": 387,
+            "p(90)": 340.7,
+            "p(95)": 357.09999999999997
+        },
+        "http_req_waiting": {
+            "p(90)": 1977.8115364,
+            "p(95)": 2153.889763399999,
+            "avg": 1573.3897959385147,
+            "min": 0,
+            "med": 1523.459102,
+            "max": 12997.257009
+        },
+        "group_duration": {
+            "avg": 1262.7333718478078,
+            "min": 40.219012,
+            "med": 1555.0366665000001,
+            "max": 2573.553589,
+            "p(90)": 1929.6797873,
+            "p(95)": 2014.772778449999
+        },
+        "vus_max": {
+            "value": 500,
+            "min": 500,
+            "max": 500
+        },
+        "http_req_duration{expected_response:true}": {
+            "med": 1524.1515415,
+            "max": 12997.356309,
+            "p(90)": 1978.9270659000001,
+            "p(95)": 2155.87943165,
+            "avg": 1575.6656572559586,
+            "min": -10479.622954
+        },
+        "iterations": {
+            "count": 51178,
+            "rate": 156.78168269352284
+        },
+        "http_req_blocked": {
+            "avg": 0.01887357333177052,
+            "min": 0.002665,
+            "med": 0.008115,
+            "max": 31.025399,
+            "p(90)": 0.011093,
+            "p(95)": 0.014701499999999972
+        }
+    },
+    "setup_data": {
+        "sessions": [
+            {
+                "role": "student",
+                "token": "71|dCx7nmZIsSvYLtNVoCrZrbtqLI6kLxxu07cpECrvba7b2b1c"
+            },
+            {
+                "role": "student",
+                "token": "73|kDMnkxAupEFk0brsqsnZrBCkt51WWhPrYLZ0A2nU6c1788ac"
+            },
+            {
+                "role": "student",
+                "token": "75|Nm9GTlrl2ZDJMgeHotKgXzXvXOrDpgKN8GDIttN4b1075356"
+            },
+            {
+                "role": "student",
+                "token": "77|ROZTUG75rxvV6f1zh2elU9aFaxBxmBZBFypDz2BPca265421"
+            },
+            {
+                "role": "student",
+                "token": "79|lVYQIuWRHMvKPSgJSJldRwjoEhzt6t7RyOjkn4lL3503cc43"
+            },
+            {
+                "role": "student",
+                "token": "81|aJt8IdquR9w8HV2YVANV1Z3ltsqMjLzOdxyieon58aa8f6dc"
+            },
+            {
+                "role": "teacher",
+                "token": "83|GCO8xGdGv42N18JzSNmczhtrAqTcfeDnaZ68GACf090da770"
+            },
+            {
+                "role": "teacher",
+                "token": "85|P4jayqGjViMGiaM16yAMtmVqRcnhMr5NHWwemuhqf107fd80"
+            },
+            {
+                "role": "teacher",
+                "token": "87|EESbwe2779M8ce4ZUimHdQzgQwNnhLJOal0xOqw652f8aba5"
+            },
+            {
+                "role": "teacher",
+                "token": "89|fHvwxr7hczAlWDfvuXmd4uzfeuTr8tFTd75I8TLN73e3d06f"
+            },
+            {
+                "role": "parent",
+                "token": "91|KtQttsaf5HHG99tSY38EvDgqCgXjpjTUdev67coZ488a70ba"
+            },
+            {
+                "role": "parent",
+                "token": "93|qkvM3oDdpa37jTT8fdE0XJUTf0P71trRil2Qc3B92b4a9542"
+            },
+            {
+                "role": "parent",
+                "token": "95|GWnZyoSnjMxhihqa8Rf6fKQt7ZJgsssI4zQho3WU9f11ee8b"
+            },
+            {
+                "role": "parent",
+                "token": "97|hmXbhp8gmn5ATxmKdizLZMEv9XXfT328TvJJmede58ec1307"
+            }
+        ]
+    }
+}

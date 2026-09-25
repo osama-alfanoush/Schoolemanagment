@@ -44,7 +44,16 @@ describe('AuthContext integration', () => {
     vi.restoreAllMocks();
   });
 
-  it('login stores access token in localStorage', async () => {
+  it('login stores identity but no credentials in localStorage', async () => {
+    const financeUser = {
+      id: 99,
+      name: 'Token Test User',
+      email: 'token@test.com',
+      role: 'finance',
+      is_active: true,
+      locale: null,
+      photo_path: null,
+    };
     server.use(
       http.post('/api/auth/login', () =>
         HttpResponse.json({
@@ -52,17 +61,11 @@ describe('AuthContext integration', () => {
           refresh_token: 'test-refresh-token',
           token_type: 'Bearer',
           expires_in: 3600,
-          user: {
-            id: 99,
-            name: 'Token Test User',
-            email: 'token@test.com',
-            role: 'finance',
-            is_active: true,
-            locale: null,
-            photo_path: null,
-          },
+          user: financeUser,
         })
-      )
+      ),
+      // login() re-fetches /auth/me to hydrate permissions — keep it consistent.
+      http.get('/api/auth/me', () => HttpResponse.json({ user: financeUser }))
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
@@ -72,9 +75,13 @@ describe('AuthContext integration', () => {
     });
 
     expect(result.current.user?.email).toBe('token@test.com');
+    expect(localStorage.getItem('sm_cookie_session')).toBe('1');
+    expect(localStorage.getItem('sm_access_token')).toBeNull();
+    expect(localStorage.getItem('sm_refresh_token')).toBeNull();
   });
 
-  it('logout clears localStorage tokens', async () => {
+  it('logout clears the local session marker', async () => {
+    let logoutRequests = 0;
     server.use(
       http.post('/api/auth/login', () =>
         HttpResponse.json({
@@ -93,7 +100,10 @@ describe('AuthContext integration', () => {
           },
         })
       ),
-      http.post('/api/auth/logout', () => new HttpResponse(null, { status: 204 }))
+      http.post('/api/auth/logout', () => {
+        logoutRequests += 1;
+        return new HttpResponse(null, { status: 204 });
+      })
     );
 
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
@@ -109,16 +119,15 @@ describe('AuthContext integration', () => {
     });
 
     expect(result.current.user).toBeNull();
+    expect(localStorage.getItem('sm_cookie_session')).toBeNull();
+    expect(logoutRequests).toBe(1);
   });
 
   it('uses real /api/auth/me to restore session on page load', async () => {
+    localStorage.setItem('sm_cookie_session', '1');
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
-    await act(async () => {
-      await vi.waitFor(() => {
-        if (result.current.user !== null) throw new Error('done');
-      }, { timeout: 2000 });
-    });
-    expect(result.current.user).toBeNull();
+    await vi.waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.user?.email).toBe('test@school.com');
   });
 
   

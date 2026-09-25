@@ -1,0 +1,41 @@
+{
+  "checked_at_utc": "2026-08-14T23:47:34Z",
+  "context": "final pre-release backup and restore drill for tag v1.0.0-rc2",
+  "backup_file": "school_release_20260814T234734Z.dump",
+  "sha256": "164524ce379224a112484513de8f9dc8ca3e444d98fcec4948df08b1d7c62de6",
+  "checksum_verified": true,
+  "uploads_archive": "school_release_20260814T234734Z.uploads.tar.gz",
+  "uploads_sha256": "150de7da158b5dbcc12c819f01a21a49f25b93227c82bb8392dd54bb62467997",
+  "uploads_checksum_verified": true,
+  "temporary_database": "relrestore",
+  "table_counts_match": true,
+  "tables_compared": 119,
+  "rows_restored": 292,
+  "schools_restored": 2,
+  "indexes_match": true,
+  "foreign_keys_match": true,
+  "check_constraints_match": true,
+  "unique_constraints_match": true,
+  "schema_objects": {
+    "tables": 118,
+    "indexes": 381,
+    "foreign_keys": 325,
+    "check_constraints": 851,
+    "unique_constraints": 85
+  },
+  "files_restored": 3,
+  "private_files_restored": 2,
+  "files_byte_identical": true,
+  "private_uploads_covered": true,
+  "private_coverage_note": "storage/app/private was absent from every prior backup; fixed in a799d4e and first proven here",
+  "migrations_applied": 38,
+  "migration_duration_seconds": 6.8,
+  "tenant_indexes_verified": true,
+  "tenant_tables_checked": 99,
+  "run_inside_production_image": true,
+  "result": "passed",
+  "limitations": [
+    "no production data exists to back up; this proves the mechanism against the release candidate schema and representative seeded data",
+    "backups remain unencrypted and stored beside the database; encryption and off-host storage were decided on 2026-08-15 but are not implemented"
+  ]
+}

@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<!-- saved from url=(0253)https://40ca0a71-2c41-45bf-b5e6-4102811a6a60.frame.claudeusercontent.com/_f/1787870742-d482/?__frame_t=HnNuSHDRFBA2SbGcYTp6JC_b.3bf677ce-d190-4dc8-b4d5-31a8b998c4b6.35b892f2-16c8-4a86-a0a0-a5a8d53bca31.1787923465&__frame_v=manifest.8f37d435eff8686f.json -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- frame-runtime --><!--<base href="/_f/1787870742-d482/">--><base href="."><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.DvsaCnS7.js","assets":"assets.8Gk803W0.js","comments":"comments.GLuHR3zP.js","db":"db.h-3sndFg.js","downloads":"downloads.C3GSvEDP.js","embed":"embed.CxGAyc-v.js","mcp":"mcp.Bvma3qD7.js","network":"network.B5UA9Su4.js","permissions":"permissions.BNySkLV5.js","room":"room.BMMoe2BY.js","sample":"sample.BW2Uysoh.js","self":"artifact.DvsaCnS7.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.CQm3TZ9K.js","comments":"_comments.DELvYLUh.js","translate":"_translate.5HCW4BJh.js"}</script><script>(function(){"use strict";var J=["light","dark","system"],Q=/^[A-Za-z0-9_-]{1,64}$/,H=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,ee=new Set(["class","hidden","value","checked"]);function te(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||ee.has(t)}var Me="http://www.w3.org/1999/xhtml",re="http://www.w3.org/2000/svg",ne=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),oe=new Set(["script","style"]);function se(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!ne.has(t):e.namespaceURI===re?!oe.has(t):!1}var ae=new Set(["html","head","body","frameset"]);function ie(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&ae.has(e.localName)}function ce(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!Q.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!H.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!H.test(r))return!1}return!0}function le(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let s=0;s<n.length;s++)if(!t(n[s]))return!1;return!0}function ue(e){return e===null||typeof e!="object"?!1:le(e.__frame_patch,ce)}function fe(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function pe(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function de(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&J.includes(r)}var A=/^[\w.-]+\.js$/;function me(e,t,r){return r?"inert":typeof t=="string"&&A.test(t)?e?[t]:"inert":e?"inert":"framed"}function he(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function _e(){return{post:()=>{},on:()=>()=>{}}}var O="__frame_scroll",ve=150,ye=310,we=160,be=3e4;function Ee(){let e=0,t=!1,r=!1,n=!1,s=0,a=null;const l=i=>{try{sessionStorage.setItem(O,JSON.stringify({y:i}))}catch{}},d=()=>{if(clearTimeout(e),a===null)return;const i=a;a=null,l(i)},v=()=>{if(t){t=!1;return}r=!0,a=scrollY,clearTimeout(e),e=setTimeout(d,ve)};try{addEventListener("scroll",v,{passive:!0}),addEventListener("pagehide",d)}catch{}const y=()=>{let i;try{i=sessionStorage.getItem(O)}catch{return null}if(i===null)return null;let m;try{m=JSON.parse(i)}catch{m=null}const u=m?.y;if(!(typeof u=="number"&&Number.isFinite(u)&&u>=0)){try{sessionStorage.removeItem(O)}catch{}return null}return u};let S=!1;const h=i=>{try{const m=scrollY;scrollTo({top:i,left:0,behavior:"instant"}),s=i,n=!0,clearTimeout(e),a=null,l(i);const u=scrollY;u!==m&&(t=!0),u!==i&&!S&&(S=!0,addEventListener("load",()=>{try{if(scrollY===u){const k=y();h(k!==null?k:s)}}catch{}},{once:!0}))}catch{}},w=()=>{try{return!!location.hash}catch{return!0}};let o=!1;const f=()=>{try{if(o||innerWidth>ye||innerHeight>we)return;o=!0;const i=Date.now(),m=()=>{try{removeEventListener("resize",m)}catch{}if(Date.now()-i>be||r||w())return;const u=y();h(u!==null?u:s)};addEventListener("resize",m)}catch{}};let _=!1,b=!1;return{restore(){if(_||(_=!0,w()))return;const i=y();i!==null&&(h(i),f())},promoted(){if(b||(b=!0,w()))return;const i=y();i!==null?(h(i),f()):n&&h(s)}}}function ge(e,t,r,n){let s=null;try{s=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:v=>v})??null}catch{}const a=window.Worker,l=a?.prototype,d=Object.freeze({Worker:a,workerOn:l?.addEventListener,workerPost:l?.postMessage,workerTerminate:l?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:s,origins:t});r(e).then(v=>v?.bootTopLevel?v.bootTopLevel(d,n):n.settle()).catch(()=>n.settle())}var Oe="modulepreload",Ce=function(e){return"/"+e},je={},Ae=function(t,r,n){let s=Promise.resolve();function a(l){const d=new Event("vite:preloadError",{cancelable:!0});if(d.payload=l,window.dispatchEvent(d),!d.defaultPrevented)throw l}return s.then(l=>{for(const d of l||[])d.status==="rejected"&&a(d.reason);return t().catch(a)})},Re=window===top,q=Object.getOwnPropertyDescriptor(window,"claude"),T=me(Re,window.__FRAME_PREAMBLE?.topLevel,q?.writable===!1),C=typeof T=="object"&&T[0],p=C?_e():he();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let s=0;s<r.length;s++){const a=r[s];try{e(t,a,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[a]}catch{}try{e(t,a,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[a]=="function"&&n++}if(n&&T==="framed")try{p.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Se=1e4,W=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function $(e){for(const t of W)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var L=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),j=window.__FRAME_PREAMBLE?.transforms,N=window.__FRAME_PREAMBLE?.comments,I=window.__FRAME_PREAMBLE?.translate;function R(e){return Ae(()=>import("/_runtime/"+e),void 0)}function K(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:D,pipe:()=>({wrap:(r,n)=>(...s)=>{try{return n(...s)}catch(a){return Promise.reject(a)}}})}}var P=null,E=null;function Y(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var B=!1;function ke(e,t){const r=[];for(const n of e.elements){const s=document.querySelector(`[data-id="${n.target}"]`);if(!s){p.post({__frame_patch_miss:{seq:e.seq}},t);return}if([...Object.keys(n.attrsSet??{}),...n.attrsRemoved??[]].some(a=>!te(a))){p.post({__frame_patch_miss:{seq:e.seq}},t);return}if(n.text!==void 0&&(!se(s)||ie(s))){p.post({__frame_patch_miss:{seq:e.seq}},t);return}for(const[a,l]of Object.entries(n.attrsSet??{}))if(!G(s,a)){try{s.setAttribute(a,l)}catch{}X(s,a,l)}for(const a of n.attrsRemoved??[])G(s,a)||(s.removeAttribute(a),X(s,a,null));typeof n.text=="string"&&(s.textContent=n.text),r.push(n.target)}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:r}}))}catch{}}function X(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function G(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function V(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,B=!0):B&&(delete t.dataset.theme,t.style.colorScheme="",B=!1)}var M=new Map;function Te(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function U(){for(const e of M.values())e.done||(e.nulled=!0,e.r(null))}var Le=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),D=(e,t)=>{const r=M.get(e);if(!r||r.done){r?.nulled&&E&&p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},E);return}const n=typeof t=="function"?Object.setPrototypeOf(t,Le):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function Z(){const e=q?.value??{};Y(window,"claude",e);for(const t of Object.keys(L)){if(e[t]!==void 0){Y(e,t,e[t]);continue}M.set(t,Te())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(L,r))return Promise.resolve(null);const n=M.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(T==="framed"){const e=j&&A.test(j)?R(j).catch(()=>{}):Promise.resolve(void 0),t=o=>{if(o.type==="auxclick"&&o.button!==1)return;const f=o.target,_=f&&f.closest?f.closest("a[href],area[href]"):null;if(!_)return;const b=_.getAttribute("href");if(!b)return;let i;try{i=new URL(b,document.baseURI)}catch{return}if((i.protocol==="http:"||i.protocol==="https:")&&i.origin!==location.origin){o.preventDefault();const m=(_.getAttribute("target")??"").toLowerCase(),u=o.type==="auxclick"||o.metaKey||o.ctrlKey||o.shiftKey||o.altKey||!["","_self","_top","_parent"].includes(m);p.post({__frame_nav:!0,url:i.href,newTab:u},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=o=>{o.isTrusted&&(r.pointer=!0)},s=o=>{o.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",s,{capture:!0,passive:!0}),e.then(o=>{o?.wireNav&&(o.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",s,!0),o.wireEngagement?.(r))});let a=null;try{a=Ee()}catch{}Z();let l=null,d=null,v=0;const y=p.on((o,f)=>{$(f)&&fe(o)&&(l=o.__frame_init,E=f,y(),clearTimeout(v),d?.())});p.post({__frame_connect:!0},"*");const S=new Promise(o=>{d=o,v=setTimeout(()=>{y(),o()},Se)}),h=document.readyState==="loading"?new Promise(o=>document.addEventListener("DOMContentLoaded",()=>o(),{once:!0})):Promise.resolve();h.then(()=>{try{a?.restore()}catch{}});const w={cb:null};p.on((o,f)=>{if($(f)&&pe(o)){try{a?.promoted()}catch{}w.cb?.()}}),S.then(async()=>{if(!l||!E){U();return}V(l.theme);const o=E;let f=!1,_=!1;p.on((c,x)=>{if(x!==o)return;de(c)&&V(c.__frame_theme.theme),ue(c)&&ke(c.__frame_patch,o);const g=c?.__fc_mode;g&&typeof g=="object"&&!f&&N&&A.test(N)&&(f=!0,R(N).then(z=>z.install?.(o,g.on===!0)).catch(()=>{}));const F=c?.__ft_cmd;F&&typeof F=="object"&&!_&&I&&A.test(I)&&(_=!0,R(I).then(z=>z.install?.(o,F)).catch(()=>{}))});const b=Object.keys(l.capabilities??{}).filter(c=>Object.hasOwn(L,c)).map(c=>[c,L[c]]).filter(c=>typeof c[1]=="string"&&A.test(c[1])),i=await Promise.allSettled(b.map(([,c])=>R(c))),m=await e,u=E;if(m?.buildBoot||p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},u),m?.buildBoot)try{P=m.buildBoot(l,m.TRANSFORMS??{},{shellOrigin:u,mount:D},c=>p.post({__frame_cap_telemetry:c},u))}catch{p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},u),P=K(l,u)}else P=K(l,u);const k=c=>p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:c}},u),Pe=P;i.forEach((c,x)=>{const g=b[x][0];if(c.status!=="fulfilled"){k(g);return}try{c.value?.install?.(Pe)}catch{k(g)}}),U(),await h,p.post({__frame_ready:!0},E),e.then(c=>c?.installSizeReporter?.(u,w))})}else C&&(Z(),ge(C,W,R,{settle:U,mount:D}))})();</script><!-- /frame-runtime --><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>خريطة الدخول: الأردن والخليج</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link rel="stylesheet" href="./css2">
+
+<style>
+  :root {
+    --paper:     #F3F5F4;
+    --surface:   #FFFFFF;
+    --surface-2: #E8EDEC;
+    --line:      #D2DBDA;
+    --line-soft: #E2E9E8;
+    --ink:       #0F1A1C;
+    --ink-soft:  #33474A;
+    --muted:     #5F7376;
+    --petrol:    #0D5257;
+    --petrol-2:  #17787F;
+    --sand:      #8F6415;
+    --sand-bg:   rgba(176,125,40,.13);
+    --block:     #A32D22;
+    --block-bg:  rgba(163,45,34,.10);
+    --win:       #1C6B4B;
+    --win-bg:    rgba(28,107,75,.10);
+    --later:     #5F7376;
+    --later-bg:  rgba(95,115,118,.11);
+    --shadow:    0 1px 2px rgba(15,26,28,.05), 0 12px 32px rgba(15,26,28,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #0A1416;
+      --surface:   #10201F;
+      --surface-2: #16292A;
+      --line:      #23393A;
+      --line-soft: #1A2E2F;
+      --ink:       #E7EEED;
+      --ink-soft:  #BCCDCC;
+      --muted:     #8CA3A4;
+      --petrol:    #57B8BD;
+      --petrol-2:  #7FD0D3;
+      --sand:      #DCAA51;
+      --sand-bg:   rgba(220,170,81,.13);
+      --block:     #F08A7C;
+      --block-bg:  rgba(240,138,124,.13);
+      --win:       #5DC79B;
+      --win-bg:    rgba(93,199,155,.13);
+      --later:     #8CA3A4;
+      --later-bg:  rgba(140,163,164,.13);
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.36);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:     #0A1416;
+    --surface:   #10201F;
+    --surface-2: #16292A;
+    --line:      #23393A;
+    --line-soft: #1A2E2F;
+    --ink:       #E7EEED;
+    --ink-soft:  #BCCDCC;
+    --muted:     #8CA3A4;
+    --petrol:    #57B8BD;
+    --petrol-2:  #7FD0D3;
+    --sand:      #DCAA51;
+    --sand-bg:   rgba(220,170,81,.13);
+    --block:     #F08A7C;
+    --block-bg:  rgba(240,138,124,.13);
+    --win:       #5DC79B;
+    --win-bg:    rgba(93,199,155,.13);
+    --later:     #8CA3A4;
+    --later-bg:  rgba(140,163,164,.13);
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.36);
+  }
+
+  * { box-sizing: border-box; }
+  html { direction: rtl; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+    font-size: 17px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 120px; }
+
+  h1, h2, .verdict-h, .tier h3, .country h3 {
+    font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", Tahoma, sans-serif;
+  }
+  .ltr {
+    direction: ltr; unicode-bidi: isolate;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .88em;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+  a { color: var(--petrol); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--petrol); outline-offset: 3px; border-radius: 4px; }
+
+  .mast { padding: 76px 0 30px; }
+  .eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .18em; color: var(--sand); margin: 0 0 16px; }
+  h1 { font-size: clamp(34px, 5.4vw, 52px); line-height: 1.25; font-weight: 800; margin: 0 0 18px; letter-spacing: -.01em; text-wrap: balance; }
+  .lede { font-size: 20px; line-height: 1.75; color: var(--ink-soft); margin: 0; max-width: 60ch; }
+
+  /* correction banner */
+  .correction {
+    margin-top: 34px; border: 1px solid var(--line); border-inline-start: 3px solid var(--block);
+    background: var(--block-bg); border-radius: 0 14px 14px 0; padding: 20px 24px;
+  }
+  .correction b { color: var(--block); }
+  .correction p { margin: 0; color: var(--ink-soft); font-size: 16.5px; }
+
+  .verdict { margin-top: 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+  .verdict-top { padding: 26px 28px 22px; border-bottom: 1px solid var(--line-soft); }
+  .verdict-h { font-size: 24px; font-weight: 800; margin: 0 0 10px; line-height: 1.45; }
+  .verdict-top p { margin: 0; color: var(--ink-soft); font-size: 17px; }
+  .verdict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line-soft); }
+  .verdict-grid div { background: var(--surface); padding: 18px 22px; }
+  .verdict-grid dt { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); margin: 0 0 6px; }
+  .verdict-grid dd { margin: 0; font-size: 20px; font-weight: 700; color: var(--ink); }
+  .verdict-grid dd small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.5; margin-top: 3px; }
+
+  section { padding-top: 64px; }
+  h2 { font-size: 15px; font-weight: 700; letter-spacing: .14em; color: var(--sand); margin: 0 0 10px; }
+  .h2sub { font-size: 29px; font-weight: 700; line-height: 1.4; margin: 0 0 26px; text-wrap: balance; color: var(--ink); }
+  p { margin: 0 0 18px; }
+  .note { color: var(--muted); font-size: 15.5px; }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  th, td { text-align: right; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); font-size: 15.5px; vertical-align: top; }
+  thead th { background: var(--surface-2); font-size: 12.5px; font-weight: 700; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--line); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.mod { font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+  .mark { font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; display: inline-block; }
+  .m-ahead { background: var(--win-bg); color: var(--win); }
+  .m-par   { background: var(--surface-2); color: var(--muted); }
+  .m-gap   { background: var(--sand-bg); color: var(--sand); }
+  .m-none  { background: var(--block-bg); color: var(--block); }
+
+  /* country ranking */
+  .countries { display: flex; flex-direction: column; gap: 16px; }
+  .country { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+  .country > header { padding: 18px 24px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line-soft); background: var(--surface-2); }
+  .country h3 { margin: 0; font-size: 21px; font-weight: 800; color: var(--ink); }
+  .rank { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; padding: 3px 11px; border-radius: 999px; }
+  .r-now  { background: var(--win-bg); color: var(--win); }
+  .r-soon { background: var(--sand-bg); color: var(--sand); }
+  .r-hard { background: var(--block-bg); color: var(--block); }
+  .country > header span.why { font-size: 14.5px; color: var(--muted); }
+  .country .body { padding: 18px 24px; }
+  .country .body p { margin: 0 0 12px; color: var(--ink-soft); font-size: 16.5px; }
+  .country .body p:last-child { margin-bottom: 0; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .fact { background: var(--surface-2); border-radius: 10px; padding: 10px 14px; }
+  .fact dt { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; color: var(--muted); margin: 0 0 3px; }
+  .fact dd { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink); }
+
+  .tiers { display: flex; flex-direction: column; gap: 20px; }
+  .tier { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+  .tier > header { padding: 20px 26px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid var(--line-soft); }
+  .tier h3 { margin: 0; font-size: 21px; font-weight: 800; }
+  .tier header span { font-size: 14.5px; color: var(--muted); }
+  .tier.block > header { background: var(--block-bg); } .tier.block h3 { color: var(--block); }
+  .tier.win   > header { background: var(--win-bg); }   .tier.win h3   { color: var(--win); }
+  .item { padding: 18px 26px; border-bottom: 1px solid var(--line-soft); display: grid; grid-template-columns: 1fr auto; gap: 6px 18px; }
+  .item:last-child { border-bottom: 0; }
+  .item h4 { margin: 0; font-size: 17.5px; font-weight: 700; color: var(--ink); }
+  .item p { margin: 0; grid-column: 1 / -1; color: var(--ink-soft); font-size: 16px; line-height: 1.7; }
+  .effort { font-size: 13px; font-weight: 700; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 3px 11px; white-space: nowrap; align-self: start; }
+
+  .phases { display: flex; flex-direction: column; gap: 14px; }
+  .phase { display: grid; grid-template-columns: 96px 1fr; gap: 20px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow); }
+  .phase .when { font-weight: 700; color: var(--petrol); font-size: 15px; background: var(--surface-2); border-radius: 10px; padding: 8px 10px; text-align: center; }
+  .phase h4 { margin: 0 0 6px; font-size: 19px; font-weight: 700; }
+  .phase p { margin: 0; color: var(--ink-soft); font-size: 16px; }
+
+  .callout { border-inline-start: 3px solid var(--sand); background: var(--sand-bg); border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 0 0 18px; font-size: 16.5px; color: var(--ink-soft); }
+  ul { margin: 0 0 18px; padding-inline-start: 22px; color: var(--ink-soft); }
+  li { margin-bottom: 7px; }
+
+  footer { margin-top: 70px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+  footer a { color: var(--petrol); }
+  footer ul { padding-inline-start: 20px; margin-top: 10px; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  @media (max-width: 620px) { .phase, .item { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="eyebrow">تحليل سوق · الأردن والخليج · أغسطس ٢٠٢٦</p>
+    <h1>من أين نبيع أولاً، ولماذا</h1>
+    <p class="lede">
+      سبع دول، وثلاثة أنظمة فوترة مختلفة تماماً، وشرط واحد مشترك في كل الخليج.
+      هذه خريطة الدخول مرتّبة بأقل مجهود امتثال مقابل أعلى احتمال بيع.
+    </p>
+
+    <div class="correction">
+      <p>
+        <b>تصحيح لما قلته سابقاً:</b> ذكرت أن الأردن سوق «أخف امتثالاً» ويمكن
+        البيع فيه كما هو تقريباً. هذا غير صحيح. الأردن يطبّق الفوترة الوطنية
+        <span class="ltr">JoFotara</span> إلزامياً على جميع المكلّفين منذ ٣١ مايو
+        ٢٠٢٤، وبنموذج تخليص مركزي تُعتمد فيه الفاتورة قبل إصدارها قانونياً — أي
+        أشد إجراءً من التقارير اللاحقة. البديل الحقيقي منخفض الامتثال ليس الأردن،
+        بل قطر والكويت.
+      </p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-top">
+        <p class="verdict-h">قطر والكويت هما البابان المفتوحان اليوم</p>
+        <p>
+          الدولتان لم تطبّقا ضريبة القيمة المضافة أصلاً، ولا يوجد فيهما إلزام
+          فوترة إلكترونية بعد. هذا يُسقط أكبر عائق أمامنا بالكامل، ويجعل النظام
+          بوضعه الحالي قابلاً للعرض فوراً — بشرط واحد فقط: ملف حماية الأجور.
+          أما السعودية فهي الجائزة الكبرى وأصعب باب، والإمارات تمنحنا مهلة حتى ٢٠٢٧.
+        </p>
+      </div>
+      <dl class="verdict-grid">
+        <div><dt>قابل للبيع الآن</dt><dd>قطر، الكويت<small>بعد إضافة ملف الأجور</small></dd></div>
+        <div><dt>مهلة الإمارات</dt><dd class="num">يوليو ٢٠٢٧<small>للمنشآت الأصغر</small></dd></div>
+        <div><dt>الأردن والسعودية</dt><dd>متأخر<small>الإلزام سارٍ بالفعل</small></dd></div>
+        <div><dt>شرط مشترك</dt><dd>حماية الأجور<small>في دول الخليج الست جميعاً</small></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <section>
+    <h2>الخريطة</h2>
+    <p class="h2sub">ما تطلبه كل دولة بالضبط</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>الدولة</th><th>الضريبة</th><th>الفوترة الإلكترونية</th>
+            <th>حماية الأجور</th><th>قناة الدفع</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mod">قطر</td>
+            <td><span class="mark m-ahead">لا توجد</span></td>
+            <td>مشروع قانون أُقرّ مايو ٢٠٢٦، والتطبيق لاحقاً</td>
+            <td>مطلوب — مع حد أدنى للأجر وبدلات سكن وطعام</td>
+            <td>بطاقات محلية وتحويل بنكي</td>
+          </tr>
+          <tr>
+            <td class="mod">الكويت</td>
+            <td><span class="mark m-ahead">لا توجد</span></td>
+            <td>لا يوجد إلزام — الضريبة نفسها مؤجلة</td>
+            <td>مطلوب</td>
+            <td><span class="ltr">KNET</span> وتحويل بنكي</td>
+          </tr>
+          <tr>
+            <td class="mod">الإمارات</td>
+            <td><span class="mark m-par">٥٪</span></td>
+            <td><span class="ltr">Peppol</span> عبر مزوّد معتمد — إلزامي يناير ٢٠٢٧ للكبار ويوليو ٢٠٢٧ لغيرهم</td>
+            <td>ملف <span class="ltr">SIF</span> عبر البنك</td>
+            <td><span class="ltr">Telr</span>، <span class="ltr">Network International</span>، <span class="ltr">Apple&nbsp;Pay</span></td>
+          </tr>
+          <tr>
+            <td class="mod">البحرين</td>
+            <td><span class="mark m-par">١٠٪</span></td>
+            <td>قائم على الضريبة</td>
+            <td>المرحلة الأخيرة يناير ٢٠٢٦ — وعدم الالتزام يوقف معاملات هيئة العمل</td>
+            <td><span class="ltr">Benefit</span></td>
+          </tr>
+          <tr>
+            <td class="mod">عُمان</td>
+            <td><span class="mark m-par">٥٪</span></td>
+            <td>قائم على الضريبة</td>
+            <td>مطلوب</td>
+            <td>بطاقات محلية</td>
+          </tr>
+          <tr>
+            <td class="mod">الأردن</td>
+            <td><span class="mark m-gap">١٦٪ — والتعليم معفى</span></td>
+            <td><span class="ltr">JoFotara</span> — تخليص مركزي، إلزامي منذ ٢٠٢٤</td>
+            <td>الضمان الاجتماعي: ١٤٫٢٥٪ صاحب عمل و٧٫٥٪ موظف</td>
+            <td><span class="ltr">eFAWATEERcom</span> — يقبل فواتير التعليم</td>
+          </tr>
+          <tr>
+            <td class="mod">السعودية</td>
+            <td><span class="mark m-none">١٥٪</span></td>
+            <td><span class="ltr">ZATCA</span> فاتورة — ربط مباشر وختم تشفيري، والموجة الأخيرة انتهت يونيو ٢٠٢٦</td>
+            <td>مدد + التأمينات + قوى</td>
+            <td><span class="ltr">mada</span> وسداد و<span class="ltr">HyperPay</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      لاحظ أن أنظمة الفوترة الثلاثة مختلفة معمارياً: السعودية ربط مباشر بختم
+      تشفيري، والأردن تخليص مركزي قبل الإصدار، والإمارات تبادل عبر شبكة
+      <span class="ltr">Peppol</span> من خلال مزوّد خدمة معتمد. لا يمكن بناء
+      واحد منها وإعادة استخدامه كما هو.
+    </p>
+  </section>
+
+  <section>
+    <h2>ترتيب الدخول</h2>
+    <p class="h2sub">أربع أسواق، وثلاث موجات</p>
+
+    <div class="countries">
+
+      <article class="country">
+        <header>
+          <h3>قطر والكويت</h3>
+          <span class="rank r-now">ابدأ هنا</span>
+          <span class="why">أقل مجهود امتثال، وأعلى قدرة إنفاق</span>
+        </header>
+        <div class="body">
+          <dl class="facts">
+            <div class="fact"><dt>الفوترة</dt><dd>غير مطلوبة</dd></div>
+            <div class="fact"><dt>الضريبة</dt><dd>لا توجد</dd></div>
+            <div class="fact"><dt>المطلوب منا</dt><dd>ملف الأجور فقط</dd></div>
+            <div class="fact"><dt>الجهد</dt><dd class="num">٤ – ٦ أسابيع</dd></div>
+          </dl>
+          <p>
+            هذا هو الاكتشاف الأهم في التحليل. غياب ضريبة القيمة المضافة يعني أن
+            كل العمل الضريبي والفوترة الإلكترونية — وهو أثقل بند في القائمة —
+            غير مطلوب أصلاً. النظام بمحاسبته ومشترياته ورواتبه قابل للعرض على
+            مدرسة قطرية أو كويتية خلال أسابيع، لا أشهر.
+          </p>
+          <p>
+            الشرط الوحيد الجاد هو ملف حماية الأجور. وفي قطر تحديداً يجب أن يعكس
+            الملف الحد الأدنى للأجر وبدلات السكن والطعام، وهي قواعد احتساب تُضاف
+            إلى وحدة الرواتب لدينا لا إعادة بناء لها.
+          </p>
+        </div>
+      </article>
+
+      <article class="country">
+        <header>
+          <h3>الأردن</h3>
+          <span class="rank r-soon">السوق البيتي</span>
+          <span class="why">أقرب عملاء، لكن الفوترة إلزامية بالفعل</span>
+        </header>
+        <div class="body">
+          <dl class="facts">
+            <div class="fact"><dt>الفوترة</dt><dd>إلزامية منذ ٢٠٢٤</dd></div>
+            <div class="fact"><dt>التعليم</dt><dd>معفى من الضريبة</dd></div>
+            <div class="fact"><dt>المطلوب منا</dt><dd><span class="ltr">JoFotara</span> + <span class="ltr">eFAWATEERcom</span></dd></div>
+            <div class="fact"><dt>الجهد</dt><dd class="num">٨ – ١٢ أسبوعاً</dd></div>
+          </dl>
+          <p>
+            الميزة الحقيقية هنا ليست خفة الامتثال بل قربك من العميل: نفس اللغة،
+            نفس المدينة، وتكلفة بيع ودعم أقل بكثير. وإعفاء التعليم من ضريبة
+            المبيعات يبسّط محرّك الضريبة لدينا كثيراً — الرسوم الدراسية معفاة،
+            بينما تبقى خدمات مثل النقل والزي خاضعة.
+          </p>
+          <p>
+            لكن الإعفاء الضريبي لا يعني إعفاءً من الفوترة الإلكترونية. النظام
+            الوطني يشمل جميع المكلّفين، ويجب تأكيد معاملة الفواتير المعفاة مع
+            دائرة ضريبة الدخل والمبيعات أو مستشار محلي قبل الالتزام بموعد تسليم.
+          </p>
+          <p>
+            وعلى جانب الدفع، <span class="ltr">eFAWATEERcom</span> ليس خياراً بل
+            هو القناة الفعلية لسداد الفواتير في الأردن تحت إشراف البنك المركزي،
+            ويقبل فواتير التعليم صراحةً. ربطنا به يمنحنا ميزة بيعية مباشرة.
+          </p>
+        </div>
+      </article>
+
+      <article class="country">
+        <header>
+          <h3>الإمارات</h3>
+          <span class="rank r-soon">سوق التوسّع</span>
+          <span class="why">مهلة حتى ٢٠٢٧، والتكامل هو الأسهل تقنياً</span>
+        </header>
+        <div class="body">
+          <dl class="facts">
+            <div class="fact"><dt>الإلزام</dt><dd>يناير ويوليو ٢٠٢٧</dd></div>
+            <div class="fact"><dt>النموذج</dt><dd>عبر مزوّد معتمد</dd></div>
+            <div class="fact"><dt>المطلوب منا</dt><dd>ضريبة ٥٪ + <span class="ltr">ASP</span></dd></div>
+            <div class="fact"><dt>الجهد</dt><dd class="num">٦ – ٨ أسابيع</dd></div>
+          </dl>
+          <p>
+            الإمارات اختارت نموذج <span class="ltr">Peppol</span> اللامركزي: لا
+            نتكامل مع الهيئة الاتحادية مباشرة، بل نرسل عبر مزوّد خدمة معتمد يتولى
+            هو التبليغ. عملياً هذا يعني ربط واجهة برمجية تجارية واحدة بدل بناء
+            ختم تشفيري وتسجيل أجهزة كما في السعودية — أرخص وأسرع بكثير.
+          </p>
+          <p>
+            والأهم: أغلب المدارس الخاصة تقع في المرحلة الثانية، أي يوليو ٢٠٢٧.
+            أمامنا سنة كاملة لنكون جاهزين قبل أن يصبح السؤال إلزامياً في اجتماع
+            البيع. المطلوب أيضاً تقارير تتوافق مع هيئة المعرفة في دبي ودائرة
+            التعليم في أبوظبي، وحفظ رقم الهوية الإماراتية ضمن ملف الطالب.
+          </p>
+        </div>
+      </article>
+
+      <article class="country">
+        <header>
+          <h3>السعودية</h3>
+          <span class="rank r-hard">الجائزة الأصعب</span>
+          <span class="why">أكبر سوق، وأربعة إلزامات متوازية</span>
+        </header>
+        <div class="body">
+          <dl class="facts">
+            <div class="fact"><dt>الفوترة</dt><dd>متأخرة بالفعل</dd></div>
+            <div class="fact"><dt>الاستضافة</dt><dd>داخل المملكة</dd></div>
+            <div class="fact"><dt>المطلوب منا</dt><dd>فاتورة، نور، مدد، سداد</dd></div>
+            <div class="fact"><dt>الجهد</dt><dd class="num">٤ – ٦ أشهر</dd></div>
+          </dl>
+          <p>
+            السعودية تجمع أصعب أربعة شروط في وقت واحد: فاتورة بالربط المباشر
+            والختم التشفيري، والربط مع نظام نور للقيد والدرجات والشهادات، وملف
+            مدد المطابق للتأمينات وقوى، والاستضافة داخل المملكة بموجب نظام حماية
+            البيانات الشخصية. ولأن الموجة الأخيرة من فاتورة انتهى موعدها في
+            يونيو ٢٠٢٦، فالمدارس المستهدفة ملزمة اليوم لا غداً.
+          </p>
+          <p>
+            هذا لا يعني تأجيل السعودية، بل عدم جعلها السوق الأول. ادخلها بعد أن
+            تكون قد موّلت العمل من قطر والكويت والأردن، وبعد أن تكون طبقة الفوترة
+            لدينا قد نضجت في سوقين.
+          </p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>الفجوات</h2>
+    <p class="h2sub">ما نبنيه، ولأي سوق</p>
+
+    <div class="tiers">
+      <article class="tier block">
+        <header>
+          <h3>يمنع البيع</h3>
+          <span>لا يمكن توقيع عقد قبل إنجازها في السوق المعني</span>
+        </header>
+        <div>
+          <div class="item">
+            <h4>ملف حماية الأجور</h4><span class="effort">٤ – ٦ أسابيع</span>
+            <p>
+              الشرط الوحيد المشترك في دول الخليج الست جميعاً. وحدة الرواتب لدينا
+              تحتسب بدقة وتفصل المهام، لكنها لا تُخرج الملف النظامي. تبدأ بصيغة
+              واحدة (الإمارات أو قطر) ثم تضيف الباقي. البحرين أعطت الشرط أسناناً:
+              من فبراير ٢٠٢٦ يُمنع غير الملتزم من معاملات هيئة سوق العمل.
+            </p>
+          </div>
+          <div class="item">
+            <h4>طبقة فوترة إلكترونية قابلة للتبديل</h4><span class="effort">٦ – ١٠ أسابيع للأولى</span>
+            <p>
+              لا تبنِ تكاملاً لدولة واحدة. ابنِ واجهة واحدة داخل النظام
+              (إنشاء، توقيع، إرسال، حفظ الاستجابة) ثم مُحوّلاً لكل دولة. الأنظمة
+              الثلاثة مختلفة، لكن ٧٠٪ من العمل — نمذجة الفاتورة، الترقيم،
+              <span class="ltr">UUID</span>، رمز <span class="ltr">QR</span>،
+              الأرشفة، إعادة المحاولة — مشترك بينها.
+            </p>
+          </div>
+          <div class="item">
+            <h4>محرّك ضريبة</h4><span class="effort">٢ – ٣ أسابيع</span>
+            <p>
+              نسبة لكل دولة، وتمييز المعفى عن الخاضع — وهو جوهري في الأردن حيث
+              التعليم معفى بينما النقل والزي خاضعان. لا يوجد اليوم أي حقل ضريبة
+              في النظام.
+            </p>
+          </div>
+          <div class="item">
+            <h4>قنوات الدفع المحلية</h4><span class="effort">٣ – ٥ أسابيع لكل قناة</span>
+            <p>
+              النظام مهيّأ لـ <span class="ltr">Stripe</span> وحدها.
+              ابدأ بـ <span class="ltr">eFAWATEERcom</span> للأردن — فهو القناة
+              الوطنية ويقبل فواتير التعليم — ثم أضف قناة خليجية واحدة حسب أول عميل.
+            </p>
+          </div>
+          <div class="item">
+            <h4>التقويم الهجري</h4><span class="effort">١ – ٢ أسبوع</span>
+            <p>
+              عرض مزدوج للتواريخ في العام الدراسي والشهادات. غائب تماماً، ورخيص
+              الإضافة، وأول ما يُلاحظ في أي عرض تقديمي خليجي.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="tier win">
+        <header>
+          <h3>يكسب الصفقة</h3>
+          <span>ما يقارنه المشتري بين عرضنا وعرض المنافس</span>
+        </header>
+        <div>
+          <div class="item">
+            <h4>تطبيق ولي الأمر</h4><span class="effort">٦ – ١٠ أسابيع</span>
+            <p>
+              المنافسون يبيعون عبر التطبيق: إشعار الغياب، الدرجات، ودفع الرسوم من
+              الجوال. البنية الخلفية للإشعارات جاهزة عندنا؛ الفجوة في التطبيق نفسه.
+            </p>
+          </div>
+          <div class="item">
+            <h4>الرسائل النصية</h4><span class="effort">٢ – ٣ أسابيع</span>
+            <p>
+              القناة الفعلية لولي الأمر في المنطقة. نرسل اليوم بالبريد والإشعارات
+              فقط. مزوّد واحد يكفي للبداية.
+            </p>
+          </div>
+          <div class="item">
+            <h4>القبول والتسجيل الإلكتروني</h4><span class="effort">٤ – ٦ أسابيع</span>
+            <p>
+              تقديم، مستندات، قبول، ثم دفع رسوم التسجيل. لدينا سجل قيد فقط، وهذه
+              أول وحدة تلمسها المدرسة كل عام.
+            </p>
+          </div>
+          <div class="item">
+            <h4>الشهادات وكشوف الدرجات</h4><span class="effort">٢ – ٣ أسابيع</span>
+            <p>
+              قوالب عربية رسمية قابلة للطباعة برقم تحقق. لدينا إصدار بطاقة تقرير
+              بلا قوالب معتمدة.
+            </p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="callout" style="margin-top:22px">
+      <b>ما لسنا بحاجة لبنائه:</b> المحاسبة بالقيد المزدوج، والمشتريات، وأوامر
+      الشراء، والرواتب بفصل المهام، وسجل التدقيق — كلها موجودة وأعمق مما تعرضه
+      صفحات المنافسين. لا تصرف وقتاً على ما تسبق فيه.
+    </div>
+  </section>
+
+  <section>
+    <h2>الخطة</h2>
+    <p class="h2sub">ثلاث موجات في اثني عشر شهراً</p>
+    <div class="phases">
+      <div class="phase">
+        <div class="when">١ – ٢<br>شهر</div>
+        <div>
+          <h4>افتح قطر والكويت</h4>
+          <p>
+            ملف حماية الأجور، التقويم الهجري، وتلميع العرض التقديمي. لا ضريبة
+            ولا فوترة مطلوبة. هذه أسرع طريق إلى أول عقد موقّع ودخل حقيقي.
+          </p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="when">٣ – ٥<br>أشهر</div>
+        <div>
+          <h4>ثبّت الأردن</h4>
+          <p>
+            محرّك الضريبة مع الإعفاء التعليمي، ثم طبقة الفوترة بمُحوّل
+            <span class="ltr">JoFotara</span>، وربط <span class="ltr">eFAWATEERcom</span>.
+            سوقك البيتي وأرخص عملية بيع ودعم لديك.
+          </p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="when">٦ – ١٢<br>شهراً</div>
+        <div>
+          <h4>الإمارات ثم السعودية</h4>
+          <p>
+            مُحوّل <span class="ltr">Peppol</span> عبر مزوّد معتمد قبل يوليو
+            ٢٠٢٧، وتطبيق ولي الأمر والقبول الإلكتروني بالتوازي. وبعد نضوج الطبقة،
+            ادخل السعودية بفاتورة ونور ومدد والاستضافة المحلية.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>التسعير</h2>
+    <p class="h2sub">اختلاف القدرة الشرائية بين السوقين</p>
+    <p>
+      النموذج السائد اشتراك لكل طالب شهرياً ضمن مدى <span class="ltr num">$2 – $15</span>.
+      لا تسعّر السوقين بنفس الرقم:
+    </p>
+    <ul>
+      <li><b>الخليج</b> — <span class="ltr num">$6 – $10</span> لكل طالب شهرياً للباقة المتكاملة، مع رسوم تهيئة وتدريب منفصلة. عمق المحاسبة والمشتريات يبرّر الشريحة الأعلى.</li>
+      <li><b>الأردن</b> — <span class="ltr num">$2 – $4</span>، أو تسعير سنوي ثابت لكل مدرسة، لأن الحساسية السعرية أعلى وحجم المدارس أصغر.</li>
+      <li><b>عقود التخصيص</b> — سقف مفيد للتسعير في السعودية بين <span class="ltr num">SAR 90,000</span> و<span class="ltr num">450,000</span> حسب المدى.</li>
+    </ul>
+    <p class="note">
+      رسوم التهيئة والترحيل والتدريب هي مصدر الربح الحقيقي للموردين المحليين،
+      وليست الاشتراك. سعّرها منفصلة من اليوم الأول.
+    </p>
+  </section>
+
+  <footer>
+    <p>
+      بيانات الامتثال والسوق مجمّعة من مصادر منشورة حتى أغسطس ٢٠٢٦، وقد تتغيّر
+      المواعيد؛ يُؤكَّد كل التزام مع مستشار ضريبي محلي قبل الالتزام التعاقدي.
+      تقييم نظامنا مبني على فحص مباشر للشيفرة: لا حقول ضريبة، ولا مرجع للتقويم
+      الهجري، وبوابة الدفع مهيّأة لـ <span class="ltr">Stripe</span> وحدها.
+      تقديرات المدة اجتهادية وتفترض مطوّراً واحداً متفرغاً.
+    </p>
+    <ul>
+      <li><a href="https://vatit.com/e-invoicing-guide/jordan/">الفوترة الإلكترونية في الأردن — JoFotara</a></li>
+      <li><a href="https://www.flick.network/en-jo/e-invoicing-jordan-jofotara">مواعيد ومراحل JoFotara</a></li>
+      <li><a href="https://taxsummaries.pwc.com/jordan/corporate/other-taxes">ضريبة المبيعات الأردنية وإعفاء التعليم</a></li>
+      <li><a href="https://efawateercom.jo/about-us">eFAWATEERcom — نظام الدفع الوطني</a></li>
+      <li><a href="https://payleute.com/gcc-payroll-compliance-guide-2026/">حماية الأجور في دول الخليج الست</a></li>
+      <li><a href="https://financeinme.com/vat-qatar-kuwait-guide-2026.php">وضع الضريبة في قطر والكويت ٢٠٢٦</a></li>
+      <li><a href="https://tallysolutions.com/mena/uae-vat/uae-e-invoicing-timeline-2026-2027-complete-phase-by-phase-implementation-guide/">جدول الفوترة الإلكترونية في الإمارات</a></li>
+      <li><a href="https://www.bdo.ae/en-gb/insights/uae-e-invoicing-what-finance-leaders-should-prioritise-in-2026">نموذج Peppol الإماراتي ومزوّد الخدمة المعتمد</a></li>
+      <li><a href="https://www.fiscal-requirements.com/news/5453">موجات ZATCA ومواعيدها</a></li>
+      <li><a href="https://logiolegion.com/blogs/school-management-system-development-saudi-arabia-noor-sadad-pdpl">نور وسداد وحماية البيانات والتسعير السعودي</a></li>
+    </ul>
+  </footer>
+
+</div>
+
+</body></html>

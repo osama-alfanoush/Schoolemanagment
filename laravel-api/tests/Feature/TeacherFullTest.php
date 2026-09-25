@@ -20,7 +20,9 @@ class TeacherFullTest extends TestCase
     use RefreshDatabase;
 
     private User $teacher;
+
     private ClassRoom $class;
+
     private Subject $subject;
 
     protected function setUp(): void
@@ -31,6 +33,7 @@ class TeacherFullTest extends TestCase
         $this->class = ClassRoom::factory()->create(['homeroom_teacher_id' => $this->teacher->id]);
         // Link teacher to the class+subject so subject-scoped endpoints authorize.
         DB::table('class_subject_teacher')->insert([
+            'school_id' => $this->class->school_id,
             'class_room_id' => $this->class->id,
             'subject_id' => $this->subject->id,
             'teacher_user_id' => $this->teacher->id,

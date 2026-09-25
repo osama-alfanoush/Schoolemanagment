@@ -17,7 +17,9 @@ return new class extends Migration
             $t->string('account_code');
             $t->string('account_name');
             $t->decimal('amount', 12, 2);
-            $t->enum('source', ['manual', 'invoice', 'payroll', 'expense'])->default('manual');
+            // manual, invoice, payroll, expense, purchase, supplier_payment, installment
+            // String (not enum) so new sources don't require an ALTER SQLite can't do.
+            $t->string('source')->default('manual');
             $t->unsignedBigInteger('source_id')->nullable(); // FK to invoices or payroll_records
             $t->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $t->timestamps();

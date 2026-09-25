@@ -1,5 +1,5 @@
 import { useAuth } from "@/lib/auth";
-import { mediaUrl } from "@/lib/api";
+import { mediaUrl, profilePhotoUrl } from "@/lib/api";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { LogOut, User, KeyRound, Menu } from "lucide-react";
@@ -24,6 +24,16 @@ export default function TopBar({ title, onMenuClick }: TopBarProps) {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // Local auth state is cleared even if the server is unreachable.
+    } finally {
+      setLocation("/login", { replace: true });
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -46,7 +56,7 @@ export default function TopBar({ title, onMenuClick }: TopBarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30">
-              <BrandAvatar src={mediaUrl(user.photo_path)} name={user.name} variant={user.role} size="sm" />
+              <BrandAvatar src={profilePhotoUrl(user.id, user.photo_path)} name={user.name} variant={user.role} size="sm" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -80,8 +90,7 @@ export default function TopBar({ title, onMenuClick }: TopBarProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                void logout();
-                setLocation("/login");
+                void handleLogout();
               }}
               className="cursor-pointer flex items-center gap-2 text-brand-red focus:text-brand-red"
             >

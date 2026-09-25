@@ -1,0 +1,257 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "read": {
+                "checks": {
+                    "read 200": {
+                        "name": "read 200",
+                        "path": "::read::read 200",
+                        "id": "1008be7a3da7d6a79826568a8bfe31a6",
+                        "passes": 34795,
+                        "fails": 0
+                    }
+                },
+                "name": "read",
+                "path": "::read",
+                "id": "d1106446f368c9978534af4524a1a48a",
+                "groups": {}
+            }
+        },
+        "checks": {}
+    },
+    "metrics": {
+        "http_req_waiting": {
+            "min": 0,
+            "med": 1314.754591,
+            "p(50)": 1314.754591,
+            "p(95)": 19399.0986462,
+            "p(99)": 20690.841260319998,
+            "max": 23368.145788,
+            "avg": 2895.0741332867906
+        },
+        "data_received": {
+            "count": 159651939,
+            "rate": 897361.1322958274
+        },
+        "http_req_duration{phase:steady}": {
+            "med": 1315.650228,
+            "p(50)": 1315.650228,
+            "p(95)": 19404.540218599996,
+            "p(99)": 20691.545019439985,
+            "max": 23372.694665,
+            "avg": 2900.0920905164553,
+            "min": -20198.338639,
+            "thresholds": {
+                "p(95)<800": true,
+                "p(99)<1500": true
+            }
+        },
+        "http_req_failed{phase:steady}": {
+            "passes": 0,
+            "fails": 34795,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_req_connecting": {
+            "max": 27.732301,
+            "avg": 0.008888357522479816,
+            "min": 0,
+            "med": 0,
+            "p(50)": 0,
+            "p(95)": 0,
+            "p(99)": 0.2737817999999999
+        },
+        "group_duration": {
+            "p(99)": 3055.621877739997,
+            "max": 3612.281003,
+            "avg": 1345.89581469955,
+            "min": 31.124069,
+            "med": 1340.409324,
+            "p(50)": 1340.409324,
+            "p(95)": 2173.9039777
+        },
+        "vus_max": {
+            "value": 500,
+            "min": 500,
+            "max": 500
+        },
+        "dashboard_latency": {
+            "max": 23373,
+            "avg": 1288.7552234516454,
+            "min": -20691,
+            "med": 1316,
+            "p(50)": 1316,
+            "p(95)": 19404.299999999996,
+            "p(99)": 20692.29999999999
+        },
+        "http_reqs": {
+            "rate": 195.65214083673268,
+            "count": 34809
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(50)": 1315.313472,
+            "p(95)": 19404.3959372,
+            "p(99)": 20691.13455336,
+            "max": 23372.694665,
+            "avg": 2899.5730722987178,
+            "min": -20198.338639,
+            "med": 1315.313472
+        },
+        "iteration_duration": {
+            "max": 4612.790638,
+            "avg": 2347.6146694836816,
+            "min": 1031.685847,
+            "med": 2341.875863,
+            "p(50)": 2341.875863,
+            "p(95)": 3175.5885645999997,
+            "p(99)": 4056.683322539999
+        },
+        "iterations": {
+            "count": 34795,
+            "rate": 195.5734505562962
+        },
+        "checks": {
+            "passes": 34795,
+            "fails": 0,
+            "value": 1
+        },
+        "errors": {
+            "passes": 0,
+            "fails": 34795,
+            "value": 0
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 34809,
+            "value": 0
+        },
+        "http_req_tls_handshaking": {
+            "p(50)": 0,
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0
+        },
+        "login_latency": {
+            "med": 332.5,
+            "p(50)": 332.5,
+            "p(95)": 6697.649999999993,
+            "p(99)": 15994.729999999987,
+            "max": 18319,
+            "avg": 344.92857142857144,
+            "min": -17710
+        },
+        "vus": {
+            "value": 36,
+            "min": 0,
+            "max": 500
+        },
+        "http_req_duration": {
+            "avg": 2899.5730722987178,
+            "min": -20198.338639,
+            "med": 1315.313472,
+            "p(50)": 1315.313472,
+            "p(95)": 19404.3959372,
+            "p(99)": 20691.13455336,
+            "max": 23372.694665
+        },
+        "http_req_receiving": {
+            "p(50)": 0.187566,
+            "p(95)": 3.688465999999994,
+            "p(99)": 14.281898519999867,
+            "max": 18907.544151,
+            "avg": 4.44293786115662,
+            "min": -21683.030445,
+            "med": 0.187566
+        },
+        "http_req_sending": {
+            "max": 95.089443,
+            "avg": 0.05600115076560647,
+            "min": 0.006062,
+            "med": 0.025349,
+            "p(50)": 0.025349,
+            "p(95)": 0.11261059999999995,
+            "p(99)": 0.46713227999998835
+        },
+        "http_req_blocked": {
+            "min": 0.002364,
+            "med": 0.007765,
+            "p(50)": 0.007765,
+            "p(95)": 0.018340999999999986,
+            "p(99)": 0.4483475999999999,
+            "max": 18020.111847,
+            "avg": 0.5447015952483518
+        },
+        "data_sent": {
+            "count": 7798059,
+            "rate": 43830.81782645726
+        }
+    },
+    "setup_data": {
+        "sessions": [
+            {
+                "role": "student",
+                "token": "274|VzMSgiwZIos7MECDix0QrTzII6vBN25gXzCwqAPe5a585092"
+            },
+            {
+                "role": "student",
+                "token": "276|Wns32BcQeeeuwT5g3HwzFXoTikK0GXmiMnMaqbEE7dab9ffd"
+            },
+            {
+                "role": "student",
+                "token": "278|ShmJ2KdX8UGHnyRBCZqJ1fEK4CnQ3cE1YEj5xFdxcec39cdd"
+            },
+            {
+                "role": "student",
+                "token": "280|2orH7LlvCXFTuHJr89FyHy25RNy0Kqa93patQMN0170f4859"
+            },
+            {
+                "role": "student",
+                "token": "282|RL7mhHSWBP1oBVmnK1wuaoLzLVvlIY8YHc6NXEWPa532244d"
+            },
+            {
+                "role": "student",
+                "token": "284|zL49uDH3cniayrtBGBZ4XxQf3Shw7tlO5z7EMnUq31401c60"
+            },
+            {
+                "role": "teacher",
+                "token": "286|1ynZrX9PcN9cQQEKhWNr8oPLsw24Cejgfpd7es3Ya3c3aec5"
+            },
+            {
+                "role": "teacher",
+                "token": "288|rD3TFQrM6xV2lkPyFpdV8qPqwuBRLpMVDW0JVPNn97a25ca2"
+            },
+            {
+                "role": "teacher",
+                "token": "290|SNRQwPnIYd5BYvtjqNLRWFWXsEcA3ggqk0uFh4hI973aef70"
+            },
+            {
+                "token": "292|kQiUdRhxVpswd9Fzlhhu5VmWgQf9VGqXxoBeHURXdc1b044c",
+                "role": "teacher"
+            },
+            {
+                "role": "parent",
+                "token": "294|3WQ3BR0L6MPDyPSlNG52XCGBeZFP8A4oyH3TtcPO9f8789aa"
+            },
+            {
+                "role": "parent",
+                "token": "296|MrW36kLJ7vayfARlt2OyINKZ0BWCc9pBfDXsMDo7e6f0f3da"
+            },
+            {
+                "role": "parent",
+                "token": "298|YQGxThpe6Uj6MN0hdRe2t0LnNkW5NhfU1DfE6YBI8eff567a"
+            },
+            {
+                "token": "300|kuVj6RS2DEKYbGoL8QuxjE8PX02BLEEKoZdcqHTo991ad90b",
+                "role": "parent"
+            }
+        ]
+    }
+}

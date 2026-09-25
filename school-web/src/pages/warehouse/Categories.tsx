@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Warehouse, WarehouseCategory } from "@/lib/api";
 import PageHeader from "@/components/ui/PageHeader";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { toArray } from "@/lib/response";
 
 export default function Categories() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -28,12 +30,12 @@ export default function Categories() {
     }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["warehouse-categories"] });
-      toast({ title: "Category created" });
+      toast({ title: t("warehouse.categoryCreated") });
       setOpen(false);
       setForm({ name: "", description: "" });
     },
     onError: (e: unknown) =>
-      toast({ variant: "destructive", title: "Create failed", description: (e as Error)?.message }),
+      toast({ variant: "destructive", title: t("warehouse.createFailed"), description: (e as Error)?.message }),
   });
 
   const categories = toArray<WarehouseCategory>(data);
@@ -42,56 +44,56 @@ export default function Categories() {
     <div className="space-y-6">
       <PageHeader
         icon="CA"
-        title="Warehouse Categories"
-        subtitle="Group inventory items for cleaner stock tracking"
-        actions={<BrandButton variant="primary" onClick={() => setOpen(true)}>Add Category</BrandButton>}
+        title={t("warehouse.categoriesTitle")}
+        subtitle={t("warehouse.categoriesSubtitle")}
+        actions={<BrandButton variant="primary" onClick={() => setOpen(true)}>{t("warehouse.addCategory")}</BrandButton>}
       />
 
       <DataTable<WarehouseCategory>
-        title="Categories"
+        title={t("warehouse.categories")}
         columns={[
-          { key: "name", label: "Name", sortable: true },
-          { key: "description", label: "Description", render: (v) => v || "No description" },
-          { key: "items_count", label: "Items", align: "center", render: (v) => v ?? 0, sortable: true },
+          { key: "name", label: t("warehouse.nameLabel"), sortable: true },
+          { key: "description", label: t("warehouse.descriptionLabel"), render: (v) => v || t("warehouse.noDescription") },
+          { key: "items_count", label: t("warehouse.itemsCount"), align: "center", render: (v) => v ?? 0, sortable: true },
         ]}
         data={categories}
         isLoading={isLoading}
         error={(error as Error)?.message}
-        emptyMessage="No warehouse categories found."
+        emptyMessage={t("warehouse.noCategories")}
       />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Category</DialogTitle>
-            <DialogDescription>Create a category for warehouse inventory.</DialogDescription>
+            <DialogTitle>{t("warehouse.addCategory")}</DialogTitle>
+            <DialogDescription>{t("warehouse.newCategory")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label>Name</Label>
+              <Label>{t("warehouse.nameLabel")}</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Stationery"
+                placeholder={t("warehouse.itemNamePlaceholder")}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
+              <Label>{t("warehouse.descriptionLabel")}</Label>
               <Input
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Optional"
+                placeholder={t("warehouse.descriptionOptional")}
               />
             </div>
           </div>
           <DialogFooter>
-            <BrandButton variant="outline" onClick={() => setOpen(false)}>Cancel</BrandButton>
+            <BrandButton variant="outline" onClick={() => setOpen(false)}>{t("warehouse.cancel")}</BrandButton>
             <BrandButton
               variant="primary"
               onClick={() => createCategory.mutate()}
               disabled={createCategory.isPending || !form.name}
             >
-              {createCategory.isPending ? "Saving..." : "Save Category"}
+              {createCategory.isPending ? t("warehouse.saving") : t("warehouse.saveCategory")}
             </BrandButton>
           </DialogFooter>
         </DialogContent>

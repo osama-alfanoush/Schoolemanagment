@@ -10,9 +10,12 @@ class AttendanceRecord extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_user_id', 'class_room_id', 'subject_id', 'date', 'status', 'marked_by', 'note'];
+    protected $fillable = [
+        'student_user_id', 'class_room_id', 'subject_id', 'date', 'status', 'marked_by', 'note',
+        'student_enrollment_id', 'course_section_id', 'submission_batch_id', 'scope_key', 'version',
+    ];
 
-    protected $casts = ['date' => 'date'];
+    protected $casts = ['date' => 'date', 'version' => 'integer'];
 
     public function student(): BelongsTo
     {

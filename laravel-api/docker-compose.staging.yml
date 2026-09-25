@@ -1,0 +1,240 @@
+name: school-staging
+
+x-app: &app
+  image: school-staging-api:local
+  build:
+    context: .
+    dockerfile: Dockerfile.prod
+    args:
+      APP_RELEASE: "${APP_RELEASE:-unknown}"
+  env_file:
+    - ${STAGING_ENV_FILE:-.env.staging}
+  environment:
+    APP_ENV: staging
+    APP_DEBUG: "false"
+    LOG_CHANNEL: stderr
+    APP_RELEASE: "${APP_RELEASE:-unknown}"
+    FILESYSTEM_DISK: s3
+    UPLOADS_DRIVER: s3
+    # php-fpm pool, overridable so capacity experiments do not need a rebuild.
+    PM_MAX_CHILDREN: "${PM_MAX_CHILDREN:-20}"
+    PM_START_SERVERS: "${PM_START_SERVERS:-4}"
+    PM_MIN_SPARE: "${PM_MIN_SPARE:-2}"
+    PM_MAX_SPARE: "${PM_MAX_SPARE:-6}"
+    # Application traffic is pooled; schema changes are not. pgsql_direct
+    # bypasses PgBouncer because transaction pooling breaks session-scoped
+    # statements and CREATE INDEX CONCURRENTLY needs its own connection.
+    # Overridable so the pooler can be bypassed for an A/B measurement or to
+    # rule it out during an incident. Defaults to the pooled path.
+    DB_HOST: "${DB_APP_HOST:-pgbouncer}"
+    DB_PORT: "${DB_APP_PORT:-6432}"
+    DB_DIRECT_HOST: postgres
+    DB_DIRECT_PORT: "5432"
+  depends_on:
+    pgbouncer:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    minio-init:
+      condition: service_completed_successfully
+  restart: unless-stopped
+  networks:
+    - staging_net
+
+x-api-healthcheck: &api-healthcheck
+  test:
+    - CMD-SHELL
+    - >-
+      php -r '$$socket = @fsockopen("127.0.0.1", 9000, $$errno, $$error, 2);
+      exit($$socket ? 0 : 1);'
+  interval: 10s
+  timeout: 5s
+  retries: 12
+  start_period: 20s
+
+services:
+  nginx:
+    build:
+      context: ../school-web
+      dockerfile: Dockerfile.staging
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./nginx/staging.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./public:/var/www/public:ro
+    depends_on:
+      api1:
+        condition: service_healthy
+      api2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+  api1:
+    <<: *app
+    healthcheck: *api-healthcheck
+
+  api2:
+    <<: *app
+    healthcheck: *api-healthcheck
+
+  queue1:
+    <<: *app
+    command: php artisan queue:work redis --sleep=2 --tries=3 --backoff=5 --timeout=90 --max-time=3600
+    stop_grace_period: 2m
+
+  queue2:
+    <<: *app
+    command: php artisan queue:work redis --sleep=2 --tries=3 --backoff=5 --timeout=90 --max-time=3600
+    stop_grace_period: 2m
+
+  scheduler:
+    <<: *app
+    command: >-
+      sh -c 'while true; do
+      php artisan schedule:run --no-interaction;
+      sleep 60;
+      done'
+
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-school_staging}
+      POSTGRES_USER: ${DB_USERNAME:-school}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deploy/sql:/ops/sql:ro
+      - ./backups:/backups:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+  pgbouncer:
+    build:
+      context: ./deploy/pgbouncer
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      # Sized for this stack: 2 api replicas x 20 php-fpm children + 2 workers
+      # + scheduler + headroom, collapsing onto 25 real PostgreSQL backends.
+      PGB_MAX_CLIENT_CONN: "200"
+      PGB_DEFAULT_POOL_SIZE: "25"
+      PGB_MIN_POOL_SIZE: "5"
+      PGB_RESERVE_POOL_SIZE: "5"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+  redis:
+    image: redis:7.4-alpine
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    command: >-
+      sh -c 'exec redis-server
+      --requirepass "$$REDIS_PASSWORD"
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy noeviction'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:?AWS_ACCESS_KEY_ID is required}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:?AWS_SECRET_ACCESS_KEY is required}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    command: >-
+      -c 'mc alias set staging http://minio:9000 "$$AWS_ACCESS_KEY_ID" "$$AWS_SECRET_ACCESS_KEY";
+      mc mb --ignore-existing "staging/$$AWS_BUCKET";
+      mc mb --ignore-existing "staging/$$UPLOADS_AWS_BUCKET";
+      mc version enable "staging/$$AWS_BUCKET";
+      mc version enable "staging/$$UPLOADS_AWS_BUCKET";
+      mc anonymous set none "staging/$$AWS_BUCKET";
+      mc anonymous set download "staging/$$UPLOADS_AWS_BUCKET"'
+    restart: "no"
+    networks:
+      - staging_net
+
+  backup:
+    image: postgres:16-alpine
+    profiles: ["operations"]
+    env_file:
+      - ${STAGING_ENV_FILE:-.env.staging}
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    command: ["sh", "/ops/backup-container.sh"]
+    volumes:
+      - ./deploy/backup-container.sh:/ops/backup-container.sh:ro
+      - ./deploy/sql:/ops/sql:ro
+      - ./backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - staging_net
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  staging_net:
+    driver: bridge

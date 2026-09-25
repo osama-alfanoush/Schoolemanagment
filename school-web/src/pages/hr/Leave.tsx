@@ -44,14 +44,14 @@ export default function HrLeave() {
       Hr.reviewRequest(id, status, response.trim() || undefined),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["hr", "leave-requests"] });
-      toast({ title: "HR request reviewed" });
+      toast({ title: t("hrPages.requestReviewed") });
       setOpen(null);
       setResponse("");
     },
     onError: (error: any) => {
       toast({
-        title: "Review failed",
-        description: error?.message || "Please try again.",
+        title: t("hrPages.reviewFailed"),
+        description: error?.message || t("hrPages.tryAgain"),
         variant: "destructive",
       });
     },
@@ -69,11 +69,11 @@ export default function HrLeave() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Requester</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("hrPages.requester")}</TableHead>
+              <TableHead>{t("warehouse.type")}</TableHead>
+              <TableHead>{t("hrPages.duration")}</TableHead>
+              <TableHead>{t("hrPages.reason")}</TableHead>
+              <TableHead>{t("common.status")}</TableHead>
               <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -96,7 +96,7 @@ export default function HrLeave() {
                 return (
                   <TableRow key={req.id}>
                     <TableCell>
-                      <div className="font-medium">{requester?.name ?? "Unknown"}</div>
+                      <div className="font-medium">{requester?.name ?? t("hrPages.unknown")}</div>
                       {requester?.role && <div className="text-xs capitalize text-muted-foreground">{requester.role}</div>}
                     </TableCell>
                     <TableCell className="capitalize">{String(req.type || "").replaceAll("_", " ")}</TableCell>
@@ -107,7 +107,7 @@ export default function HrLeave() {
                           {days !== null && <span className="ms-2 text-xs text-muted-foreground">({days} days)</span>}
                         </>
                       ) : (
-                        <span className="text-muted-foreground">Not dated</span>
+                        <span className="text-muted-foreground">{t("hrPages.notDated")}</span>
                       )}
                     </TableCell>
                     <TableCell className="max-w-[260px] truncate" title={req.reason}>
@@ -135,10 +135,10 @@ export default function HrLeave() {
       <Dialog open={!!open} onOpenChange={(isOpen) => !isOpen && setOpen(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Review HR request</DialogTitle>
+            <DialogTitle>{t("hrPages.reviewRequest")}</DialogTitle>
             <DialogDescription>
               {open
-                ? `${open.requester?.name ?? open.teacher?.name ?? "Requester"} - ${String(open.type || "").replaceAll("_", " ")}`
+                ? `${open.requester?.name ?? open.teacher?.name ?? t("hrPages.requester")} - ${String(open.type || "").replaceAll("_", " ")}`
                 : ""}
             </DialogDescription>
           </DialogHeader>
@@ -151,13 +151,13 @@ export default function HrLeave() {
                 <span className="font-medium">Reason:</span> {open.reason}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="hr-response">Response to requester</Label>
+                <Label htmlFor="hr-response">{t("hrPages.responseToRequester")}</Label>
                 <Textarea
                   id="hr-response"
                   value={response}
                   onChange={(event) => setResponse(event.target.value)}
                   rows={3}
-                  placeholder="Optional note"
+                  placeholder={t("hrPages.optionalNote")}
                 />
               </div>
             </div>

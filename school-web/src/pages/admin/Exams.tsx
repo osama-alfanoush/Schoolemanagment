@@ -41,11 +41,11 @@ export default function AdminExams() {
       }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin", "exams"] });
-      toast({ title: "Exam created" });
+      toast({ title: t("adminPages.examCreated") });
       setOpen(false);
       setForm({ ...EMPTY });
     },
-    onError: (e: any) => toast({ variant: "destructive", title: "Failed", description: e?.data?.message ?? e?.message }),
+    onError: (e: any) => toast({ variant: "destructive", title: t("adminPages.failed"), description: e?.data?.message ?? e?.message }),
   });
 
   const valid = form.class_room_id && form.subject_id && form.title && form.exam_date && form.start_time && form.end_time;
@@ -64,9 +64,9 @@ export default function AdminExams() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Class</TableHead>
-              <TableHead>Subject</TableHead>
+              <TableHead>{t("teacherPages.title")}</TableHead>
+              <TableHead>{t("adminPages.classLabel")}</TableHead>
+              <TableHead>{t("adminPages.subject")}</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>Room</TableHead>
@@ -97,25 +97,25 @@ export default function AdminExams() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("common.create")} Exam</DialogTitle>
-            <DialogDescription>Schedule an exam for a class and subject.</DialogDescription>
+            <DialogDescription>{t("adminPages.scheduleExam")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="exam-title">Title</Label>
+              <Label htmlFor="exam-title">{t("teacherPages.title")}</Label>
               <Input id="exam-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Midterm — Algebra" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="exam-class">Class</Label>
+                <Label htmlFor="exam-class">{t("adminPages.classLabel")}</Label>
                 <select id="exam-class" className="w-full rounded-md border bg-background px-3 py-2 text-sm" value={form.class_room_id} onChange={(e) => setForm({ ...form, class_room_id: e.target.value })}>
-                  <option value="">Select…</option>
+                  <option value="">{t("adminPages.select")}</option>
                   {classes.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="exam-subject">Subject</Label>
+                <Label htmlFor="exam-subject">{t("adminPages.subject")}</Label>
                 <select id="exam-subject" className="w-full rounded-md border bg-background px-3 py-2 text-sm" value={form.subject_id} onChange={(e) => setForm({ ...form, subject_id: e.target.value })}>
-                  <option value="">Select…</option>
+                  <option value="">{t("adminPages.select")}</option>
                   {subjects.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
@@ -126,7 +126,7 @@ export default function AdminExams() {
                 <Input id="exam-date" type="date" value={form.exam_date} onChange={(e) => setForm({ ...form, exam_date: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="exam-start">Start</Label>
+                <Label htmlFor="exam-start">{t("adminPages.start")}</Label>
                 <Input id="exam-start" type="time" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
               </div>
               <div className="space-y-1.5">

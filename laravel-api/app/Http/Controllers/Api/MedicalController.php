@@ -59,7 +59,7 @@ class MedicalController extends Controller
             $query->whereHas('student', fn ($q) => $q->where('name', 'ilike', "%{$search}%"));
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function allVisits(Request $request)
@@ -74,7 +74,7 @@ class MedicalController extends Controller
             $query->where('parent_notified', false);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function createOrUpdateRecord(Request $request, int $studentId)

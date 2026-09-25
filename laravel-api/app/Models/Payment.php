@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    protected $fillable = ['invoice_id', 'amount', 'method', 'reference', 'recorded_by', 'paid_at', 'note'];
+    protected $fillable = ['invoice_id', 'payment_receipt_id', 'amount', 'method', 'reference', 'idempotency_key', 'idempotency_payload_hash', 'recorded_by', 'paid_at', 'note', 'status', 'reversed_at'];
 
-    protected $casts = ['paid_at' => 'datetime', 'amount' => 'decimal:2'];
+    protected $casts = ['paid_at' => 'datetime', 'reversed_at' => 'datetime', 'amount' => 'decimal:2'];
 
     public function invoice(): BelongsTo
     {
@@ -19,5 +19,10 @@ class Payment extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    public function receipt(): BelongsTo
+    {
+        return $this->belongsTo(PaymentReceipt::class, 'payment_receipt_id');
     }
 }

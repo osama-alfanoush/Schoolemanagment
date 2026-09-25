@@ -109,6 +109,7 @@ class ValidationTest extends TestCase
             'subject_id' => $subject->id,
         ]);
         DB::table('class_subject_teacher')->insert([
+            'school_id' => $classRoom->school_id,
             'class_room_id' => $classRoom->id,
             'subject_id' => $subject->id,
             'teacher_user_id' => $teacher->id,
@@ -141,6 +142,7 @@ class ValidationTest extends TestCase
             'subject_id' => $subject->id,
         ]);
         DB::table('class_subject_teacher')->insert([
+            'school_id' => $classRoom->school_id,
             'class_room_id' => $classRoom->id,
             'subject_id' => $subject->id,
             'teacher_user_id' => $teacher->id,

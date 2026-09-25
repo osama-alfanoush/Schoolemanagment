@@ -1,0 +1,123 @@
+# Render blueprint for the customer demo.
+#
+# Render is used here for one reason: it is the only option that still deploys a
+# Docker image with no payment method attached. Railway now restricts a new
+# workspace until a card is added, even for its trial credit.
+#
+# This deploys the same single-origin image as the Railway path -- the React
+# portal and the Laravel API behind one hostname, so the auth cookie stays
+# first-party and login works on iOS. See the header comment in Dockerfile.demo
+# for why that matters, and DEMO_DEPLOY.md for the whole runbook.
+#
+# Apply it from the Render dashboard: New -> Blueprint -> pick this repo and the
+# mobile/wave-0 branch. Render reads everything below; the only value it asks for
+# is APP_KEY, which is deliberately not committed.
+
+services:
+  - type: web
+    name: school-demo
+    runtime: docker
+    repo: https://github.com/osama-alfanoush/Schoolemanagment
+    branch: mobile/wave-0
+    # Frankfurt is the closest Render region to Jordan and the Gulf. The web
+    # service and the database must share a region to talk over the internal
+    # network, so both are pinned to it.
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./Dockerfile.demo
+    # The build context is the repo ROOT, not laravel-api/: the image needs
+    # school-web/ and laravel-api/ together to build the SPA and the API into
+    # one container.
+    dockerContext: .
+    healthCheckPath: /api/healthz
+    envVars:
+      # Not committed. Render prompts for this when the blueprint is applied.
+      # Generate with:
+      #   node -e "console.log('base64:'+require('crypto').randomBytes(32).toString('base64'))"
+      - key: APP_KEY
+        sync: false
+
+      # staging, NOT production. ops:preflight-env returns early outside
+      # production (PreflightEnvironment.php:30); in production it would refuse
+      # to boot here, and correctly so -- uploads sit on an ephemeral container
+      # filesystem with no object storage configured. Staging also gates
+      # RUN_SEED, which the entrypoint forbids in production.
+      - key: APP_ENV
+        value: staging
+
+      # Must be explicit: AppServiceProvider clamps debug off only when the
+      # environment is production, so in staging whatever is set is what runs.
+      - key: APP_DEBUG
+        value: "false"
+
+      - key: LOG_CHANNEL
+        value: stderr
+
+      - key: DB_CONNECTION
+        value: pgsql
+
+      # Laravel's ConfigurationUrlParser maps a postgres:// URL onto the pgsql
+      # driver, so Render's connection string can be used verbatim.
+      - key: DB_URL
+        fromDatabase:
+          name: school-demo-db
+          property: connectionString
+
+      # file, not database. The entrypoint runs `migrate --isolated`, which takes
+      # a cache lock BEFORE migrating; on a fresh database the cache table does
+      # not exist yet, so a database cache store cannot acquire that lock and the
+      # very first deploy dies.
+      - key: CACHE_STORE
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+
+      # Render's free plan has no background worker, so jobs run inline in the
+      # request instead of being queued into a void.
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+
+      # Must be explicit: this defaults to env('APP_ENV') === 'production'
+      # (config/web-auth.php:10), so in staging it would default to false and the
+      # auth cookie would lose its Secure flag.
+      - key: WEB_AUTH_COOKIE_SECURE
+        value: "true"
+
+      # Render terminates TLS at its edge, so the app only sees HTTPS through
+      # X-Forwarded-Proto. Without this it would believe every request is plain
+      # HTTP and refuse to send the Secure cookie it just set.
+      - key: TRUSTED_PROXIES
+        value: "*"
+
+      # The free instance has 512 MB. Dockerfile.demo already lowers this from
+      # the production default of 20, and it is lowered again here because each
+      # php-fpm child may grow to the 256 MB memory_limit.
+      - key: PM_MAX_CHILDREN
+        value: "3"
+
+      # Seeds the demo school -- users, classes, students, timetable, grades.
+      # DELETE THIS VARIABLE after the first successful deploy, or every restart
+      # re-seeds and discards whatever the customer entered.
+      - key: RUN_SEED
+        value: "true"
+
+      # SESSION_SAME_SITE and WEB_AUTH_COOKIE_SAME_SITE are deliberately left
+      # unset: the lax default is correct now that the portal and the API share
+      # an origin, and safer than none. CORS_ALLOWED_ORIGINS is unset for the
+      # same reason -- same-origin requests never trigger CORS.
+      #
+      # APP_URL is also unset, because the hostname is not known until Render has
+      # created the service. Nothing in the demo breaks without it: the portal
+      # calls a relative /api and mail goes to the log. Set it to the real URL
+      # afterwards if emailed links need to be correct.
+
+databases:
+  - name: school-demo-db
+    plan: free
+    region: frankfurt
+    # Reachable only from services inside this Render region, never the public
+    # internet.
+    ipAllowList: []

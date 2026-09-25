@@ -57,8 +57,8 @@ export default function TeacherClasses() {
                   <span className="font-medium">{getStudentCount(cls)}</span>
                 </div>
                 <div className="flex space-x-2 rtl:space-x-reverse pt-2">
-                  <BrandButton variant="outline" className="w-full flex-1">Roster</BrandButton>
-                  <BrandButton className="w-full flex-1">Attendance</BrandButton>
+                  <BrandButton variant="outline" className="w-full flex-1">{t("teacherPages.roster")}</BrandButton>
+                  <BrandButton className="w-full flex-1">{t("teacherPages.attendance")}</BrandButton>
                 </div>
               </CardContent>
             </BrandCard>)}

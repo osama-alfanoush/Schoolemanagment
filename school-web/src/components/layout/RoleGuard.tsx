@@ -13,7 +13,15 @@ export function RoleGuard({ roles, children }: RoleGuardProps) {
   const [, setLocation] = useLocation();
 
   const ok = !!user && roles.includes(user.role);
-  const redirectTo = !user ? "/login" : !ok ? `/${user.role}` : null;
+  // Users flagged for a forced password change may not enter any portal
+  // route until they set a new password.
+  const redirectTo = !user
+    ? "/login"
+    : user.must_change_password
+      ? "/change-password"
+      : !ok
+        ? `/${user.role}`
+        : null;
 
   useEffect(() => {
     if (loading) return;
@@ -31,7 +39,7 @@ export function RoleGuard({ roles, children }: RoleGuardProps) {
     );
   }
 
-  if (!ok) return null;
+  if (!ok || redirectTo) return null;
 
   return <>{children}</>;
 }

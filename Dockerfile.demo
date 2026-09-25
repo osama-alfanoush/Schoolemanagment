@@ -1,0 +1,179 @@
+# syntax=docker/dockerfile:1
+#
+# Single-origin demo image: the React portal and the Laravel API on ONE Railway
+# service, one URL, one certificate.
+#
+# Why this exists alongside Dockerfile.railway
+# --------------------------------------------
+# Dockerfile.railway serves the API only; the portal is published separately to
+# GitHub Pages. That split makes the browser's auth cookie a THIRD-PARTY cookie
+# (portal on github.io, API on up.railway.app), and the web client authenticates
+# exclusively by cookie -- it sends `X-Auth-Mode: cookie` with
+# `credentials: "include"` and has no bearer-token path (school-web/src/lib/api.ts).
+# Safari and every WebKit browser, which is every browser on iOS, block
+# third-party cookies outright, so login fails there and nowhere else.
+#
+# Serving both from one origin makes that cookie first-party, so SameSite=Lax is
+# enough and login behaves identically on every device. It also removes CORS from
+# the picture and halves the number of billable Railway services.
+#
+# BUILD CONTEXT IS THE REPO ROOT, not laravel-api/. Set the Railway service's
+# Root Directory to the repository root and its config path to railway.demo.json.
+#
+# The PHP stages are deliberately a mirror of Dockerfile.railway's. Change one
+# and change the other.
+
+##############################################################################
+# Stage 1 -- web: build the SPA.                                             #
+#                                                                            #
+# No VITE_API_BASE_URL and no BASE_PATH are set, and that is the whole trick:  #
+# api.ts falls back to a relative "/api" and vite.config.ts falls back to a    #
+# base of "/", which is exactly right when nginx serves both from one origin.  #
+# Setting either to an absolute URL would reintroduce the cross-site cookie    #
+# this image exists to avoid.                                                 #
+##############################################################################
+FROM node:20-alpine AS web
+
+WORKDIR /app
+
+# Manifests first so a source edit does not invalidate the npm layer.
+COPY school-web/package.json school-web/package-lock.json ./
+RUN npm ci
+
+COPY school-web/ ./
+RUN npm run build && test -f dist/public/index.html
+
+##############################################################################
+# Stage 2 -- builder: resolve Composer dependencies against the same PHP ABI #
+# as the runtime so compiled-extension platform requirements match exactly.  #
+##############################################################################
+FROM php:8.2-fpm-alpine AS builder
+
+ARG PHPREDIS_VERSION=6.2.0
+ARG PHPREDIS_SHA256=470333b27cbf9485d36b610b81300c06491a6575f22c6801a9cefc55285ed123
+
+RUN apk add --no-cache postgresql-dev libzip-dev libxml2-dev curl-dev zip unzip $PHPIZE_DEPS && \
+    curl -fsSL "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" -o /tmp/phpredis.tar.gz && \
+    echo "${PHPREDIS_SHA256}  /tmp/phpredis.tar.gz" | sha256sum -c - && \
+    mkdir /tmp/phpredis && \
+    tar -xzf /tmp/phpredis.tar.gz -C /tmp/phpredis --strip-components=1 && \
+    cd /tmp/phpredis && phpize && ./configure && make -j"$(nproc)" && make install && \
+    docker-php-ext-enable redis && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache simplexml curl && \
+    rm -rf /tmp/phpredis /tmp/phpredis.tar.gz
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+COPY laravel-api/composer.json laravel-api/composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist \
+    --no-scripts --no-autoloader
+
+COPY laravel-api/ ./
+# The repo's .gitignore excludes bootstrap/cache and parts of storage/, so a
+# clean checkout (Railway's build context) lacks them -- recreate the runtime
+# tree before artisan runs, because package discovery needs bootstrap/cache.
+RUN mkdir -p bootstrap/cache \
+             storage/framework/cache/data \
+             storage/framework/sessions \
+             storage/framework/views \
+             storage/logs \
+             storage/app/public && \
+    composer dump-autoload --no-dev --optimize --classmap-authoritative && \
+    composer run-script post-autoload-dump --no-interaction
+
+##############################################################################
+# Stage 3 -- runtime: php-fpm + nginx + supervisord, plus the built SPA.     #
+##############################################################################
+FROM php:8.2-fpm-alpine AS runtime
+
+ARG PHPREDIS_VERSION=6.2.0
+ARG PHPREDIS_SHA256=470333b27cbf9485d36b610b81300c06491a6575f22c6801a9cefc55285ed123
+
+RUN apk add --no-cache postgresql-libs libzip libxml2 curl nginx supervisor gettext && \
+    apk add --no-cache --virtual .build-deps postgresql-dev libzip-dev libxml2-dev curl-dev $PHPIZE_DEPS && \
+    curl -fsSL "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" -o /tmp/phpredis.tar.gz && \
+    echo "${PHPREDIS_SHA256}  /tmp/phpredis.tar.gz" | sha256sum -c - && \
+    mkdir /tmp/phpredis && \
+    tar -xzf /tmp/phpredis.tar.gz -C /tmp/phpredis --strip-components=1 && \
+    cd /tmp/phpredis && phpize && ./configure && make -j"$(nproc)" && make install && \
+    docker-php-ext-enable redis && \
+    docker-php-ext-install pdo_pgsql pcntl bcmath zip opcache simplexml curl && \
+    rm -rf /tmp/phpredis /tmp/phpredis.tar.gz && \
+    apk del .build-deps
+
+RUN { \
+      echo "opcache.enable=1"; \
+      echo "opcache.enable_cli=1"; \
+      echo "opcache.memory_consumption=256"; \
+      echo "opcache.max_accelerated_files=20000"; \
+      echo "opcache.validate_timestamps=0"; \
+      echo "opcache.interned_strings_buffer=16"; \
+    } > /usr/local/etc/php/conf.d/opcache.ini
+
+RUN { \
+      echo "expose_php=Off"; \
+      echo "display_errors=Off"; \
+      echo "display_startup_errors=Off"; \
+      echo "log_errors=On"; \
+      echo "error_log=/dev/stderr"; \
+      echo "memory_limit=256M"; \
+      echo "upload_max_filesize=20M"; \
+      echo "post_max_size=21M"; \
+    } > /usr/local/etc/php/conf.d/zz-hardening.ini
+
+RUN { \
+      echo "[www]"; \
+      echo "listen = 127.0.0.1:9000"; \
+      echo "pm = dynamic"; \
+      echo "pm.max_children = \${PM_MAX_CHILDREN}"; \
+      echo "pm.start_servers = \${PM_START_SERVERS}"; \
+      echo "pm.min_spare_servers = \${PM_MIN_SPARE}"; \
+      echo "pm.max_spare_servers = \${PM_MAX_SPARE}"; \
+      echo "pm.max_requests = 500"; \
+      echo "pm.status_path = /fpm-status"; \
+      echo "request_terminate_timeout = 60s"; \
+      echo "catch_workers_output = yes"; \
+      echo "decorate_workers_output = no"; \
+      echo "clear_env = no"; \
+      echo "access.log = /dev/null"; \
+    } > /usr/local/etc/php-fpm.d/zz-pool.conf
+
+# Sized for a demo container, not for production load. Dockerfile.railway
+# defaults to 20 children, which at a 256M memory_limit each would be
+# OOM-killed on a small Railway instance long before it became useful.
+ENV PM_MAX_CHILDREN=6 \
+    PM_START_SERVERS=2 \
+    PM_MIN_SPARE=1 \
+    PM_MAX_SPARE=3 \
+    PROCESS_ROLE=web
+
+WORKDIR /var/www
+
+COPY --from=builder --chown=www-data:www-data /var/www /var/www
+
+# The SPA. Kept OUTSIDE /var/www/public so it can never shadow Laravel's
+# index.php front controller; the nginx template points `location /` here.
+COPY --from=web --chown=www-data:www-data /app/dist/public /var/www/frontend
+
+# The demo server block replaces the API-only one at the path the shared
+# entrypoint renders, so docker/railway-entrypoint.sh needs no change.
+COPY --chown=www-data:www-data laravel-api/docker/nginx-railway-http.conf /etc/nginx/nginx.conf
+COPY --chown=www-data:www-data laravel-api/docker/nginx-demo.conf.template /etc/nginx/templates/default.conf.template
+COPY --chown=www-data:www-data laravel-api/docker/supervisord-web.conf /etc/supervisor/supervisord.conf
+
+RUN mkdir -p /tmp/nginx /etc/nginx/http.d /var/lib/nginx/logs && \
+    ln -sf /dev/stderr /var/lib/nginx/logs/error.log && \
+    chown -R www-data:www-data /tmp/nginx /etc/nginx/http.d /var/lib/nginx && \
+    chmod +x docker/railway-entrypoint.sh && \
+    chmod -R 775 storage bootstrap/cache
+
+ARG APP_RELEASE=demo
+ENV APP_RELEASE=${APP_RELEASE}
+
+USER www-data
+
+EXPOSE 8080
+
+CMD ["sh", "docker/railway-entrypoint.sh"]

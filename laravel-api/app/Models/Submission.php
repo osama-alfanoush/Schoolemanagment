@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Submission extends Model
 {
-    protected $fillable = ['assignment_id', 'student_user_id', 'content_text', 'file_path', 'submitted_at', 'status', 'score', 'feedback', 'graded_by'];
+    protected $fillable = ['assignment_id', 'student_user_id', 'content_text', 'file_path', 'submitted_at', 'status', 'score', 'feedback', 'graded_by', 'idempotency_key'];
 
     protected $casts = ['submitted_at' => 'datetime', 'score' => 'decimal:2'];
 

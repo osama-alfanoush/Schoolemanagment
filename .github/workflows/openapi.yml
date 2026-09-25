@@ -1,0 +1,61 @@
+name: OpenAPI contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  openapi:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: laravel-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, sqlite3
+          coverage: none
+
+      # bootstrap/cache and storage/ are gitignored by design and the images
+      # create them at build time (Dockerfile.railway). CI must too: without
+      # bootstrap/cache, package discovery fails before a single test runs.
+      - name: Create Laravel runtime directories
+        run: mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/framework/testing storage/logs storage/app/public
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Scramble reads column types from the schema and the title from
+      # APP_NAME, so generation needs the example environment and a migrated
+      # database. Without them it tries the default pgsql connection and
+      # crashes. SQLite and PostgreSQL produce the same document.
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/openapi.sqlite
+          php artisan migrate --force --no-interaction
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ${{ github.workspace }}/laravel-api/database/openapi.sqlite
+
+      - name: Regenerate OpenAPI contract
+        run: php artisan openapi:generate
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ${{ github.workspace }}/laravel-api/database/openapi.sqlite
+
+      - name: Reject contract drift
+        run: git diff --exit-code -- openapi.yaml
+
+      - name: Validate OpenAPI 3.1 document
+        run: npx --yes @redocly/cli@2.49.0 lint openapi.yaml

@@ -1,0 +1,95 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit;
+
+use App\Services\Mobile\MobileMoney;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+use Tests\Unit\Concerns\ReadsMoneyColumns;
+
+/**
+ * The wire's declared scale and the database's actual scale cannot drift.
+ *
+ * The mobile API tells every client how many decimals a money value has. If
+ * that number is larger than the column can store, the app renders precision
+ * the server never had — a parent sees 33.334 JOD on an amount the database
+ * rounded to 33.33, and believes the extra digit. That is a contract lie, and
+ * it is the defect this file exists to prevent recurring.
+ *
+ * The columns are read out of the migrations rather than out of a constant,
+ * so widening a column without moving `MobileMoney::decimals()` fails here,
+ * and moving `MobileMoney::decimals()` without widening the columns fails too.
+ *
+ * @see docs/finance/money-precision-audit.md
+ */
+final class MoneyColumnScaleTest extends TestCase
+{
+    use ReadsMoneyColumns;
+
+    #[Test]
+    public function every_money_column_has_the_scale_the_wire_declares(): void
+    {
+        $declared = MobileMoney::decimals();
+        $wrong = [];
+
+        foreach ($this->moneyColumns() as [$table, $column, $precision, $scale, $where]) {
+            if ($scale !== $declared) {
+                $wrong[] = "{$table}.{$column} is decimal({$precision},{$scale}) at {$where}";
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $wrong,
+            "The mobile API declares {$declared} decimals, but these money columns disagree.\n".
+            "Either the columns moved and MobileMoney::decimals() did not, or the reverse.\n".
+            implode("\n", $wrong)
+        );
+    }
+
+    #[Test]
+    public function the_inventory_actually_found_the_money_columns(): void
+    {
+        // Without this, a change to the migration format would empty the list
+        // above and the scale test would pass by finding nothing to check —
+        // the quiet way a guard stops guarding.
+        $columns = $this->moneyColumns();
+
+        $this->assertGreaterThan(
+            50,
+            count($columns),
+            'Expected the migrations to yield the known money columns; the parser found almost none, '.
+            'which means it has stopped matching the schema rather than that the schema shrank.'
+        );
+
+        $tables = array_unique(array_column($columns, 0));
+        foreach (['invoices', 'payments', 'installments', 'journal_entries', 'payroll_records'] as $expected) {
+            $this->assertContains(
+                $expected,
+                $tables,
+                "The parser did not find {$expected}, so it is no longer reading the schema correctly."
+            );
+        }
+    }
+
+    #[Test]
+    public function a_value_the_columns_cannot_hold_is_refused_rather_than_rounded(): void
+    {
+        // The other half of the contract: the wire declares 2, so a value
+        // carrying a third decimal must be refused, not silently truncated.
+        // Truncating here is exactly how a fil goes missing without a trace.
+        $this->expectExceptionMessage('more precision than 2 decimals allows');
+
+        MobileMoney::toMinor('12.505', MobileMoney::decimals());
+    }
+
+    #[Test]
+    public function a_storable_value_survives_the_round_trip_exactly(): void
+    {
+        $this->assertSame(1250, MobileMoney::toMinor('12.50', MobileMoney::decimals()));
+        $this->assertSame(1250, MobileMoney::toMinor('12.5', MobileMoney::decimals()));
+        $this->assertSame(-1250, MobileMoney::toMinor('-12.50', MobileMoney::decimals()));
+    }
+}

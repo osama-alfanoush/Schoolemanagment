@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, Redirect } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { Role } from "@/lib/api";
+import { ApiError, Auth, AuthUser, MfaEnrollmentResponse, MfaRequiredResponse, Role } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff, ArrowRight, Loader2, Mail, Lock, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -15,9 +15,10 @@ const roles: { key: Role; emoji: string; labelKey: string }[] = [
   { key: "finance", emoji: "💰", labelKey: "roles.finance" },
   { key: "hr", emoji: "👥", labelKey: "roles.hr" },
   { key: "warehouse", emoji: "📦", labelKey: "roles.warehouse" },
+  { key: "procurement", emoji: "🛒", labelKey: "roles.procurement" },
 ];
 
-const demoCredentials: Record<Role, { email: string; password: string }> = {
+const demoCredentials: Record<Role, { email: string; password: string }> | null = import.meta.env.DEV ? {
   student: { email: "ali1@school.test", password: "password" },
   parent: { email: "parent1@school.test", password: "password" },
   teacher: { email: "teacher1@school.test", password: "password" },
@@ -25,9 +26,21 @@ const demoCredentials: Record<Role, { email: string; password: string }> = {
   finance: { email: "finance@school.test", password: "password" },
   hr: { email: "hr@school.test", password: "password" },
   warehouse: { email: "warehouse@school.test", password: "password" },
-};
+  procurement: { email: "procurement@school.test", password: "password" },
+} : null;
 
-const demoEmails = new Set(Object.values(demoCredentials).map((d) => d.email));
+const demoEmails = new Set(Object.values(demoCredentials ?? {}).map((d) => d.email));
+
+function loginErrorMessage(error: unknown, invalidCredentials: string): string {
+  // The login endpoint intentionally returns the generic top-level
+  // "Validation failed" envelope. Translate authentication failures into a
+  // useful, safe message without exposing which half of the credential pair
+  // was incorrect.
+  if (error instanceof ApiError && (error.status === 401 || error.status === 422)) {
+    return invalidCredentials;
+  }
+  return error instanceof Error ? error.message : invalidCredentials;
+}
 
 /* ─── School illustration (pure CSS/SVG) ─── */
 function SchoolIllustration() {
@@ -88,7 +101,7 @@ function SchoolIllustration() {
 
 /* ─── Main LoginPage ─── */
 export default function LoginPage() {
-  const { login, user } = useAuth();
+  const { login, user, completeMfa, acceptMfaSession } = useAuth();
   const [, setLocation] = useLocation();
   const { t } = useTranslation();
 
@@ -99,12 +112,18 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showDemo, setShowDemo] = useState(false);
+  const [mfa, setMfa] = useState<MfaRequiredResponse | null>(null);
+  const [mfaEnrollment, setMfaEnrollment] = useState<MfaEnrollmentResponse | null>(null);
+  const [mfaValue, setMfaValue] = useState("");
+  const [useRecovery, setUseRecovery] = useState(false);
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [pendingUser, setPendingUser] = useState<AuthUser | null>(null);
 
   // Slide-in animation trigger
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  if (user) return <Redirect to={`/${user.role}`} />;
+  if (user) return <Redirect to={user.must_change_password ? "/change-password" : `/${user.role}`} />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,15 +131,51 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const u = await login(email, password);
-      setLocation(`/${u.role}`);
-    } catch (err: any) {
-      setError(err?.message || t("login.invalidCredentials"));
+      setLocation(u.must_change_password ? "/change-password" : `/${u.role}`);
+    } catch (err: unknown) {
+      const challenge = typeof err === "object" && err !== null && "challenge" in err
+        ? (err as { challenge: MfaRequiredResponse }).challenge
+        : null;
+      if (challenge?.mfa_required) {
+        setMfa(challenge);
+        if (challenge.mfa_enrollment_required) {
+          try {
+            setMfaEnrollment(await Auth.mfaEnroll(challenge.mfa_token));
+          } catch (enrollmentError) {
+            setError(enrollmentError instanceof Error ? enrollmentError.message : "Unable to start MFA enrollment");
+          }
+        }
+      } else {
+        setError(loginErrorMessage(err, t("login.invalidCredentials")));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfa) return;
+    setError("");
+    setIsLoading(true);
+    try {
+      const result = await completeMfa(mfa, mfaValue, useRecovery);
+      if (result.recoveryCodes.length > 0) {
+        setRecoveryCodes(result.recoveryCodes);
+        setPendingUser(result.user);
+      } else {
+        acceptMfaSession(result.user);
+        setLocation(result.user.must_change_password ? "/change-password" : `/${result.user.role}`);
+      }
+    } catch (mfaError) {
+      setError(mfaError instanceof Error ? mfaError.message : "Invalid authentication code");
     } finally {
       setIsLoading(false);
     }
   };
 
   const fillDemo = (r: Role) => {
+    if (!demoCredentials) return;
     const d = demoCredentials[r];
     setEmail(d.email);
     setPassword(d.password);
@@ -129,12 +184,57 @@ export default function LoginPage() {
 
   const selectRole = (r: Role) => {
     setRole(r);
-    if (!email || demoEmails.has(email)) {
+    if (demoCredentials && (!email || demoEmails.has(email))) {
       const d = demoCredentials[r];
       setEmail(d.email);
       setPassword(d.password);
     }
   };
+
+  if (recoveryCodes.length > 0 && pendingUser) {
+    return (
+      <div className="min-h-screen bg-surface-bg flex items-center justify-center p-6">
+        <div className="w-full max-w-lg rounded-2xl bg-card border border-border p-8 shadow-xl">
+          <h1 className="text-2xl font-bold">Save your recovery codes</h1>
+          <p className="text-muted-foreground mt-2">Each code works once. Store them in a secure password manager; they will not be shown again.</p>
+          <div className="grid grid-cols-2 gap-2 my-6 font-mono text-sm">
+            {recoveryCodes.map((code) => <div key={code} className="rounded bg-muted p-3 text-center">{code}</div>)}
+          </div>
+          <button className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold" onClick={() => acceptMfaSession(pendingUser)}>
+            I have saved these codes
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mfa) {
+    return (
+      <div className="min-h-screen bg-surface-bg flex items-center justify-center p-6">
+        <form onSubmit={(event) => { void handleMfa(event); }} className="w-full max-w-md rounded-2xl bg-card border border-border p-8 shadow-xl">
+          <h1 className="text-2xl font-bold">Multi-factor authentication</h1>
+          {mfa.mfa_enrollment_required && mfaEnrollment ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm text-muted-foreground">Add this account to your authenticator app, then enter its six-digit code.</p>
+              <div className="rounded bg-muted p-3 font-mono text-sm break-all">{mfaEnrollment.secret}</div>
+              <a className="text-sm text-primary underline" href={mfaEnrollment.otpauth_url}>Open in authenticator app</a>
+            </div>
+          ) : (
+            <button type="button" className="mt-4 text-sm text-primary underline" onClick={() => { setUseRecovery((value) => !value); setMfaValue(""); }}>
+              {useRecovery ? "Use authenticator code" : "Use a recovery code"}
+            </button>
+          )}
+          <label className="block mt-6 text-sm font-medium">{useRecovery ? "Recovery code" : "Authentication code"}</label>
+          <input value={mfaValue} onChange={(e) => setMfaValue(e.target.value)} inputMode={useRecovery ? "text" : "numeric"} maxLength={useRecovery ? 11 : 6} className="mt-2 w-full rounded-lg border border-border bg-background px-4 py-3 font-mono tracking-widest" required />
+          {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+          <button disabled={isLoading} className="mt-6 w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold disabled:opacity-50">
+            {isLoading ? "Verifying…" : "Verify"}
+          </button>
+          <button type="button" className="mt-3 w-full text-sm text-muted-foreground" onClick={() => { setMfa(null); setMfaEnrollment(null); setError(""); }}>Cancel</button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -178,21 +278,21 @@ export default function LoginPage() {
           </div>
 
           {/* Role selector */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div data-testid="role-selector" className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {roles.map((r) => (
               <button
                 key={r.key}
                 type="button"
                 onClick={() => selectRole(r.key)}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200",
+                  "min-h-10 min-w-0 flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl text-xs sm:text-sm font-medium leading-tight transition-all duration-200",
                   role === r.key
                     ? "gradient-purple text-white shadow-glow"
                     : "bg-card border border-surface-border text-ink-muted hover:border-brand-purple/40"
                 )}
               >
                 <span>{r.emoji}</span>
-                <span>{t(r.labelKey)}</span>
+                <span className="text-center">{t(r.labelKey)}</span>
               </button>
             ))}
           </div>
@@ -290,7 +390,7 @@ export default function LoginPage() {
           )}
 
           {/* Demo credentials */}
-          <div className="text-center">
+          {demoCredentials && <div className="text-center">
             <button
               type="button"
               onClick={() => setShowDemo(!showDemo)}
@@ -319,7 +419,7 @@ export default function LoginPage() {
                 </div>
               </div>
             )}
-          </div>
+          </div>}
         </div>
       </div>
     </div>

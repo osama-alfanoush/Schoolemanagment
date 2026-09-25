@@ -52,6 +52,7 @@ class GradeTest extends TestCase
         ]);
 
         DB::table('class_subject_teacher')->insert([
+            'school_id' => $this->classRoom->school_id,
             'class_room_id' => $this->classRoom->id,
             'subject_id' => $this->subject->id,
             'teacher_user_id' => $this->teacher->id,
@@ -164,5 +165,26 @@ class GradeTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['student_user_id']);
+    }
+
+    public function test_stale_grade_version_returns_conflict_and_preserves_history(): void
+    {
+        $grade = Grade::factory()->create([
+            'student_user_id' => $this->student->id,
+            'grade_component_id' => $this->component->id,
+            'score' => 70,
+            'entered_by' => $this->teacher->id,
+            'version' => 2,
+        ]);
+
+        $this->actingAs($this->teacher)->postJson('/api/teacher/grades', [
+            'student_user_id' => $this->student->id,
+            'grade_component_id' => $this->component->id,
+            'score' => 90,
+            'version' => 1,
+            'reason' => 'Correction',
+        ])->assertConflict();
+
+        $this->assertSame('70.00', $grade->fresh()->score);
     }
 }

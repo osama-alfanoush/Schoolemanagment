@@ -17,7 +17,8 @@ class WarehouseService
     public function applyMovement(WarehouseItem $item, array $data, User $actor): StockMovement
     {
         return DB::transaction(function () use ($item, $data, $actor) {
-            $qtyBefore = $item->current_qty;
+            $lockedItem = WarehouseItem::query()->lockForUpdate()->findOrFail($item->id);
+            $qtyBefore = $lockedItem->current_qty;
 
             $delta = in_array($data['movement_type'], ['in', 'return'])
                 ? +$data['quantity']
@@ -31,20 +32,20 @@ class WarehouseService
 
             $movement = StockMovement::create([
                 ...$data,
-                'item_id' => $item->id,
+                'item_id' => $lockedItem->id,
                 'qty_before' => $qtyBefore,
                 'qty_after' => $qtyAfter,
                 'performed_by' => $actor->id,
                 'movement_date' => now(),
             ]);
 
-            $item->update(['current_qty' => $qtyAfter]);
+            $lockedItem->update(['current_qty' => $qtyAfter]);
 
-            if ($qtyAfter <= $item->min_stock_qty && $qtyBefore > $item->min_stock_qty) {
-                $this->fireLowStockAlert($item);
+            if ($qtyAfter <= $lockedItem->min_stock_qty && $qtyBefore > $lockedItem->min_stock_qty) {
+                DB::afterCommit(fn () => $this->fireLowStockAlert($lockedItem->fresh()));
             }
 
-            AuditLogger::log(request(), 'warehouse_movement', 'WarehouseItem', $item->id, [], $actor->id);
+            AuditLogger::log(request(), 'warehouse_movement', 'WarehouseItem', $lockedItem->id, [], $actor->id);
 
             return $movement;
         });
@@ -54,6 +55,7 @@ class WarehouseService
     {
         $recipientIds = User::whereIn('role', ['warehouse', 'admin'])
             ->where('is_active', true)
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', app(CurrentSchool::class)->id()))
             ->pluck('id')
             ->toArray();
 

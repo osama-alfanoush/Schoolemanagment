@@ -11,7 +11,12 @@ class GradeComponent extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['class_room_id', 'subject_id', 'semester_id', 'name', 'type', 'weight', 'max_score'];
+    protected $fillable = ['class_room_id', 'subject_id', 'semester_id', 'gradebook_id', 'grading_period_id', 'name', 'type', 'weight', 'max_score'];
+
+    public function gradebook(): BelongsTo
+    {
+        return $this->belongsTo(Gradebook::class);
+    }
 
     protected $casts = ['weight' => 'decimal:2', 'max_score' => 'decimal:2'];
 

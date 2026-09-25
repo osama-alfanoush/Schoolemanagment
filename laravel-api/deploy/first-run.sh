@@ -40,10 +40,11 @@ bash deploy/copy-frontend.sh
 
 echo "⏳ Waiting for services..."
 sleep 10
-curl -s http://localhost/api/health | python3 -m json.tool || echo "⚠️  Health check failed — check logs"
+curl --fail --silent --show-error http://localhost/api/healthz | python3 -m json.tool
+$COMPOSE exec -T api1 php artisan ops:smoke --json
 
 echo ""
 echo "=== First run complete ==="
 echo "   App:     \$APP_URL"
-echo "   MinIO:   tunnel to 127.0.0.1:9001 (console is not exposed publicly)"
+echo "   Admin:   deploy/prod-up.sh exec api1 php artisan school:provision-admin you@example.com --school=1"
 echo "   Logs:    deploy/prod-up.sh logs -f"

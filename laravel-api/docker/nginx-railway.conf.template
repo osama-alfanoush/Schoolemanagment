@@ -1,0 +1,128 @@
+# nginx front end for the single-container Railway "web" role.
+#
+# Rendered by docker/railway-entrypoint.sh with envsubst because Railway injects
+# $PORT at container start and nginx cannot read environment variables in its
+# configuration. Only ${PORT} is substituted; every other $variable below is an
+# nginx runtime variable and is escaped in the entrypoint's envsubst call.
+#
+# This container serves the API only. The React portal is built and published
+# separately (GitHub Pages / a static host), so there is no SPA fallback here.
+
+# Rate limits are per client IP. Behind Railway's edge the peer address is the
+# proxy, so $binary_remote_addr is only meaningful once real_ip_header has
+# rewritten it from X-Forwarded-For — see the set_real_ip_from block below.
+limit_req_zone $binary_remote_addr zone=login:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=api:10m   rate=600r/m;
+
+server {
+    listen ${PORT};
+    server_name _;
+    limit_req_status 429;
+
+    root /var/www/public;
+    index index.php;
+
+    # Railway terminates TLS at its edge and forwards over the private network.
+    # The container is not publicly routable, so the immediate peer is always
+    # the platform proxy; take the client address from X-Forwarded-For so rate
+    # limiting and access logs attribute requests to real clients.
+    set_real_ip_from 0.0.0.0/0;
+    set_real_ip_from ::/0;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
+
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    server_tokens off;
+
+    client_max_body_size 20M;
+    # Uploads stream to disk rather than buffering wholly in memory.
+    client_body_buffer_size 128k;
+    keepalive_timeout 65;
+
+    # Public liveness probe. Deliberately outside the api rate-limit zone: the
+    # limit is per client IP and Railway's health checker, an external uptime
+    # monitor and ordinary traffic can share an address. A 429 here would make
+    # the platform restart a healthy container.
+    location = /api/healthz {
+        access_log off;
+        try_files $uri /index.php?$query_string;
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 10;
+    }
+
+    location = /api/auth/login {
+        limit_req zone=login burst=5 nodelay;
+        try_files $uri /index.php?$query_string;
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 30;
+    }
+
+    location /api/ {
+        limit_req zone=api burst=100 nodelay;
+        try_files $uri /index.php?$query_string;
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 60;
+    }
+
+    # Only present when UPLOADS_DRIVER=local with a mounted volume. The
+    # supported production configuration is object storage; ops:preflight-env
+    # refuses to boot with a local uploads disk unless it is acknowledged.
+    # nginx replaces inherited add_header directives once a location declares
+    # one, so every header is restated here.
+    location ^~ /storage/ {
+        alias /var/www/storage/app/public/;
+        autoindex off;
+        limit_except GET { deny all; }
+        expires 7d;
+        add_header Cache-Control "public";
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox" always;
+        add_header Cross-Origin-Resource-Policy "same-origin" always;
+    }
+
+    # Only Laravel's front controller may execute. This stops a future
+    # upload-validation mistake from turning a stored file into PHP.
+    location = /index.php {
+        fastcgi_pass php_fpm;
+        fastcgi_connect_timeout 2s;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 60;
+    }
+
+    location ~ \.map$ {
+        deny all;
+        return 404;
+    }
+
+    location ~ /\. {
+        deny all;
+        return 404;
+    }
+
+    # Anything that is not an API route or a served upload is not ours.
+    location / {
+        return 404;
+    }
+}

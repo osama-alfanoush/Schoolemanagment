@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Services\AuditLogger;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,14 @@ class EnsureParentOwnsChild
         $childId = $request->route('id') ?? $request->route('studentId');
 
         if ($childId && ! $user->children()->where('users.id', (int) $childId)->exists()) {
+            // Recorded, not just refused. A parent reaching for another
+            // family's child is the single highest-signal event in this app,
+            // and a 403 that leaves no trace tells nobody it happened.
+            // Identifiers only -- no name, no payload.
+            AuditLogger::log($request, 'authorization_denied', 'student', (int) $childId, [
+                'guard' => 'EnsureParentOwnsChild',
+            ]);
+
             return response()->json(['message' => 'You do not have access to this student.'], 403);
         }
 

@@ -9,7 +9,7 @@ ENV_FILE=".env.prod"
 # shellcheck disable=SC1090
 set -a; . "$ENV_FILE"; set +a
 
-REQUIRED="APP_KEY DB_PASSWORD REDIS_PASSWORD MINIO_KEY MINIO_SECRET"
+REQUIRED="APP_KEY APP_URL CORS_ALLOWED_ORIGINS DB_PASSWORD REDIS_PASSWORD"
 PLACEHOLDERS="CHANGE_THIS GENERATE_WITH_ARTISAN YOUR_SERVER_IP"
 
 fail=0
@@ -29,11 +29,28 @@ done
 
 case "${APP_URL:-}" in
   https://*) ;;
-  *) echo "⚠️  APP_URL is not https:// — use HTTPS in production." ;;
+  *) echo "❌ APP_URL must use https:// in production."; fail=1 ;;
 esac
 
-if [ "${SESSION_SECURE_COOKIE:-}" != "true" ]; then
-  echo "⚠️  SESSION_SECURE_COOKIE is not 'true'."
+if [ "${SESSION_SECURE_COOKIE:-}" != "true" ] || [ "${WEB_AUTH_COOKIE_SECURE:-}" != "true" ]; then
+  echo "❌ SESSION_SECURE_COOKIE and WEB_AUTH_COOKIE_SECURE must both be 'true'."
+  fail=1
+fi
+
+if [ "${APP_ENV:-}" != "production" ] || [ "${APP_DEBUG:-}" != "false" ]; then
+  echo "❌ Production requires APP_ENV=production and APP_DEBUG=false."
+  fail=1
+fi
+
+case ",${CORS_ALLOWED_ORIGINS:-}," in
+  *localhost*|*127.0.0.1*|*,\**,)
+    echo "❌ CORS_ALLOWED_ORIGINS must contain explicit production HTTPS origins only."
+    fail=1
+    ;;
+esac
+if printf '%s' "${CORS_ALLOWED_ORIGINS:-}" | tr ',' '\n' | grep -Ev '^https://[^/]+(:[0-9]+)?$' | grep -q .; then
+  echo "❌ CORS_ALLOWED_ORIGINS contains an invalid or non-HTTPS origin."
+  fail=1
 fi
 
 if [ "$fail" -ne 0 ]; then

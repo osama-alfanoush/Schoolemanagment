@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<!-- saved from url=(0253)https://d97b9731-484e-4771-b533-10e82d929503.frame.claudeusercontent.com/_f/1786148724-f9b0/?__frame_t=w-O234mzeS6FaC5jQZHljcnS.3bf677ce-d190-4dc8-b4d5-31a8b998c4b6.35b892f2-16c8-4a86-a0a0-a5a8d53bca31.1786311540&__frame_v=manifest.64ed3bc4b5729c2c.json -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- frame-runtime --><!--<base href="/_f/1786148724-f9b0/">--><base href="."><script>window.__FRAME_PREAMBLE={"capabilities":{"assets":"assets.hcOK0ALv.js","comments":"comments.D1Mkjxge.js","db":"db.CeV_J5G-.js","downloads":"downloads.BXsoAvg9.js","mcp":"mcp.CYSdpjo0.js","permissions":"permissions.DdITF2Mk.js","sample":"sample.DpdXn9di.js","self":"self.BN4be5De.js","user":"user.Cr_h1ETf.js"},"transforms":"_transforms.VaITkagF.js","comments":"_comments.CNSvmFji.js","translate":"_translate.BOzFH2D9.js"}</script><script>(function(){"use strict";var ne=["light","dark","system"];function oe(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function W(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function se(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const n=t.theme;return typeof n=="string"&&ne.includes(n)}function ie(e){try{typeof reportError=="function"?reportError(e):setTimeout(()=>{throw e},0)}catch{}}var Y=Object.freeze(Object.assign(Object.create(null),{user:Object.freeze(Object.assign(Object.create(null),{id:null,isOwner:!1,canEdit:!1,name:null,avatarUrl:null,email:null}))})),ae={sample:"sample"};function x(){const e=new Uint8Array(20);try{crypto.getRandomValues(e)}catch{for(let n=0;n<e.length;n++)e[n]=Math.floor(Math.random()*256)}let t="";for(const n of e)t+=(n%36).toString(36);return t}function ce(e,t){const n=r=>{const o={path:r},i=r.split("/");return{id:i[i.length-1],path:r,get:()=>t("get",[o]),set:g=>t("set",[o,g]),update:g=>t("update",[o,g]),delete:()=>t("delete",[o]),acquire:g=>t("acquire",[o,g]),onSnapshot:(g,y)=>t("subscribe",[o,g,y]),collection:g=>a(r+"/"+String(g))}},u=r=>({where:(o,i,g)=>u({...r,where:[...r.where??[],{f:String(o),op:String(i),v:g}]}),orderBy:(o,i)=>u({...r,orderBy:{f:String(o),dir:i===void 0?"asc":String(i)}}),limit:o=>u({...r,limit:Number(o)}),get:()=>t("query",[r]),onSnapshot:(o,i)=>t("subscribe",[r,o,i])}),a=r=>({...u({collection:r}),path:r,doc:o=>n(r+"/"+(o===void 0?x():String(o))),add:o=>{const i=n(r+"/"+x());return Promise.resolve(i.set(o)).then(()=>i)}});e.doc=r=>n(String(r)),e.collection=r=>a(String(r))}function J(e){if(window===top||e.type==="auxclick"&&e.button!==1)return;const t=e.composedPath?e.composedPath():[e.target];let n=null;for(let o=0;o<t.length;o++){const i=t[o];if(i&&i.matches&&i.matches("a[href],area[href]")){n=i;break}}if(!n&&e.target&&e.target.closest&&(n=e.target.closest("a[href],area[href]")),!n)return;const u=n.getAttribute("href");if(!u)return;let a,r;try{a=new URL(u,document.baseURI),r=new URL(document.baseURI).origin}catch{return}if((a.protocol==="http:"||a.protocol==="https:")&&a.origin!==r){e.preventDefault();const o=(n.getAttribute("target")??document.querySelector("base[target]")?.getAttribute("target")??"").toLowerCase(),i=e.type==="auxclick"||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||!["","_self","_top","_parent"].includes(o);parent.postMessage({__frame_nav:!0,url:a.href,newTab:i},"*")}}var G={};function I(e){if(window===top)return;const t=Date.now();t-(G[e]||0)<500||(G[e]=t,parent.postMessage({__frame_engaged:!0,kind:e},"*"))}var le=2e3,V=["wheel","touchstart","touchmove","keydown","pointerdown"],X=0;function ue(e){e.isTrusted&&(X=Date.now())}function fe(){addEventListener("click",J,!0),addEventListener("auxclick",J,!0)}function de(){for(let e=0;e<V.length;e++)addEventListener(V[e],ue,{capture:!0,passive:!0});addEventListener("scroll",e=>{e.isTrusted&&Date.now()-X<le&&I("scroll")},{capture:!0,passive:!0}),addEventListener("pointermove",e=>{e.isTrusted&&I("pointer")},{capture:!0,passive:!0}),addEventListener("click",e=>{e.isTrusted&&I("click")},{capture:!0,passive:!0})}var q="__frame_scroll",me=150,pe=310,ge=160,he=3e4;function ve(){let e=0,t=!1,n=!1,u=!1,a=0,r=null;const o=d=>{try{sessionStorage.setItem(q,JSON.stringify({y:d}))}catch{}},i=()=>{if(clearTimeout(e),r===null)return;const d=r;r=null,o(d)},g=()=>{if(t){t=!1;return}n=!0,r=scrollY,clearTimeout(e),e=setTimeout(i,me)};try{addEventListener("scroll",g,{passive:!0}),addEventListener("pagehide",i)}catch{}const y=()=>{let d;try{d=sessionStorage.getItem(q)}catch{return null}if(d===null)return null;let l;try{l=JSON.parse(d)}catch{l=null}const p=l?.y;if(!(typeof p=="number"&&Number.isFinite(p)&&p>=0)){try{sessionStorage.removeItem(q)}catch{}return null}return p};let c=!1;const f=d=>{try{const l=scrollY;scrollTo({top:d,left:0,behavior:"instant"}),a=d,u=!0,clearTimeout(e),r=null,o(d);const p=scrollY;p!==l&&(t=!0),p!==d&&!c&&(c=!0,addEventListener("load",()=>{try{if(scrollY===p){const v=y();f(v!==null?v:a)}}catch{}},{once:!0}))}catch{}},m=()=>{try{return!!location.hash}catch{return!0}};let h=!1;const _=()=>{try{if(h||innerWidth>pe||innerHeight>ge)return;h=!0;const d=Date.now(),l=()=>{try{removeEventListener("resize",l)}catch{}if(Date.now()-d>he||n||m())return;const p=y();f(p!==null?p:a)};addEventListener("resize",l)}catch{}};let w=!1,S=!1;return{restore(){if(w||(w=!0,m()))return;const d=y();d!==null&&(f(d),_())},promoted(){if(S||(S=!0,m()))return;const d=y();d!==null?(f(d),_()):u&&f(a)}}}function _e(e,t,n){const u=[...t.values()].filter(a=>a.targets.some(r=>r.startsWith(e+".")));return{wrap(a,r){const o=`${e}.${a}`,i=u.filter(g=>g.targets.includes(o));return i.length===0?(...g)=>{try{return r(...g)}catch(y){return Promise.reject(y)}}:(...g)=>{let y=g;for(const f of i){const m=f.module.parameters;if(m)try{y=m(y)}catch{return Promise.reject({code:"transform_error",id:f.id,scope:e,message:"parameters transform failed"})}}let c;try{c=r(...y)}catch(f){c=Promise.reject(f)}return c.then(f=>{for(let m=i.length-1;m>=0;m--){const h=i[m],_=h.module.returns;if(_)try{f=_(f)}catch{return n({id:h.id,scope:e,leg:"returns"}),f}}return f},f=>{for(let m=i.length-1;m>=0;m--){const h=i[m],_=h.module.throws;if(_)try{f=_(f)}catch{return n({id:h.id,scope:e,leg:"throws"}),Promise.reject(f)}}return Promise.reject(f)})}}}}function ye(e,t,n,u=()=>{}){const a=new Set(e.changes??[]),r=new Map;for(const o of a){const i=t[o];i&&r.set(o,i)}return{contract:e.contract,changes:a,flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:r,shellOrigin:n.shellOrigin,mount:n.mount,pipe:o=>_e(o,r,u)}}var Ae="modulepreload",Re=function(e){return"/"+e},je={},be=function(t,n,u){let a=Promise.resolve();function r(o){const i=new Event("vite:preloadError",{cancelable:!0});if(i.payload=o,window.dispatchEvent(i),!i.defaultPrevented)throw o}return a.then(o=>{for(const i of o||[])i.status==="rejected"&&r(i.reason);return t().catch(r)})};(function(){const e=Object.defineProperty,t=globalThis,n=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let u=0;for(let a=0;a<n.length;a++){const r=n[a];try{e(t,r,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[r]}catch{}try{e(t,r,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[r]=="function"&&u++}if(u&&window!==top)try{parent.postMessage({__frame_rtc_lockdown_failed:u},"*")}catch{}})();var Ee=1e4,we=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function Q(e){for(const t of we)if(t.endsWith(":*"))try{const n=new URL(e);if(`${n.protocol}//${n.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var k=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),D=window.__FRAME_PREAMBLE?.transforms,z=window.__FRAME_PREAMBLE?.comments,B=window.__FRAME_PREAMBLE?.translate,C=/^[\w.-]+\.js$/,Se=/^[a-z][a-z0-9_-]{0,63}$/,Z=null,M=null;function $(e,t,n){try{Object.defineProperty(e,t,{value:n,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:n,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var F=!1;function ee(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,F=!0):F&&(delete t.dataset.theme,t.style.colorScheme="",F=!1)}var te=256,P=Object.assign(Object.create(null),{mcp:Object.assign(Object.create(null),{watchTool:{handlerArg:3}}),db:Object.assign(Object.create(null),{subscribe:{handlerArg:1,errArg:2}})}),L=new Map;function re(e,t){const n=L.get(e);if(!n)return;const u=Object.assign(Object.create(null),t);Object.assign(n.impl,u),n.impl.__settled=()=>Promise.reject({code:"capability_removed",message:`${e}: method not in this runtime`});const a=n.queue;n.queue=[];for(const r of a){const o=u[r.method];if(o)if(P[e]?.[r.method])try{r.resolve(o(...r.args))}catch{T(r,P[e][r.method],{code:"transform_error",message:`${e}.${r.method} rejected its arguments`})}else o(...r.args).then(r.resolve,r.reject);else{const i={code:"capability_removed",message:`${e}.${r.method} is not in this runtime`},g=P[e]?.[r.method];if(g){T(r,g,i);continue}r.reject(i)}}}function Oe(e,t){const n=L.get(e);if(!n)return;n.impl.__settled=()=>Promise.reject(t);const u=n.queue;n.queue=[];for(const a of u){const r=P[e]?.[a.method];if(r){T(a,r,t);continue}a.reject(t)}}function N(e,t){const n=Y[e];if(!n){Oe(e,t);return}re(e,Object.fromEntries(Object.entries(n).map(([u,a])=>[u,()=>Promise.resolve(a)])))}function T(e,t,n){if(e.syncState?.dead)return;const u=t.errArg===void 0?void 0:e.args[t.errArg],a=t.errArg===void 0?e.args[t.handlerArg]:u;typeof a=="function"&&queueMicrotask(()=>{if(!e.syncState?.dead)try{a(t.errArg===void 0?{type:"error",error:n}:n)}catch(r){ie(r)}})}var H=Object.getOwnPropertyDescriptor(window,"claude");if(window!==top&&!(H&&H.writable===!1)){fe(),de();let e=null;try{e=ve()}catch{}const t=H?.value??{};$(window,"claude",t);const n=c=>{const f={impl:Object.create(null),queue:[]};L.set(c,f);const m=f.impl,h=d=>({code:"queue_overflow",message:`${c}.${d}: pre-init call queue is full`}),_=(d,l)=>{if(f.queue.length>=te){const p=Y[c];return p&&d in p?Promise.resolve(p[d]):Promise.reject(h(d))}return new Promise((p,v)=>{f.queue.push({method:d,args:l,resolve:p,reject:v})})},w=ae[c],S=new Proxy(w===void 0?m:(()=>{}),{apply:(d,l,p)=>{const v=w,E=m[v]??m.__settled;return E?E(...p):_(v,p)},get:(d,l)=>{if(typeof l!="string"||l==="then"||l==="toJSON"||l==="valueOf")return;if(l==="toString")return Object.prototype.toString;if(w!==void 0&&(l==="call"||l==="apply"||l==="bind"))return Function.prototype[l];const p=P[c]?.[l];return p?(...v)=>{if(typeof v[p.handlerArg]!="function")throw new TypeError(`${c}.${l} requires a handler function`);const E=m[l];if(E)return E(...v);if(m.__settled){const b={dead:!1},U={args:[...v],syncState:b};return m.__settled().catch(s=>T(U,p,s)),()=>{b.dead=!0}}if(f.queue.length>=te){const b={dead:!1};return T({args:[...v],syncState:b},p,h(l)),()=>{b.dead=!0}}let A=null;const R={dead:!1};return f.queue.push({method:l,args:v,resolve:b=>{A=typeof b=="function"?b:null,R.dead&&A?.()},reject:()=>{},syncState:R}),()=>{R.dead=!0,A?.()}}:(...v)=>{const E=m[l]??m.__settled;return E?E(...v):_(l,v)}},set:()=>!1});c==="db"&&ce(m,(d,l)=>S[d](...l)),$(t,c,S)};for(const c of Object.keys(k)){if(t[c]!==void 0){$(t,c,t[c]);continue}n(c)}let u=null,a=null,r=0;const o=c=>{c.source!==parent||!Q(c.origin)||oe(c.data)&&(u=c.data.__frame_init,M=c.origin,removeEventListener("message",o),clearTimeout(r),a?.())};addEventListener("message",o),parent.postMessage({__frame_connect:!0},"*");const i=new Promise(c=>{a=c,r=setTimeout(()=>{removeEventListener("message",o),c()},Ee)}),g=document.readyState==="loading"?new Promise(c=>document.addEventListener("DOMContentLoaded",()=>c(),{once:!0})):Promise.resolve();g.then(()=>{try{e?.restore()}catch{}});const y=c=>{if(!(c.source!==parent||!Q(c.origin))&&W(c.data)){removeEventListener("message",y);try{e?.promoted()}catch{}}};addEventListener("message",y),i.then(async()=>{if(!u||!M){for(const s of L.keys())N(s,{code:"not_granted",message:"frame initialization did not arrive - capability unavailable"});return}ee(u.theme);const c=M;let f=!1,m=!1;addEventListener("message",s=>{if(s.source!==parent||s.origin!==c)return;se(s.data)&&ee(s.data.__frame_theme.theme);const O=s.data?.__fc_mode;O&&typeof O=="object"&&!f&&z&&C.test(z)&&(f=!0,h(z).then(K=>K.install?.(c,O.on===!0)).catch(()=>{}));const j=s.data?.__ft_cmd;j&&typeof j=="object"&&!m&&B&&C.test(B)&&(m=!0,h(B).then(K=>K.install?.(c,j)).catch(()=>{}))});const h=s=>be(()=>import("/_runtime/"+s),void 0),_=Object.keys(u.capabilities??{});for(const s of _)Object.hasOwn(k,s)||Se.test(s)&&t[s]===void 0&&(n(s),N(s,{code:"capability_disabled",message:"capability not in this runtime generation"}));const w=_.filter(s=>Object.hasOwn(k,s)).map(s=>[s,k[s]]).filter(s=>typeof s[1]=="string"&&C.test(s[1])),[S,...d]=await Promise.allSettled([D&&C.test(D)?h(D):Promise.resolve({}),...w.map(([,s])=>h(s))]),l=M;Z=ye(u,S.status==="fulfilled"&&S.value?.TRANSFORMS||{},{shellOrigin:l,mount:re},s=>parent.postMessage({__frame_cap_telemetry:s},l));const p=s=>parent.postMessage({__frame_cap_telemetry:{kind:"cap-load-error",cap:s}},l),v=Z;d.forEach((s,O)=>{const j=w[O][0];if(s.status!=="fulfilled"){p(j);return}try{s.value?.install?.(v)}catch{p(j)}});for(const[s,O]of L)if(!(O.queue.length===0&&Object.keys(O.impl).length>0)){if(_.includes(s)){N(s,{code:"capability_disabled",message:"capability not available in this session"});continue}N(s,{code:"not_granted",message:"capability not available in this session"})}await g,parent.postMessage({__frame_ready:!0},M);let E=-1,A=0;const R=()=>{A=0;const s=Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0);s!==E&&(E=s,parent.postMessage({__frame_size:!0,h:s},l))},b=()=>{A||(A=setTimeout(R,200))},U=new ResizeObserver(b);U.observe(document.documentElement),document.body&&U.observe(document.body),document.addEventListener("load",b,!0),document.fonts?.ready.then(b,()=>{}),addEventListener("beforeprint",()=>{E=-1,R()}),b(),addEventListener("message",s=>{if(!(s.source!==parent||s.origin!==l)&&W(s.data)){try{e?.promoted()}catch{}E=-1,b()}})})}})();</script><!-- /frame-runtime --><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>School Management Suite — Engineering Audit</title>
+
+<style>
+  :root {
+    --paper:        #EDF2EA;
+    --card:         #FBFCFA;
+    --card-sunk:    #E4EBE0;
+    --ink:          #16233B;
+    --ink-soft:     #4A566B;
+    --ink-faint:    #78849A;
+    --rule:         #CBD6C6;
+    --rule-soft:    #DDE5D8;
+    --accent:       #1F4E7A;
+    --accent-soft:  #E1EBF3;
+    --sev-crit:     #B3261E;
+    --sev-crit-bg:  #F7E4E2;
+    --sev-warn:     #8A5A00;
+    --sev-warn-bg:  #F7EEDC;
+    --sev-good:     #2E6B4F;
+    --sev-good-bg:  #E2EFE7;
+    --mono-bg:      #1B2430;
+    --mono-fg:      #D6E0D2;
+    --mono-dim:     #8B9A93;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", "Liberation Mono", monospace;
+
+    --measure: 68ch;
+    --shell: 1180px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:        #121821;
+      --card:         #1A222D;
+      --card-sunk:    #151C25;
+      --ink:          #E4EBE6;
+      --ink-soft:     #A9B6AF;
+      --ink-faint:    #7B8A83;
+      --rule:         #2C3742;
+      --rule-soft:    #232D37;
+      --accent:       #7FB2DC;
+      --accent-soft:  #1C2A38;
+      --sev-crit:     #EF9A93;
+      --sev-crit-bg:  #33201E;
+      --sev-warn:     #E0B860;
+      --sev-warn-bg:  #2E2718;
+      --sev-good:     #7FC9A2;
+      --sev-good-bg:  #16291F;
+      --mono-bg:      #0D131A;
+      --mono-fg:      #CBD8CF;
+      --mono-dim:     #6F7E77;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:        #121821;
+    --card:         #1A222D;
+    --card-sunk:    #151C25;
+    --ink:          #E4EBE6;
+    --ink-soft:     #A9B6AF;
+    --ink-faint:    #7B8A83;
+    --rule:         #2C3742;
+    --rule-soft:    #232D37;
+    --accent:       #7FB2DC;
+    --accent-soft:  #1C2A38;
+    --sev-crit:     #EF9A93;
+    --sev-crit-bg:  #33201E;
+    --sev-warn:     #E0B860;
+    --sev-warn-bg:  #2E2718;
+    --sev-good:     #7FC9A2;
+    --sev-good-bg:  #16291F;
+    --mono-bg:      #0D131A;
+    --mono-fg:      #CBD8CF;
+    --mono-dim:     #6F7E77;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.62;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: var(--shell);
+    margin: 0 auto;
+    padding: 0 28px 96px;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: 52px 0 22px;
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 18px;
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2.1rem, 4.6vw, 3.15rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+  .standfirst {
+    font-family: var(--serif);
+    font-size: 1.14rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0 0 26px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+  }
+  .meta-row b {
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  /* ---------- verdict ---------- */
+
+  .verdict {
+    display: grid;
+    grid-template-columns: minmax(210px, 260px) 1fr;
+    gap: 34px;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 5px solid var(--accent);
+    padding: 30px 34px;
+    margin-bottom: 44px;
+  }
+  .score-stamp { text-align: center; }
+  .score-stamp .num {
+    font-family: var(--serif);
+    font-size: 4.6rem;
+    line-height: 0.92;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    display: block;
+  }
+  .score-stamp .denom {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: block;
+    margin-top: 8px;
+  }
+  .verdict p {
+    margin: 0 0 12px;
+    max-width: var(--measure);
+  }
+  .verdict p:last-child { margin-bottom: 0; }
+
+  /* ---------- scorecard ---------- */
+
+  .scorecard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-bottom: 20px;
+  }
+  .dim {
+    background: var(--card);
+    padding: 20px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .dim-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0;
+  }
+  .dim-score {
+    font-family: var(--serif);
+    font-size: 2.35rem;
+    line-height: 1;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .dim-score small {
+    font-size: 0.92rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    letter-spacing: 0;
+  }
+  .meter {
+    height: 5px;
+    background: var(--card-sunk);
+    overflow: hidden;
+  }
+  .meter span {
+    display: block;
+    height: 100%;
+  }
+  .m-good span { background: var(--sev-good); }
+  .m-warn span { background: var(--sev-warn); }
+  .m-crit span { background: var(--sev-crit); }
+  .dim-note {
+    font-size: 13.2px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .scorecard-foot {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.03em;
+    margin: 0 0 56px;
+  }
+
+  /* ---------- sections ---------- */
+
+  section { margin-bottom: 60px; }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    line-height: 1.18;
+    text-wrap: balance;
+    margin: 0 0 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .sec-kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 12px;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin: 32px 0 12px;
+  }
+  p, li { max-width: var(--measure); }
+  p { margin: 0 0 16px; }
+  ul { padding-left: 20px; margin: 0 0 18px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.855em;
+    background: var(--card-sunk);
+    padding: 1.5px 5px;
+    border-radius: 2px;
+  }
+
+  /* ---------- findings ---------- */
+
+  .finding {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--rule);
+    padding: 20px 24px;
+    margin: 0 0 14px;
+  }
+  .finding.crit { border-left-color: var(--sev-crit); }
+  .finding.warn { border-left-color: var(--sev-warn); }
+  .finding.info { border-left-color: var(--accent); }
+
+  .f-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .f-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  .f-title {
+    font-weight: 680;
+    font-size: 1rem;
+    flex: 1 1 320px;
+    margin: 0;
+    max-width: none;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .chip.crit { background: var(--sev-crit-bg); color: var(--sev-crit); }
+  .chip.warn { background: var(--sev-warn-bg); color: var(--sev-warn); }
+  .chip.info { background: var(--accent-soft); color: var(--accent); }
+  .chip.ok   { background: var(--sev-good-bg); color: var(--sev-good); }
+
+  .finding p { margin: 0 0 10px; font-size: 15.3px; }
+  .finding p:last-child { margin-bottom: 0; }
+  .f-loc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0 0 10px !important;
+  }
+
+  /* ---------- evidence ---------- */
+
+  .evidence {
+    background: var(--mono-bg);
+    color: var(--mono-fg);
+    font-family: var(--mono);
+    font-size: 12.4px;
+    line-height: 1.65;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 14px 0;
+    border-radius: 2px;
+  }
+  .evidence pre { margin: 0; }
+  .evidence .cmd { color: var(--mono-dim); }
+  .evidence .hit { color: #F0A9A2; }
+  .evidence .ok  { color: #93D3AE; }
+  .ev-cap {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 -6px;
+  }
+
+  /* ---------- tables ---------- */
+
+  .t-wrap { overflow-x: auto; margin: 0 0 22px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 540px;
+    font-size: 14.6px;
+  }
+  caption {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-bottom: 10px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px 10px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    border-bottom: 1px solid var(--rule);
+  }
+  td.num {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--mono);
+    font-size: 13.4px;
+    white-space: nowrap;
+  }
+
+  /* ---------- two-column strength/weakness ---------- */
+
+  .balance {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(292px, 1fr));
+    gap: 26px;
+    margin-bottom: 8px;
+  }
+  .col-head {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-bottom: 9px;
+    margin-bottom: 15px;
+    border-bottom: 1.5px solid currentColor;
+  }
+  .col-head.up { color: var(--sev-good); }
+  .col-head.down { color: var(--sev-crit); }
+  .balance ul { padding-left: 18px; }
+  .balance li { font-size: 14.8px; line-height: 1.5; }
+
+  /* ---------- callout ---------- */
+
+  .callout {
+    background: var(--sev-warn-bg);
+    border: 1px solid var(--sev-warn);
+    padding: 22px 26px;
+    margin: 0 0 26px;
+  }
+  .callout .col-head { color: var(--sev-warn); }
+  .callout p, .callout li { color: var(--ink); }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+
+  /* ---------- priority list ---------- */
+
+  .prio { list-style: none; padding: 0; margin: 0; }
+  .prio li {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    gap: 18px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    max-width: none;
+    margin: 0;
+    align-items: start;
+  }
+  .prio .rank {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-top: 3px;
+  }
+  .prio .rank.now  { color: var(--sev-crit); }
+  .prio .rank.next { color: var(--sev-warn); }
+  .prio .rank.soon { color: var(--accent); }
+  .prio .what { max-width: var(--measure); }
+  .prio .what b { display: block; margin-bottom: 3px; }
+  .prio .what span { font-size: 14.6px; color: var(--ink-soft); }
+
+  footer {
+    border-top: 2px solid var(--ink);
+    padding-top: 22px;
+    margin-top: 68px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--ink-faint);
+    letter-spacing: 0.03em;
+  }
+  footer p { max-width: 74ch; }
+
+  @media (max-width: 620px) {
+    .verdict { grid-template-columns: 1fr; gap: 20px; padding: 24px; }
+    .score-stamp { text-align: left; }
+    .prio li { grid-template-columns: 1fr; gap: 5px; }
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Engineering Audit · Independent Verification</p>
+    <h1>School Management Suite</h1>
+    <p class="standfirst">A Laravel 12 multi-tenant school ERP with a React 19 SPA front end. Assessed across logic, interface, performance, security, and availability — with every rating traced to code read or commands run against this working tree.</p>
+    <div class="meta-row">
+      <span><b>Reviewed</b> 8 Aug 2026</span>
+      <span><b>Branch</b> main @ fd192d8</span>
+      <span><b>Backend</b> 26 controllers · 93 models · 5.4k service LOC</span>
+      <span><b>Frontend</b> 220 files · 29.7k LOC</span>
+    </div>
+  </header>
+
+  <div class="verdict">
+    <div class="score-stamp">
+      <span class="num">7.0</span>
+      <span class="denom">Overall / 10</span>
+    </div>
+    <div>
+      <p>This is a <strong>serious, professionally-built application</strong>, not a prototype dressed as one. The domain modelling is genuinely sophisticated — double-entry accounting with idempotency keys, maker–checker approval chains, refresh-token rotation with reuse detection, and row-level locking on every financial mutation. All 314 backend and 124 frontend tests pass on this machine.</p>
+      <p>It is held back from an 8 by two things: a <strong>legacy code path that lets an unbalanced entry into the general ledger</strong>, and an <strong>operational posture built for a single host</strong> with no rate limiting on the authenticated API. Both are fixable in days, not months.</p>
+    </div>
+  </div>
+
+  <div class="scorecard">
+    <div class="dim">
+      <p class="dim-name">Logic</p>
+      <span class="dim-score">7.5<small>/10</small></span>
+      <div class="meter m-good"><span style="width:75%"></span></div>
+      <p class="dim-note">Deep domain correctness, undercut by legacy accounting paths that bypass the new validation.</p>
+    </div>
+    <div class="dim">
+      <p class="dim-name">UI</p>
+      <span class="dim-score">7.5<small>/10</small></span>
+      <div class="meter m-good"><span style="width:75%"></span></div>
+      <p class="dim-note">Coherent Radix design system, real RTL/Arabic support, thorough loading and empty states.</p>
+    </div>
+    <div class="dim">
+      <p class="dim-name">Performance</p>
+      <span class="dim-score">7.0<small>/10</small></span>
+      <div class="meter m-warn"><span style="width:70%"></span></div>
+      <p class="dim-note">Well-indexed and code-split; per-request tenant lookup and unpaginated reads are the drag.</p>
+    </div>
+    <div class="dim">
+      <p class="dim-name">Security</p>
+      <span class="dim-score">8.0<small>/10</small></span>
+      <div class="meter m-good"><span style="width:80%"></span></div>
+      <p class="dim-note">The strongest dimension by a clear margin. Loses points for fail-open scoping and no API throttle.</p>
+    </div>
+    <div class="dim">
+      <p class="dim-name">Availability</p>
+      <span class="dim-score">5.5<small>/10</small></span>
+      <div class="meter m-crit"><span style="width:55%"></span></div>
+      <p class="dim-note">Excellent backups, but single-host topology, unusable public health probe, no container health checks.</p>
+    </div>
+  </div>
+  <p class="scorecard-foot">Overall is the unweighted mean (7.1), rounded down to 7.0 — availability gaps affect the other four in production.</p>
+
+  <section>
+    <p class="sec-kicker">Section 01</p>
+    <h2>What I verified, and how</h2>
+    <p>The repository ships its own readiness report (<code>PRODUCTION-READINESS.md</code>, dated 4 Aug 2026). I treated it as a claim to test, not a source. Every number below comes from a command run against this working tree today.</p>
+
+    <div class="t-wrap">
+      <table>
+        <caption>Gates executed during this review</caption>
+        <thead>
+          <tr><th>Check</th><th>Command</th><th>Result</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Backend suite</td><td><code>php artisan test</code></td><td class="num">314 passed · 1029 assertions · 50s</td></tr>
+          <tr><td>Frontend unit</td><td><code>npx vitest run</code></td><td class="num">124 passed · 26 files</td></tr>
+          <tr><td>Type safety</td><td><code>tsc --noEmit</code></td><td class="num">exit 0</td></tr>
+          <tr><td>Lint</td><td><code>eslint src</code></td><td class="num">0 errors · 2803 warnings</td></tr>
+          <tr><td>PHP dependencies</td><td><code>composer audit</code></td><td class="num">6 advisories · 1 package</td></tr>
+          <tr><td>JS dependencies</td><td><code>npm audit</code></td><td class="num">2 high</td></tr>
+          <tr><td>Secret scan</td><td>live-key &amp; private-key patterns</td><td class="num">clean</td></tr>
+          <tr><td>Build output</td><td><code>dist/public</code></td><td class="num">2.1 MB · 119 chunks</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Beyond reading code, I wrote three throwaway probe tests to confirm suspected defects empirically rather than infer them from source. They are reproduced as evidence below and were <strong>deleted after the run</strong> — the working tree is unchanged.</p>
+
+    <div class="callout">
+      <p class="col-head">Three claims in the repository's own readiness report do not hold</p>
+      <ul>
+        <li>“Reads and writes on school models <em>fail</em> outside <code>CurrentSchool</code>.” — They do not fail. Unscoped reads silently return every tenant's rows (<strong>SEC-2</strong>).</li>
+        <li>“A <code>closed</code> or <code>audited</code> period prevents creating an entry.” — <code>audited</code> periods still accept manual entries (<strong>LOG-2</strong>).</li>
+        <li>“<code>npm audit</code> result is currently zero.” — Two high-severity advisories now apply; six more on the PHP side, all published 6 Aug, after that report was written (<strong>SEC-4</strong>).</li>
+      </ul>
+      <p>These are drift and over-claiming rather than dishonesty — but a readiness document that overstates its guarantees is itself a production risk, because the next engineer will trust it.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 02 · 7.5 / 10</p>
+    <h2>Logic and correctness</h2>
+
+    <p>The business logic is the most impressive part of this codebase. It models things most school systems get wrong: financial periods that lock, approval chains that prevent self-authorisation, and monetary calculations done in integer minor units rather than floats.</p>
+
+    <div class="balance">
+      <div>
+        <p class="col-head up">What earns the score</p>
+        <ul>
+          <li><strong>Real double-entry accounting.</strong> <code>JournalBatchService</code> rejects any batch where debits ≠ credits, computed in integer cents to avoid float drift.</li>
+          <li><strong>Idempotency throughout.</strong> Ledger postings key on <code>school:{id}:{source}:{sourceId}</code>, so a retried goods receipt or payroll run cannot double-post.</li>
+          <li><strong>Maker–checker enforced.</strong> Tests confirm a PO requester cannot self-approve and a payroll drafter cannot approve their own run.</li>
+          <li><strong>Concurrency taken seriously.</strong> <code>lockForUpdate()</code> on installments, purchase orders, stock movements, book loans, and refresh tokens.</li>
+          <li><strong>Reversal over mutation.</strong> Posted entries are never edited; correction happens through generated reversal batches that preserve the audit trail.</li>
+          <li><strong>314 tests including 35 dedicated security tests</strong> across IDOR, MFA, token refresh, webhooks, and bypass regressions.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-head down">What costs it</p>
+        <ul>
+          <li>A legacy single-sided entry path survives on the same route as the validated one.</li>
+          <li>Two different definitions of “period is locked” coexist in two services.</li>
+          <li>Reference numbers are generated by counting rows — a race under concurrency.</li>
+          <li>Business-rule failures thrown as bare <code>\Exception</code>, mapped to HTTP status only by the caller that happens to catch them.</li>
+          <li>2803 <code>any</code> warnings mean the front end's type safety is thinner than <code>tsc</code>'s clean exit suggests.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="finding crit">
+      <div class="f-head">
+        <span class="f-id">LOG-1</span>
+        <p class="f-title">The journal endpoint accepts a single-sided entry, permanently unbalancing the ledger</p>
+        <span class="chip crit">Critical</span>
+      </div>
+      <p class="f-loc">app/Http/Controllers/Api/AccountingController.php:38 → app/Services/JournalService.php:66</p>
+      <p><code>storeJournalEntry</code> branches on whether the request contains a <code>lines</code> key. With <code>lines</code>, it routes to <code>JournalBatchService</code>, which correctly enforces balance. <strong>Without <code>lines</code>, it falls through to the legacy <code>JournalService::createEntry</code>, which writes one debit or one credit with no offsetting side and no balance check at all.</strong></p>
+      <p>Both paths sit behind the same <code>perm:finance.journal.create</code> gate, so any user who can create a legitimate balanced batch can also create an unbalanced one — by omitting a field. I confirmed this against a fresh database:</p>
+      <p class="ev-cap">Probe — POST /api/accounting/journal-batches without a lines key</p>
+      <div class="evidence"><pre><span class="cmd">[PROBE 1]</span> status=201 body={"description":"Unbalanced probe","type":"debit",
+          "account_code":"1000","amount":"5000.00","reference_no":"JE-2026-0001"...}
+<span class="cmd">[PROBE 1]</span> ledger debits=<span class="hit">5000</span> credits=<span class="hit">0</span></pre></div>
+      <p>The trial balance is now wrong by 5,000 with no error raised anywhere. Because posted entries cannot be edited, the only remedy is a compensating reversal — assuming someone notices. <strong>Fix:</strong> require <code>lines</code> on the batch route and retire the legacy single-entry path, or make <code>createEntry</code> demand a counterpart account.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">LOG-2</span>
+        <p class="f-title">An <code>audited</code> financial period still accepts new manual entries</p>
+        <span class="chip warn">High</span>
+      </div>
+      <p class="f-loc">app/Services/JournalService.php:52 vs. app/Services/LedgerService.php:213</p>
+      <p>Two services disagree on what a locked period means. <code>LedgerService::assertPeriodOpen</code> blocks <code>['closed', 'audited']</code>. <code>JournalService::createEntry</code> checks only <code>status === 'closed'</code>. A period that has been through audit — the strongest lock the system offers — therefore remains writable through the manual path.</p>
+      <p class="ev-cap">Probe — manual entry into a period marked audited</p>
+      <div class="evidence"><pre><span class="cmd">[PROBE 2]</span> status=<span class="hit">201</span> body={"description":"Post into audited period",
+          "amount":"123.45","reference_no":"JE-2026-0001"...}</pre></div>
+      <p>Post-audit mutation of a closed book is exactly the scenario financial controls exist to prevent. <strong>Fix:</strong> extract one shared period-lock guard and call it from both services.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">LOG-3</span>
+        <p class="f-title">Reference numbers are generated by row count, racing under concurrency</p>
+        <span class="chip warn">Medium</span>
+      </div>
+      <p class="f-loc">app/Services/JournalService.php:59</p>
+      <p><code>$count = JournalEntry::withTrashed()-&gt;whereYear(...)-&gt;count() + 1</code> reads then writes with no transaction and no lock, while <code>reference_no</code> carries a unique constraint. Two accountants posting in the same second both compute <code>JE-2026-0001</code>; one succeeds, the other gets an unhandled integrity violation surfaced as a 500. The count also scans the full year's entries on every single insert, so it degrades as the ledger grows. <strong>Fix:</strong> a database sequence or a locked per-year counter row.</p>
+    </div>
+
+    <div class="finding info">
+      <div class="f-head">
+        <span class="f-id">LOG-4</span>
+        <p class="f-title">Balance is validated before non-positive lines are filtered out</p>
+        <span class="chip info">Low</span>
+      </div>
+      <p class="f-loc">app/Services/LedgerService.php:117-141</p>
+      <p><code>postBalanced</code> sums all lines to check debits equal credits, then persists only lines where <code>amount_cents &gt; 0</code>. A payload containing a negative line can satisfy the check and still write an unbalanced batch. No current caller passes negative values, so this is latent rather than live — but the guard should filter first, then validate.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 03 · 7.5 / 10</p>
+    <h2>Interface</h2>
+
+    <p>The front end is a 98-page React 19 SPA on Radix primitives with Tailwind 4. It is consistent, genuinely bilingual, and handles the unglamorous states that distinguish finished software from a demo.</p>
+
+    <div class="balance">
+      <div>
+        <p class="col-head up">What earns the score</p>
+        <ul>
+          <li><strong>Loading states in 91 of 98 pages, empty states in 79.</strong> That ratio is rare and it is what makes an app feel finished.</li>
+          <li><strong>Real RTL, not a stylesheet flip.</strong> <code>document.documentElement.dir</code> switches with locale, and layouts carry <code>rtl:</code> variants down to calendar chevron rotation.</li>
+          <li><strong>Radix under everything</strong> — dialogs, menus, and comboboxes inherit correct focus trapping, roles, and keyboard behaviour rather than reimplementing them.</li>
+          <li><strong>Route-level code splitting</strong> across every portal, plus an <code>ErrorBoundary</code> and a forced-password-change gate in <code>RoleGuard</code>.</li>
+          <li><strong>Seven roles, seven coherent portals</strong> — student, parent, teacher, admin, finance, HR, warehouse — sharing one shell and visual language.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-head down">What costs it</p>
+        <ul>
+          <li>Only 26 of 171 component files carry explicit <code>aria-</code> attributes; custom widgets outside Radix lean on defaults.</li>
+          <li>2803 <code>any</code> warnings concentrate at the API boundary — the layer where a shape change silently becomes a runtime crash.</li>
+          <li><code>src/lib/api.ts</code> is a single 52 KB module; it should be split per domain.</li>
+          <li><code>RoleGuard</code> redirects inside <code>useEffect</code> and renders <code>null</code> first, producing a blank frame before navigation.</li>
+          <li>No visible skeleton convention — loading is mostly spinners, which read as slower than they are.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="finding info">
+      <div class="f-head">
+        <span class="f-id">UI-1</span>
+        <p class="f-title">Runtime dependencies are declared as devDependencies</p>
+        <span class="chip info">Low</span>
+      </div>
+      <p class="f-loc">school-web/package.json</p>
+      <p>React, Radix, TanStack Query, Recharts and the rest sit in <code>devDependencies</code>; only <code>i18next</code> and <code>react-i18next</code> are runtime deps. Vite bundles at build time so this works today, but <code>npm ci --omit=dev</code> produces a broken build, and the manifest misrepresents what the app actually needs. Cosmetic in effect, but it is the kind of thing that breaks a CI runner at the worst moment.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 04 · 7.0 / 10</p>
+    <h2>Performance</h2>
+
+    <p>Sound instincts with visible discipline — aggregate SQL instead of loops, cached KPIs, a well-split bundle. What holds it at 7 is a set of per-request costs that will not show up until the data grows.</p>
+
+    <div class="t-wrap">
+      <table>
+        <caption>Measured characteristics</caption>
+        <thead><tr><th>Dimension</th><th>Observed</th><th>Assessment</th></tr></thead>
+        <tbody>
+          <tr><td>Index coverage</td><td class="num">169 index/unique declarations</td><td>Strong — indexing was designed, not retrofitted</td></tr>
+          <tr><td>Largest JS chunk</td><td class="num">383 KB raw · 103 KB gzip</td><td>Charts vendor; acceptable, lazily reachable</td></tr>
+          <tr><td>Chunk count</td><td class="num">119</td><td>Excellent per-route splitting</td></tr>
+          <tr><td>Pagination</td><td class="num">57 paginated · 58 bare <code>get()</code></td><td>Half the read paths are unbounded</td></tr>
+          <tr><td>Query-in-loop patterns</td><td class="num">11</td><td>Contained, but each is a latent N+1</td></tr>
+          <tr><td>Client cache</td><td class="num">30 s stale · 5 min gc</td><td>Sensible React Query defaults</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">PERF-1</span>
+        <p class="f-title">Tenant resolution runs an uncached joined query on every authenticated request</p>
+        <span class="chip warn">Medium</span>
+      </div>
+      <p class="f-loc">app/Services/SchoolContext.php:14</p>
+      <p><code>forUser()</code> joins <code>school_user_roles</code> to <code>schools</code> with date-range predicates and runs from <code>ResolveSchoolContext</code> middleware on <em>every single request</em>. Several controllers then call it again inside the same request. This is a small fixed tax on all traffic that a short-lived per-request memo or cache would remove entirely.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">PERF-2</span>
+        <p class="f-title">PDF and report generation runs synchronously on web workers</p>
+        <span class="chip warn">Medium</span>
+      </div>
+      <p class="f-loc">routes/api.php — report-card, receipt, trial-balance, income-statement, inventory PDFs</p>
+      <p>Nine PDF endpoints render inline on the request thread. A class of parents opening report cards at the same time occupies PHP-FPM workers for the full render duration, starving ordinary requests. With no rate limit in front of them (<strong>SEC-1</strong>), this is also the cheapest way to take the API down. <strong>Fix:</strong> queue the render, return a job handle, deliver via signed URL.</p>
+    </div>
+
+    <p>Worth noting on the positive side: <code>dashboardKpis</code> wraps everything in <code>Cache::remember</code> with a school-scoped key and computes the attendance rate in a single <code>selectRaw</code> aggregate rather than iterating records. Student CSV import streams with a per-row transaction and size caps. These are the choices of someone who has been burned before.</p>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 05 · 8.0 / 10</p>
+    <h2>Security</h2>
+
+    <p>The strongest dimension, and by a wide margin the part of this codebase I would most readily defend to a reviewer. The authentication design in particular is better than what most production SaaS ships.</p>
+
+    <div class="balance">
+      <div>
+        <p class="col-head up">What earns the score</p>
+        <ul>
+          <li><strong>Refresh-token rotation with reuse detection.</strong> Tokens carry a family ID; presenting a rotated token revokes the entire family under a row lock. This is the OAuth BCP design, implemented correctly.</li>
+          <li><strong>Browser credentials never touch JavaScript.</strong> Access and refresh tokens are encrypted into path-scoped httpOnly cookies; the SPA receives identity data only.</li>
+          <li><strong>Timing-safe login.</strong> A hash check runs even for non-existent users, so response time does not disclose whether an email is registered.</li>
+          <li><strong>Layered authorisation.</strong> Coarse <code>role:</code> gates plus ~90 granular <code>perm:</code> gates, so a warehouse user can receive goods but never approve them.</li>
+          <li><strong>Webhooks done properly</strong> — Stripe signature verification, an idempotency table, payload-hash comparison against the stored event, and <code>lockForUpdate</code> claiming.</li>
+          <li><strong>MFA with enrolment, challenge, recovery codes, and an approval-gated help-desk reset path.</strong></li>
+          <li><strong>Immutable tenancy on write.</strong> An <code>updating</code> hook re-stamps <code>school_id</code> from server context, so a client cannot move a record between schools even via <code>forceFill</code>.</li>
+          <li><strong>CSP without <code>unsafe-inline</code> on scripts</strong>, HSTS, frame-ancestors none, and a preflight script that refuses to deploy with debug on, HTTP URLs, or placeholder secrets.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-head down">What costs it</p>
+        <ul>
+          <li>No rate limit anywhere on the authenticated API surface.</li>
+          <li>Tenant isolation is fail-open, not fail-closed, whenever context is absent.</li>
+          <li>A deliberate cross-tenant read of legacy null-school rows in the journal list.</li>
+          <li>Eight dependency advisories outstanding as of today.</li>
+          <li><code>connect-src https:</code> in the CSP permits exfiltration to any HTTPS host.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="finding crit">
+      <div class="f-head">
+        <span class="f-id">SEC-1</span>
+        <p class="f-title">The entire authenticated API has no rate limiting</p>
+        <span class="chip crit">Critical</span>
+      </div>
+      <p class="f-loc">routes/api.php · bootstrap/app.php</p>
+      <p>Throttles exist on login, password reset, refresh, MFA, and the payment webhook — and nowhere else. Laravel 12 does not apply <code>throttle:api</code> by default, and this application never registers it. Every authenticated endpoint is unmetered, including the expensive ones:</p>
+      <p class="ev-cap">Unthrottled and expensive</p>
+      <div class="evidence"><pre><span class="cmd">routes/api.php:108</span>  GET  /student/report-card/pdf
+<span class="cmd">routes/api.php:154</span>  GET  /teacher/grades/export
+<span class="cmd">routes/api.php:180</span>  POST /admin/users/import-students
+<span class="cmd">routes/api.php:393</span>  GET  /accounting/reports/trial-balance/pdf
+<span class="cmd">routes/api.php:426</span>  GET  /warehouse/reports/consumption/pdf
+<span class="cmd">    grep -c throttle routes/api.php</span> → <span class="hit">10</span>  (all on auth + webhook)</pre></div>
+      <p>Any authenticated account — a student's, a leaked token, a compromised parent login — can loop a PDF endpoint and exhaust PHP-FPM workers. This is simultaneously the top security and top availability finding. <strong>Fix:</strong> a global <code>throttle:api</code> baseline plus tighter per-route limits on exports, imports, and PDFs.</p>
+    </div>
+
+    <div class="finding crit">
+      <div class="f-head">
+        <span class="f-id">SEC-2</span>
+        <p class="f-title">Tenant isolation is fail-open when no school context is set</p>
+        <span class="chip crit">High</span>
+      </div>
+      <p class="f-loc">app/Providers/AppServiceProvider.php:37-41</p>
+      <p>The global scope reads <code>if ($currentSchool-&gt;has()) { $query-&gt;where(...) }</code>. When context is absent, no predicate is applied and the query returns every tenant's rows. I confirmed the behaviour directly:</p>
+      <p class="ev-cap">Probe — same model, with and without tenant context</p>
+      <div class="evidence"><pre><span class="cmd">[PROBE 3]</span> rows visible inside school-A context = <span class="ok">1</span>
+<span class="cmd">[PROBE 3]</span> rows visible with NO context        = <span class="hit">2</span>  [Cat A, Cat B]
+<span class="cmd">[PROBE 3]</span> =&gt; <span class="hit">FAIL-OPEN: unscoped read returned EVERY school's rows</span></pre></div>
+      <p>In practice this is mitigated — all HTTP routes carry <code>school.context</code>, and console commands wrap work in <code>CurrentSchool::run()</code>. But the safety property depends on every future queue job, command, and webhook remembering to opt in, and the public webhook route is already outside the middleware group. A missing wrapper produces silent cross-tenant disclosure with no error. <strong>Fix:</strong> throw on unscoped access and require an explicit <code>withoutGlobalScope</code> opt-out at each legitimate site.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">SEC-3</span>
+        <p class="f-title">Journal batch listing deliberately returns rows belonging to no school</p>
+        <span class="chip warn">Medium</span>
+      </div>
+      <p class="f-loc">app/Http/Controllers/Api/AccountingController.php:54-55</p>
+      <p><code>indexJournalBatches</code> matches the caller's school <code>orWhere(school_id IS NULL)</code>. Every school sees the same legacy null-school batches. The isolation migration made <code>school_id</code> non-null, so this should now match nothing — but it is a cross-tenant read left deliberately in place, and it will silently start leaking again if any path ever writes a null-school batch.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">SEC-4</span>
+        <p class="f-title">Eight dependency advisories are outstanding</p>
+        <span class="chip warn">Medium</span>
+      </div>
+      <p class="ev-cap">composer audit · npm audit — run 8 Aug 2026</p>
+      <div class="evidence"><pre><span class="cmd">composer audit</span>
+<span class="hit">Found 6 security vulnerability advisories affecting 1 package.</span>
+  league/commonmark  <span class="hit">HIGH</span>    CVE-2026-71488  quadratic-time DoS on crafted Markdown
+  league/commonmark  MEDIUM  CVE-2026-71478  unsafe-link filter bypass via control bytes
+
+<span class="cmd">npm audit</span>
+  js-yaml            <span class="hit">HIGH</span>    CVE-2026-59870  quadratic CPU in !!omap resolution
+  nanoid             <span class="hit">HIGH</span>            infinite loop when size is zero</pre></div>
+      <p>All were published on 6 August — two days after the repository's readiness report recorded zero. Exposure is limited (<code>commonmark</code> renders Markdown mail; <code>js-yaml</code> and <code>nanoid</code> are build-time), so this is routine drift rather than an emergency. It is worth stating plainly that <strong>dependency posture decays on its own</strong>, and this project currently has no scheduled audit — the CI workflows that would have caught it are deleted from the working tree.</p>
+    </div>
+
+    <div class="finding info">
+      <div class="f-head">
+        <span class="f-id">SEC-5</span>
+        <p class="f-title">Two small hardening gaps in headers and proxy trust</p>
+        <span class="chip info">Low</span>
+      </div>
+      <p class="f-loc">app/Http/Middleware/SecurityHeaders.php:29 · bootstrap/app.php:52</p>
+      <p>The CSP sets <code>connect-src 'self' https:</code>, which permits an injected script to reach any HTTPS host — worth narrowing to the known API origin. Separately, <code>trustProxies</code> lists <code>'*.fly.dev'</code> alongside CIDR ranges, but that setting expects IPs or CIDRs; the hostname entry never matches and is dead configuration.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 06 · 5.5 / 10</p>
+    <h2>Availability</h2>
+
+    <p>The weakest dimension and the one that most limits what this application can responsibly be sold as. Backup and restore are handled with real rigour; almost everything else assumes one machine that does not fail.</p>
+
+    <div class="balance">
+      <div>
+        <p class="col-head up">What earns the score</p>
+        <ul>
+          <li><strong>Backup is genuinely well done</strong> — daily Postgres dump with SHA-256, a per-table row-count manifest, an uploads archive, and a <em>rehearsed</em> restore verified in 9.85 s. Most teams never test restore at all.</li>
+          <li><strong>Work is separated by concern</strong> — two API replicas, a dedicated queue worker, and a scheduler, each independently restartable.</li>
+          <li><strong>Transactional outbox with retry and dead-lettering</strong>, drained every minute with <code>withoutOverlapping</code>.</li>
+          <li><strong>Documented rollback</strong> that correctly warns against using <code>migrate:rollback</code> to undo tenancy columns once multi-school data exists.</li>
+          <li><code>restart: unless-stopped</code> everywhere; health checks on Postgres and Redis.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-head down">What costs it</p>
+        <ul>
+          <li>The only health endpoint a monitor can reach tells it nothing.</li>
+          <li>No container health checks on nginx, either API replica, the queue, or the scheduler.</li>
+          <li>Single Postgres, single Redis, single host — three independent single points of failure.</li>
+          <li>Webhook events can wedge in <code>processing</code> and are never reclaimed.</li>
+          <li>No rate limiting, so a single client can exhaust the worker pool (<strong>SEC-1</strong>).</li>
+          <li>CI workflows are deleted from the working tree.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="finding crit">
+      <div class="f-head">
+        <span class="f-id">AVL-1</span>
+        <p class="f-title">The public health probe cannot detect an unhealthy application</p>
+        <span class="chip crit">High</span>
+      </div>
+      <p class="f-loc">routes/api.php:32 · app/Http/Controllers/Api/HealthController.php</p>
+      <p>There are two health endpoints and neither is usable for its purpose. <code>/api/healthz</code> is public but returns a hardcoded <code>{"status":"ok"}</code> — it stays green with the database down. The real dependency check, <code>/api/health</code>, sits behind <code>role:admin</code>, so no load balancer, uptime monitor, or orchestrator can call it.</p>
+      <p>The practical consequence: a replica whose database connection has failed keeps passing checks and keeps receiving traffic. <strong>Fix:</strong> expose an unauthenticated liveness/readiness probe that checks database and cache reachability without disclosing versions or internals.</p>
+    </div>
+
+    <div class="finding crit">
+      <div class="f-head">
+        <span class="f-id">AVL-2</span>
+        <p class="f-title">No container health checks on the application tier</p>
+        <span class="chip crit">High</span>
+      </div>
+      <p class="f-loc">laravel-api/docker-compose.prod.yml</p>
+      <p>Postgres and Redis define <code>healthcheck</code> blocks. <code>nginx</code>, <code>api1</code>, <code>api2</code>, <code>queue</code>, and <code>scheduler</code> do not. Nothing detects a PHP-FPM process that is alive but wedged, so nginx keeps routing to it and half of all requests fail while the stack reports healthy. A silently dead queue worker is worse — notifications and outbox events simply stop, with no alert.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">AVL-3</span>
+        <p class="f-title">Webhook events can wedge in <code>processing</code> and are silently lost</p>
+        <span class="chip warn">High</span>
+      </div>
+      <p class="f-loc">app/Services/PaymentGatewayService.php:326-329</p>
+      <p>An event is claimed by setting <code>status = 'processing'</code>. If the worker dies mid-handler, the row stays in that state forever. On Stripe's retry, the claim check finds <code>processing</code> and returns <code>['success' =&gt; true, 'already_processed' =&gt; true]</code> — a 200, which tells Stripe to stop retrying. <strong>A payment that was never actually applied is now permanently dropped, with the provider believing it was delivered.</strong> <strong>Fix:</strong> treat <code>processing</code> rows older than a timeout as reclaimable, or return 5xx so the retry is preserved.</p>
+    </div>
+
+    <div class="finding warn">
+      <div class="f-head">
+        <span class="f-id">AVL-4</span>
+        <p class="f-title">Single-host topology with three single points of failure</p>
+        <span class="chip warn">Medium</span>
+      </div>
+      <p class="f-loc">laravel-api/docker-compose.prod.yml</p>
+      <p>Two API replicas provide process redundancy, not availability — they share one host, one Postgres with no replica or failover, and one Redis holding cache, sessions, and queues. Any of the three failing takes the whole system down, and recovery means restoring from the nightly dump. That is a recovery point of up to 24 hours.</p>
+      <p>This is a legitimate architecture for a single school with a maintenance window. It is not one for a multi-tenant product sold to several schools, which is what the tenancy work throughout the codebase is clearly building toward. <strong>The gap between the isolation model's ambition and the deployment topology's capability is the single largest inconsistency in this project.</strong></p>
+    </div>
+
+    <div class="finding info">
+      <div class="f-head">
+        <span class="f-id">AVL-5</span>
+        <p class="f-title">CI workflows are deleted from the working tree</p>
+        <span class="chip info">Medium</span>
+      </div>
+      <p><code>.github/workflows/ci.yml</code> and <code>deploy-frontend.yml</code> are tracked in git but absent from disk, along with the <code>school-mobile</code> app (56 files) and several audit documents. Whatever the reason, the effect today is that no automated gate runs on push — which is how eight dependency advisories accumulated unnoticed (<strong>SEC-4</strong>). Restore them before the next deployment.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 07</p>
+    <h2>What to fix, in order</h2>
+
+    <p>Ordered by risk-to-effort. The first four are days of work and would move the overall rating to roughly 8.5.</p>
+
+    <ul class="prio">
+      <li>
+        <span class="rank now">Now</span>
+        <span class="what"><b>Close the unbalanced-ledger path (LOG-1)</b><span>Require <code>lines</code> on the journal batch route and retire <code>JournalService::createEntry</code>. This is a financial-integrity defect in an accounting system — it outranks everything else here.</span></span>
+      </li>
+      <li>
+        <span class="rank now">Now</span>
+        <span class="what"><b>Add a global API throttle (SEC-1)</b><span>One line of middleware configuration closes the top security finding and the cheapest denial-of-service vector simultaneously. Follow with tighter limits on PDF, export, and import routes.</span></span>
+      </li>
+      <li>
+        <span class="rank now">Now</span>
+        <span class="what"><b>Expose a real health probe and add container health checks (AVL-1, AVL-2)</b><span>Without these, the redundancy already paid for does not function — traffic keeps flowing to dead workers.</span></span>
+      </li>
+      <li>
+        <span class="rank now">Now</span>
+        <span class="what"><b>Reclaim stuck webhook events (AVL-3)</b><span>Add a staleness timeout to the <code>processing</code> claim. Silently dropped payments are the most expensive class of bug in this system.</span></span>
+      </li>
+      <li>
+        <span class="rank next">Next</span>
+        <span class="what"><b>Unify the period lock and fix reference generation (LOG-2, LOG-3)</b><span>One shared guard for closed and audited periods; a sequence or locked counter instead of <code>count() + 1</code>.</span></span>
+      </li>
+      <li>
+        <span class="rank next">Next</span>
+        <span class="what"><b>Make tenant scoping fail-closed (SEC-2)</b><span>Throw on unscoped access with an explicit opt-out at each legitimate call site, so the guarantee holds by construction rather than by discipline.</span></span>
+      </li>
+      <li>
+        <span class="rank next">Next</span>
+        <span class="what"><b>Restore CI and add a scheduled dependency audit (AVL-5, SEC-4)</b><span>Then clear the eight outstanding advisories.</span></span>
+      </li>
+      <li>
+        <span class="rank soon">Soon</span>
+        <span class="what"><b>Move PDF rendering to the queue (PERF-2)</b><span>Return a job handle and deliver via signed URL. Removes the worker-starvation risk permanently.</span></span>
+      </li>
+      <li>
+        <span class="rank soon">Soon</span>
+        <span class="what"><b>Managed Postgres with replication and PITR (AVL-4)</b><span>The prerequisite for selling this to more than one school. Nightly dumps are a 24-hour recovery point.</span></span>
+      </li>
+      <li>
+        <span class="rank soon">Soon</span>
+        <span class="what"><b>Type the API boundary and split <code>api.ts</code> (UI-1)</b><span>Retire <code>any</code> in the request/response layer first — that is where the 2803 warnings actually cost something.</span></span>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="sec-kicker">Section 08</p>
+    <h2>Closing assessment</h2>
+
+    <p>Judged as engineering, this is well above the median for its category. Refresh-token rotation with family revocation, encrypted httpOnly credential cookies, idempotent ledger postings, maker–checker approval chains, and a rehearsed restore are not things most school management systems have. The comments in the code explain <em>why</em> rather than <em>what</em>, the tests cover adversarial cases rather than happy paths, and someone clearly thought hard about multi-tenancy before writing the migration.</p>
+
+    <p>The pattern in the defects is consistent and worth naming: <strong>the new code is careful, and the old code it replaced is still reachable.</strong> <code>JournalBatchService</code> enforces balance while <code>JournalService</code> does not, and both answer the same route. <code>LedgerService</code> respects audited periods while <code>JournalService</code> does not. Legacy HR and finance endpoints keep coarse role gates while their replacements use granular permissions. Each hardening pass added a correct implementation without removing the incorrect one, and the security of the whole is set by the weakest path an attacker can still reach — not the best one.</p>
+
+    <p>The second pattern is the gap between ambition and operations. The tenancy work is designed for many schools; the deployment is designed for one host. Closing that gap is an infrastructure decision, not a code one, and it should be made deliberately rather than discovered during an outage.</p>
+
+    <p><strong>Verdict: 7.0 / 10.</strong> Suitable for production at a single school with a maintenance window, once the four <em>Now</em> items are closed. For multi-school SaaS, the availability work in Section 06 is a prerequisite, not an optimisation.</p>
+  </section>
+
+  <footer>
+    <p>Prepared 8 August 2026 against branch <code>main</code> at commit <code>fd192d8</code>. Ratings derive from code read in this working tree plus the commands listed in Section 01, all executed locally on PHP 8.4.23 and Node 24.14.0. Findings LOG-1, LOG-2, and SEC-2 were confirmed by temporary probe tests, whose output is reproduced verbatim above; those test files were deleted after the run and no application code was modified during this review.</p>
+    <p>Not covered: live SMTP, Stripe sandbox, and FCM behaviour, none of which are configured in this tree; load and penetration testing; and the <code>school-mobile</code> application, which is tracked in git but absent from the working tree.</p>
+  </footer>
+
+</div>
+
+</body></html>

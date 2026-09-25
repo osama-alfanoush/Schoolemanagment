@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\AcademicYear;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class AdminOpsTest extends TestCase
@@ -24,6 +26,22 @@ class AdminOpsTest extends TestCase
     {
         $this->actingAs($this->admin)->getJson('/api/admin/dashboard/kpis')
             ->assertOk()->assertJsonStructure(['data' => ['students', 'teachers', 'outstanding_fees']]);
+    }
+
+    public function test_admin_dashboard_uses_the_current_academic_year_name(): void
+    {
+        Cache::forget('admin:kpis');
+        AcademicYear::query()->create([
+            'name' => '2025-2026',
+            'start_date' => '2025-09-01',
+            'end_date' => '2026-06-30',
+            'is_current' => true,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->getJson('/api/admin/dashboard/kpis')
+            ->assertOk()
+            ->assertJsonPath('data.academic_year', '2025-2026');
     }
 
     public function test_admin_attendance_dashboard(): void

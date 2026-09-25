@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from './msw-handlers';
-import { apiFetch, apiDownload, ApiError, tokenStore } from '@/lib/api';
+import { apiFetch, apiDownload, ApiError, authStore } from '@/lib/api';
 
 beforeEach(() => {
   localStorage.clear();
@@ -31,39 +31,39 @@ describe('apiFetch', () => {
   });
 });
 
-describe('tokenStore', () => {
-  it('stores and retrieves access token', () => {
-    tokenStore.setSession('access123', 'refresh123', {
+describe('authStore', () => {
+  it('stores only a non-secret session marker', () => {
+    authStore.setSession({
       id: 1, name: 'T', email: 't@t.com', role: 'admin', is_active: true,
     });
-    expect(tokenStore.getAccess()).toBe('access123');
-    expect(tokenStore.getRefresh()).toBe('refresh123');
+    expect(authStore.hasSession()).toBe(true);
+    expect(localStorage.getItem('sm_access_token')).toBeNull();
+    expect(localStorage.getItem('sm_refresh_token')).toBeNull();
   });
 
   it('stores minimal user info', () => {
-    tokenStore.setSession('a', 'r', {
+    authStore.setSession({
       id: 1, name: 'Test', email: 't@t.com', role: 'admin', is_active: true,
       locale: 'en', photo_path: null,
     });
-    const user = tokenStore.getUser();
+    const user = authStore.getUser();
     expect(user?.id).toBe(1);
     expect(user?.role).toBe('admin');
     expect(user).not.toHaveProperty('is_active');
   });
 
   it('clears all stored data', () => {
-    tokenStore.setSession('a', 'r', {
+    authStore.setSession({
       id: 1, name: 'T', email: 't@t.com', role: 'admin', is_active: true,
     });
-    tokenStore.clear();
-    expect(tokenStore.getAccess()).toBeNull();
-    expect(tokenStore.getRefresh()).toBeNull();
-    expect(tokenStore.getUser()).toBeNull();
+    authStore.clear();
+    expect(authStore.hasSession()).toBe(false);
+    expect(authStore.getUser()).toBeNull();
   });
 
   it('returns null for corrupted user data', () => {
     localStorage.setItem('sm_user', '{invalid json');
-    expect(tokenStore.getUser()).toBeNull();
+    expect(authStore.getUser()).toBeNull();
   });
 });
 
@@ -73,7 +73,7 @@ describe('apiDownload', () => {
   });
 
   it('throws ApiError on download failure', async () => {
-    tokenStore.setSession('token', 'refresh', {
+    authStore.setSession({
       id: 1, name: 'T', email: 't@t.com', role: 'admin', is_active: true,
     });
     server.use(

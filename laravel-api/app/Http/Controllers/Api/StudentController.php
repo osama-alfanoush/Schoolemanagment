@@ -12,6 +12,7 @@ use App\Models\StudentProfile;
 use App\Models\Submission;
 use App\Models\TimetableEntry;
 use App\Services\PerformanceChartService;
+use App\Services\PrivateFileVault;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +56,7 @@ class StudentController extends Controller
         return response()->json($assignments);
     }
 
-    public function submitAssignment(Request $request, int $assignmentId)
+    public function submitAssignment(Request $request, PrivateFileVault $vault, int $assignmentId)
     {
         $assignment = Assignment::findOrFail($assignmentId);
         $student = $request->user();
@@ -64,11 +65,16 @@ class StudentController extends Controller
         }
         $data = $request->validate([
             'content_text' => 'nullable|string',
-            'file' => 'nullable|file|max:20480',
+            // mimetypes: inspects the actual content type; the previous rule
+            // accepted any file at all, including a PHP script.
+            'file' => array_merge(['nullable'], PrivateFileVault::rulesFor('submission')),
         ]);
         $filePath = null;
         if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store("submissions/{$assignmentId}");
+            // Stored under a generated key with no assignment id, student id or
+            // original filename in it, and readable only through
+            // GET /api/files/submission/{id} after an authorization check.
+            $filePath = $vault->store($request->file('file'), 'submission');
         }
         $status = now()->greaterThan($assignment->due_at) ? 'late' : 'submitted';
         $submission = Submission::updateOrCreate(

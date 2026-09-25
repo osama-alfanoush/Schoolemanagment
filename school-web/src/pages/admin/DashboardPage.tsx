@@ -128,6 +128,8 @@ export default function AdminDashboardPage() {
   const recentLogs: any[] = unwrapList(auditLogs).slice(0, 5);
 
   const recentAnnouncements: any[] = unwrapList(announcements).slice(0, 3);
+  const fallbackAcademicYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+  const academicYear = kpiData?.academic_year || fallbackAcademicYear;
 
   const today = new Date().toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
     weekday: "long",
@@ -147,7 +149,7 @@ export default function AdminDashboardPage() {
           </h1>
           <p className="text-white/70 mt-1 text-sm">{today}</p>
           <p className="text-white/50 text-xs mt-0.5">
-            {t("adminDashboard.academicYear")} {kpiData?.academic_year ?? new Date().getFullYear()}-{new Date().getFullYear() + 1}
+            {t("adminDashboard.academicYear")} {academicYear}
           </p>
         </div>
         <div className="flex flex-wrap gap-2 mt-4 md:mt-0 z-10">

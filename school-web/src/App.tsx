@@ -12,6 +12,8 @@ import { Role } from "@/lib/api";
 
 import LoginPage from "@/pages/auth/LoginPage";
 
+const ForcePasswordChange = lazy(() => import("@/pages/auth/ForcePasswordChange"));
+
 // Lazy-loaded portal pages — each group becomes a separate chunk
 const StudentDashboardPage = lazy(() => import("@/pages/student/DashboardPage"));
 const StudentTimetable = lazy(() => import("@/pages/student/Timetable"));
@@ -64,12 +66,15 @@ const ParentAttendance = lazy(() => import("@/pages/parent/Attendance"));
 const ParentInvoices = lazy(() => import("@/pages/parent/Invoices"));
 
 const FinanceDashboard = lazy(() => import("@/pages/finance/Dashboard"));
+const FinanceInstallments = lazy(() => import("@/pages/finance/Installments"));
+const FinancePayrollRuns = lazy(() => import("@/pages/finance/PayrollRuns"));
 const FinanceInvoices = lazy(() => import("@/pages/finance/Invoices"));
-const FinancePayroll = lazy(() => import("@/pages/finance/Payroll"));
 const FinanceOutstanding = lazy(() => import("@/pages/finance/Outstanding"));
 const FinanceFeeStructures = lazy(() => import("@/pages/finance/FeeStructures"));
 const FinanceReports = lazy(() => import("@/pages/finance/Reports"));
 const FinancePayments = lazy(() => import("@/pages/finance/Payments"));
+const StudentFinance = lazy(() => import("@/pages/finance/StudentFinance"));
+const FinanceAdjustments = lazy(() => import("@/pages/finance/Adjustments"));
 
 const HrDashboard = lazy(() => import("@/pages/hr/Dashboard"));
 const HrStaff = lazy(() => import("@/pages/hr/Staff"));
@@ -79,6 +84,10 @@ const HrReports = lazy(() => import("@/pages/hr/Reports"));
 const HrEvaluations = lazy(() => import("@/pages/hr/Evaluations"));
 const HrRecruitment = lazy(() => import("@/pages/hr/Recruitment"));
 const HrRequests = lazy(() => import("@/pages/hr/HrRequests"));
+const HrContracts = lazy(() => import("@/pages/hr/Contracts"));
+const HrWarnings = lazy(() => import("@/pages/hr/Warnings"));
+const HrAdvances = lazy(() => import("@/pages/hr/Advances"));
+const HrPayrollSettings = lazy(() => import("@/pages/hr/PayrollSettings"));
 
 const AccountingDashboard = lazy(() => import("@/pages/accounting/Dashboard"));
 const JournalEntries = lazy(() => import("@/pages/accounting/JournalEntries"));
@@ -87,6 +96,12 @@ const Budget = lazy(() => import("@/pages/accounting/Budget"));
 const Closings = lazy(() => import("@/pages/accounting/Closings"));
 const AccountingReports = lazy(() => import("@/pages/accounting/Reports"));
 const AuditTrail = lazy(() => import("@/pages/accounting/AuditTrail"));
+
+const ProcurementDashboard = lazy(() => import("@/pages/procurement/Dashboard"));
+const ProcurementSuppliers = lazy(() => import("@/pages/procurement/Suppliers"));
+const ProcurementPurchaseOrders = lazy(() => import("@/pages/procurement/PurchaseOrders"));
+const ProcurementGoodsReceipts = lazy(() => import("@/pages/procurement/GoodsReceipts"));
+const ProcurementSupplierInvoices = lazy(() => import("@/pages/procurement/SupplierInvoices"));
 
 const WarehouseDashboard = lazy(() => import("@/pages/warehouse/Dashboard"));
 const WarehouseCategories = lazy(() => import("@/pages/warehouse/Categories"));
@@ -151,14 +166,9 @@ function Portal({
   Component: ComponentType<any>;
   path: string;
 }) {
-  const segments = path.split("/").filter(Boolean);
-  const title = segments.length <= 1
-    ? "Dashboard"
-    : segments.slice(1).map(s => s.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase())).join(" — ");
-
   return (
     <RoleGuard roles={roles}>
-      <AppLayout title={title}>
+      <AppLayout path={path}>
         <SuspenseWrapper>
           <Component />
         </SuspenseWrapper>
@@ -229,7 +239,14 @@ const routes: Array<{ path: string; roles: Role[]; component: ComponentType<any>
   { path: "/finance", roles: ["finance", "admin"], component: FinanceDashboard },
   { path: "/finance/invoices", roles: ["finance", "admin"], component: FinanceInvoices },
   { path: "/finance/payments", roles: ["finance", "admin"], component: FinancePayments },
-  { path: "/finance/payroll", roles: ["finance", "admin"], component: FinancePayroll },
+  { path: "/finance/students", roles: ["finance", "admin"], component: StudentFinance },
+  { path: "/finance/adjustments", roles: ["finance", "admin"], component: FinanceAdjustments },
+  { path: "/finance/payroll", roles: ["finance", "admin"], component: FinancePayrollRuns },
+  { path: "/finance/installments", roles: ["finance", "admin"], component: FinanceInstallments },
+  // HR drafts and edits runs; finance/admin approve and pay (perm-gated server-side).
+  { path: "/finance/payroll-runs", roles: ["finance", "hr", "admin"], component: FinancePayrollRuns },
+  { path: "/finance/hr-advances", roles: ["finance", "admin"], component: HrAdvances },
+  { path: "/finance/payroll-settings", roles: ["finance", "hr", "admin"], component: HrPayrollSettings },
   { path: "/finance/outstanding", roles: ["finance", "admin"], component: FinanceOutstanding },
   { path: "/finance/fee-structures", roles: ["finance", "admin"], component: FinanceFeeStructures },
   { path: "/finance/reports", roles: ["finance", "admin"], component: FinanceReports },
@@ -237,17 +254,21 @@ const routes: Array<{ path: string; roles: Role[]; component: ComponentType<any>
   { path: "/finance/messages", roles: ["finance", "admin"], component: Messages },
   { path: "/finance/profile", roles: ["finance", "admin"], component: Profile },
 
-  { path: "/hr", roles: ["hr"], component: HrDashboard },
-  { path: "/hr/staff", roles: ["hr"], component: HrStaff },
-  { path: "/hr/leave", roles: ["hr"], component: HrLeave },
-  { path: "/hr/attendance", roles: ["hr"], component: HrAttendance },
-  { path: "/hr/reports", roles: ["hr"], component: HrReports },
-  { path: "/hr/evaluations", roles: ["hr"], component: HrEvaluations },
-  { path: "/hr/recruitment", roles: ["hr"], component: HrRecruitment },
-  { path: "/hr/requests", roles: ["hr"], component: HrRequests },
-  { path: "/hr/notifications", roles: ["hr"], component: StudentNotifications },
-  { path: "/hr/messages", roles: ["hr"], component: Messages },
-  { path: "/hr/profile", roles: ["hr"], component: Profile },
+  { path: "/hr", roles: ["hr", "admin"], component: HrDashboard },
+  { path: "/hr/staff", roles: ["hr", "admin"], component: HrStaff },
+  { path: "/hr/contracts", roles: ["hr", "admin"], component: HrContracts },
+  { path: "/hr/warnings", roles: ["hr", "admin"], component: HrWarnings },
+  { path: "/hr/advances", roles: ["hr", "admin"], component: HrAdvances },
+  { path: "/hr/payroll-settings", roles: ["hr", "admin"], component: HrPayrollSettings },
+  { path: "/hr/leave", roles: ["hr", "admin"], component: HrLeave },
+  { path: "/hr/attendance", roles: ["hr", "admin"], component: HrAttendance },
+  { path: "/hr/reports", roles: ["hr", "admin"], component: HrReports },
+  { path: "/hr/evaluations", roles: ["hr", "admin"], component: HrEvaluations },
+  { path: "/hr/recruitment", roles: ["hr", "admin"], component: HrRecruitment },
+  { path: "/hr/requests", roles: ["hr", "admin"], component: HrRequests },
+  { path: "/hr/notifications", roles: ["hr", "admin"], component: StudentNotifications },
+  { path: "/hr/messages", roles: ["hr", "admin"], component: Messages },
+  { path: "/hr/profile", roles: ["hr", "admin"], component: Profile },
 
   { path: "/accounting", roles: ["finance", "admin"], component: AccountingDashboard },
   { path: "/accounting/journal-entries", roles: ["finance", "admin"], component: JournalEntries },
@@ -259,6 +280,17 @@ const routes: Array<{ path: string; roles: Role[]; component: ComponentType<any>
   { path: "/accounting/notifications", roles: ["finance", "admin"], component: StudentNotifications },
   { path: "/accounting/messages", roles: ["finance", "admin"], component: Messages },
   { path: "/accounting/profile", roles: ["finance", "admin"], component: Profile },
+
+  // Mirrors the API gates: warehouse/finance get read + receive access,
+  // supplier invoices (AP) are procurement/finance only.
+  { path: "/procurement", roles: ["procurement", "warehouse", "finance", "admin"], component: ProcurementDashboard },
+  { path: "/procurement/suppliers", roles: ["procurement", "warehouse", "finance", "admin"], component: ProcurementSuppliers },
+  { path: "/procurement/purchase-orders", roles: ["procurement", "warehouse", "finance", "admin"], component: ProcurementPurchaseOrders },
+  { path: "/procurement/goods-receipts", roles: ["procurement", "warehouse", "finance", "admin"], component: ProcurementGoodsReceipts },
+  { path: "/procurement/supplier-invoices", roles: ["procurement", "finance", "admin"], component: ProcurementSupplierInvoices },
+  { path: "/procurement/notifications", roles: ["procurement", "admin"], component: StudentNotifications },
+  { path: "/procurement/messages", roles: ["procurement", "admin"], component: Messages },
+  { path: "/procurement/profile", roles: ["procurement", "admin"], component: Profile },
 
   { path: "/warehouse", roles: ["warehouse", "admin"], component: WarehouseDashboard },
   { path: "/warehouse/categories", roles: ["warehouse", "admin"], component: WarehouseCategories },
@@ -277,6 +309,11 @@ function Router() {
     <Switch>
       <Route path="/" component={IndexRoute} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/change-password">
+        <SuspenseWrapper>
+          <ForcePasswordChange />
+        </SuspenseWrapper>
+      </Route>
       {routes.map(({ path, roles, component }) => (
         <Route key={path} path={path}>
           <Portal roles={roles} Component={component} path={path} />

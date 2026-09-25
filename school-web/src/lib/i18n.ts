@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { localeTree } from "./i18n.strings";
 
 type Translations = Record<string, Record<string, any>>;
 
@@ -10,6 +11,8 @@ const en: Translations = {
     logout: "Logout",
     save: "Save",
     cancel: "Cancel",
+    loadFailed: "Couldn't load dashboard data.",
+    retry: "Retry",
     delete: "Delete",
     edit: "Edit",
     create: "Create",
@@ -66,7 +69,7 @@ const en: Translations = {
     forgotPassword: "Forgot password?",
     invalidCredentials: "Invalid email or password",
     needHelp: "Need help signing in?",
-    demoAccounts: 'Demo accounts (password: "password")',
+    demoAccounts: "Development demo accounts",
     welcomeBack: "Welcome back",
     schoolPortal: "Your school, all in one place.",
     learn: "Learn",
@@ -127,6 +130,12 @@ const en: Translations = {
     movements: "Movements",
     inventoryCounts: "Inventory Counts",
     purchaseRequests: "Purchase Requests",
+    suppliers: "Suppliers",
+    purchaseOrders: "Purchase Orders",
+    goodsReceipts: "Goods Receipts",
+    supplierInvoices: "Supplier Invoices",
+    installments: "Installments",
+    payrollRuns: "Payroll Runs",
   },
   profileSettings: {
     personalInfo: "Personal Information",
@@ -139,6 +148,8 @@ const en: Translations = {
     newPassword: "New Password",
     confirmNewPassword: "Confirm New Password",
     updatePassword: "Update Password",
+    passwordMismatch: "New passwords do not match.",
+    forceChangeDesc: "Your account requires a new password before you can continue.",
     preferences: "Preferences",
     preferencesDesc: "Manage your language and local settings.",
   },
@@ -151,6 +162,7 @@ const en: Translations = {
     hr: "HR",
     accounting: "Accounting",
     warehouse: "Warehouse",
+    procurement: "Procurement",
   },
   studentDashboard: {
     greetingMorning: "Good morning",
@@ -285,6 +297,8 @@ const ar: Translations = {
     logout: "تسجيل الخروج",
     save: "حفظ",
     cancel: "إلغاء",
+    loadFailed: "تعذّر تحميل بيانات لوحة القيادة.",
+    retry: "إعادة المحاولة",
     delete: "حذف",
     edit: "تعديل",
     create: "إنشاء",
@@ -341,7 +355,7 @@ const ar: Translations = {
     forgotPassword: "هل نسيت كلمة المرور؟",
     invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
     needHelp: "بحاجة إلى مساعدة في تسجيل الدخول؟",
-    demoAccounts: 'حسابات تجريبية (كلمة المرور: "password")',
+    demoAccounts: "حسابات العرض في بيئة التطوير",
     welcomeBack: "مرحباً بعودتك",
     schoolPortal: "مدرستك، كلها في مكان واحد.",
     learn: "تعلم",
@@ -402,6 +416,12 @@ const ar: Translations = {
     movements: "الحركات",
     inventoryCounts: "جرد المخزون",
     purchaseRequests: "طلبات الشراء",
+    suppliers: "الموردون",
+    purchaseOrders: "أوامر الشراء",
+    goodsReceipts: "إيصالات الاستلام",
+    supplierInvoices: "فواتير الموردين",
+    installments: "الأقساط",
+    payrollRuns: "دورات الرواتب",
   },
   profileSettings: {
     personalInfo: "المعلومات الشخصية",
@@ -414,6 +434,8 @@ const ar: Translations = {
     newPassword: "كلمة المرور الجديدة",
     confirmNewPassword: "تأكيد كلمة المرور الجديدة",
     updatePassword: "تحديث كلمة المرور",
+    passwordMismatch: "كلمتا المرور الجديدتان غير متطابقتين.",
+    forceChangeDesc: "يتطلب حسابك تعيين كلمة مرور جديدة قبل المتابعة.",
     preferences: "التفضيلات",
     preferencesDesc: "إدارة إعدادات اللغة والمحلية.",
   },
@@ -426,6 +448,7 @@ const ar: Translations = {
     hr: "الموارد البشرية",
     accounting: "المحاسبة",
     warehouse: "المستودع",
+    procurement: "المشتريات",
   },
   studentDashboard: {
     greetingMorning: "صباح الخير",
@@ -553,9 +576,20 @@ const ar: Translations = {
   },
 };
 
+/** Namespaces added as `[en, ar]` pairs merge on top of the per-language trees. */
+function merge(base: Record<string, any>, extra: Record<string, any>): Record<string, any> {
+  const out: Record<string, any> = { ...base };
+  for (const [key, value] of Object.entries(extra)) {
+    out[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? merge((base[key] as Record<string, any>) ?? {}, value as Record<string, any>)
+      : value;
+  }
+  return out;
+}
+
 const resources = {
-  en: { translation: en },
-  ar: { translation: ar },
+  en: { translation: merge(en, localeTree(0)) },
+  ar: { translation: merge(ar, localeTree(1)) },
 };
 
 const STORAGE_KEY = "sm_locale";

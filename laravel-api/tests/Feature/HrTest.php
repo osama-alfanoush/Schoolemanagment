@@ -83,6 +83,7 @@ class HrTest extends TestCase
     {
         $teacher = User::factory()->teacher()->create();
         $request = HrRequest::create([
+            'school_id' => $teacher->schoolRoles()->value('school_id'),
             'teacher_user_id' => $teacher->id,
             'type' => 'leave_annual',
             'subject' => 'Annual leave',

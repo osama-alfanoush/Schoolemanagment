@@ -50,7 +50,11 @@ return [
     |
     */
 
-    'expiration' => (int) env('SANCTUM_TOKEN_TTL', 120),
+    // Each issued token has an explicit expires_at value. A global expiration
+    // would incorrectly reduce 30-day refresh tokens to the access-token TTL.
+    'expiration' => env('SANCTUM_TOKEN_TTL') !== null
+        ? (int) env('SANCTUM_TOKEN_TTL')
+        : null,
 
     /*
     |--------------------------------------------------------------------------

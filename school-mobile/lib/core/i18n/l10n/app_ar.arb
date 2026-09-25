@@ -1,0 +1,1343 @@
+{
+  "@@locale": "ar",
+  "appTitle": "سويت المدرسة",
+  "@appTitle": {
+    "description": "Application title shown in the app bar."
+  },
+  "activeFlavor": "النكهة النشطة",
+  "@activeFlavor": {
+    "description": "Label for the active build flavour."
+  },
+  "apiBaseUrl": "عنوان واجهة البرمجة",
+  "@apiBaseUrl": {
+    "description": "Label for the compile-time API base URL."
+  },
+  "currentLocale": "اللغة الحالية",
+  "@currentLocale": {
+    "description": "Label for the active locale code."
+  },
+  "notConfigured": "غير محدد",
+  "@notConfigured": {
+    "description": "Placeholder shown when a value was not supplied at build time."
+  },
+  "sampleAmount": "مبلغ تجريبي",
+  "@sampleAmount": {
+    "description": "Label for the sample money amount on the verification screen."
+  },
+  "sampleDate": "التاريخ",
+  "@sampleDate": {
+    "description": "Label for the sample formatted date."
+  },
+  "digitShape": "شكل الأرقام",
+  "@digitShape": {
+    "description": "Label for the active digit shape preference."
+  },
+  "digitShapeWestern": "غربي",
+  "@digitShapeWestern": {
+    "description": "Name of the Western digit shape (0123)."
+  },
+  "digitShapeArabicIndic": "عربي هندي",
+  "@digitShapeArabicIndic": {
+    "description": "Name of the Arabic-Indic digit shape (٠١٢٣)."
+  },
+  "textDirection": "اتجاه النص",
+  "@textDirection": {
+    "description": "Label for the active text direction."
+  },
+  "upgradeRequiredTitle": "يجب تحديث التطبيق",
+  "@upgradeRequiredTitle": {
+    "description": "Title of the blocking force-upgrade screen."
+  },
+  "upgradeRequiredBody": "هذه النسخة من التطبيق لم تعد مدعومة. حدّث التطبيق من متجر Play للمتابعة.",
+  "@upgradeRequiredBody": {
+    "description": "Body of the blocking force-upgrade screen."
+  },
+  "upgradeRecommendedBody": "يتوفر إصدار أحدث من التطبيق.",
+  "@upgradeRecommendedBody": {
+    "description": "Soft-upgrade banner text."
+  },
+  "upgradeCheckAgain": "تحقّق مرة أخرى",
+  "@upgradeCheckAgain": {
+    "description": "Action that re-checks the version policy."
+  },
+  "later": "لاحقًا",
+  "@later": {
+    "description": "Dismisses a non-blocking prompt."
+  },
+  "notFoundTitle": "الصفحة غير موجودة",
+  "@notFoundTitle": {
+    "description": "Title shown for an unrecognised route or deep link."
+  },
+  "notFoundBody": "الرابط الذي فتحته غير صالح أو لم يعد متاحًا.",
+  "@notFoundBody": {
+    "description": "Body shown for an unrecognised route or deep link."
+  },
+  "goHome": "العودة إلى الرئيسية",
+  "@goHome": {
+    "description": "Action returning the user to their role's home screen."
+  },
+  "switchRoleTitle": "تبديل الحساب",
+  "@switchRoleTitle": {
+    "description": "Title of the role switcher for multi-role users."
+  },
+  "switchRoleBody": "لديك أكثر من دور في المدرسة. اختر الدور الذي تريد عرضه.",
+  "@switchRoleBody": {
+    "description": "Explanation on the role switcher."
+  },
+  "roleParent": "ولي أمر",
+  "@roleParent": {
+    "description": "Name of the parent role."
+  },
+  "roleTeacher": "معلّم",
+  "@roleTeacher": {
+    "description": "Name of the teacher role."
+  },
+  "roleStudent": "طالب",
+  "@roleStudent": {
+    "description": "Name of the student role."
+  },
+  "signInTitle": "تسجيل الدخول",
+  "@signInTitle": {
+    "description": "Title of the sign-in screen."
+  },
+  "noMobileRoleTitle": "التطبيق غير متاح لحسابك",
+  "@noMobileRoleTitle": {
+    "description": "Title shown to a signed-in user whose roles have no mobile app."
+  },
+  "noMobileRoleBody": "تطبيق الجوال مخصّص لأولياء الأمور والمعلّمين والطلاب. استخدم لوحة التحكم على المتصفح.",
+  "@noMobileRoleBody": {
+    "description": "Body shown to a signed-in user whose roles have no mobile app."
+  },
+  "screenNotBuiltTitle": "هذه الشاشة قيد الإنشاء",
+  "@screenNotBuiltTitle": {
+    "description": "Title of the placeholder screen shown where a feature is not built yet."
+  },
+  "screenNotBuiltBody": "لم يتم بناء هذه الشاشة بعد.",
+  "@screenNotBuiltBody": {
+    "description": "Body of the placeholder screen shown where a feature is not built yet."
+  },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "Bottom navigation label for the home tab."
+  },
+  "navFees": "الرسوم",
+  "@navFees": {
+    "description": "Bottom navigation label for the fees and payments tab."
+  },
+  "navAcademics": "الدراسة",
+  "@navAcademics": {
+    "description": "Bottom navigation label for attendance and grades."
+  },
+  "navMessages": "الرسائل",
+  "@navMessages": {
+    "description": "Bottom navigation label for messages."
+  },
+  "navProfile": "الحساب",
+  "@navProfile": {
+    "description": "Bottom navigation label for the profile tab."
+  },
+  "navToday": "اليوم",
+  "@navToday": {
+    "description": "Bottom navigation label for a teacher's day."
+  },
+  "navClasses": "الصفوف",
+  "@navClasses": {
+    "description": "Bottom navigation label for a teacher's classes."
+  },
+  "navTimetable": "الجدول",
+  "@navTimetable": {
+    "description": "Bottom navigation label for the timetable."
+  },
+  "navAssignments": "الواجبات",
+  "@navAssignments": {
+    "description": "Bottom navigation label for assignments."
+  },
+  "navGrades": "الدرجات",
+  "@navGrades": {
+    "description": "Bottom navigation label for grades."
+  },
+  "loading": "جارٍ التحميل…",
+  "@loading": {
+    "description": "Shown while a screen is fetching."
+  },
+  "emptyTitle": "لا توجد بيانات",
+  "@emptyTitle": {
+    "description": "Title of the empty state."
+  },
+  "emptyBody": "لا يوجد ما يُعرض حاليًا.",
+  "@emptyBody": {
+    "description": "Body of the empty state."
+  },
+  "errorTitle": "تعذّر تحميل البيانات",
+  "@errorTitle": {
+    "description": "Title of the error state."
+  },
+  "errorOfflineTitle": "لا يوجد اتصال بالإنترنت",
+  "@errorOfflineTitle": {
+    "description": "Title of the error state when the device is offline."
+  },
+  "errorOfflineBody": "تحقّق من اتصالك بالإنترنت ثم أعد المحاولة.",
+  "@errorOfflineBody": {
+    "description": "Body of the offline error state."
+  },
+  "retry": "إعادة المحاولة",
+  "@retry": {
+    "description": "Action that retries a failed load."
+  },
+  "requestIdLabel": "رقم المرجع",
+  "@requestIdLabel": {
+    "description": "Label for the server request id on an error screen."
+  },
+  "requestIdHint": "اذكر هذا الرقم عند التواصل مع المدرسة.",
+  "@requestIdHint": {
+    "description": "Explains why the request id is shown."
+  },
+  "offlineBanner": "أنت غير متصل. تُعرض بيانات محفوظة.",
+  "@offlineBanner": {
+    "description": "Banner shown while the device has no connectivity."
+  },
+  "pendingSyncTooltip": "عناصر لم تُرسل إلى الخادم بعد",
+  "@pendingSyncTooltip": {
+    "description": "Tooltip on the pending-sync badge."
+  },
+  "failedSyncTooltip": "عناصر تعذّرت مزامنتها",
+  "@failedSyncTooltip": {
+    "description": "Tooltip on the failed-sync badge."
+  },
+  "pendingSyncCount": "{count, plural, =0{لا شيء بانتظار المزامنة} =1{عنصر واحد بانتظار المزامنة} =2{عنصران بانتظار المزامنة} few{{count} عناصر بانتظار المزامنة} many{{count} عنصرًا بانتظار المزامنة} other{{count} عنصر بانتظار المزامنة}}",
+  "@pendingSyncCount": {
+    "description": "Count of outbox rows, shown on the sync badge.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "failedSyncCount": "{count, plural, =0{لا شيء تعذّرت مزامنته} =1{عنصر واحد تعذّرت مزامنته} =2{عنصران تعذّرت مزامنتهما} few{{count} عناصر تعذّرت مزامنتها} many{{count} عنصرًا تعذّرت مزامنته} other{{count} عنصر تعذّرت مزامنته}}",
+  "@failedSyncCount": {
+    "description": "Count of outbox rows, shown on the sync badge.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastUpdated": "آخر تحديث: {time}",
+  "@lastUpdated": {
+    "description": "Staleness indicator on cached content.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "signInSubtitle": "سجّل الدخول بالبريد الإلكتروني وكلمة المرور التي زوّدتك بها المدرسة.",
+  "@signInSubtitle": {
+    "description": "Explanation under the sign-in title."
+  },
+  "emailLabel": "البريد الإلكتروني",
+  "@emailLabel": {
+    "description": "Label for the email field."
+  },
+  "passwordLabel": "كلمة المرور",
+  "@passwordLabel": {
+    "description": "Label for the password field."
+  },
+  "showPassword": "إظهار كلمة المرور",
+  "@showPassword": {
+    "description": "Toggle that reveals the password."
+  },
+  "hidePassword": "إخفاء كلمة المرور",
+  "@hidePassword": {
+    "description": "Toggle that hides the password."
+  },
+  "signInAction": "تسجيل الدخول",
+  "@signInAction": {
+    "description": "Submit button on the sign-in screen."
+  },
+  "emailRequired": "أدخل البريد الإلكتروني.",
+  "@emailRequired": {
+    "description": "Validation message for an empty email field."
+  },
+  "emailInvalid": "البريد الإلكتروني غير صالح.",
+  "@emailInvalid": {
+    "description": "Validation message for a malformed email."
+  },
+  "passwordRequired": "أدخل كلمة المرور.",
+  "@passwordRequired": {
+    "description": "Validation message for an empty password field."
+  },
+  "loginInvalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+  "@loginInvalidCredentials": {
+    "description": "Shown when the server rejects the credentials."
+  },
+  "loginTooManyAttempts": "محاولات كثيرة خلال وقت قصير. انتظر قليلًا ثم حاول مرة أخرى.",
+  "@loginTooManyAttempts": {
+    "description": "Shown when the login rate limiter rejects the request."
+  },
+  "loginNoSchoolAccess": "لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.",
+  "@loginNoSchoolAccess": {
+    "description": "Shown when the account has no active school assignment."
+  },
+  "loginDeviceNotReady": "تعذّر تجهيز معرّف هذا الجهاز. أعد تشغيل التطبيق ثم حاول مرة أخرى.",
+  "@loginDeviceNotReady": {
+    "description": "Shown when the device id could not be provisioned, so login was not attempted."
+  },
+  "loginFailedGeneric": "تعذّر تسجيل الدخول. حاول مرة أخرى.",
+  "@loginFailedGeneric": {
+    "description": "Shown for an unclassified login failure."
+  },
+  "loginAccountLocked": "{minutes, plural, =0{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد قليل.} =1{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقة.} =2{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد دقيقتين.} few{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقائق.} many{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.} other{تم إيقاف الحساب مؤقتًا بسبب محاولات دخول خاطئة. حاول مرة أخرى بعد {minutes} دقيقة.}}",
+  "@loginAccountLocked": {
+    "description": "Shown when the account is locked out, with the minutes remaining.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "mfaTitle": "التحقق بخطوتين",
+  "@mfaTitle": {
+    "description": "Two-factor challenge title."
+  },
+  "mfaBody": "أدخل رمز التحقق من تطبيق المصادقة على هاتفك.",
+  "@mfaBody": {
+    "description": "Two-factor challenge explanation."
+  },
+  "mfaCodeLabel": "رمز التحقق",
+  "@mfaCodeLabel": {
+    "description": "Label for the TOTP code field."
+  },
+  "mfaRecoveryCodeLabel": "رمز الاسترداد",
+  "@mfaRecoveryCodeLabel": {
+    "description": "Label for the recovery-code field."
+  },
+  "mfaUseRecoveryCode": "استخدام رمز استرداد",
+  "@mfaUseRecoveryCode": {
+    "description": "Switches to recovery-code entry."
+  },
+  "mfaUseAuthenticatorCode": "استخدام رمز تطبيق المصادقة",
+  "@mfaUseAuthenticatorCode": {
+    "description": "Switches back to authenticator-code entry."
+  },
+  "mfaVerifyAction": "تحقّق",
+  "@mfaVerifyAction": {
+    "description": "Submits the two-factor challenge."
+  },
+  "mfaCodeRequired": "أدخل الرمز.",
+  "@mfaCodeRequired": {
+    "description": "Validation message for an empty code field."
+  },
+  "mfaCodeIncomplete": "الرمز غير مكتمل.",
+  "@mfaCodeIncomplete": {
+    "description": "Validation message for a short TOTP code."
+  },
+  "mfaInvalidCode": "الرمز غير صحيح. حاول مرة أخرى.",
+  "@mfaInvalidCode": {
+    "description": "Shown when the server rejects the code."
+  },
+  "mfaChallengeExpired": "انتهت صلاحية جلسة التحقق. سجّل الدخول مرة أخرى.",
+  "@mfaChallengeExpired": {
+    "description": "Shown when the short-lived challenge token has expired."
+  },
+  "mfaEnrollmentRequiredTitle": "يلزم إعداد التحقق بخطوتين",
+  "@mfaEnrollmentRequiredTitle": {
+    "description": "Title shown when the account has never enrolled in MFA."
+  },
+  "mfaEnrollmentRequiredBody": "حسابك يتطلّب التحقق بخطوتين ولم يتم إعداده بعد. أكمل الإعداد من لوحة التحكم على المتصفح، ثم عد إلى التطبيق.",
+  "@mfaEnrollmentRequiredBody": {
+    "description": "Body shown when the account has never enrolled in MFA."
+  },
+  "backToSignIn": "العودة إلى تسجيل الدخول",
+  "@backToSignIn": {
+    "description": "Returns to the sign-in form."
+  },
+  "changePasswordTitle": "يجب تغيير كلمة المرور",
+  "@changePasswordTitle": {
+    "description": "Title of the forced password-change screen."
+  },
+  "changePasswordBody": "كلمة المرور الحالية مؤقتة. اختر كلمة مرور جديدة للمتابعة.",
+  "@changePasswordBody": {
+    "description": "Body of the forced password-change screen."
+  },
+  "currentPasswordLabel": "كلمة المرور الحالية",
+  "@currentPasswordLabel": {
+    "description": "Label for the current-password field."
+  },
+  "newPasswordLabel": "كلمة المرور الجديدة",
+  "@newPasswordLabel": {
+    "description": "Label for the new-password field."
+  },
+  "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+  "@confirmPasswordLabel": {
+    "description": "Label for the confirm-password field."
+  },
+  "changePasswordAction": "حفظ كلمة المرور",
+  "@changePasswordAction": {
+    "description": "Submits the password change."
+  },
+  "passwordTooShort": "كلمة المرور قصيرة جدًا.",
+  "@passwordTooShort": {
+    "description": "Validation message for a short password."
+  },
+  "passwordNeedsUppercase": "أضف حرفًا لاتينيًا كبيرًا على الأقل.",
+  "@passwordNeedsUppercase": {
+    "description": "Validation message for a password with no uppercase letter."
+  },
+  "passwordNeedsDigit": "أضف رقمًا على الأقل.",
+  "@passwordNeedsDigit": {
+    "description": "Validation message for a password with no digit."
+  },
+  "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
+  "@passwordsDoNotMatch": {
+    "description": "Validation message when the confirmation does not match."
+  },
+  "currentPasswordIncorrect": "كلمة المرور الحالية غير صحيحة.",
+  "@currentPasswordIncorrect": {
+    "description": "Shown when the server rejects the current password."
+  },
+  "accountDeactivated": "تم إيقاف حسابك. تواصل مع إدارة المدرسة.",
+  "@accountDeactivated": {
+    "description": "Shown when the account has been deactivated server-side."
+  },
+  "signOut": "تسجيل الخروج",
+  "@signOut": {
+    "description": "Signs the user out."
+  },
+  "appLockTitle": "التطبيق مقفل",
+  "@appLockTitle": {
+    "description": "Title of the app-lock screen."
+  },
+  "appLockBody": "افتح القفل للمتابعة. القفل يحمي ما هو معروض على الشاشة فقط؛ جلستك لم تنتهِ.",
+  "@appLockBody": {
+    "description": "Body of the app-lock screen."
+  },
+  "appLockUnlockAction": "فتح القفل",
+  "@appLockUnlockAction": {
+    "description": "Button that shows the OS unlock prompt."
+  },
+  "appLockReason": "افتح قفل تطبيق المدرسة",
+  "@appLockReason": {
+    "description": "Reason string the OS prompt displays."
+  },
+  "appLockFailed": "لم يتم التعرّف عليك. حاول مرة أخرى أو سجّل الخروج.",
+  "@appLockFailed": {
+    "description": "Shown after a failed unlock attempt."
+  },
+  "appLockLockedOut": "تم إيقاف المحاولات مؤقتًا. انتظر قليلًا أو سجّل الخروج.",
+  "@appLockLockedOut": {
+    "description": "Shown when the OS has locked the prompt out."
+  },
+  "appLockUnavailable": "لا يمكن عرض طلب الفتح على هذا الجهاز. سجّل الخروج ثم ادخل من جديد.",
+  "@appLockUnavailable": {
+    "description": "Shown when the device can no longer present a prompt."
+  },
+  "securityTitle": "الأمان",
+  "@securityTitle": {
+    "description": "Title of the security settings screen."
+  },
+  "appLockSetting": "قفل التطبيق",
+  "@appLockSetting": {
+    "description": "Label for the app-lock toggle."
+  },
+  "appLockSettingBody": "اطلب بصمة أو رمز الجهاز عند العودة إلى التطبيق.",
+  "@appLockSettingBody": {
+    "description": "Explanation of the app-lock toggle."
+  },
+  "appLockUnsupported": "هذا الجهاز لا يدعم قفل الشاشة. فعّل قفل الشاشة في إعدادات الجهاز أولًا.",
+  "@appLockUnsupported": {
+    "description": "Shown when the device cannot present an unlock prompt."
+  },
+  "appLockTimeoutSetting": "القفل بعد",
+  "@appLockTimeoutSetting": {
+    "description": "Label for the app-lock timeout choice."
+  },
+  "appLockTimeoutImmediate": "فورًا",
+  "@appLockTimeoutImmediate": {
+    "description": "The zero-delay app-lock timeout."
+  },
+  "devicesTitle": "الأجهزة",
+  "@devicesTitle": {
+    "description": "Title of the device list screen."
+  },
+  "devicesBody": "الأجهزة التي سجّلت الدخول إلى حسابك.",
+  "@devicesBody": {
+    "description": "Explanation on the device list screen."
+  },
+  "devicesEmpty": "لا توجد أجهزة مسجّلة بعد.",
+  "@devicesEmpty": {
+    "description": "Empty state on the device list."
+  },
+  "deviceThisDevice": "هذا الجهاز",
+  "@deviceThisDevice": {
+    "description": "Marks the current device in the list."
+  },
+  "deviceLastSeen": "آخر ظهور",
+  "@deviceLastSeen": {
+    "description": "Label for a device's last-seen time."
+  },
+  "deviceRevoke": "إنهاء الجلسة",
+  "@deviceRevoke": {
+    "description": "Revokes a device's session."
+  },
+  "deviceRevokeConfirmTitle": "إنهاء الجلسة على هذا الجهاز؟",
+  "@deviceRevokeConfirmTitle": {
+    "description": "Title of the revoke confirmation."
+  },
+  "deviceRevokeConfirmBody": "سيُطلب تسجيل الدخول من جديد على ذلك الجهاز.",
+  "@deviceRevokeConfirmBody": {
+    "description": "Body of the revoke confirmation."
+  },
+  "deviceRevokeSelfBody": "هذا هو الجهاز الذي تستخدمه الآن. سيتم تسجيل خروجك فورًا.",
+  "@deviceRevokeSelfBody": {
+    "description": "Extra warning when revoking the current device."
+  },
+  "cancel": "إلغاء",
+  "@cancel": {
+    "description": "Dismisses a dialog without acting."
+  },
+  "confirm": "تأكيد",
+  "@confirm": {
+    "description": "Confirms a dialog action."
+  },
+  "diagnosticsTitle": "تشخيص",
+  "@diagnosticsTitle": {
+    "description": "Title of the on-device diagnostics screen."
+  },
+  "activateTitle": "تفعيل الحساب",
+  "@activateTitle": {
+    "description": "Title of the invite-code activation screen."
+  },
+  "activateBody": "أدخل رمز التفعيل الذي زوّدتك به المدرسة. لا حاجة لكلمة مرور.",
+  "@activateBody": {
+    "description": "Explanation on the activation screen."
+  },
+  "activateCodeLabel": "رمز التفعيل",
+  "@activateCodeLabel": {
+    "description": "Label for the invite-code field."
+  },
+  "activateAction": "تفعيل",
+  "@activateAction": {
+    "description": "Submits the activation code."
+  },
+  "activateCodeRequired": "أدخل رمز التفعيل.",
+  "@activateCodeRequired": {
+    "description": "Validation message for an empty code field."
+  },
+  "activateCodeIncomplete": "الرمز غير مكتمل.",
+  "@activateCodeIncomplete": {
+    "description": "Validation message for a short code."
+  },
+  "activateCodeRejected": "هذا الرمز غير صالح أو تم استخدامه. تواصل مع إدارة المدرسة للحصول على رمز جديد.",
+  "@activateCodeRejected": {
+    "description": "Shown when the server refuses the code."
+  },
+  "activateNoSchoolAccess": "لا يوجد لحسابك ارتباط مدرسي فعّال. تواصل مع إدارة المدرسة.",
+  "@activateNoSchoolAccess": {
+    "description": "Shown when the activated account has no school assignment."
+  },
+  "activateHaveCode": "لديك رمز تفعيل من المدرسة؟",
+  "@activateHaveCode": {
+    "description": "Prompt on the sign-in screen that leads to activation."
+  },
+  "activateOpen": "التفعيل برمز",
+  "@activateOpen": {
+    "description": "Opens the activation screen from sign-in."
+  },
+  "activateProtectTitle": "احمِ التطبيق",
+  "@activateProtectTitle": {
+    "description": "Title of the step that offers the app-lock after activation."
+  },
+  "activateProtectBody": "فعّل قفل التطبيق ليطلب بصمتك أو رمز جهازك عند فتحه. يمكنك تغيير ذلك لاحقًا من الأمان.",
+  "@activateProtectBody": {
+    "description": "Explains the app-lock step after activation."
+  },
+  "activateProtectEnable": "تفعيل القفل",
+  "@activateProtectEnable": {
+    "description": "Turns the app-lock on during onboarding."
+  },
+  "skip": "تخطٍّ",
+  "@skip": {
+    "description": "Skips an optional onboarding step."
+  },
+  "parentHomeTitle": "الرئيسية",
+  "@parentHomeTitle": {
+    "description": "Title of the parent home screen."
+  },
+  "parentHomeEmpty": "لم يتم ربط أي طالب بحسابك بعد. تواصل مع إدارة المدرسة.",
+  "@parentHomeEmpty": {
+    "description": "Empty state when a guardian has no linked children."
+  },
+  "attendanceThisWeek": "الحضور هذا الأسبوع",
+  "@attendanceThisWeek": {
+    "description": "Label for the weekly attendance figure."
+  },
+  "attendanceNotRecorded": "لم يُسجَّل الحضور بعد",
+  "@attendanceNotRecorded": {
+    "description": "Shown when no attendance was recorded this week."
+  },
+  "nextPayment": "القسط القادم",
+  "@nextPayment": {
+    "description": "Label for the next installment."
+  },
+  "noPaymentDue": "لا توجد أقساط مستحقة",
+  "@noPaymentDue": {
+    "description": "Shown when nothing is owed."
+  },
+  "dueToday": "يستحق اليوم",
+  "@dueToday": {
+    "description": "The installment is due today."
+  },
+  "latestGrade": "آخر درجة",
+  "@latestGrade": {
+    "description": "Label for the most recent published grade."
+  },
+  "noGradeYet": "لا توجد درجات منشورة بعد",
+  "@noGradeYet": {
+    "description": "Shown when no published grade exists."
+  },
+  "todaySchedule": "حصص اليوم",
+  "@todaySchedule": {
+    "description": "Label for today's timetable."
+  },
+  "noLessonsToday": "لا توجد حصص اليوم",
+  "@noLessonsToday": {
+    "description": "Shown when today's timetable is empty."
+  },
+  "daysRemaining": "{days, plural, =0{يستحق اليوم} =1{بعد يوم} =2{بعد يومين} few{بعد {days} أيام} many{بعد {days} يومًا} other{بعد {days} يوم}}",
+  "@daysRemaining": {
+    "description": "Days until (or since) an installment is due.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "daysOverdue": "{days, plural, =1{متأخر يوم} =2{متأخر يومان} few{متأخر {days} أيام} many{متأخر {days} يومًا} other{متأخر {days} يوم}}",
+  "@daysOverdue": {
+    "description": "Days until (or since) an installment is due.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "feesTitle": "الرسوم",
+  "@feesTitle": {
+    "description": "Title of the fees screen."
+  },
+  "feesBalance": "الرصيد المستحق",
+  "@feesBalance": {
+    "description": "Label for the outstanding balance."
+  },
+  "feesBilled": "إجمالي الرسوم",
+  "@feesBilled": {
+    "description": "Label for the total billed."
+  },
+  "feesPaid": "المدفوع",
+  "@feesPaid": {
+    "description": "Label for the total paid."
+  },
+  "feesNothingDue": "لا توجد رسوم مستحقة",
+  "@feesNothingDue": {
+    "description": "Shown when a family owes nothing."
+  },
+  "feesSchedule": "جدول الأقساط",
+  "@feesSchedule": {
+    "description": "Heading for the installment schedule."
+  },
+  "feesScheduleMismatch": "مجموع الأقساط لا يطابق إجمالي الخطة. تواصل مع إدارة المدرسة.",
+  "@feesScheduleMismatch": {
+    "description": "Shown when a plan's installments do not sum to its total."
+  },
+  "payAction": "ادفع",
+  "@payAction": {
+    "description": "Starts a payment."
+  },
+  "payConfirmTitle": "تأكيد الدفع",
+  "@payConfirmTitle": {
+    "description": "Title of the payment confirmation sheet."
+  },
+  "payConfirmAction": "تأكيد الدفع",
+  "@payConfirmAction": {
+    "description": "Confirms and creates the payment intent."
+  },
+  "payOfflineTitle": "الدفع يحتاج اتصالًا بالإنترنت",
+  "@payOfflineTitle": {
+    "description": "Title shown when a payment is attempted offline."
+  },
+  "payOfflineBody": "لا يمكن حفظ الدفع للإرسال لاحقًا. تحقّق من اتصالك ثم حاول مرة أخرى.",
+  "@payOfflineBody": {
+    "description": "Explains that payments are never queued."
+  },
+  "payFailed": "تعذّر إتمام الدفع. حاول مرة أخرى.",
+  "@payFailed": {
+    "description": "Shown when creating a payment intent fails."
+  },
+  "payAlreadySettled": "تم سداد هذا القسط.",
+  "@payAlreadySettled": {
+    "description": "Shown when the installment has nothing outstanding."
+  },
+  "payStarted": "تم بدء عملية الدفع",
+  "@payStarted": {
+    "description": "Shown when the intent was created."
+  },
+  "paymentReference": "رقم العملية",
+  "@paymentReference": {
+    "description": "Label for the payment reference."
+  },
+  "invoiceTitle": "الفاتورة",
+  "@invoiceTitle": {
+    "description": "Title of the invoice detail screen."
+  },
+  "invoicesTitle": "الفواتير",
+  "@invoicesTitle": {
+    "description": "Title of the invoice list."
+  },
+  "invoicesEmpty": "لا توجد فواتير.",
+  "@invoicesEmpty": {
+    "description": "Empty state for the invoice list."
+  },
+  "clearanceTitle": "حالة الفوترة الإلكترونية",
+  "@clearanceTitle": {
+    "description": "Heading for the e-invoicing clearance block."
+  },
+  "clearancePending": "قيد المعالجة — لم تصدر بعد",
+  "@clearancePending": {
+    "description": "The invoice has not been cleared by the authority."
+  },
+  "clearanceCleared": "معتمدة",
+  "@clearanceCleared": {
+    "description": "The invoice has been cleared by the authority."
+  },
+  "clearanceRejected": "مرفوضة",
+  "@clearanceRejected": {
+    "description": "The authority rejected the invoice."
+  },
+  "clearanceNoQrYet": "يظهر رمز الاستجابة السريعة بعد اعتماد الفاتورة من الدائرة.",
+  "@clearanceNoQrYet": {
+    "description": "Explains why no QR is shown until cleared."
+  },
+  "downloadReceipt": "تنزيل الإيصال",
+  "@downloadReceipt": {
+    "description": "Downloads the receipt PDF."
+  },
+  "academicsTitle": "الدراسة",
+  "@academicsTitle": {
+    "description": "Title of the parent academics screen."
+  },
+  "attendanceSection": "الحضور",
+  "@attendanceSection": {
+    "description": "Heading for the attendance calendar."
+  },
+  "gradesSection": "الدرجات",
+  "@gradesSection": {
+    "description": "Heading for the grades breakdown."
+  },
+  "reportCardsSection": "الشهادات",
+  "@reportCardsSection": {
+    "description": "Heading for issued report cards."
+  },
+  "statusPresent": "حاضر",
+  "@statusPresent": {
+    "description": "Attendance status: present."
+  },
+  "statusAbsent": "غائب",
+  "@statusAbsent": {
+    "description": "Attendance status: absent."
+  },
+  "statusLate": "متأخر",
+  "@statusLate": {
+    "description": "Attendance status: late."
+  },
+  "statusExcused": "بعذر",
+  "@statusExcused": {
+    "description": "Attendance status: excused."
+  },
+  "attendanceEmpty": "لم يُسجَّل حضور في هذه الفترة.",
+  "@attendanceEmpty": {
+    "description": "Empty state for attendance."
+  },
+  "explainAbsenceAction": "توضيح الغياب",
+  "@explainAbsenceAction": {
+    "description": "Opens the explain-absence form."
+  },
+  "explainAbsenceTitle": "توضيح الغياب",
+  "@explainAbsenceTitle": {
+    "description": "Title of the explain-absence sheet."
+  },
+  "explainAbsenceBody": "أرسل سبب الغياب إلى المدرسة. المدرسة وحدها تقرّر اعتبار الغياب بعذر.",
+  "@explainAbsenceBody": {
+    "description": "Explains what the action does and does not do."
+  },
+  "explainAbsenceHint": "سبب الغياب",
+  "@explainAbsenceHint": {
+    "description": "Label for the reason field."
+  },
+  "explainAbsenceSubmit": "إرسال",
+  "@explainAbsenceSubmit": {
+    "description": "Submits the explanation."
+  },
+  "explainAbsenceRequired": "اكتب سبب الغياب.",
+  "@explainAbsenceRequired": {
+    "description": "Validation message for an empty reason."
+  },
+  "explanationFiled": "تم إرسال التوضيح إلى المدرسة.",
+  "@explanationFiled": {
+    "description": "Confirms the explanation was filed."
+  },
+  "explanationFromSchool": "ملاحظة المدرسة",
+  "@explanationFromSchool": {
+    "description": "Label for the teacher's own note."
+  },
+  "explanationFromYou": "توضيحك",
+  "@explanationFromYou": {
+    "description": "Label for the guardian's explanation."
+  },
+  "gradesEmpty": "لا توجد درجات منشورة بعد.",
+  "@gradesEmpty": {
+    "description": "Empty state for grades."
+  },
+  "reportCardsEmpty": "لا توجد شهادات صادرة بعد.",
+  "@reportCardsEmpty": {
+    "description": "Empty state for report cards."
+  },
+  "reportCardDownload": "تنزيل الشهادة",
+  "@reportCardDownload": {
+    "description": "Downloads an issued report card."
+  },
+  "reportCardVersion": "{version, plural, =1{الإصدار الأول} =2{الإصدار الثاني} other{الإصدار {version}}}",
+  "@reportCardVersion": {
+    "description": "Which issued version of a report card this is.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "inboxTitle": "الإشعارات",
+  "@inboxTitle": {
+    "description": "Title of the notifications screen."
+  },
+  "notificationsEmpty": "لا توجد إشعارات.",
+  "@notificationsEmpty": {
+    "description": "Empty state for notifications."
+  },
+  "preferencesTitle": "تفضيلات الإشعارات",
+  "@preferencesTitle": {
+    "description": "Heading for the notification preference switches."
+  },
+  "categoryFees": "الرسوم",
+  "@categoryFees": {
+    "description": "Notification category: fees."
+  },
+  "categoryAttendance": "الحضور",
+  "@categoryAttendance": {
+    "description": "Notification category: attendance."
+  },
+  "categoryGrades": "الدرجات",
+  "@categoryGrades": {
+    "description": "Notification category: grades."
+  },
+  "categoryMessages": "الرسائل",
+  "@categoryMessages": {
+    "description": "Notification category: messages."
+  },
+  "categoryAnnouncements": "الإعلانات",
+  "@categoryAnnouncements": {
+    "description": "Notification category: announcements."
+  },
+  "categoryEmergency": "الطوارئ",
+  "@categoryEmergency": {
+    "description": "Notification category: emergency."
+  },
+  "categoryAlwaysOn": "تصل دائمًا",
+  "@categoryAlwaysOn": {
+    "description": "Explains that a category cannot be muted."
+  },
+  "messagesTitle": "الرسائل",
+  "@messagesTitle": {
+    "description": "Title of the messages screen."
+  },
+  "messagesEmpty": "لا توجد رسائل. تبدأ المدرسة المحادثة عند الحاجة.",
+  "@messagesEmpty": {
+    "description": "Empty state for messages, stating who starts a thread."
+  },
+  "messageReplyHint": "اكتب ردك",
+  "@messageReplyHint": {
+    "description": "Label for the reply field."
+  },
+  "messageSend": "إرسال",
+  "@messageSend": {
+    "description": "Sends a reply."
+  },
+  "messageReplyOnly": "يمكنك الرد على رسائل المدرسة فقط.",
+  "@messageReplyOnly": {
+    "description": "Explains that a parent cannot start a thread."
+  },
+  "messageOutsideHours": "يمكن إرسال الرسائل خلال ساعات الدوام فقط.",
+  "@messageOutsideHours": {
+    "description": "Explains the reply window."
+  },
+  "messageFailed": "تعذّر إرسال الرسالة. حاول مرة أخرى.",
+  "@messageFailed": {
+    "description": "Shown when a reply fails."
+  },
+  "timetableTitle": "الجدول الأسبوعي",
+  "@timetableTitle": {
+    "description": "Heading for the weekly timetable."
+  },
+  "timetableEmpty": "لا يوجد جدول لهذا الصف بعد.",
+  "@timetableEmpty": {
+    "description": "Empty state for the timetable."
+  },
+  "teacherTodayTitle": "يومي",
+  "@teacherTodayTitle": {
+    "description": "Title of the teacher's day screen."
+  },
+  "teacherClassesTitle": "صفوفي",
+  "@teacherClassesTitle": {
+    "description": "Title of the teacher's class list."
+  },
+  "teacherNoPeriods": "لا توجد حصص مسجّلة اليوم.",
+  "@teacherNoPeriods": {
+    "description": "Empty state for the teacher's day."
+  },
+  "teacherNoClasses": "لم تُسنَد إليك أي صفوف بعد.",
+  "@teacherNoClasses": {
+    "description": "Empty state for the teacher's class list."
+  },
+  "attendanceOutstanding": "لم يُرصد الحضور",
+  "@attendanceOutstanding": {
+    "description": "Attendance has not been taken for this period."
+  },
+  "attendanceQueued": "بانتظار الإرسال",
+  "@attendanceQueued": {
+    "description": "Attendance is queued on the device, not yet at the school."
+  },
+  "attendanceSubmitted": "وصل المدرسة",
+  "@attendanceSubmitted": {
+    "description": "Attendance has reached the server."
+  },
+  "attendanceQueuedExplained": "محفوظ على هذا الجهاز فقط، ولم يصل المدرسة بعد.",
+  "@attendanceQueuedExplained": {
+    "description": "Explains that a queued submission is not saved upstream."
+  },
+  "attendanceWindowClosed": "انتهت مهلة تعديل الحضور لهذا اليوم.",
+  "@attendanceWindowClosed": {
+    "description": "Fallback when the server gives no reason for a closed window."
+  },
+  "attendanceRejectedTitle": "إرسال حضور مرفوض",
+  "@attendanceRejectedTitle": {
+    "description": "Heading for attendance batches the sync engine gave up on."
+  },
+  "rosterTitle": "قائمة الصف",
+  "@rosterTitle": {
+    "description": "Title of the class roster screen."
+  },
+  "rosterSearchHint": "ابحث بالاسم أو رقم القيد",
+  "@rosterSearchHint": {
+    "description": "Hint for the roster search field."
+  },
+  "rosterEmpty": "لا يوجد طلاب في هذا الصف.",
+  "@rosterEmpty": {
+    "description": "Empty state for a roster."
+  },
+  "rosterNoMatch": "لا نتائج مطابقة.",
+  "@rosterNoMatch": {
+    "description": "Shown when a roster search matches nothing."
+  },
+  "homeroomBadge": "مربّي الصف",
+  "@homeroomBadge": {
+    "description": "Marks a class the teacher is homeroom teacher of."
+  },
+  "guardianContactTitle": "التواصل مع ولي الأمر",
+  "@guardianContactTitle": {
+    "description": "Title of the guardian contact sheet."
+  },
+  "guardianNone": "لا يوجد ولي أمر مسجّل.",
+  "@guardianNone": {
+    "description": "Shown when a student has no guardian on file."
+  },
+  "guardianNoPhone": "لا يوجد رقم مسجّل.",
+  "@guardianNoPhone": {
+    "description": "Shown when a guardian has no phone number on file."
+  },
+  "guardianCall": "اتصال",
+  "@guardianCall": {
+    "description": "Starts a call to a guardian."
+  },
+  "guardianCallFailed": "تعذّر بدء الاتصال.",
+  "@guardianCallFailed": {
+    "description": "Shown when the dialer could not be opened."
+  },
+  "studentCount": "{count, plural, =0{لا طلاب} =1{طالب واحد} =2{طالبان} few{{count} طلاب} many{{count} طالبًا} other{{count} طالب}}",
+  "@studentCount": {
+    "description": "Number of students in a class.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "attendanceTitle": "رصد الحضور",
+  "@attendanceTitle": {
+    "description": "Title of the attendance screen."
+  },
+  "attendanceSubmit": "حفظ وإرسال",
+  "@attendanceSubmit": {
+    "description": "Queues the class's marks."
+  },
+  "attendanceQueuedToast": "حُفظ على هذا الجهاز، وسيصل المدرسة عند توفّر الاتصال.",
+  "@attendanceQueuedToast": {
+    "description": "Confirms a queued submission without claiming it was saved upstream."
+  },
+  "attendanceAllPresent": "الجميع حاضرون",
+  "@attendanceAllPresent": {
+    "description": "Summary when no exception is marked."
+  },
+  "attendanceNoteHint": "ملاحظة (اختياري)",
+  "@attendanceNoteHint": {
+    "description": "Hint for the per-student note field."
+  },
+  "attendanceMarkTitle": "تعديل الحالة",
+  "@attendanceMarkTitle": {
+    "description": "Title of the per-student status sheet."
+  },
+  "attendanceRejectedWindow": "انتهت مهلة التعديل، فلم يُقبل هذا الإرسال.",
+  "@attendanceRejectedWindow": {
+    "description": "Why a queued attendance batch was rejected: past the edit window."
+  },
+  "attendanceRejectedConflict": "تغيّرت البيانات على الخادم، فلم يُقبل هذا الإرسال.",
+  "@attendanceRejectedConflict": {
+    "description": "Why a queued attendance batch was rejected: a conflict."
+  },
+  "attendanceRejectedRefused": "رفض الخادم هذا الإرسال.",
+  "@attendanceRejectedRefused": {
+    "description": "Why a queued attendance batch was rejected: any other refusal."
+  },
+  "attendanceRejectedRetry": "أعد الرصد ثم أرسله من جديد.",
+  "@attendanceRejectedRetry": {
+    "description": "What to do about a rejected attendance batch."
+  },
+  "attendanceRejectedOn": "{date} — {count} طالبًا",
+  "@attendanceRejectedOn": {
+    "description": "Identifies which rejected submission is which.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gradesTitle": "الدرجات",
+  "@gradesTitle": {
+    "description": "Title of the grade entry screen."
+  },
+  "gradesNoItems": "لا توجد عناصر تقييم لهذه المادة بعد.",
+  "@gradesNoItems": {
+    "description": "Empty state when a subject has no grade components."
+  },
+  "gradesNoGradebook": "لم تُفتح دفتر درجات لهذه المادة بعد. راجع الإدارة.",
+  "@gradesNoGradebook": {
+    "description": "Shown when no gradebook exists, so nothing can be entered."
+  },
+  "gradesSave": "حفظ وإرسال",
+  "@gradesSave": {
+    "description": "Queues the column of marks."
+  },
+  "gradesQueuedToast": "حُفظت على هذا الجهاز، وستصل المدرسة عند توفّر الاتصال.",
+  "@gradesQueuedToast": {
+    "description": "Confirms queued marks without claiming they were saved upstream."
+  },
+  "gradesQueuedItem": "بانتظار الإرسال",
+  "@gradesQueuedItem": {
+    "description": "A grade column queued but not yet sent."
+  },
+  "gradesInvalidEntry": "درجة غير صالحة",
+  "@gradesInvalidEntry": {
+    "description": "Shown beside a cell whose value the server would refuse."
+  },
+  "gradesConflictTitle": "رُفضت الدرجات: تغيّرت على الخادم",
+  "@gradesConflictTitle": {
+    "description": "Heading for a rejected grade batch caused by a conflict."
+  },
+  "gradesConflictBody": "نسخة الخادم هي المعتمدة. هذه هي الدرجات التي حاولت إرسالها، أعد إدخال ما يلزم.",
+  "@gradesConflictBody": {
+    "description": "Explains that the server wins and shows the teacher what was refused."
+  },
+  "gradesRefusedTitle": "رُفضت الدرجات",
+  "@gradesRefusedTitle": {
+    "description": "Heading for a rejected grade batch."
+  },
+  "gradesLockedBody": "دفتر الدرجات مغلق للتعديل في حالته الحالية.",
+  "@gradesLockedBody": {
+    "description": "Shown when the workflow state forbids entry."
+  },
+  "gradebookStateDraft": "مسودة",
+  "@gradebookStateDraft": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateSubmitted": "مُرسل للاعتماد",
+  "@gradebookStateSubmitted": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateApproved": "معتمد",
+  "@gradebookStateApproved": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateFinalized": "نهائي",
+  "@gradebookStateFinalized": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateReturned": "مُعاد للتصحيح",
+  "@gradebookStateReturned": {
+    "description": "Gradebook workflow state."
+  },
+  "gradebookStateReopened": "مفتوح مؤقتًا",
+  "@gradebookStateReopened": {
+    "description": "Gradebook workflow state."
+  },
+  "assignmentsTitle": "الواجبات",
+  "@assignmentsTitle": {
+    "description": "Title of the assignments screen."
+  },
+  "assignmentsEmpty": "لا توجد واجبات بعد.",
+  "@assignmentsEmpty": {
+    "description": "Empty state for the assignments list."
+  },
+  "assignmentNew": "واجب جديد",
+  "@assignmentNew": {
+    "description": "Starts a new assignment."
+  },
+  "assignmentTitleLabel": "العنوان",
+  "@assignmentTitleLabel": {
+    "description": "Label for the assignment title field."
+  },
+  "assignmentInstructionsLabel": "التعليمات",
+  "@assignmentInstructionsLabel": {
+    "description": "Label for the assignment instructions field."
+  },
+  "assignmentDueLabel": "تاريخ التسليم",
+  "@assignmentDueLabel": {
+    "description": "Label for the due date field."
+  },
+  "assignmentSaveDraft": "حفظ كمسودة",
+  "@assignmentSaveDraft": {
+    "description": "Saves the assignment without publishing it."
+  },
+  "assignmentDraft": "مسودة",
+  "@assignmentDraft": {
+    "description": "An assignment students cannot see yet."
+  },
+  "assignmentPublished": "منشور",
+  "@assignmentPublished": {
+    "description": "An assignment students can see."
+  },
+  "assignmentPublish": "نشر",
+  "@assignmentPublish": {
+    "description": "Publishes a draft to the class."
+  },
+  "assignmentPublishExplained": "لن يراه الطلاب حتى تنشره.",
+  "@assignmentPublishExplained": {
+    "description": "Explains what a draft means."
+  },
+  "assignmentAttach": "إرفاق ملف",
+  "@assignmentAttach": {
+    "description": "Attaches a file to an assignment."
+  },
+  "assignmentAttached": "مرفق",
+  "@assignmentAttached": {
+    "description": "An assignment that has a file."
+  },
+  "assignmentUploading": "جارٍ الرفع…",
+  "@assignmentUploading": {
+    "description": "Upload in progress."
+  },
+  "assignmentUploadFailed": "تعذّر رفع الملف. الواجب محفوظ، أعد المحاولة.",
+  "@assignmentUploadFailed": {
+    "description": "Upload failure, stating plainly that the assignment survived."
+  },
+  "assignmentUploadRetry": "إعادة المحاولة",
+  "@assignmentUploadRetry": {
+    "description": "Retries a failed upload."
+  },
+  "assignmentNeedsConnection": "يحتاج إنشاء واجب إلى اتصال.",
+  "@assignmentNeedsConnection": {
+    "description": "Assignments are not queued offline."
+  },
+  "submissionsTitle": "حالة التسليم",
+  "@submissionsTitle": {
+    "description": "Title of the submission status screen."
+  },
+  "submissionPending": "لم يُسلّم",
+  "@submissionPending": {
+    "description": "Submission status."
+  },
+  "submissionSubmitted": "سُلّم",
+  "@submissionSubmitted": {
+    "description": "Submission status."
+  },
+  "submissionLate": "متأخر",
+  "@submissionLate": {
+    "description": "Submission status."
+  },
+  "submissionGraded": "مُصحّح",
+  "@submissionGraded": {
+    "description": "Submission status."
+  },
+  "announceTitle": "إرسال إشعار",
+  "@announceTitle": {
+    "description": "Title of the announcement screen."
+  },
+  "announceTemplateLabel": "نوع الإشعار",
+  "@announceTemplateLabel": {
+    "description": "Label for the template picker."
+  },
+  "announceDetailLabel": "تفاصيل قصيرة",
+  "@announceDetailLabel": {
+    "description": "Label for the announcement detail field."
+  },
+  "announceSend": "إرسال",
+  "@announceSend": {
+    "description": "Sends the notice."
+  },
+  "announceSent": "أُرسل الإشعار.",
+  "@announceSent": {
+    "description": "Confirms a sent notice."
+  },
+  "announceTemplatesOnly": "الإشعارات من قوالب معتمدة فقط.",
+  "@announceTemplatesOnly": {
+    "description": "Explains why there is no free-text field."
+  },
+  "announceClosed": "يمكن إرسال الإشعارات خلال ساعات الدوام فقط.",
+  "@announceClosed": {
+    "description": "Explains the announcement window."
+  },
+  "announceFailed": "تعذّر إرسال الإشعار.",
+  "@announceFailed": {
+    "description": "Generic announcement failure."
+  },
+  "announceNeedsConnection": "يحتاج إرسال الإشعار إلى اتصال.",
+  "@announceNeedsConnection": {
+    "description": "Announcements are not queued offline."
+  },
+  "audienceClass": "الصف كامل",
+  "@audienceClass": {
+    "description": "Announcement audience."
+  },
+  "audienceGuardian": "ولي أمر واحد",
+  "@audienceGuardian": {
+    "description": "Announcement audience."
+  },
+  "announceWindow": "ساعات الإرسال: {from} — {to}",
+  "@announceWindow": {
+    "description": "States the hours during which notices may be sent.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "studentHomeTitle": "يومي",
+  "@studentHomeTitle": {
+    "description": "Title of the student home screen."
+  },
+  "studentTimetableTitle": "جدولي",
+  "@studentTimetableTitle": {
+    "description": "Title of the student timetable."
+  },
+  "studentAssignmentsTitle": "واجباتي",
+  "@studentAssignmentsTitle": {
+    "description": "Title of the student assignments screen."
+  },
+  "studentGradesTitle": "درجاتي",
+  "@studentGradesTitle": {
+    "description": "Title of the student grades screen."
+  },
+  "studentAttendanceTitle": "حضوري",
+  "@studentAttendanceTitle": {
+    "description": "Title of the student attendance screen."
+  },
+  "studentNoLessons": "لا توجد حصص اليوم.",
+  "@studentNoLessons": {
+    "description": "Empty state for today's lessons."
+  },
+  "studentNoAssignments": "لا توجد واجبات.",
+  "@studentNoAssignments": {
+    "description": "Empty state for assignments."
+  },
+  "studentNoGrades": "لم تُعتمد أي درجات بعد.",
+  "@studentNoGrades": {
+    "description": "Empty state for grades."
+  },
+  "studentNextDue": "القادم",
+  "@studentNextDue": {
+    "description": "Heading for the next assignment due."
+  },
+  "studentHandIn": "تسليم",
+  "@studentHandIn": {
+    "description": "Submits work for an assignment."
+  },
+  "studentHandInText": "اكتب إجابتك",
+  "@studentHandInText": {
+    "description": "Label for the submission text field."
+  },
+  "studentHandedIn": "سُلّم",
+  "@studentHandedIn": {
+    "description": "The student's work reached the school."
+  },
+  "studentHandedInLate": "سُلّم متأخرًا",
+  "@studentHandedInLate": {
+    "description": "Submission status."
+  },
+  "studentNotHandedIn": "لم يُسلّم",
+  "@studentNotHandedIn": {
+    "description": "Submission status."
+  },
+  "studentMarked": "مُصحّح",
+  "@studentMarked": {
+    "description": "Submission status."
+  },
+  "studentSending": "جارٍ الإرسال…",
+  "@studentSending": {
+    "description": "A submission in flight."
+  },
+  "studentSendFailed": "تعذّر التسليم. لم يصل عملك بعد، أعد المحاولة.",
+  "@studentSendFailed": {
+    "description": "Submission failure, stating plainly that nothing was saved upstream."
+  },
+  "studentSendRetry": "إعادة المحاولة",
+  "@studentSendRetry": {
+    "description": "Retries a failed hand-in."
+  },
+  "studentSendOffline": "يحتاج التسليم إلى اتصال.",
+  "@studentSendOffline": {
+    "description": "Submissions are not queued offline."
+  },
+  "studentSendEmpty": "اكتب إجابة أو أرفق ملفًا.",
+  "@studentSendEmpty": {
+    "description": "Refuses an empty hand-in."
+  },
+  "studentLateWarning": "انتهى موعد التسليم؛ سيُسجَّل تسليمك متأخرًا.",
+  "@studentLateWarning": {
+    "description": "Warns that a hand-in will be late but still accepted."
+  },
+  "attendancePresentPercent": "نسبة الحضور",
+  "@attendancePresentPercent": {
+    "description": "Label for the share of marked days a student was present."
+  },
+  "attendanceAbsentDays": "أيام الغياب",
+  "@attendanceAbsentDays": {
+    "description": "Label for the number of days a student was absent."
+  },
+  "localWriteFailed": "تعذّر الحفظ على هذا الجهاز. لم يُسجَّل شيء ولم يُرسل. تحقّق من مساحة التخزين وأعد المحاولة.",
+  "@localWriteFailed": {
+    "description": "Shown when the device could not record a queued write, usually a full disk."
+  }
+}

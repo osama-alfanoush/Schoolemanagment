@@ -28,14 +28,14 @@ export default function StudentReportCard() {
           <div className="space-y-6">
             {reports.map((report: any, idx: number) => (
               <div key={idx} className="space-y-4">
-                <h3 className="text-lg font-semibold border-b pb-2">{report.term || "Term Report"}</h3>
+                <h3 className="text-lg font-semibold border-b pb-2">{report.term || t("studentPages.termReport")}</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Grade</TableHead>
-                      <TableHead>Remarks</TableHead>
+                      <TableHead>{t("studentPages.subject")}</TableHead>
+                      <TableHead>{t("studentPages.score")}</TableHead>
+                      <TableHead>{t("nav.grades")}</TableHead>
+                      <TableHead>{t("studentPages.remarks")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

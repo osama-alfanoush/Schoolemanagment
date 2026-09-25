@@ -30,6 +30,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Release Identity
+    |--------------------------------------------------------------------------
+    |
+    | Immutable identifier of the deployed build. CI sets APP_RELEASE to the
+    | commit SHA so a log line, a health response and an error report can all
+    | be traced back to exact source. "unknown" means the deploy pipeline did
+    | not stamp the build, which itself is worth alerting on.
+    |
+    */
+
+    'release' => env('APP_RELEASE', 'unknown'),
+
+    'version' => env('APP_VERSION', '1.0.0'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------
     |

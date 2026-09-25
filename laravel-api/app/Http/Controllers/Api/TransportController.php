@@ -7,8 +7,11 @@ use App\Models\TransportAssignment;
 use App\Models\TransportRoute;
 use App\Models\TransportStop;
 use App\Models\TransportVehicle;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TransportController extends Controller
 {
@@ -48,9 +51,17 @@ class TransportController extends Controller
                 'description' => 'nullable|string',
                 'departure_time' => 'required|date_format:H:i',
                 'return_time' => 'required|date_format:H:i',
-                'fee' => 'required|numeric|min:0',
+                'fee' => 'required|numeric|money|min:0',
                 'capacity' => 'required|integer|min:1',
             ]);
+            if (! empty($data['route_id'])) {
+                abort_unless(TransportRoute::query()->whereKey($data['route_id'])->exists(), 422, 'The route belongs to another school.');
+            }
+            if (! empty($data['driver_id'])) {
+                abort_unless(User::query()->whereKey($data['driver_id'])
+                    ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $request->attributes->get('school_id')))
+                    ->exists(), 422, 'The driver belongs to another school.');
+            }
 
             $route = TransportRoute::create($data);
 
@@ -64,13 +75,14 @@ class TransportController extends Controller
     {
         if ($request->isMethod('post')) {
             $data = $request->validate([
-                'registration_number' => 'required|string|unique:transport_vehicles',
+                'registration_number' => ['required', 'string', Rule::unique('transport_vehicles')->where('school_id', $request->attributes->get('school_id'))],
                 'model' => 'nullable|string',
                 'type' => 'required|string',
                 'capacity' => 'required|integer|min:1',
                 'route_id' => 'nullable|exists:transport_routes,id',
                 'driver_id' => 'nullable|exists:users,id',
             ]);
+            abort_unless(TransportRoute::query()->whereKey($data['route_id'])->exists(), 422, 'The route belongs to another school.');
 
             $vehicle = TransportVehicle::create($data);
 
@@ -119,29 +131,42 @@ class TransportController extends Controller
             'end_date' => 'nullable|date|after:start_date',
         ]);
 
-        $route = TransportRoute::findOrFail($data['route_id']);
+        $schoolId = (int) $request->attributes->get('school_id');
+        abort_unless(User::query()->whereKey($data['student_user_id'])->where('role', 'student')
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $schoolId))
+            ->exists(), 422, 'The student belongs to another school.');
 
-        if ($route->availableSeats() <= 0) {
-            return response()->json(['message' => 'Route is at full capacity'], 400);
-        }
+        $assignment = DB::transaction(function () use ($data) {
+            $route = TransportRoute::query()->lockForUpdate()->findOrFail($data['route_id']);
+            abort_if($route->availableSeats() <= 0, 409, 'Route is at full capacity.');
 
-        // Deactivate any existing assignment for this student
-        TransportAssignment::where('student_user_id', $data['student_user_id'])
-            ->where('is_active', true)
-            ->update(['is_active' => false, 'end_date' => now()]);
+            foreach (['pickup_stop_id', 'dropoff_stop_id'] as $stopKey) {
+                if (! empty($data[$stopKey])) {
+                    abort_unless(
+                        TransportStop::query()->whereKey($data[$stopKey])->where('route_id', $route->id)->exists(),
+                        422,
+                        'Pickup and drop-off stops must belong to the selected route.',
+                    );
+                }
+            }
 
-        $assignment = TransportAssignment::create($data);
+            TransportAssignment::where('student_user_id', $data['student_user_id'])
+                ->where('is_active', true)
+                ->update(['is_active' => false, 'end_date' => now()]);
+            $assignment = TransportAssignment::create($data);
 
-        // Notify parents
-        NotificationService::sendToParents(
-            $data['student_user_id'],
-            'transport_assigned',
-            [
-                'route_name' => $route->name,
-                'pickup_time' => $route->departure_time,
-                'dropoff_time' => $route->return_time,
-            ]
-        );
+            DB::afterCommit(fn () => NotificationService::sendToParents(
+                $data['student_user_id'],
+                'transport_assigned',
+                [
+                    'route_name' => $route->name,
+                    'pickup_time' => $route->departure_time,
+                    'dropoff_time' => $route->return_time,
+                ],
+            ));
+
+            return $assignment;
+        });
 
         return response()->json($assignment, 201);
     }
@@ -158,6 +183,6 @@ class TransportController extends Controller
             $query->where('route_id', $routeId);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 }

@@ -9,12 +9,12 @@ vi.mock('@/lib/auth', () => ({
   useAuth: vi.fn(),
 }));
 
-function renderSidebar(user: any, onToggle = vi.fn()) {
+function renderSidebar(user: any, onToggle = vi.fn(), logout = vi.fn()) {
   (useAuth as ReturnType<typeof vi.fn>).mockReturnValue({
     user,
     loading: false,
     login: vi.fn(),
-    logout: vi.fn(),
+    logout,
     refreshUser: vi.fn(),
   });
 
@@ -54,14 +54,23 @@ describe('Sidebar Navigation', () => {
     expect(getByText('Grades')).toBeInTheDocument();
   });
 
+  it('shows only permitted financial workspace links', () => {
+    const financeUser = { id: 4, name: 'Finance', email: 'finance@test.com', role: 'finance', is_active: true, permissions: ['finance.student.view', 'finance.receipts.view'] };
+    const { getByText, queryByText } = renderSidebar(financeUser);
+
+    expect(getByText('الملف المالي للطالب')).toBeInTheDocument();
+    expect(getByText('القبض')).toBeInTheDocument();
+    expect(queryByText('الخصومات والتسويات')).not.toBeInTheDocument();
+  });
+
   it('logout button is visible and clickable', async () => {
     const user = { id: 1, name: 'Admin', email: 'admin@test.com', role: 'admin', is_active: true };
     const logoutFn = vi.fn();
 
-    const { getByText } = renderSidebar(user, vi.fn());
+    const { getByText } = renderSidebar(user, vi.fn(), logoutFn);
     const logoutBtn = getByText('Logout').closest('button');
 
     await userEvent.click(logoutBtn!);
-    expect(logoutFn).not.toHaveBeenCalled();
+    expect(logoutFn).toHaveBeenCalledOnce();
   });
 });

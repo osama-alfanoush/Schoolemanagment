@@ -1,0 +1,44 @@
+# Build context for Dockerfile.demo, which builds from the REPO ROOT because it
+# needs both school-web/ (the SPA) and laravel-api/ (the API) in one image.
+# Everything excluded here is either reinstalled inside the image, irrelevant to
+# the running service, or large enough to slow every upload to Railway.
+
+.git/
+.github/
+.codex/
+
+# Reinstalled by npm ci / composer install inside the image.
+**/node_modules/
+**/vendor/
+
+# Build outputs and test artefacts — the image rebuilds the SPA itself.
+school-web/dist/
+school-web/coverage/
+school-web/test-results/
+school-web/playwright-report/
+school-web/src.zip
+school-web/e2e/
+school-web/mockup-sandbox/
+laravel-api/tests/load/results/
+
+# Not part of the web service.
+school-mobile/
+demo-video/
+customer-screenshots/
+graphify-out/
+docs/
+
+# Large planning/report documents kept at the repo root.
+*.md
+*.html
+*_files/
+
+# Never bake local secrets into an image.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local runtime state; the image recreates these trees.
+laravel-api/storage/logs/*
+laravel-api/storage/framework/cache/data/*
+laravel-api/bootstrap/cache/*

@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\LibraryBook;
 use App\Models\LibraryBorrowing;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class LibraryController extends Controller
 {
@@ -24,7 +26,9 @@ class LibraryController extends Controller
             $query->where('category', $category);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        // Capped: an uncapped client-supplied page size lets one request
+        // materialise the whole table.
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function myBorrowings(Request $request)
@@ -49,28 +53,21 @@ class LibraryController extends Controller
     public function selfBorrow(Request $request, int $id)
     {
         $student = $request->user();
-        $book = LibraryBook::findOrFail($id);
+        $borrowing = DB::transaction(function () use ($id, $student) {
+            $book = LibraryBook::query()->lockForUpdate()->findOrFail($id);
+            abort_unless($book->isAvailable(), 409, 'This book is not available right now.');
+            abort_if(
+                LibraryBorrowing::where('book_id', $book->id)->where('student_user_id', $student->id)
+                    ->where('is_returned', false)->exists(),
+                409,
+                'You already have this book borrowed.',
+            );
+            abort_if(
+                LibraryBorrowing::where('student_user_id', $student->id)->where('is_returned', false)->count() >= 5,
+                409,
+                'You have reached the borrowing limit of 5 books.',
+            );
 
-        if (! $book->isAvailable()) {
-            return response()->json(['message' => 'This book is not available right now.'], 400);
-        }
-
-        $alreadyHas = LibraryBorrowing::where('book_id', $book->id)
-            ->where('student_user_id', $student->id)
-            ->where('is_returned', false)
-            ->exists();
-        if ($alreadyHas) {
-            return response()->json(['message' => 'You already have this book borrowed.'], 400);
-        }
-
-        $activeCount = LibraryBorrowing::where('student_user_id', $student->id)
-            ->where('is_returned', false)
-            ->count();
-        if ($activeCount >= 5) {
-            return response()->json(['message' => 'You have reached the borrowing limit of 5 books.'], 400);
-        }
-
-        $borrowing = DB::transaction(function () use ($book, $student) {
             $book->decrement('available_copies');
 
             $borrowing = LibraryBorrowing::create([
@@ -81,7 +78,7 @@ class LibraryController extends Controller
                 'issued_by' => $student->id,
             ]);
 
-            try {
+            DB::afterCommit(function () use ($student, $book, $borrowing): void {
                 NotificationService::sendWithTemplate(
                     $student->id,
                     'book_borrowed',
@@ -91,9 +88,7 @@ class LibraryController extends Controller
                         'borrowing_id' => $borrowing->id,
                     ]
                 );
-            } catch (\Throwable $e) {
-                // Notification is best-effort; never block the loan on it.
-            }
+            });
 
             return $borrowing;
         });
@@ -106,22 +101,22 @@ class LibraryController extends Controller
      */
     public function selfReturn(Request $request, int $borrowingId)
     {
-        $borrowing = LibraryBorrowing::where('id', $borrowingId)
-            ->where('student_user_id', $request->user()->id)
-            ->firstOrFail();
+        $studentId = $request->user()->id;
+        $borrowing = DB::transaction(function () use ($borrowingId, $studentId) {
+            $borrowing = LibraryBorrowing::query()->where('student_user_id', $studentId)
+                ->lockForUpdate()->findOrFail($borrowingId);
+            abort_if($borrowing->is_returned, 409, 'This book has already been returned.');
 
-        if ($borrowing->is_returned) {
-            return response()->json(['message' => 'This book has already been returned.'], 400);
-        }
-
-        DB::transaction(function () use ($borrowing) {
-            $borrowing->book->increment('available_copies');
+            LibraryBook::query()->whereKey($borrowing->book_id)->lockForUpdate()->firstOrFail()
+                ->increment('available_copies');
             $borrowing->update([
                 'is_returned' => true,
                 'returned_date' => now(),
-                'returned_to' => $borrowing->student_user_id,
+                'returned_to' => $studentId,
                 'fine_amount' => $borrowing->calculateFine(),
             ]);
+
+            return $borrowing->fresh();
         });
 
         return response()->json([
@@ -135,7 +130,7 @@ class LibraryController extends Controller
     {
         if ($request->isMethod('post')) {
             $data = $request->validate([
-                'isbn' => 'nullable|string|unique:library_books,isbn',
+                'isbn' => ['nullable', 'string', Rule::unique('library_books')->where('school_id', $request->attributes->get('school_id'))],
                 'title' => 'required|string',
                 'author' => 'required|string',
                 'publisher' => 'nullable|string',
@@ -158,7 +153,7 @@ class LibraryController extends Controller
             $query->search($search);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function updateBook(Request $request, int $id)
@@ -172,12 +167,17 @@ class LibraryController extends Controller
             'is_active' => 'sometimes|boolean',
         ]);
 
-        if (isset($data['total_copies'])) {
-            $diff = $data['total_copies'] - $book->total_copies;
-            $data['available_copies'] = max(0, $book->available_copies + $diff);
-        }
+        $book = DB::transaction(function () use ($book, $data) {
+            $locked = LibraryBook::query()->lockForUpdate()->findOrFail($book->id);
+            if (isset($data['total_copies'])) {
+                $borrowed = $locked->borrowings()->where('is_returned', false)->count();
+                abort_if($data['total_copies'] < $borrowed, 422, 'Total copies cannot be below active borrowings.');
+                $data['available_copies'] = $data['total_copies'] - $borrowed;
+            }
+            $locked->update($data);
 
-        $book->update($data);
+            return $locked->fresh();
+        });
 
         return response()->json($book);
     }
@@ -190,13 +190,14 @@ class LibraryController extends Controller
             'due_date' => 'required|date|after:today',
         ]);
 
-        $book = LibraryBook::findOrFail($data['book_id']);
+        abort_unless(User::query()->whereKey($data['student_user_id'])->where('role', 'student')
+            ->whereHas('schoolRoles', fn ($query) => $query->where('school_id', $request->attributes->get('school_id')))
+            ->exists(), 422, 'The student belongs to another school.');
 
-        if ($book->available_copies <= 0) {
-            return response()->json(['message' => 'Book not available'], 400);
-        }
-
-        $borrowing = DB::transaction(function () use ($data, $book) {
+        $actorId = $request->user()->id;
+        $borrowing = DB::transaction(function () use ($data, $actorId) {
+            $book = LibraryBook::query()->lockForUpdate()->findOrFail($data['book_id']);
+            abort_unless($book->isAvailable(), 409, 'Book not available.');
             $book->decrement('available_copies');
 
             $borrowing = LibraryBorrowing::create([
@@ -204,18 +205,16 @@ class LibraryController extends Controller
                 'student_user_id' => $data['student_user_id'],
                 'borrowed_date' => now(),
                 'due_date' => $data['due_date'],
-                'issued_by' => $request->user()->id,
+                'issued_by' => $actorId,
             ]);
 
-            NotificationService::sendWithTemplate(
-                $data['student_user_id'],
-                'book_borrowed',
-                [
+            DB::afterCommit(fn () => NotificationService::sendWithTemplate(
+                $data['student_user_id'], 'book_borrowed', [
                     'book_title' => $book->title,
                     'due_date' => $data['due_date'],
                     'borrowing_id' => $borrowing->id,
-                ]
-            );
+                ],
+            ));
 
             return $borrowing;
         });
@@ -225,21 +224,20 @@ class LibraryController extends Controller
 
     public function returnBook(Request $request, int $borrowingId)
     {
-        $borrowing = LibraryBorrowing::findOrFail($borrowingId);
-
-        if ($borrowing->is_returned) {
-            return response()->json(['message' => 'Book already returned'], 400);
-        }
-
-        DB::transaction(function () use ($borrowing) {
-            $borrowing->book->increment('available_copies');
-
+        $actorId = $request->user()->id;
+        $borrowing = DB::transaction(function () use ($borrowingId, $actorId) {
+            $borrowing = LibraryBorrowing::query()->lockForUpdate()->findOrFail($borrowingId);
+            abort_if($borrowing->is_returned, 409, 'Book already returned.');
+            LibraryBook::query()->whereKey($borrowing->book_id)->lockForUpdate()->firstOrFail()
+                ->increment('available_copies');
             $borrowing->update([
                 'is_returned' => true,
                 'returned_date' => now(),
-                'returned_to' => request()->user()->id,
+                'returned_to' => $actorId,
                 'fine_amount' => $borrowing->calculateFine(),
             ]);
+
+            return $borrowing->fresh();
         });
 
         return response()->json([
@@ -256,14 +254,14 @@ class LibraryController extends Controller
             $query->where('is_returned', false);
         }
 
-        return response()->json($query->paginate($request->query('per_page', 20)));
+        return response()->json($query->paginate($this->perPage($request, 20)));
     }
 
     public function overdueBooks(Request $request)
     {
         $overdue = LibraryBorrowing::overdue()
             ->with(['book', 'student'])
-            ->paginate($request->query('per_page', 20));
+            ->paginate($this->perPage($request, 20));
 
         return response()->json($overdue);
     }

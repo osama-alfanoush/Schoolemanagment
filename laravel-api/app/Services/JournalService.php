@@ -9,9 +9,14 @@ use Illuminate\Http\Request;
 
 class JournalService
 {
+    public function __construct(private SchoolContext $schools) {}
+
     public function listEntries(Request $request): array
     {
-        $q = JournalEntry::query()->with('creator:id,name');
+        $schoolId = $this->schools->forUser($request->user());
+        $q = JournalEntry::query()->where(fn ($q) => $q->where('school_id', $schoolId)
+            ->orWhere(fn ($legacy) => $legacy->whereNull('school_id')->whereNotIn('source', ['payroll', 'payroll_accrual', 'payroll_reversal', 'employee_advance', 'employee_advance_settlement'])))
+            ->with('creator:id,name');
         if ($from = $request->query('date_from')) {
             $q->where('entry_date', '>=', $from);
         }
@@ -36,12 +41,13 @@ class JournalService
             'type' => 'required|in:debit,credit',
             'account_code' => 'required|string',
             'account_name' => 'required|string',
-            'amount' => 'required|numeric|min:0.01',
+            'amount' => 'required|numeric|money|min:0.01',
             'source' => 'in:manual,invoice,payroll,expense',
         ]);
 
         $entryDate = Carbon::parse($data['entry_date']);
-        $closing = FinancialClosing::where('month', $entryDate->month)
+        $schoolId = $this->schools->forUser($request->user());
+        $closing = FinancialClosing::where('school_id', $schoolId)->where('month', $entryDate->month)
             ->where('year', $entryDate->year)
             ->where('status', 'closed')
             ->first();
@@ -54,6 +60,7 @@ class JournalService
         $data['reference_no'] = 'JE-'.$year.'-'.str_pad($count, 4, '0', STR_PAD_LEFT);
         $data['source'] = $data['source'] ?? 'manual';
         $data['created_by'] = $request->user()->id;
+        $data['school_id'] = $schoolId;
 
         $entry = JournalEntry::create($data);
         AuditLogger::log($request, 'create_journal_entry', 'journal_entry', $entry->id, $data);
@@ -69,8 +76,12 @@ class JournalService
     public function deleteEntry(Request $request, int $id): void
     {
         $entry = JournalEntry::findOrFail($id);
+        $schoolId = $this->schools->authorize($request->user(), (int) $entry->school_id);
+        if ($entry->journal_batch_id || $entry->source !== 'manual') {
+            throw new \Exception('Posted or system-generated entries cannot be deleted; reverse the journal batch instead.');
+        }
         $entryDate = Carbon::parse($entry->entry_date);
-        $closing = FinancialClosing::where('month', $entryDate->month)
+        $closing = FinancialClosing::where('school_id', $schoolId)->where('month', $entryDate->month)
             ->where('year', $entryDate->year)
             ->where('status', 'closed')
             ->first();
@@ -81,9 +92,11 @@ class JournalService
         AuditLogger::log($request, 'delete_journal_entry', 'journal_entry', $entry->id);
     }
 
-    public function listClosings(): array
+    public function listClosings(Request $request): array
     {
-        return ['data' => FinancialClosing::with('closedBy:id,name')
+        $schoolId = $this->schools->forUser($request->user());
+
+        return ['data' => FinancialClosing::where('school_id', $schoolId)->with('closedBy:id,name')
             ->orderByDesc('year')->orderByDesc('month')->get()];
     }
 
@@ -94,13 +107,15 @@ class JournalService
             'year' => 'required|integer',
             'notes' => 'nullable|string',
         ]);
+        $schoolId = $this->schools->forUser($request->user());
 
-        $existing = FinancialClosing::where('month', $data['month'])->where('year', $data['year'])->first();
+        $existing = FinancialClosing::where('school_id', $schoolId)->where('month', $data['month'])->where('year', $data['year'])->first();
         if ($existing) {
             throw new \Exception('Closing already exists for this period');
         }
 
         $closing = FinancialClosing::create([
+            'school_id' => $schoolId,
             'month' => $data['month'],
             'year' => $data['year'],
             'status' => 'closed',

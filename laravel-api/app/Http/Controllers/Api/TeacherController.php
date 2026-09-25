@@ -17,12 +17,16 @@ use App\Models\User;
 use App\Services\AssignmentService;
 use App\Services\AttendanceService;
 use App\Services\AuditLogger;
+use App\Services\CurrentSchool;
 use App\Services\GradeService;
 use App\Services\Notifier;
+use App\Services\PrivateFileVault;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class TeacherController extends Controller
@@ -41,6 +45,7 @@ class TeacherController extends Controller
             return true;
         }
         $q = DB::table('class_subject_teacher')
+            ->where('school_id', app(CurrentSchool::class)->id())
             ->where('class_room_id', $classRoomId)
             ->where('teacher_user_id', $teacherId);
         if ($subjectId !== null) {
@@ -90,7 +95,7 @@ class TeacherController extends Controller
         return response()->json($students);
     }
 
-    public function createAssignment(Request $request)
+    public function createAssignment(Request $request, PrivateFileVault $vault)
     {
         $data = $request->validate([
             'class_room_ids' => 'required|array|min:1',
@@ -100,13 +105,19 @@ class TeacherController extends Controller
             'instructions' => 'required|string',
             'due_at' => 'required|date',
             'max_score' => 'nullable|numeric|min:0',
-            'attachment' => 'nullable|file|max:20480',
+            // mimetypes: inspects real content; the previous rule accepted
+            // any file, including an executable script.
+            'attachment' => array_merge(['nullable'], PrivateFileVault::rulesFor('assignment-attachment')),
         ]);
         $teacherId = $request->user()->id;
         foreach ($data['class_room_ids'] as $classId) {
             $this->assertCanAccessClassSubject($teacherId, $classId, $data['subject_id']);
         }
-        $path = $request->hasFile('attachment') ? $request->file('attachment')->store('assignments') : null;
+        // Private disk, generated key, served only through
+        // GET /api/files/assignment/{id}/attachment after authorization.
+        $path = $request->hasFile('attachment')
+            ? $vault->store($request->file('attachment'), 'assignment-attachment')
+            : null;
         $created = $this->assignments->create($data, $teacherId, $path);
 
         return response()->json($created, 201);
@@ -148,6 +159,7 @@ class TeacherController extends Controller
         $data = $request->validate([
             'class_room_id' => 'required|exists:class_rooms,id',
             'subject_id' => 'nullable|exists:subjects,id',
+            'course_section_id' => 'nullable|exists:course_sections,id',
             'date' => 'required|date',
             'records' => 'required|array',
             'records.*.student_user_id' => 'required|integer',
@@ -157,13 +169,24 @@ class TeacherController extends Controller
         $teacherId = $request->user()->id;
         $this->assertCanAccessClassSubject($teacherId, $data['class_room_id'], $data['subject_id'] ?? null);
 
-        $this->attendance->markAttendance($data, $teacherId);
+        $idempotencyKey = $request->header('Idempotency-Key');
+        if (! is_string($idempotencyKey) || ! Str::isUuid($idempotencyKey)) {
+            $idempotencyKey = (string) Uuid::uuid5(
+                Uuid::NAMESPACE_URL,
+                $teacherId.':'.hash('sha256', json_encode($data, JSON_THROW_ON_ERROR))
+            );
+        }
+        $batch = $this->attendance->markAttendance($data, $teacherId, $idempotencyKey);
 
         AuditLogger::log($request, 'mark_attendance', 'attendance', $data['class_room_id'], [
             'date' => $data['date'], 'subject_id' => $data['subject_id'] ?? null, 'records' => count($data['records']),
         ]);
 
-        return response()->json(['message' => 'Attendance saved']);
+        return response()->json([
+            'message' => 'Attendance saved',
+            'submission_batch_id' => $batch->id,
+            'idempotency_key' => $batch->idempotency_key,
+        ]);
     }
 
     public function gradeComponents(Request $request, int $classRoomId, int $subjectId)
@@ -173,9 +196,10 @@ class TeacherController extends Controller
             $data = $request->validate([
                 'name' => 'required|string',
                 'type' => 'required|in:quiz,homework,exam',
-                'weight' => 'required|numeric',
-                'max_score' => 'required|numeric',
+                'weight' => 'required|numeric|min:0|max:100',
+                'max_score' => 'required|numeric|gt:0',
                 'semester_id' => 'nullable|exists:semesters,id',
+                'grading_period_id' => 'nullable|exists:grading_periods,id',
             ]);
             $c = $this->grades->createComponent($data, $classRoomId, $subjectId);
 
@@ -192,6 +216,8 @@ class TeacherController extends Controller
             'student_user_id' => 'required|exists:users,id',
             'grade_component_id' => 'required|exists:grade_components,id',
             'score' => 'required|numeric|min:0',
+            'version' => 'nullable|integer|min:1',
+            'reason' => 'nullable|string|max:1000',
         ]);
         $component = GradeComponent::findOrFail($data['grade_component_id']);
         $teacherId = $request->user()->id;
@@ -222,7 +248,8 @@ class TeacherController extends Controller
             return response()->json(['message' => 'You may not log conduct for this student.'], 403);
         }
         $log = ConductLog::create(array_merge($data, ['teacher_user_id' => $teacherId]));
-        $parentIds = DB::table('parent_student')->where('student_user_id', $data['student_user_id'])->pluck('parent_user_id');
+        $parentIds = DB::table('parent_student')->where('school_id', (int) $request->attributes->get('school_id'))
+            ->where('student_user_id', $data['student_user_id'])->pluck('parent_user_id');
         foreach ($parentIds as $pid) {
             Notifier::send($pid, 'conduct', "Conduct note: {$data['category']}", $data['title']);
         }
@@ -256,7 +283,7 @@ class TeacherController extends Controller
             'reason' => 'required|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'amount' => 'nullable|numeric|min:0',
+            'amount' => 'nullable|numeric|money|min:0',
         ]);
         $r = HrRequest::create(array_merge($data, ['teacher_user_id' => $request->user()->id]));
 
@@ -288,7 +315,13 @@ class TeacherController extends Controller
         }
 
         $filename = "grades-{$data['class_room_id']}-{$data['subject_id']}.xlsx";
-        $path = storage_path('app/'.$filename);
+        // The temporary workbook used a predictable path derived from the class
+        // and subject, shared by every request for the same export. Two
+        // concurrent exports raced on one file, and deleteFileAfterSend meant
+        // one request could delete the bytes another was still streaming. A
+        // per-request random path in the system temp directory removes both,
+        // and keeps generated grade data out of the application storage tree.
+        $path = tempnam(sys_get_temp_dir(), 'grades-').'.xlsx';
 
         $header = array_merge(['Student Name', 'Admission No'], $exportData['componentNames'], ['Total %']);
         $writer = SimpleExcelWriter::create($path);

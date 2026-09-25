@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Laravel\Sanctum\PersonalAccessToken as SanctumPersonalAccessToken;
+
+class PersonalAccessToken extends SanctumPersonalAccessToken
+{
+    protected $fillable = [
+        'name',
+        'token',
+        'abilities',
+        'expires_at',
+        'token_family',
+        'device_name',
+        'device_id',
+        'rotated_at',
+        'revoked_at',
+    ];
+
+    protected $casts = [
+        'abilities' => 'json',
+        'last_used_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'rotated_at' => 'datetime',
+        'revoked_at' => 'datetime',
+    ];
+}

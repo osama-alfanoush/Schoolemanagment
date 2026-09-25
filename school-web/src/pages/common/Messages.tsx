@@ -35,7 +35,10 @@ type MessageItem = {
 };
 function asArray<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) return payload as T[];
-  if (Array.isArray((payload as any)?.data)) return (payload as any).data as T[];
+  if (typeof payload === "object" && payload !== null && "data" in payload) {
+    const data = (payload as { data?: unknown }).data;
+    if (Array.isArray(data)) return data as T[];
+  }
   return [];
 }
 function initials(name?: string) {
@@ -74,7 +77,9 @@ export default function Messages() {
     isLoading: threadsLoading
   } = useQuery({
     queryKey: ["messages", "threads"],
-    queryFn: Messaging.threads
+    queryFn: Messaging.threads,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
   const {
     data: recipientsData,
@@ -91,14 +96,16 @@ export default function Messages() {
   } = useQuery({
     queryKey: ["messages", "conversation", activeUser?.id],
     queryFn: () => Messaging.conversation(activeUser!.id),
-    enabled: !!activeUser?.id
+    enabled: !!activeUser?.id,
+    refetchInterval: activeUser?.id ? 5_000 : false,
+    refetchIntervalInBackground: false,
   });
   const conversation = asArray<MessageItem>(conversationData);
   const sendMessage = useMutation({
     mutationFn: () => {
-      if (!activeUser) throw new Error("Choose a recipient first.");
+      if (!activeUser) throw new Error(t("messages.chooseRecipient"));
       const trimmed = body.trim();
-      if (!trimmed) throw new Error("Message cannot be empty.");
+      if (!trimmed) throw new Error(t("messages.emptyMessage"));
       return Messaging.send({
         recipient_user_id: activeUser.id,
         body: trimmed
@@ -115,10 +122,10 @@ export default function Messages() {
         queryKey: ["unread-count"]
       })]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
-        title: "Message not sent",
-        description: error?.message || "Please check the recipient and try again.",
+        title: t("messages.notSent"),
+        description: error instanceof Error ? error.message : t("messages.checkRecipient"),
         variant: "destructive"
       });
     }
@@ -159,7 +166,7 @@ export default function Messages() {
               <Input value={recipientSearch} onChange={event => {
               setRecipientSearch(event.target.value);
               setShowRecipients(true);
-            }} placeholder="Search people" className="pl-9" />
+            }} placeholder={t("messages.searchPeople")} className="pl-9" />
             </div>
           </div>
 
@@ -167,7 +174,7 @@ export default function Messages() {
               <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Start conversation
               </div>
-              {recipientsLoading ? <div className="p-4 text-sm text-muted-foreground">{t("common.loading")}</div> : sortedRecipients.length === 0 ? <div className="p-4 text-sm text-muted-foreground">No available recipients</div> : sortedRecipients.map(recipient => <button key={recipient.id} type="button" onClick={() => chooseUser(recipient)} className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60">
+              {recipientsLoading ? <div className="p-4 text-sm text-muted-foreground">{t("common.loading")}</div> : sortedRecipients.length === 0 ? <div className="p-4 text-sm text-muted-foreground">{t("messages.noRecipients")}</div> : sortedRecipients.map(recipient => <button key={recipient.id} type="button" onClick={() => chooseUser(recipient)} className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60">
                     <UserAvatar user={recipient} />
                     <div className="min-w-0">
                       <div className="truncate text-sm font-medium">{recipient.name}</div>
@@ -186,13 +193,13 @@ export default function Messages() {
                     <UserAvatar user={user} />
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-baseline justify-between">
-                        <div className="truncate text-sm font-medium">{user?.name || "Unknown User"}</div>
+                        <div className="truncate text-sm font-medium">{user?.name || t("messages.unknownUser")}</div>
                         <div className="ms-2 whitespace-nowrap text-xs text-muted-foreground">
                           {formatDate(thread.last_message?.created_at)}
                         </div>
                       </div>
                       <div className="truncate text-xs text-muted-foreground">
-                        {thread.last_message?.body || "No messages"}
+                        {thread.last_message?.body || t("messages.noMessages")}
                       </div>
                     </div>
                     {!!thread.unread_count && <span className="mt-1 rounded-full bg-brand-purple px-2 py-0.5 text-xs font-semibold text-white">
@@ -234,7 +241,7 @@ export default function Messages() {
             sendMessage.mutate();
           }}>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                  <Textarea value={body} onChange={event => setBody(event.target.value)} placeholder="Type your message" className="min-h-[76px] flex-1 resize-none" onKeyDown={event => {
+                  <Textarea value={body} onChange={event => setBody(event.target.value)} placeholder={t("messages.typeMessage")} className="min-h-[76px] flex-1 resize-none" onKeyDown={event => {
                 if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
                   event.preventDefault();
                   sendMessage.mutate();
@@ -250,8 +257,8 @@ export default function Messages() {
                 <MessageSquare className="h-7 w-7" />
               </div>
               <div>
-                <div className="font-semibold text-foreground">Select a conversation</div>
-                <div className="mt-1 text-sm">Choose a thread or start a new message.</div>
+                <div className="font-semibold text-foreground">{t("messages.selectConversation")}</div>
+                <div className="mt-1 text-sm">{t("messages.startNew")}</div>
               </div>
               <BrandButton variant="secondary" leftIcon={<Plus className="h-4 w-4" />} onClick={() => setShowRecipients(true)}>
                 New message

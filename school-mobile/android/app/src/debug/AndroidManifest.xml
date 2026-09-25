@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Debug builds only. `usesCleartextTraffic` is ignored on API 24+ when a
+        network security config is present, but the manifest merger still
+        rejects a conflicting value, so the debug override is stated here as
+        well as in the config it defers to.
+    -->
+    <application
+        android:usesCleartextTraffic="true"
+        tools:replace="android:usesCleartextTraffic" />
+</manifest>
